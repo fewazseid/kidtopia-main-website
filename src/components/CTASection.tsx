@@ -1,0 +1,55 @@
+import React from 'react';
+import { Language, translations } from '../translations';
+import { motion } from 'motion/react';
+
+interface CTASectionProps {
+  lang: Language;
+}
+
+export const CTASection: React.FC<CTASectionProps> = ({ lang }) => {
+  const t = translations[lang].cta;
+
+  return (
+    <section className="py-24 bg-brand-green text-white relative overflow-hidden">
+      {/* Decorative circles */}
+      <div className="absolute -top-20 -left-20 w-80 h-80 bg-white/5 rounded-full"></div>
+      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white/5 rounded-full"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-4xl md:text-6xl font-serif font-bold mb-6"
+        >
+          {t.title}
+        </motion.h2>
+        
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="text-xl text-white/80 mb-12 max-w-2xl mx-auto"
+        >
+          {t.desc}
+        </motion.p>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="flex flex-wrap justify-center gap-6"
+        >
+          <button className="bg-white text-brand-green rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-cream transition-colors shadow-xl">
+            {t.enroll}
+          </button>
+          <button className="bg-brand-yellow text-stone-900 rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-yellow/90 transition-colors">
+            {t.bookTour}
+          </button>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
