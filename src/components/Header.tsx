@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center space-x-3 lg:space-x-6">
+          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-8">
             {navItems.map((item, idx) => (
               <div 
                 key={idx} 
@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
                 {item.subItems ? (
                   <button 
                     onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
-                    className={`text-sm font-medium transition-colors flex items-center gap-1 ${location.pathname === item.path ? 'text-brand-orange' : 'hover:text-brand-orange'}`}
+                    className={`text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap ${location.pathname === item.path ? 'text-brand-orange' : 'hover:text-brand-orange'}`}
                   >
                     {item.label}
                     <svg className={`w-4 h-4 transition-transform ${activeDropdown === idx ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
                 ) : (
                   <Link 
                     to={item.path} 
-                    className={`text-sm font-medium transition-colors ${location.pathname === item.path ? 'text-brand-orange' : 'hover:text-brand-orange'}`}
+                    className={`text-sm font-medium transition-colors whitespace-nowrap ${location.pathname === item.path ? 'text-brand-orange' : 'hover:text-brand-orange'}`}
                   >
                     {item.label}
                   </Link>
@@ -129,12 +129,12 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
           </nav>
 
           {/* Right Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link to="/contact" className="bg-brand-green text-white font-bold rounded-full px-5 py-2 text-xs transition-all hover:opacity-90 active:scale-95">{t.enrollNow}</Link>
+          <div className="hidden lg:flex items-center space-x-4">
+            <Link to="/contact" className="bg-brand-green text-white font-bold rounded-full px-5 py-2 text-xs transition-all hover:opacity-90 active:scale-95 whitespace-nowrap">{t.enrollNow}</Link>
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button className="lg:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
@@ -147,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-brand-cream overflow-hidden"
+            className="lg:hidden bg-white border-t border-brand-cream overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {navItems.map((item, idx) => (
