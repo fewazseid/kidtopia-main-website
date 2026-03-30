@@ -4,7 +4,9 @@ export const translations = {
   en: {
     nav: {
       home: "Home",
-      about: "About Kidtopia",
+      about: "About Us",
+      aboutCompany: "About the Company",
+      aboutStaff: "Our Staff",
       programs: "Programs",
       virtualTour: "Virtual Tour",
       resources: "Parent Resources",
@@ -94,12 +96,23 @@ export const translations = {
       title: "Would you like to schedule a tour?",
       book: "Book Tour",
       later: "Later"
+    },
+    staff: {
+      title: "Our Professional Staff",
+      members: [
+        { name: "Faeza Ebrahim", role: "School Nurse", desc: "Dedicated to the health and well-being of every child at Kidtopia." },
+        { name: "Miss Mekdes Alemu", role: "Lead Teacher", desc: "Expert in early childhood education and child development." },
+        { name: "Miss Hayat Seid", role: "Caregiver", desc: "Providing a nurturing and supportive environment for our toddlers." },
+        { name: "Miss Alemitu Abebe", role: "Preschool Educator", desc: "Preparing our older children for a smooth transition to school." }
+      ]
     }
   },
   am: {
     nav: {
       home: "መነሻ",
-      about: "ስለ ኪድቶፒያ",
+      about: "ስለ እኛ",
+      aboutCompany: "ስለ ድርጅቱ",
+      aboutStaff: "ስለ ሰራተኞቻችን",
       programs: "ፕሮግራሞች",
       virtualTour: "ቪርቹዋል ጉብኝት",
       resources: "የወላጆች መርጃ",
@@ -189,6 +202,15 @@ export const translations = {
       title: "የጉብኝት ቀጠሮ መያዝ ይፈልጋሉ?",
       book: "ጉብኝት ያስይዙ",
       later: "በኋላ"
+    },
+    staff: {
+      title: "የእኛ ፕሮፌሽናል ሰራተኞች",
+      members: [
+        { name: "ፋኢዛ ኢብራሂም", role: "የትምህርት ቤት ነርስ", desc: "በኪድቶፒያ ለእያንዳንዱ ልጅ ጤና እና ደህንነት የተሰጠች።" },
+        { name: "ሚስ መቅደስ አለሙ", role: "ዋና መምህርት", desc: "በቅድመ ልጅነት ትምህርት እና በልጅ እድገት ላይ ባለሙያ።" },
+        { name: "ሚስ ሀያት ሰይድ", role: "ተንከባካቢ", desc: "ለታዳጊዎቻችን አሳቢ እና ደጋፊ አካባቢን መስጠት።" },
+        { name: "ሚስ አለሚቱ አበበ", role: "የቅድመ ትምህርት ቤት አስተማሪ", desc: "ትላልቅ ልጆቻችንን ወደ ትምህርት ቤት ለስላሳ ሽግግር ማዘጋጀት።" }
+      ]
     }
   }
 };

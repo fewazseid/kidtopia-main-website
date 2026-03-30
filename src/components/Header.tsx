@@ -30,13 +30,22 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
 
   const navItems = [
     { label: t.home, path: '/' },
-    { label: t.about, path: '/about' },
+    { 
+      label: t.about, 
+      path: '/about',
+      subItems: [
+        { label: t.aboutCompany, path: '/about' },
+        { label: t.aboutStaff, path: '/about#staff' }
+      ]
+    },
     { label: t.programs, path: '/programs' },
     { label: t.virtualTour, path: '/virtual-tour' },
     { label: t.resources, path: '/resources' },
     { label: t.testimonials, path: '/testimonials' },
     { label: t.contact, path: '/contact' },
   ];
+
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gradient-to-r from-white via-brand-cream to-white shadow-md py-2' : 'bg-transparent py-4'}`}>
@@ -62,18 +71,61 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           {/* Desktop Nav */}
           <nav className="hidden xl:flex items-center space-x-8">
             {navItems.map((item, idx) => (
-              <Link 
+              <div 
                 key={idx} 
-                to={item.path} 
-                className={`text-sm font-medium transition-colors ${location.pathname === item.path ? 'text-brand-green' : 'hover:text-brand-green'}`}
+                className="relative group"
+                onMouseEnter={() => item.subItems && setActiveDropdown(idx)}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
-                {item.label}
-              </Link>
+                {item.subItems ? (
+                  <button 
+                    className={`text-sm font-medium transition-colors flex items-center gap-1 ${location.pathname === item.path ? 'text-brand-green' : 'hover:text-brand-green'}`}
+                  >
+                    {item.label}
+                    <svg className={`w-4 h-4 transition-transform ${activeDropdown === idx ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                ) : (
+                  <Link 
+                    to={item.path} 
+                    className={`text-sm font-medium transition-colors ${location.pathname === item.path ? 'text-brand-green' : 'hover:text-brand-green'}`}
+                  >
+                    {item.label}
+                  </Link>
+                )}
+
+                {item.subItems && activeDropdown === idx && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-brand-cream overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {item.subItems.map((sub, sIdx) => (
+                      <Link
+                        key={sIdx}
+                        to={sub.path}
+                        className="block px-4 py-2 text-sm text-stone-700 hover:bg-brand-cream hover:text-brand-green transition-colors"
+                        onClick={() => {
+                          if (sub.path.includes('#')) {
+                            const id = sub.path.split('#')[1];
+                            onScrollTo(id);
+                          }
+                        }}
+                      >
+                        {sub.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            <button 
+              onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
+              className="text-xs font-bold text-brand-green border border-brand-green rounded-full px-4 py-2 hover:bg-brand-green hover:text-white transition-all"
+            >
+              {lang === 'en' ? 'አማርኛ' : 'English'}
+            </button>
             <Link to="/contact" className="bg-brand-yellow text-stone-900 font-bold rounded-full px-5 py-2 text-xs transition-all hover:opacity-90 active:scale-95">{t.bookTour}</Link>
             <Link to="/contact" className="bg-brand-green text-white font-bold rounded-full px-5 py-2 text-xs transition-all hover:opacity-90 active:scale-95">{t.enrollNow}</Link>
           </div>
@@ -96,16 +148,50 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {navItems.map((item, idx) => (
-                <Link
-                  key={idx}
-                  to={item.path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`block w-full text-left px-3 py-3 text-base font-medium rounded-xl ${location.pathname === item.path ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-brand-cream'}`}
-                >
-                  {item.label}
-                </Link>
+                <div key={idx}>
+                  {item.subItems ? (
+                    <div className="space-y-1">
+                      <div className="px-3 py-3 text-base font-bold text-stone-900 border-b border-brand-cream mb-1">
+                        {item.label}
+                      </div>
+                      {item.subItems.map((sub, sIdx) => (
+                        <Link
+                          key={sIdx}
+                          to={sub.path}
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            if (sub.path.includes('#')) {
+                              const id = sub.path.split('#')[1];
+                              setTimeout(() => onScrollTo(id), 100);
+                            }
+                          }}
+                          className={`block w-full text-left px-6 py-2 text-sm font-medium rounded-xl ${location.pathname === sub.path ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-brand-cream'}`}
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`block w-full text-left px-3 py-3 text-base font-medium rounded-xl ${location.pathname === item.path ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-brand-cream'}`}
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                </div>
               ))}
               <div className="pt-4 flex flex-col space-y-3">
+                <button 
+                  onClick={() => {
+                    setLang(lang === 'en' ? 'am' : 'en');
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-center py-3 text-sm font-bold text-brand-green border border-brand-green rounded-xl"
+                >
+                  {lang === 'en' ? 'አማርኛ' : 'English'}
+                </button>
                 <Link to="/contact" className="btn-yellow w-full text-center" onClick={() => setIsMenuOpen(false)}>{t.bookTour}</Link>
                 <Link to="/contact" className="btn-primary w-full text-center" onClick={() => setIsMenuOpen(false)}>{t.enrollNow}</Link>
               </div>

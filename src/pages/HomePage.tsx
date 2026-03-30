@@ -3,6 +3,7 @@ import { Hero } from '../components/Hero';
 import { TrustSafety } from '../components/TrustSafety';
 import { Programs } from '../components/Programs';
 import { WhyChoose } from '../components/WhyChoose';
+import { StaffSection } from '../components/StaffSection';
 import { VirtualTour } from '../components/VirtualTour';
 import { DailyExperience } from '../components/DailyExperience';
 import { Resources } from '../components/Resources';
@@ -33,6 +34,8 @@ export const HomePage: React.FC<HomePageProps> = ({ lang, onScrollTo }) => {
       <Programs lang={lang} />
       
       <WhyChoose lang={lang} />
+
+      <StaffSection lang={lang} />
       
       <VirtualTour lang={lang} />
       
