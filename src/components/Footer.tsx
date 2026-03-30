@@ -87,7 +87,10 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               <span className="text-brand-green">A</span>
             </div>
           </div>
-          <p className="text-xs opacity-50">© 2026 Kidtopia International Daycare and Preschool. All rights reserved.</p>
+          <div className="flex flex-col items-center md:items-end">
+            <p className="text-xs opacity-50 mb-1">© 2026 Kidtopia International Daycare and Preschool. All rights reserved.</p>
+            <p className="text-[10px] opacity-30">Developed by Arho Technology</p>
+          </div>
         </div>
       </div>
     </footer>
