@@ -6,11 +6,10 @@ import { motion, AnimatePresence } from 'motion/react';
 
 interface HeaderProps {
   lang: Language;
-  setLang: (lang: Language) => void;
   onScrollTo: (id: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => {
+export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const t = translations[lang].nav;
@@ -47,6 +46,17 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
 
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-container')) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gradient-to-r from-white via-brand-cream to-white shadow-md py-2' : 'bg-transparent py-4'}`}>
       <div className="w-full px-4 sm:px-8 lg:px-12">
@@ -69,17 +79,16 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden xl:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-3 lg:space-x-6">
             {navItems.map((item, idx) => (
               <div 
                 key={idx} 
-                className="relative group"
-                onMouseEnter={() => item.subItems && setActiveDropdown(idx)}
-                onMouseLeave={() => setActiveDropdown(null)}
+                className="relative group dropdown-container"
               >
                 {item.subItems ? (
                   <button 
-                    className={`text-sm font-medium transition-colors flex items-center gap-1 ${location.pathname === item.path ? 'text-brand-green' : 'hover:text-brand-green'}`}
+                    onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
+                    className={`text-sm font-medium transition-colors flex items-center gap-1 ${location.pathname === item.path ? 'text-brand-orange' : 'hover:text-brand-orange'}`}
                   >
                     {item.label}
                     <svg className={`w-4 h-4 transition-transform ${activeDropdown === idx ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                 ) : (
                   <Link 
                     to={item.path} 
-                    className={`text-sm font-medium transition-colors ${location.pathname === item.path ? 'text-brand-green' : 'hover:text-brand-green'}`}
+                    className={`text-sm font-medium transition-colors ${location.pathname === item.path ? 'text-brand-orange' : 'hover:text-brand-orange'}`}
                   >
                     {item.label}
                   </Link>
@@ -101,8 +110,9 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                       <Link
                         key={sIdx}
                         to={sub.path}
-                        className="block px-4 py-2 text-sm text-stone-700 hover:bg-brand-cream hover:text-brand-green transition-colors"
+                        className="block px-4 py-2 text-sm text-stone-700 hover:bg-brand-cream hover:text-brand-orange transition-colors"
                         onClick={() => {
+                          setActiveDropdown(null);
                           if (sub.path.includes('#')) {
                             const id = sub.path.split('#')[1];
                             onScrollTo(id);
@@ -120,18 +130,11 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <button 
-              onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
-              className="text-xs font-bold text-brand-green border border-brand-green rounded-full px-4 py-2 hover:bg-brand-green hover:text-white transition-all"
-            >
-              {lang === 'en' ? 'አማርኛ' : 'English'}
-            </button>
-            <Link to="/contact" className="bg-brand-yellow text-stone-900 font-bold rounded-full px-5 py-2 text-xs transition-all hover:opacity-90 active:scale-95">{t.bookTour}</Link>
             <Link to="/contact" className="bg-brand-green text-white font-bold rounded-full px-5 py-2 text-xs transition-all hover:opacity-90 active:scale-95">{t.enrollNow}</Link>
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button className="xl:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
@@ -144,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="xl:hidden bg-white border-t border-brand-cream overflow-hidden"
+            className="md:hidden bg-white border-t border-brand-cream overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {navItems.map((item, idx) => (
@@ -165,7 +168,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                               setTimeout(() => onScrollTo(id), 100);
                             }
                           }}
-                          className={`block w-full text-left px-6 py-2 text-sm font-medium rounded-xl ${location.pathname === sub.path ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-brand-cream'}`}
+                          className={`block w-full text-left px-6 py-2 text-sm font-medium rounded-xl ${location.pathname === sub.path ? 'bg-brand-orange/10 text-brand-orange' : 'hover:bg-brand-cream'}`}
                         >
                           {sub.label}
                         </Link>
@@ -175,7 +178,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                     <Link
                       to={item.path}
                       onClick={() => setIsMenuOpen(false)}
-                      className={`block w-full text-left px-3 py-3 text-base font-medium rounded-xl ${location.pathname === item.path ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-brand-cream'}`}
+                      className={`block w-full text-left px-3 py-3 text-base font-medium rounded-xl ${location.pathname === item.path ? 'bg-brand-orange/10 text-brand-orange' : 'hover:bg-brand-cream'}`}
                     >
                       {item.label}
                     </Link>
@@ -183,16 +186,6 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                 </div>
               ))}
               <div className="pt-4 flex flex-col space-y-3">
-                <button 
-                  onClick={() => {
-                    setLang(lang === 'en' ? 'am' : 'en');
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-center py-3 text-sm font-bold text-brand-green border border-brand-green rounded-xl"
-                >
-                  {lang === 'en' ? 'አማርኛ' : 'English'}
-                </button>
-                <Link to="/contact" className="btn-yellow w-full text-center" onClick={() => setIsMenuOpen(false)}>{t.bookTour}</Link>
                 <Link to="/contact" className="btn-primary w-full text-center" onClick={() => setIsMenuOpen(false)}>{t.enrollNow}</Link>
               </div>
             </div>

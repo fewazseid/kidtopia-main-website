@@ -35,7 +35,7 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen selection:bg-brand-green/20">
-        <Header lang={lang} setLang={setLang} onScrollTo={scrollToSection} />
+        <Header lang={lang} onScrollTo={scrollToSection} />
         
         <Routes>
           <Route path="/" element={<HomePage lang={lang} onScrollTo={scrollToSection} />} />
