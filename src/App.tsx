@@ -16,6 +16,7 @@ import { VirtualTourPage } from './pages/VirtualTourPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
+import { LoginPage } from './pages/LoginPage';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/resources" element={<ResourcesPage lang={lang} />} />
           <Route path="/testimonials" element={<TestimonialsPage lang={lang} />} />
           <Route path="/contact" element={<ContactPage lang={lang} />} />
+          <Route path="/login" element={<LoginPage lang={lang} />} />
         </Routes>
 
         <Footer lang={lang} />

@@ -18,6 +18,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-4"
           >
             {t.title}
@@ -32,7 +33,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.2 }}
+              transition={{ duration: 2, delay: idx * 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="card-rounded overflow-hidden flex flex-col md:flex-row group"
             >
               <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">

@@ -45,6 +45,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-6"
           >
             {lang === 'en' ? 'Parent Resources' : 'የወላጅ መርጃዎች'}
@@ -53,7 +54,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            transition={{ duration: 2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="text-lg text-stone-600"
           >
             {lang === 'en' 
@@ -69,7 +70,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow border border-stone-100 flex flex-col items-center text-center group cursor-pointer"
             >
               <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">

@@ -89,7 +89,15 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           </div>
           <div className="flex flex-col items-center md:items-end">
             <p className="text-xs opacity-50 mb-1">© 2026 Kidtopia International Daycare and Preschool. All rights reserved.</p>
-            <p className="text-[10px] opacity-30">Developed by Arho Technology</p>
+            <a 
+              href="https://arhotechnology.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => console.log('Arho Technology link clicked')}
+              className="text-[10px] opacity-50 hover:opacity-100 hover:text-brand-orange transition-all cursor-pointer inline-block py-1 px-2 -mx-2"
+            >
+              Developed by Arho Technology
+            </a>
           </div>
         </div>
       </div>

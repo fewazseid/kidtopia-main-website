@@ -24,6 +24,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-4"
           >
             {t.title}
@@ -38,7 +39,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="group"
             >
               <div className="relative aspect-[3/4] overflow-hidden rounded-3xl mb-6 shadow-lg">

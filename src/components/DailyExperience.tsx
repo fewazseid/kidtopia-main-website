@@ -17,6 +17,7 @@ export const DailyExperience: React.FC<DailyExperienceProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-4"
           >
             {t.title}
@@ -35,6 +36,7 @@ export const DailyExperience: React.FC<DailyExperienceProps> = ({ lang }) => {
                 initial={{ opacity: 0, x: idx % 2 === 0 ? -50 : 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
+                transition={{ duration: 2.4, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className={`flex flex-col md:flex-row items-center ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
               >
                 <div className="md:w-1/2 flex justify-center md:justify-start px-8">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language, translations } from '../translations';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 
 interface CTASectionProps {
   lang: Language;
@@ -20,6 +21,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
           className="text-4xl md:text-6xl font-serif font-bold mb-6"
         >
           {t.title}
@@ -29,7 +31,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          transition={{ duration: 2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="text-xl text-white/80 mb-12 max-w-2xl mx-auto"
         >
           {t.desc}
@@ -39,15 +41,15 @@ export const CTASection: React.FC<CTASectionProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
+          transition={{ duration: 2, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-wrap justify-center gap-6"
         >
-          <button className="bg-white text-brand-green rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-cream transition-colors shadow-xl">
+          <Link to="/contact" className="bg-white text-brand-green rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-cream transition-colors shadow-xl">
             {t.enroll}
-          </button>
-          <button className="bg-brand-yellow text-stone-900 rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-yellow/90 transition-colors">
-            {t.bookTour}
-          </button>
+          </Link>
+          <Link to="/virtual-tour" className="bg-brand-yellow text-stone-900 rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-yellow/90 transition-colors">
+            {t.virtualTour}
+          </Link>
         </motion.div>
       </div>
     </section>

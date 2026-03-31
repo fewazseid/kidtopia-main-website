@@ -18,6 +18,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl md:text-5xl font-serif font-bold mb-4"
           >
             {t.title}
@@ -30,6 +31,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
+            transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
             className="aspect-video rounded-[40px] overflow-hidden relative group cursor-pointer"
           >
             <img 

@@ -29,6 +29,7 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
             className="card-rounded p-8 shadow-2xl border border-brand-cream max-w-sm w-full pointer-events-auto relative"
           >
             <button 

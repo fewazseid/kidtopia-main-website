@@ -130,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/contact" className="bg-brand-green text-white font-bold rounded-full px-[clamp(0.75rem,1.5vw,1.25rem)] py-2 text-[clamp(10px,1vw,12px)] transition-all hover:opacity-90 active:scale-95 whitespace-nowrap">{t.enrollNow}</Link>
+            <Link to="/login" className="bg-brand-green text-white font-bold rounded-full px-[clamp(0.75rem,1.5vw,1.25rem)] py-2 text-[clamp(10px,1vw,12px)] transition-all hover:opacity-90 active:scale-95 whitespace-nowrap">{t.login}</Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -147,6 +147,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
             className="md:hidden bg-white border-t border-brand-cream overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
@@ -186,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
                 </div>
               ))}
               <div className="pt-4 flex flex-col space-y-3">
-                <Link to="/contact" className="btn-primary w-full text-center" onClick={() => setIsMenuOpen(false)}>{t.enrollNow}</Link>
+                <Link to="/login" className="btn-primary w-full text-center" onClick={() => setIsMenuOpen(false)}>{t.login}</Link>
               </div>
             </div>
           </motion.div>

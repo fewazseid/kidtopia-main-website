@@ -19,6 +19,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-4"
           >
             {t.title}
@@ -33,7 +34,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="p-8 rounded-[32px] border border-stone-100 hover:border-brand-green/20 transition-colors bg-brand-cream/30"
             >
               <div className="w-12 h-12 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center mb-6">

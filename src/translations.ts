@@ -14,6 +14,7 @@ export const translations = {
       contact: "Contact",
       bookTour: "Book a Tour",
       enrollNow: "Enroll Now",
+      login: "Login",
       language: "Language"
     },
     hero: {
@@ -81,7 +82,8 @@ export const translations = {
       title: "Give Your Child the Best Start",
       desc: "Join Kidtopia International Daycare and Preschool today.",
       enroll: "Start Enrollment",
-      bookTour: "Book a Tour"
+      bookTour: "Book a Tour",
+      virtualTour: "Take a Virtual Tour"
     },
     footer: {
       contact: "Contact Information",
@@ -105,6 +107,19 @@ export const translations = {
         { name: "Miss Hayat Seid", role: "Caregiver", desc: "Providing a nurturing and supportive environment for our toddlers." },
         { name: "Miss Alemitu Abebe", role: "Preschool Educator", desc: "Preparing our older children for a smooth transition to school." }
       ]
+    },
+    login: {
+      title: "Welcome Back",
+      subtitle: "Login to access your parent or staff portal",
+      email: "Email Address",
+      password: "Password",
+      role: "Select Role",
+      parent: "Parent",
+      staff: "Staff",
+      submit: "Login",
+      forgotPassword: "Forgot Password?",
+      noAccount: "Don't have an account?",
+      contactUs: "Contact Us"
     }
   },
   am: {
@@ -120,6 +135,7 @@ export const translations = {
       contact: "እውቂያ",
       bookTour: "ጉብኝት ያስይዙ",
       enrollNow: "አሁኑኑ ይመዝገቡ",
+      login: "ግባ",
       language: "ቋንቋ"
     },
     hero: {
@@ -187,7 +203,8 @@ export const translations = {
       title: "ለልጅዎ ምርጡን ጅምር ይስጡ",
       desc: "ዛሬ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤትን ይቀላቀሉ።",
       enroll: "ምዝገባ ይጀምሩ",
-      bookTour: "ጉብኝት ያስይዙ"
+      bookTour: "ጉብኝት ያስይዙ",
+      virtualTour: "ቪርቹዋል ጉብኝት ያድርጉ"
     },
     footer: {
       contact: "የእውቂያ መረጃ",
@@ -211,6 +228,19 @@ export const translations = {
         { name: "ሚስ ሀያት ሰይድ", role: "ተንከባካቢ", desc: "ለታዳጊዎቻችን አሳቢ እና ደጋፊ አካባቢን መስጠት።" },
         { name: "ሚስ አለሚቱ አበበ", role: "የቅድመ ትምህርት ቤት አስተማሪ", desc: "ትላልቅ ልጆቻችንን ወደ ትምህርት ቤት ለስላሳ ሽግግር ማዘጋጀት።" }
       ]
+    },
+    login: {
+      title: "እንኳን ደህና መጡ",
+      subtitle: "ወደ ወላጅ ወይም ሰራተኛ ፖርታል ለመግባት ይግቡ",
+      email: "የኢሜይል አድራሻ",
+      password: "የይለፍ ቃል",
+      role: "ሚና ይምረጡ",
+      parent: "ወላጅ",
+      staff: "ሰራተኛ",
+      submit: "ግባ",
+      forgotPassword: "የይለፍ ቃል ረሱ?",
+      noAccount: "መለያ የለዎትም?",
+      contactUs: "ያግኙን"
     }
   }
 };

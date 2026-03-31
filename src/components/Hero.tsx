@@ -31,7 +31,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
             className="text-5xl md:text-7xl font-serif font-bold leading-tight mb-6 text-stone-900"
           >
             {t.headline}
@@ -40,7 +40,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 2.4, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="text-xl text-stone-600 mb-10 leading-relaxed"
           >
             {t.subheadline}
@@ -49,14 +49,11 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 2.4, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-wrap gap-4"
           >
             <Link to="/contact" className="btn-secondary text-lg px-8 py-4">{t.enroll}</Link>
-            <Link to="/contact" className="btn-yellow text-lg px-8 py-4">{t.bookTour}</Link>
-            <Link to="/virtual-tour" className="text-brand-green font-medium flex items-center hover:underline">
-              {t.virtualTour}
-            </Link>
+            <Link to="/virtual-tour" className="btn-yellow text-lg px-8 py-4">{t.virtualTour}</Link>
           </motion.div>
         </div>
 
@@ -64,7 +61,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 2.4, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
           className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           {t.highlights.map((item, idx) => (
