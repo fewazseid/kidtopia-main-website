@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Music2 } from 'lucide-react';
 
 interface FooterProps {
   lang: Language;
@@ -21,18 +21,38 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           <div>
             <h3 className="text-white font-serif font-bold text-xl mb-6">{t.contact}</h3>
             <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <MapPin size={18} className="shrink-0 mt-1 text-brand-orange" />
-                <span className="text-sm">{t.address}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Phone size={18} className="shrink-0 text-brand-yellow" />
-                <span className="text-sm">{t.phone}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail size={18} className="shrink-0 text-brand-teal" />
-                <span className="text-sm">{t.email}</span>
-              </div>
+              {t.addresses && t.addresses.map((addr: string, idx: number) => (
+                <a 
+                  key={idx}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start space-x-3 hover:text-white transition-colors group"
+                >
+                  <MapPin size={18} className="shrink-0 mt-1 text-brand-orange group-hover:scale-110 transition-transform" />
+                  <span className="text-sm">{addr}</span>
+                </a>
+              ))}
+              {t.phones && t.phones.map((ph: string, idx: number) => (
+                <a 
+                  key={idx}
+                  href={`tel:${ph.replace(/\s+/g, '')}`}
+                  className="flex items-center space-x-3 hover:text-white transition-colors group"
+                >
+                  <Phone size={18} className="shrink-0 text-brand-yellow group-hover:scale-110 transition-transform" />
+                  <span className="text-sm">{ph}</span>
+                </a>
+              ))}
+              {t.emails && t.emails.map((em: string, idx: number) => (
+                <a 
+                  key={idx}
+                  href={`mailto:${em}`}
+                  className="flex items-center space-x-3 hover:text-white transition-colors group"
+                >
+                  <Mail size={18} className="shrink-0 text-brand-teal group-hover:scale-110 transition-transform" />
+                  <span className="text-sm">{em}</span>
+                </a>
+              ))}
             </div>
           </div>
 
@@ -61,17 +81,28 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
 
           {/* Social */}
           <div>
-            <h3 className="text-white font-serif font-bold text-xl mb-6">{t.social}</h3>
-            <div className="flex space-x-4">
-              <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">
-                <Facebook size={20} />
-              </button>
-              <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">
-                <Instagram size={20} />
-              </button>
-              <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">
-                <Youtube size={20} />
-              </button>
+            <h3 className="text-white font-serif font-bold text-xl mb-6">{t.social.title || 'Social Media'}</h3>
+            <div className="flex flex-wrap gap-4">
+              {t.social.facebook && (
+                <a href={t.social.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">
+                  <Facebook size={20} />
+                </a>
+              )}
+              {t.social.instagram && (
+                <a href={t.social.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">
+                  <Instagram size={20} />
+                </a>
+              )}
+              {t.social.youtube && (
+                <a href={t.social.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">
+                  <Youtube size={20} />
+                </a>
+              )}
+              {t.social.tiktok && (
+                <a href={t.social.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">
+                  <Music2 size={20} />
+                </a>
+              )}
             </div>
           </div>
         </div>

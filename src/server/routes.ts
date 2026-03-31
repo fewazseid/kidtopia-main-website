@@ -39,8 +39,8 @@ export function setupRoutes(app: Express) {
     
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
     
@@ -48,7 +48,11 @@ export function setupRoutes(app: Express) {
   });
 
   app.post('/api/logout', (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    });
     res.json({ success: true });
   });
 
@@ -80,24 +84,31 @@ export function setupRoutes(app: Express) {
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ error: 'Not authenticated' });
     
+    let decoded;
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as any;
-      if (decoded.role !== 'admin') {
-        return res.status(403).json({ error: 'Not authorized' });
-      }
-      
+      decoded = jwt.verify(token, JWT_SECRET) as any;
+    } catch (err) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    
+    try {
       const { lang } = req.params;
       const data = req.body;
       
       db.prepare('UPDATE content SET data = ? WHERE lang = ?').run(JSON.stringify(data), lang);
       res.json({ success: true });
     } catch (err) {
-      res.status(401).json({ error: 'Invalid token' });
+      console.error('Database error updating content:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
   // Image Upload Route
-  app.post('/api/upload', upload.single('image'), (req, res) => {
+  app.post('/api/upload', (req, res) => {
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ error: 'Not authenticated' });
     
@@ -107,14 +118,25 @@ export function setupRoutes(app: Express) {
         return res.status(403).json({ error: 'Not authorized' });
       }
       
-      if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-      }
+      upload.single('image')(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+          console.error('Multer error:', err);
+          return res.status(400).json({ error: `Upload error: ${err.message}` });
+        } else if (err) {
+          console.error('Unknown upload error:', err);
+          return res.status(500).json({ error: 'Internal server error during upload' });
+        }
 
-      // Return the public URL of the uploaded file
-      const imageUrl = `/uploads/${req.file.filename}`;
-      res.json({ url: imageUrl });
+        if (!req.file) {
+          return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        // Return the public URL of the uploaded file
+        const imageUrl = `/uploads/${req.file.filename}`;
+        res.json({ url: imageUrl });
+      });
     } catch (err) {
+      console.error('Auth error during upload:', err);
       res.status(401).json({ error: 'Invalid token' });
     }
   });

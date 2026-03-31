@@ -40,7 +40,7 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
               <Quote className="absolute top-8 left-8 text-brand-green/10" size={80} />
               
               <div className="flex justify-center space-x-1 mb-6">
-                {[...Array(item.rating)].map((_, i) => (
+                {[...Array(Math.max(0, Math.min(5, Number(item.rating) || 0)))].map((_, i) => (
                   <Star key={i} size={20} fill="#DDA74F" className="text-brand-yellow" />
                 ))}
               </div>

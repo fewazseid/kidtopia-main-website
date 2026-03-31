@@ -19,6 +19,39 @@ import { ContactPage } from './pages/ContactPage';
 import { LoginPage } from './pages/LoginPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ContentProvider } from './ContentContext';
+import { MinimalHeader } from './components/MinimalHeader';
+import { useLocation } from 'react-router-dom';
+
+const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
+  const location = useLocation();
+  const isMinimalLayout = ['/login', '/admin'].includes(location.pathname);
+
+  return (
+    <div className="min-h-screen selection:bg-brand-green/20">
+      {isMinimalLayout ? (
+        <MinimalHeader />
+      ) : (
+        <Header lang={lang} onScrollTo={scrollToSection} />
+      )}
+      
+      <Routes>
+        <Route path="/" element={<HomePage lang={lang} onScrollTo={scrollToSection} />} />
+        <Route path="/about" element={<AboutPage lang={lang} />} />
+        <Route path="/programs" element={<ProgramsPage lang={lang} />} />
+        <Route path="/virtual-tour" element={<VirtualTourPage lang={lang} />} />
+        <Route path="/resources" element={<ResourcesPage lang={lang} />} />
+        <Route path="/testimonials" element={<TestimonialsPage lang={lang} />} />
+        <Route path="/contact" element={<ContactPage lang={lang} />} />
+        <Route path="/login" element={<LoginPage lang={lang} />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+      </Routes>
+
+      {!isMinimalLayout && <Footer lang={lang} />}
+      
+      <LeadCapturePopup lang={lang} />
+    </div>
+  );
+};
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -38,25 +71,7 @@ export default function App() {
   return (
     <ContentProvider>
       <Router>
-        <div className="min-h-screen selection:bg-brand-green/20">
-          <Header lang={lang} onScrollTo={scrollToSection} />
-          
-          <Routes>
-            <Route path="/" element={<HomePage lang={lang} onScrollTo={scrollToSection} />} />
-            <Route path="/about" element={<AboutPage lang={lang} />} />
-            <Route path="/programs" element={<ProgramsPage lang={lang} />} />
-            <Route path="/virtual-tour" element={<VirtualTourPage lang={lang} />} />
-            <Route path="/resources" element={<ResourcesPage lang={lang} />} />
-            <Route path="/testimonials" element={<TestimonialsPage lang={lang} />} />
-            <Route path="/contact" element={<ContactPage lang={lang} />} />
-            <Route path="/login" element={<LoginPage lang={lang} />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-          </Routes>
-
-          <Footer lang={lang} />
-          
-          <LeadCapturePopup lang={lang} />
-        </div>
+        <AppContent lang={lang} setLang={setLang} scrollToSection={scrollToSection} />
       </Router>
     </ContentProvider>
   );

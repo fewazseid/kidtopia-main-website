@@ -4,6 +4,7 @@ import { Mail, Lock, User, ShieldCheck } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { loginWithGoogle } from '../firebase';
 
 interface LoginPageProps {
   lang: Language;
@@ -12,37 +13,15 @@ interface LoginPageProps {
 export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
   const t = useContent(lang).login;
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleLogin = async () => {
     setError('');
     setLoading(true);
-    
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-      
-      // Redirect based on role
-      if (data.user.role === 'admin') {
-        navigate('/admin');
-      } else if (data.user.role === 'staff') {
-        navigate('/staff');
-      } else {
-        navigate('/parent');
-      }
+      await loginWithGoogle();
+      navigate('/admin');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -70,61 +49,26 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Input */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                Username
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
-                  <User size={20} />
-                </div>
-                <input
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent transition-all outline-none"
-                  placeholder="Enter your username"
-                />
-              </div>
-            </div>
-
-            {/* Password Input */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-stone-700">
-                  {t.password}
-                </label>
-                <a href="#" className="text-xs font-medium text-brand-green hover:text-brand-orange transition-colors">
-                  {t.forgotPassword}
-                </a>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
-                  <Lock size={20} />
-                </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent transition-all outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
+          <div className="space-y-6">
+            {/* Google Login Button */}
             <button
-              type="submit"
+              onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl text-white font-bold transition-all hover:opacity-90 active:scale-[0.98] bg-brand-green disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-stone-700 font-bold transition-all hover:bg-stone-50 active:scale-[0.98] border border-stone-200 bg-white disabled:opacity-50"
             >
-              {loading ? 'Logging in...' : t.submit}
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+              {loading ? 'Logging in...' : 'Login with Google'}
             </button>
-          </form>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-stone-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-stone-500">Admin Access Only</span>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-8 text-center text-sm text-stone-500">
             <p>

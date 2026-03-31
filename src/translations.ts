@@ -42,8 +42,22 @@ export const translations = {
     programs: {
       title: "Our Learning Programs",
       cards: [
-        { name: "Toddler Program", age: "1.5 – 3 Years", desc: "Focus on communication, behavior development, and social interaction.", btn: "Learn More", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop" },
-        { name: "Preschool Program", age: "3 – 5 Years", desc: "Early learning activities that prepare children for school success.", btn: "Learn More", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" }
+        { 
+          name: "Toddler Program", 
+          age: "1.5 – 3 Years", 
+          desc: "Focus on communication, behavior development, and social interaction.", 
+          btn: "Learn More", 
+          image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+          moreInfo: "Our toddler program is designed to provide a safe and stimulating environment where young children can explore and learn. We focus on sensory play, language development, and building social skills through group activities. Our experienced caregivers provide personalized attention to help each child reach their milestones."
+        },
+        { 
+          name: "Preschool Program", 
+          age: "3 – 5 Years", 
+          desc: "Early learning activities that prepare children for school success.", 
+          btn: "Learn More", 
+          image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+          moreInfo: "The preschool program at Kidtopia focuses on preparing children for the transition to primary school. We introduce basic literacy and numeracy concepts through fun, hands-on activities. Our curriculum also emphasizes emotional intelligence, problem-solving, and creative expression through art and music."
+        }
       ]
     },
     whyChoose: {
@@ -93,10 +107,16 @@ export const translations = {
       contact: "Contact Information",
       links: "Quick Links",
       resources: "Parent Resources",
-      social: "Social Media",
-      address: "Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia",
-      phone: "+251 911 000 000",
-      email: "info@kidtopia.com"
+      social: {
+        facebook: "https://facebook.com",
+        instagram: "https://instagram.com",
+        telegram: "https://t.me",
+        tiktok: "https://tiktok.com",
+        youtube: "https://youtube.com"
+      },
+      addresses: ["Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia"],
+      phones: ["+251 911 000 000"],
+      emails: ["info@kidtopia.com"]
     },
     resources: {
       title: "Parent Resources",
@@ -177,8 +197,22 @@ export const translations = {
     programs: {
       title: "የመማሪያ ፕሮግራሞቻችን",
       cards: [
-        { name: "የታዳጊዎች ፕሮግራም", age: "1.5 – 3 ዓመታት", desc: "በግንኙነት፣ በባህሪ እድገት እና በማህበራዊ መስተጋብር ላይ ያተኩራል።", btn: "ተጨማሪ ይወቁ", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop" },
-        { name: "የቅድመ ትምህርት ቤት ፕሮግራም", age: "3 – 5 ዓመታት", desc: "ህፃናትን ለትምህርት ቤት ስኬት የሚያዘጋጁ የቀደመ ትምህርት እንቅስቃሴዎች።", btn: "ተጨማሪ ይወቁ", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" }
+        { 
+          name: "የታዳጊዎች ፕሮግራም", 
+          age: "1.5 – 3 ዓመታት", 
+          desc: "በግንኙነት፣ በባህሪ እድገት እና በማህበራዊ መስተጋብር ላይ ያተኩራል።", 
+          btn: "ተጨማሪ ይወቁ", 
+          image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+          moreInfo: "የእኛ የታዳጊዎች ፕሮግራም ታዳጊ ህፃናት የሚማሩበት እና የሚጫወቱበት ደህንነቱ የተጠበቀ እና አነቃቂ አካባቢ ለመፍጠር የተነደፈ ነው። በቋንቋ እድገት እና በማህበራዊ ግንኙነት ላይ እናተኩራለን።"
+        },
+        { 
+          name: "የቅድመ ትምህርት ቤት ፕሮግራም", 
+          age: "3 – 5 ዓመታት", 
+          desc: "ህፃናትን ለትምህርት ቤት ስኬት የሚያዘጋጁ የቀደመ ትምህርት እንቅስቃሴዎች።", 
+          btn: "ተጨማሪ ይወቁ", 
+          image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+          moreInfo: "የቅድመ ትምህርት ቤት ፕሮግራማችን ህፃናትን ለመደበኛ ትምህርት ቤት ዝግጁ እንዲሆኑ ያደርጋል። የመጻፍ እና የማንበብ መሰረታዊ ክህሎቶችን በሚያስደስት ሁኔታ እናስተምራለን።"
+        }
       ]
     },
     whyChoose: {
@@ -228,10 +262,16 @@ export const translations = {
       contact: "የእውቂያ መረጃ",
       links: "ፈጣን አገናኞች",
       resources: "የወላጆች መርጃ",
-      social: "ማህበራዊ ሚዲያ",
-      address: "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት፣ አዲስ አበባ፣ ኢትዮጵያ",
-      phone: "+251 911 000 000",
-      email: "info@kidtopia.com"
+      social: {
+        facebook: "https://facebook.com",
+        instagram: "https://instagram.com",
+        telegram: "https://t.me",
+        tiktok: "https://tiktok.com",
+        youtube: "https://youtube.com"
+      },
+      addresses: ["ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት፣ አዲስ አበባ፣ ኢትዮጵያ"],
+      phones: ["+251 911 000 000"],
+      emails: ["info@kidtopia.com"]
     },
     resources: {
       title: "የወላጅ መርጃዎች",
