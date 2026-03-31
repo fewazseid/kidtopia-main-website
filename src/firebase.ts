@@ -11,6 +11,22 @@ export const googleProvider = new GoogleAuthProvider();
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const logout = () => signOut(auth);
 
+export const getUserRole = async (uid: string) => {
+  const userDoc = await getDoc(doc(db, 'users', uid));
+  if (userDoc.exists()) {
+    return userDoc.data().role;
+  }
+  return null;
+};
+
+export const setUserRole = async (uid: string, role: string, email: string) => {
+  await setDoc(doc(db, 'users', uid), {
+    role,
+    email,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+};
+
 // Test connection
 async function testConnection() {
   try {

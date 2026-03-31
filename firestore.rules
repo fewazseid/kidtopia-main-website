@@ -30,7 +30,13 @@ service cloud.firestore {
     // Users Collection (for roles)
     match /users/{userId} {
       allow read: if isAuthenticated() && request.auth.uid == userId;
-      allow write: if isAdmin();
+      // Allow users to create their own profile with a non-admin role, or if they are the hardcoded admin
+      allow create: if isAuthenticated() && request.auth.uid == userId && 
+        (request.resource.data.role != 'admin' || 
+         (request.auth.token.email == "fewazseidahmed@gmail.com" && request.auth.token.email_verified == true));
+      // Only admins can update roles
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

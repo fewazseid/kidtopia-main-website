@@ -18,13 +18,15 @@ import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
 import { LoginPage } from './pages/LoginPage';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { StaffDashboard } from './pages/StaffDashboard';
+import { ParentDashboard } from './pages/ParentDashboard';
 import { ContentProvider } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
 import { useLocation } from 'react-router-dom';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
-  const isMinimalLayout = ['/login', '/admin'].includes(location.pathname);
+  const isMinimalLayout = ['/login', '/admin', '/staff', '/parent'].includes(location.pathname);
 
   return (
     <div className="min-h-screen selection:bg-brand-green/20">
@@ -44,6 +46,8 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/contact" element={<ContactPage lang={lang} />} />
         <Route path="/login" element={<LoginPage lang={lang} />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/staff" element={<StaffDashboard />} />
+        <Route path="/parent" element={<ParentDashboard />} />
       </Routes>
 
       {!isMinimalLayout && <Footer lang={lang} />}
