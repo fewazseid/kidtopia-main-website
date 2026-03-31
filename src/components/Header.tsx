@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface HeaderProps {
@@ -12,7 +13,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const t = translations[lang].nav;
+  const t = useContent(lang).nav;
 
   const location = useLocation();
 

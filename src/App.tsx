@@ -17,6 +17,8 @@ import { ResourcesPage } from './pages/ResourcesPage';
 import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
 import { LoginPage } from './pages/LoginPage';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { ContentProvider } from './ContentContext';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -34,25 +36,28 @@ export default function App() {
   };
 
   return (
-    <Router>
-      <div className="min-h-screen selection:bg-brand-green/20">
-        <Header lang={lang} onScrollTo={scrollToSection} />
-        
-        <Routes>
-          <Route path="/" element={<HomePage lang={lang} onScrollTo={scrollToSection} />} />
-          <Route path="/about" element={<AboutPage lang={lang} />} />
-          <Route path="/programs" element={<ProgramsPage lang={lang} />} />
-          <Route path="/virtual-tour" element={<VirtualTourPage lang={lang} />} />
-          <Route path="/resources" element={<ResourcesPage lang={lang} />} />
-          <Route path="/testimonials" element={<TestimonialsPage lang={lang} />} />
-          <Route path="/contact" element={<ContactPage lang={lang} />} />
-          <Route path="/login" element={<LoginPage lang={lang} />} />
-        </Routes>
+    <ContentProvider>
+      <Router>
+        <div className="min-h-screen selection:bg-brand-green/20">
+          <Header lang={lang} onScrollTo={scrollToSection} />
+          
+          <Routes>
+            <Route path="/" element={<HomePage lang={lang} onScrollTo={scrollToSection} />} />
+            <Route path="/about" element={<AboutPage lang={lang} />} />
+            <Route path="/programs" element={<ProgramsPage lang={lang} />} />
+            <Route path="/virtual-tour" element={<VirtualTourPage lang={lang} />} />
+            <Route path="/resources" element={<ResourcesPage lang={lang} />} />
+            <Route path="/testimonials" element={<TestimonialsPage lang={lang} />} />
+            <Route path="/contact" element={<ContactPage lang={lang} />} />
+            <Route path="/login" element={<LoginPage lang={lang} />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Routes>
 
-        <Footer lang={lang} />
-        
-        <LeadCapturePopup lang={lang} />
-      </div>
-    </Router>
+          <Footer lang={lang} />
+          
+          <LeadCapturePopup lang={lang} />
+        </div>
+      </Router>
+    </ContentProvider>
   );
 }

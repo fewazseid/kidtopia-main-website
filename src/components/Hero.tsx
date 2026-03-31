@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { Shield, Users, LayoutGrid } from 'lucide-react';
 
@@ -10,14 +11,14 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
-  const t = translations[lang].hero;
+  const t = useContent(lang).hero;
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop" 
+          src={t.heroImage} 
           alt="Happy children learning and playing" 
           className="w-full h-full object-cover opacity-50"
           referrerPolicy="no-referrer"

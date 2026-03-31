@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { Star, Quote } from 'lucide-react';
 
@@ -8,7 +9,7 @@ interface TestimonialsProps {
 }
 
 export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
-  const t = translations[lang].testimonials;
+  const t = useContent(lang).testimonials;
 
   return (
     <section id="testimonials" className="py-24 bg-brand-warm-white">
@@ -50,7 +51,7 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
               
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-full bg-brand-cream mb-4 overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop" alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
                 <h4 className="font-bold text-stone-900">{item.name}</h4>
                 <span className="text-stone-500 text-sm">Kidtopia Parent</span>

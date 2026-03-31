@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 
 interface DailyExperienceProps {
@@ -7,7 +8,7 @@ interface DailyExperienceProps {
 }
 
 export const DailyExperience: React.FC<DailyExperienceProps> = ({ lang }) => {
-  const t = translations[lang].dailyExperience;
+  const t = useContent(lang).dailyExperience;
 
   return (
     <section className="py-24 bg-brand-cream overflow-hidden">

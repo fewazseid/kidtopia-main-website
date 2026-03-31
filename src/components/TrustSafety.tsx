@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { ClipboardCheck, UserCheck, Key, Sparkles } from 'lucide-react';
 
@@ -8,7 +9,7 @@ interface TrustSafetyProps {
 }
 
 export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
-  const t = translations[lang].safety;
+  const t = useContent(lang).safety;
   const icons = [<ClipboardCheck />, <UserCheck />, <Key />, <Sparkles />];
 
   return (

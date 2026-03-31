@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
@@ -8,7 +9,7 @@ interface CTASectionProps {
 }
 
 export const CTASection: React.FC<CTASectionProps> = ({ lang }) => {
-  const t = translations[lang].cta;
+  const t = useContent(lang).cta;
 
   return (
     <section className="py-24 bg-brand-green text-white relative overflow-hidden">

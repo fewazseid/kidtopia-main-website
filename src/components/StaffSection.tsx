@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 
 interface StaffSectionProps {
@@ -7,14 +8,7 @@ interface StaffSectionProps {
 }
 
 export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
-  const t = translations[lang].staff;
-
-  const images = [
-    'https://picsum.photos/seed/nurse-faeza/600/800',
-    'https://picsum.photos/seed/teacher-mekdes/600/800',
-    'https://picsum.photos/seed/caregiver-hayat/600/800',
-    'https://picsum.photos/seed/educator-alemitu/600/800'
-  ];
+  const t = useContent(lang).staff;
 
   return (
     <section id="staff" className="py-24 bg-white scroll-mt-24">
@@ -44,7 +38,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
             >
               <div className="relative aspect-[3/4] overflow-hidden rounded-3xl mb-6 shadow-lg">
                 <img 
-                  src={images[idx]} 
+                  src={member.image} 
                   alt={member.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   referrerPolicy="no-referrer"

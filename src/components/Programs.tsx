@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 
@@ -8,7 +9,7 @@ interface ProgramsProps {
 }
 
 export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
-  const t = translations[lang].programs;
+  const t = useContent(lang).programs;
 
   return (
     <section id="programs" className="py-24 bg-brand-cream">
@@ -38,9 +39,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
             >
               <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
                 <img 
-                  src={idx === 0 
-                    ? "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop" 
-                    : "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"} 
+                  src={card.image} 
                   alt={card.name} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"

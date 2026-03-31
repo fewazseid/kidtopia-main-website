@@ -23,6 +23,7 @@ export const translations = {
       enroll: "Enroll Your Child",
       bookTour: "Book a Tour",
       virtualTour: "Take a Virtual Tour",
+      heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       highlights: [
         { title: "Safe Environment", desc: "Strict health and security protocols" },
         { title: "Qualified Staff", desc: "Trained and carefully selected nannies" },
@@ -41,12 +42,14 @@ export const translations = {
     programs: {
       title: "Our Learning Programs",
       cards: [
-        { name: "Toddler Program", age: "1.5 – 3 Years", desc: "Focus on communication, behavior development, and social interaction.", btn: "Learn More" },
-        { name: "Preschool Program", age: "3 – 5 Years", desc: "Early learning activities that prepare children for school success.", btn: "Learn More" }
+        { name: "Toddler Program", age: "1.5 – 3 Years", desc: "Focus on communication, behavior development, and social interaction.", btn: "Learn More", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop" },
+        { name: "Preschool Program", age: "3 – 5 Years", desc: "Early learning activities that prepare children for school success.", btn: "Learn More", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" }
       ]
     },
     whyChoose: {
       title: "Why Families Trust Kidtopia",
+      image1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+      image2: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
       features: [
         "Real-time parent communication",
         "Daily digital activity reports",
@@ -59,7 +62,8 @@ export const translations = {
     virtualTour: {
       title: "Explore Our Daycare",
       watchFull: "Watch Full Virtual Tour",
-      schedule: "Schedule a Physical Visit"
+      schedule: "Schedule a Physical Visit",
+      image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop"
     },
     dailyExperience: {
       title: "A Day at Kidtopia",
@@ -75,7 +79,7 @@ export const translations = {
     testimonials: {
       title: "What Parents Say",
       list: [
-        { name: "Faeza Ebrahim", text: "Kidtopia gives us peace of mind. We receive daily updates and our child loves the environment.", rating: 5 }
+        { name: "Faeza Ebrahim", text: "Kidtopia gives us peace of mind. We receive daily updates and our child loves the environment.", rating: 5, image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop" }
       ]
     },
     cta: {
@@ -94,6 +98,16 @@ export const translations = {
       phone: "+251 911 000 000",
       email: "info@kidtopia.com"
     },
+    resources: {
+      title: "Parent Resources",
+      desc: "Helpful materials and guides to support you and your child's journey with us.",
+      items: [
+        { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document" },
+        { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms" },
+        { title: "Educational Activities", description: "Fun and educational activities you can do with your child at home.", type: "Video Series" },
+        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide" }
+      ]
+    },
     leadCapture: {
       title: "Would you like to schedule a tour?",
       book: "Book Tour",
@@ -102,10 +116,10 @@ export const translations = {
     staff: {
       title: "Our Professional Staff",
       members: [
-        { name: "Faeza Ebrahim", role: "School Nurse", desc: "Dedicated to the health and well-being of every child at Kidtopia." },
-        { name: "Miss Mekdes Alemu", role: "Lead Teacher", desc: "Expert in early childhood education and child development." },
-        { name: "Miss Hayat Seid", role: "Caregiver", desc: "Providing a nurturing and supportive environment for our toddlers." },
-        { name: "Miss Alemitu Abebe", role: "Preschool Educator", desc: "Preparing our older children for a smooth transition to school." }
+        { name: "Faeza Ebrahim", role: "School Nurse", desc: "Dedicated to the health and well-being of every child at Kidtopia.", image: "https://picsum.photos/seed/nurse-faeza/600/800" },
+        { name: "Miss Mekdes Alemu", role: "Lead Teacher", desc: "Expert in early childhood education and child development.", image: "https://picsum.photos/seed/teacher-mekdes/600/800" },
+        { name: "Miss Hayat Seid", role: "Caregiver", desc: "Providing a nurturing and supportive environment for our toddlers.", image: "https://picsum.photos/seed/caregiver-hayat/600/800" },
+        { name: "Miss Alemitu Abebe", role: "Preschool Educator", desc: "Preparing our older children for a smooth transition to school.", image: "https://picsum.photos/seed/educator-alemitu/600/800" }
       ]
     },
     login: {
@@ -144,6 +158,7 @@ export const translations = {
       enroll: "ልጅዎን ያስመዝግቡ",
       bookTour: "ጉብኝት ያስይዙ",
       virtualTour: "ቪርቹዋል ጉብኝት ያድርጉ",
+      heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       highlights: [
         { title: "ደህንነቱ የተጠበቀ አካባቢ", desc: "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች" },
         { title: "ብቁ ሰራተኞች", desc: "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች" },
@@ -162,12 +177,14 @@ export const translations = {
     programs: {
       title: "የመማሪያ ፕሮግራሞቻችን",
       cards: [
-        { name: "የታዳጊዎች ፕሮግራም", age: "1.5 – 3 ዓመታት", desc: "በግንኙነት፣ በባህሪ እድገት እና በማህበራዊ መስተጋብር ላይ ያተኩራል።", btn: "ተጨማሪ ይወቁ" },
-        { name: "የቅድመ ትምህርት ቤት ፕሮግራም", age: "3 – 5 ዓመታት", desc: "ህፃናትን ለትምህርት ቤት ስኬት የሚያዘጋጁ የቀደመ ትምህርት እንቅስቃሴዎች።", btn: "ተጨማሪ ይወቁ" }
+        { name: "የታዳጊዎች ፕሮግራም", age: "1.5 – 3 ዓመታት", desc: "በግንኙነት፣ በባህሪ እድገት እና በማህበራዊ መስተጋብር ላይ ያተኩራል።", btn: "ተጨማሪ ይወቁ", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop" },
+        { name: "የቅድመ ትምህርት ቤት ፕሮግራም", age: "3 – 5 ዓመታት", desc: "ህፃናትን ለትምህርት ቤት ስኬት የሚያዘጋጁ የቀደመ ትምህርት እንቅስቃሴዎች።", btn: "ተጨማሪ ይወቁ", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" }
       ]
     },
     whyChoose: {
       title: "ቤተሰቦች ለምን ኪድቶፒያን ያምናሉ",
+      image1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+      image2: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
       features: [
         "የእውነተኛ ጊዜ የወላጅ ግንኙነት",
         "ዕለታዊ ዲጂታል የእንቅስቃሴ ሪፖርቶች",
@@ -180,7 +197,8 @@ export const translations = {
     virtualTour: {
       title: "የህፃናት ማቆያችንን ይጎብኙ",
       watchFull: "ሙሉ ቪርቹዋል ጉብኝቱን ይመልከቱ",
-      schedule: "የአካል ጉብኝት ቀጠሮ ይያዙ"
+      schedule: "የአካል ጉብኝት ቀጠሮ ይያዙ",
+      image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop"
     },
     dailyExperience: {
       title: "አንድ ቀን በኪድቶፒያ",
@@ -196,7 +214,7 @@ export const translations = {
     testimonials: {
       title: "ወላጆች ምን ይላሉ",
       list: [
-        { name: "ፋኢዛ ኢብራሂም", text: "ኪድቶፒያ የአእምሮ ሰላም ይሰጠናል። ዕለታዊ መረጃዎችን እናገኛለን እና ልጃችን አካባቢውን ይወደዋል።", rating: 5 }
+        { name: "ፋኢዛ ኢብራሂም", text: "ኪድቶፒያ የአእምሮ ሰላም ይሰጠናል። ዕለታዊ መረጃዎችን እናገኛለን እና ልጃችን አካባቢውን ይወደዋል።", rating: 5, image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop" }
       ]
     },
     cta: {
@@ -215,6 +233,16 @@ export const translations = {
       phone: "+251 911 000 000",
       email: "info@kidtopia.com"
     },
+    resources: {
+      title: "የወላጅ መርጃዎች",
+      desc: "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።",
+      items: [
+        { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ" },
+        { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች" },
+        { title: "ትምህርታዊ እንቅስቃሴዎች", description: "ከቤትዎ ከልጅዎ ጋር ሊያደርጓቸው የሚችሏቸው አስደሳች እና ትምህርታዊ እንቅስቃሴዎች።", type: "የቪዲዮ ተከታታይ" },
+        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ" }
+      ]
+    },
     leadCapture: {
       title: "የጉብኝት ቀጠሮ መያዝ ይፈልጋሉ?",
       book: "ጉብኝት ያስይዙ",
@@ -223,10 +251,10 @@ export const translations = {
     staff: {
       title: "የእኛ ፕሮፌሽናል ሰራተኞች",
       members: [
-        { name: "ፋኢዛ ኢብራሂም", role: "የትምህርት ቤት ነርስ", desc: "በኪድቶፒያ ለእያንዳንዱ ልጅ ጤና እና ደህንነት የተሰጠች።" },
-        { name: "ሚስ መቅደስ አለሙ", role: "ዋና መምህርት", desc: "በቅድመ ልጅነት ትምህርት እና በልጅ እድገት ላይ ባለሙያ።" },
-        { name: "ሚስ ሀያት ሰይድ", role: "ተንከባካቢ", desc: "ለታዳጊዎቻችን አሳቢ እና ደጋፊ አካባቢን መስጠት።" },
-        { name: "ሚስ አለሚቱ አበበ", role: "የቅድመ ትምህርት ቤት አስተማሪ", desc: "ትላልቅ ልጆቻችንን ወደ ትምህርት ቤት ለስላሳ ሽግግር ማዘጋጀት።" }
+        { name: "ፋኢዛ ኢብራሂም", role: "የትምህርት ቤት ነርስ", desc: "በኪድቶፒያ ለእያንዳንዱ ልጅ ጤና እና ደህንነት የተሰጠች።", image: "https://picsum.photos/seed/nurse-faeza/600/800" },
+        { name: "ሚስ መቅደስ አለሙ", role: "ዋና መምህርት", desc: "በቅድመ ልጅነት ትምህርት እና በልጅ እድገት ላይ ባለሙያ።", image: "https://picsum.photos/seed/teacher-mekdes/600/800" },
+        { name: "ሚስ ሀያት ሰይድ", role: "ተንከባካቢ", desc: "ለታዳጊዎቻችን አሳቢ እና ደጋፊ አካባቢን መስጠት።", image: "https://picsum.photos/seed/caregiver-hayat/600/800" },
+        { name: "ሚስ አለሚቱ አበበ", role: "የቅድመ ትምህርት ቤት አስተማሪ", desc: "ትላልቅ ልጆቻችንን ወደ ትምህርት ቤት ለስላሳ ሽግግር ማዘጋጀት።", image: "https://picsum.photos/seed/educator-alemitu/600/800" }
       ]
     },
     login: {

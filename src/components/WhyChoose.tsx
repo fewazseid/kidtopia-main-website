@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { CheckCircle2 } from 'lucide-react';
 
@@ -8,7 +9,7 @@ interface WhyChooseProps {
 }
 
 export const WhyChoose: React.FC<WhyChooseProps> = ({ lang }) => {
-  const t = translations[lang].whyChoose;
+  const t = useContent(lang).whyChoose;
 
   return (
     <section className="py-24 bg-brand-warm-white overflow-hidden">
@@ -44,8 +45,8 @@ export const WhyChoose: React.FC<WhyChooseProps> = ({ lang }) => {
           
           <div className="lg:w-1/2 relative">
             <div className="relative z-10 grid grid-cols-2 gap-4">
-              <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop" alt="Toddler program" className="pill-image w-full" referrerPolicy="no-referrer" />
-              <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" alt="Preschool program" className="pill-image w-full mt-12" referrerPolicy="no-referrer" />
+              <img src={t.image1} alt="Toddler program" className="pill-image w-full" referrerPolicy="no-referrer" />
+              <img src={t.image2} alt="Preschool program" className="pill-image w-full mt-12" referrerPolicy="no-referrer" />
             </div>
             {/* Decorative element */}
             <div className="absolute -top-10 -right-10 w-64 h-64 bg-brand-yellow/20 rounded-full -z-0"></div>

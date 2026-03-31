@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Calendar } from 'lucide-react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 
 interface LeadCapturePopupProps {
   lang: Language;
@@ -9,7 +10,7 @@ interface LeadCapturePopupProps {
 
 export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const t = translations[lang].leadCapture;
+  const t = useContent(lang).leadCapture;
 
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -1,0 +1,121 @@
+import { Express } from 'express';
+import db from './db.js';
+import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-kidtopia';
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
+
+export function setupRoutes(app: Express) {
+  // Auth Routes
+  app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    const user = db.prepare('SELECT * FROM users WHERE username = ? AND password = ?').get(username, password) as any;
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+    
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+    
+    res.json({ user: { id: user.id, username: user.username, role: user.role } });
+  });
+
+  app.post('/api/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ success: true });
+  });
+
+  app.get('/api/me', (req, res) => {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      res.json({ user: decoded });
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+
+  // Content Routes
+  app.get('/api/content', (req, res) => {
+    const rows = db.prepare('SELECT * FROM content').all() as any[];
+    const content: Record<string, any> = {};
+    rows.forEach(row => {
+      content[row.lang] = JSON.parse(row.data);
+    });
+    res.json(content);
+  });
+
+  app.put('/api/content/:lang', (req, res) => {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'Not authenticated' });
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      if (decoded.role !== 'admin') {
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+      
+      const { lang } = req.params;
+      const data = req.body;
+      
+      db.prepare('UPDATE content SET data = ? WHERE lang = ?').run(JSON.stringify(data), lang);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+
+  // Image Upload Route
+  app.post('/api/upload', upload.single('image'), (req, res) => {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'Not authenticated' });
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      if (decoded.role !== 'admin') {
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+      
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      // Return the public URL of the uploaded file
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({ url: imageUrl });
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { Play } from 'lucide-react';
 
@@ -8,7 +9,7 @@ interface VirtualTourProps {
 }
 
 export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
-  const t = translations[lang].virtualTour;
+  const t = useContent(lang).virtualTour;
 
   return (
     <section id="virtual-tour" className="py-24 bg-stone-900 text-white overflow-hidden">
@@ -35,7 +36,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             className="aspect-video rounded-[40px] overflow-hidden relative group cursor-pointer"
           >
             <img 
-              src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop" 
+              src={t.image} 
               alt="Virtual Tour Preview" 
               className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
               referrerPolicy="no-referrer"

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Language, translations } from '../translations';
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 
 interface FooterProps {
@@ -8,8 +9,9 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ lang }) => {
-  const t = translations[lang].footer;
-  const nav = translations[lang].nav;
+  const content = useContent(lang);
+  const t = content.footer;
+  const nav = content.nav;
 
   return (
     <footer id="footer" className="bg-stone-900 text-stone-400 py-20">
