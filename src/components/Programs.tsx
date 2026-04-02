@@ -40,12 +40,14 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
             >
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
-                  <img 
-                    src={card.image} 
-                    alt={card.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
+                  {card.image && (
+                    <img 
+                      src={card.image} 
+                      alt={card.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
                 </div>
                 <div className="md:w-1/2 p-10 flex flex-col justify-center">
                   <span className={`font-medium text-sm uppercase tracking-wider mb-2 ${idx === 0 ? 'text-brand-orange' : 'text-brand-teal'}`}>{card.age}</span>

@@ -17,12 +17,14 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={t.heroImage} 
-          alt="Happy children learning and playing" 
-          className="w-full h-full object-cover opacity-50"
-          referrerPolicy="no-referrer"
-        />
+        {t.heroImage && (
+          <img 
+            src={t.heroImage} 
+            alt="Happy children learning and playing" 
+            className="w-full h-full object-cover opacity-50"
+            referrerPolicy="no-referrer"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-r from-brand-cream/95 via-brand-cream/80 to-transparent"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-cream/50 to-brand-cream"></div>
       </div>

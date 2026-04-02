@@ -96,7 +96,9 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
               
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 rounded-full bg-brand-cream mb-4 overflow-hidden border-2 border-brand-green/20">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  )}
                 </div>
                 <h4 className="font-bold text-stone-900">{item.name}</h4>
                 <span className="text-stone-500 text-sm">{item.workInfo || 'Kidtopia Parent'}</span>

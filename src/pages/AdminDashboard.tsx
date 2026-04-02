@@ -727,7 +727,7 @@ export const AdminDashboard: React.FC = () => {
                       type="text"
                       value={newUserUsername}
                       onChange={(e) => setNewUserUsername(e.target.value)}
-                      placeholder="Username (e.g. jsmith)"
+                      placeholder="Username"
                       required
                       className="flex-1 px-3 py-2 border border-stone-200 rounded-lg outline-none focus:border-brand-green text-sm"
                     />

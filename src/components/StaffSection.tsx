@@ -42,12 +42,14 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
                 className="group"
               >
                 <div className="relative aspect-[3/4] overflow-hidden rounded-3xl mb-6 shadow-lg">
-                  <img 
-                    src={member.image} 
-                    alt={member.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    referrerPolicy="no-referrer"
-                  />
+                  {member.image && (
+                    <img 
+                      src={member.image} 
+                      alt={member.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                     <p className="text-white text-sm italic">{member.desc}</p>
                   </div>

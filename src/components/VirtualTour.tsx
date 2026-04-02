@@ -35,12 +35,14 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
             className="aspect-video rounded-[40px] overflow-hidden relative group cursor-pointer"
           >
-            <img 
-              src={t.image} 
-              alt="Virtual Tour Preview" 
-              className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-              referrerPolicy="no-referrer"
-            />
+            {t.image && (
+              <img 
+                src={t.image} 
+                alt="Virtual Tour Preview" 
+                className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
+            )}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-24 h-24 bg-brand-orange rounded-full flex items-center justify-center text-white shadow-2xl group-hover:scale-110 transition-transform">
                 <Play size={40} fill="white" />

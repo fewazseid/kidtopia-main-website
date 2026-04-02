@@ -45,8 +45,12 @@ export const WhyChoose: React.FC<WhyChooseProps> = ({ lang }) => {
           
           <div className="lg:w-1/2 relative">
             <div className="relative z-10 grid grid-cols-2 gap-4">
-              <img src={t.image1} alt="Toddler program" className="pill-image w-full" referrerPolicy="no-referrer" />
-              <img src={t.image2} alt="Preschool program" className="pill-image w-full mt-12" referrerPolicy="no-referrer" />
+              {t.image1 && (
+                <img src={t.image1} alt="Toddler program" className="pill-image w-full" referrerPolicy="no-referrer" />
+              )}
+              {t.image2 && (
+                <img src={t.image2} alt="Preschool program" className="pill-image w-full mt-12" referrerPolicy="no-referrer" />
+              )}
             </div>
             {/* Decorative element */}
             <div className="absolute -top-10 -right-10 w-64 h-64 bg-brand-yellow/20 rounded-full -z-0"></div>
