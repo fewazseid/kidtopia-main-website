@@ -22,7 +22,12 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024 // 100MB
+  }
+});
 
 export function setupRoutes(app: Express) {
   // Auth Routes
@@ -107,18 +112,13 @@ export function setupRoutes(app: Express) {
     }
   });
 
-  // Image Upload Route
-  app.all('/api/upload', (req, res) => {
-    console.log(`Received ${req.method} request to /api/upload`);
+  // File Upload Route
+  app.post(['/api/upload', '/api/upload/'], (req, res) => {
+    console.log(`Received POST request to /api/upload`);
     
-    if (req.method !== 'POST') {
-      console.log(`Method ${req.method} not allowed for /api/upload`);
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
-
     // Note: In a production app with Firebase Auth, you would verify the Firebase ID token here.
     // For this prototype, we allow uploads to the local directory.
-    upload.single('image')(req, res, (err) => {
+    upload.single('file')(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         console.error('Multer error:', err);
         return res.status(400).json({ error: `Upload error: ${err.message}` });
@@ -134,8 +134,8 @@ export function setupRoutes(app: Express) {
 
       console.log('File uploaded successfully:', req.file.filename);
       // Return the public URL of the uploaded file
-      const imageUrl = `/uploads/${req.file.filename}`;
-      res.json({ url: imageUrl });
+      const fileUrl = `/uploads/${req.file.filename}`;
+      res.json({ url: fileUrl });
     });
   });
 }

@@ -15,9 +15,18 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      {/* Background Image */}
+      {/* Background Media */}
       <div className="absolute inset-0 z-0">
-        {t.heroImage && (
+        {t.heroVideo ? (
+          <video 
+            src={t.heroVideo} 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover opacity-50"
+          />
+        ) : t.heroImage && (
           <img 
             src={t.heroImage} 
             alt="Happy children learning and playing" 

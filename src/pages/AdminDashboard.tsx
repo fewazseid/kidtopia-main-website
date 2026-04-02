@@ -232,9 +232,9 @@ export const AdminDashboard: React.FC = () => {
     navigate('/login');
   };
 
-  const handleImageUpload = async (path: string[], file: File) => {
+  const handleFileUpload = async (path: string[], file: File, type: 'image' | 'video' = 'image') => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('file', file);
 
     try {
       const res = await fetch('/api/upload', {
@@ -245,9 +245,9 @@ export const AdminDashboard: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         handleChange(path, data.url);
-        setFeedback({ type: 'success', message: 'Image uploaded successfully!' });
+        setFeedback({ type: 'success', message: `${type === 'image' ? 'Image' : 'Video'} uploaded successfully!` });
       } else {
-        let errorMessage = 'Failed to upload image';
+        let errorMessage = `Failed to upload ${type}`;
         try {
           const errorData = await res.json();
           errorMessage = errorData.error || errorMessage;
@@ -257,8 +257,8 @@ export const AdminDashboard: React.FC = () => {
         setFeedback({ type: 'error', message: errorMessage });
       }
     } catch (err) {
-      console.error('Error uploading image', err);
-      setFeedback({ type: 'error', message: 'Network error uploading image' });
+      console.error(`Error uploading ${type}`, err);
+      setFeedback({ type: 'error', message: `Network error uploading ${type}` });
     }
   };
 
@@ -403,9 +403,10 @@ export const AdminDashboard: React.FC = () => {
 
     if (typeof value === 'string') {
       const isImage = key.toLowerCase().includes('image') || key.toLowerCase().includes('img') || key.toLowerCase().includes('photo') || key.toLowerCase().includes('icon') || key.toLowerCase().includes('avatar');
+      const isVideo = key.toLowerCase().includes('video') || key.toLowerCase().includes('movie') || key.toLowerCase().includes('clip');
       const isMoreInfo = key === 'moreInfo';
 
-      if (isImage) {
+      if (isImage || isVideo) {
         return (
           <div key={path.join('.')} className="mb-4">
             <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
@@ -413,7 +414,13 @@ export const AdminDashboard: React.FC = () => {
             </label>
             <div className="flex items-center gap-4">
               {value && (
-                <img src={value} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200" />
+                isImage ? (
+                  <img src={value} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200" />
+                ) : (
+                  <div className="w-16 h-16 bg-stone-100 rounded-lg border border-stone-200 flex items-center justify-center overflow-hidden">
+                    <video src={value} className="w-full h-full object-cover" />
+                  </div>
+                )
               )}
               <div className="flex-1">
                 <input
@@ -421,18 +428,18 @@ export const AdminDashboard: React.FC = () => {
                   value={value}
                   onChange={(e) => handleChange(path, e.target.value)}
                   className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none mb-2"
-                  placeholder="Image URL"
+                  placeholder={isImage ? "Image URL" : "Video URL"}
                 />
                 <label className="cursor-pointer flex items-center gap-2 text-sm text-brand-green hover:text-brand-orange transition-colors">
                   <ImageIcon size={16} />
-                  <span>Upload Image</span>
+                  <span>Upload {isImage ? 'Image' : 'Video'}</span>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept={isImage ? "image/*" : "video/*"}
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files && e.target.files[0]) {
-                        handleImageUpload(path, e.target.files[0]);
+                        handleFileUpload(path, e.target.files[0], isImage ? 'image' : 'video');
                       }
                     }}
                   />

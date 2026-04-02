@@ -26,6 +26,7 @@ export const translations = {
       bookTour: "Book a Tour",
       virtualTour: "Take a Virtual Tour",
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
+      heroVideo: "",
       highlights: [
         { title: "Safe Environment", desc: "Strict health and security protocols" },
         { title: "Qualified Staff", desc: "Trained and carefully selected nannies" },
@@ -195,6 +196,7 @@ export const translations = {
       bookTour: "ጉብኝት ያስይዙ",
       virtualTour: "ቪርቹዋል ጉብኝት ያድርጉ",
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
+      heroVideo: "",
       highlights: [
         { title: "ደህንነቱ የተጠበቀ አካባቢ", desc: "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች" },
         { title: "ብቁ ሰራተኞች", desc: "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች" },

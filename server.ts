@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import { setupRoutes } from './src/server/routes.ts';
 import { initDb } from './src/server/db.ts';
 
@@ -8,6 +9,12 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  app.use(cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  }));
   app.use(express.json({ limit: '50mb' }));
   app.use(cookieParser());
 
