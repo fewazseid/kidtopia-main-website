@@ -18,7 +18,10 @@ service cloud.firestore {
       return isAuthenticated() &&
         ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-          (request.auth.token.email == "fewazseidahmed@gmail.com" && request.auth.token.email_verified == true));
+          (request.auth.token.email == "fewazseidahmed@gmail.com" && request.auth.token.email_verified == true) ||
+          (request.auth.token.email == "admin@kidtopia.com") ||
+          (exists(/databases/$(database)/documents/settings/admin_config) && 
+           request.auth.token.email == get(/databases/$(database)/documents/settings/admin_config).data.email));
     }
 
     // Content Collection
@@ -29,14 +32,21 @@ service cloud.firestore {
 
     // Users Collection (for roles)
     match /users/{userId} {
-      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
       // Allow users to create their own profile with a non-admin role, or if they are the hardcoded admin
       allow create: if isAuthenticated() && request.auth.uid == userId && 
         (request.resource.data.role != 'admin' || 
-         (request.auth.token.email == "fewazseidahmed@gmail.com" && request.auth.token.email_verified == true));
+         (request.auth.token.email == "fewazseidahmed@gmail.com" && request.auth.token.email_verified == true) ||
+         (request.auth.token.email == "admin@kidtopia.com"));
       // Only admins can update roles
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    // Settings Collection
+    match /settings/{docId} {
+      allow read: if true; // Needed for login shortcut check
+      allow write: if isAdmin();
     }
   }
 }

@@ -4,7 +4,7 @@ import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Tras
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
-import { db, auth, logout as firebaseLogout } from '../firebase';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -19,6 +19,12 @@ export const AdminDashboard: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ message: string, onConfirm: () => void } | null>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [adminConfig, setAdminConfig] = useState<any>(null);
+  const [securityLoading, setSecurityLoading] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -38,7 +44,85 @@ export const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchContent();
+    fetchUsers();
+    fetchAdminConfig();
   }, []);
+
+  const fetchAdminConfig = async () => {
+    try {
+      const config = await getAdminConfig();
+      setAdminConfig(config);
+    } catch (err) {
+      console.error('Failed to fetch admin config', err);
+      // Fallback to default if not found or no permission yet
+      setAdminConfig({
+        username: 'admin',
+        password: 'admin',
+        email: 'admin@kidtopia.com',
+        firebasePassword: 'admin123'
+      });
+    }
+  };
+
+  const handleUpdateSecurity = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityLoading(true);
+    try {
+      // Only update username/password, not Firebase email
+      await updateAdminConfig({
+        username: adminConfig.username,
+        password: adminConfig.password
+      });
+      setFeedback({ type: 'success', message: 'Security settings updated successfully!' });
+    } catch (err) {
+      console.error('Failed to update security settings', err);
+      setFeedback({ type: 'error', message: 'Failed to update security settings' });
+    } finally {
+      setSecurityLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      setFeedback({ type: 'error', message: 'Password must be at least 6 characters' });
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      await updateCurrentUserPassword(newPassword);
+      setFeedback({ type: 'success', message: 'Password updated successfully!' });
+      setNewPassword('');
+    } catch (err: any) {
+      console.error('Failed to update password', err);
+      setFeedback({ type: 'error', message: err.code === 'auth/requires-recent-login' ? 'Please logout and login again to change password' : 'Failed to update password' });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const allUsers = await getAllUsers();
+      setUsers(allUsers);
+    } catch (err) {
+      console.error('Failed to fetch users', err);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const handleUpdateUserRole = async (uid: string, newRole: string) => {
+    try {
+      await updateUserRole(uid, newRole);
+      setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u));
+      setFeedback({ type: 'success', message: 'User role updated successfully!' });
+    } catch (err) {
+      console.error('Failed to update user role', err);
+      setFeedback({ type: 'error', message: 'Failed to update user role' });
+    }
+  };
 
   const fetchContent = async () => {
     try {
@@ -232,6 +316,8 @@ export const AdminDashboard: React.FC = () => {
     { id: 'footer', icon: <Layout size={18} />, label: 'Footer' },
     { id: 'login', icon: <Users size={18} />, label: 'Login Page' },
     { id: 'leadCapture', icon: <Layout size={18} />, label: 'Lead Capture' },
+    { id: 'users', icon: <Users size={18} />, label: 'User Management' },
+    { id: 'security', icon: <Shield size={18} />, label: 'Security Settings' },
   ];
 
   const renderField = (key: string, value: any, path: string[]) => {
@@ -556,7 +642,141 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-4 md:p-8">
-            {content[activeLang] && content[activeLang][activeSection] ? (
+            {activeSection === 'users' ? (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-stone-900">Registered Users</h2>
+                    <p className="text-xs text-stone-500 mt-1">To add a new staff or admin, ask them to sign up first, then change their role here.</p>
+                  </div>
+                  <button 
+                    onClick={fetchUsers}
+                    className="text-sm text-brand-green hover:underline"
+                  >
+                    Refresh List
+                  </button>
+                </div>
+                {usersLoading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-stone-100">
+                          <th className="pb-4 font-bold text-stone-600 text-sm">Email</th>
+                          <th className="pb-4 font-bold text-stone-600 text-sm">Role</th>
+                          <th className="pb-4 font-bold text-stone-600 text-sm">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-50">
+                        {users.map((user) => (
+                          <tr key={user.uid} className="hover:bg-stone-50/50 transition-colors">
+                            <td className="py-4 text-stone-700 text-sm">{user.email || 'No Email'}</td>
+                            <td className="py-4">
+                              <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                user.role === 'admin' ? 'bg-red-100 text-red-600' :
+                                user.role === 'staff' ? 'bg-blue-100 text-blue-600' :
+                                'bg-green-100 text-green-600'
+                              }`}>
+                                {user.role}
+                              </span>
+                            </td>
+                            <td className="py-4">
+                              <select 
+                                value={user.role}
+                                onChange={(e) => handleUpdateUserRole(user.uid, e.target.value)}
+                                className="text-sm border border-stone-200 rounded-lg px-2 py-1 outline-none focus:border-brand-green"
+                                disabled={user.email === 'admin@kidtopia.com' || user.email === 'fewazseidahmed@gmail.com' || (adminConfig && user.email === adminConfig.email)}
+                              >
+                                <option value="parent">Parent</option>
+                                <option value="staff">Staff</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ) : activeSection === 'security' ? (
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-xl font-bold text-stone-900 mb-2">Admin Login Shortcut</h2>
+                  <p className="text-sm text-stone-500 mb-6">Configure the "admin" username/password shortcut for quick access.</p>
+                  
+                  <form onSubmit={handleUpdateSecurity} className="space-y-4 max-w-md">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-stone-700">Shortcut Username</label>
+                      <input 
+                        type="text"
+                        value={adminConfig?.username || ''}
+                        onChange={(e) => setAdminConfig({ ...adminConfig, username: e.target.value })}
+                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
+                        placeholder="e.g. admin"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-stone-700">Shortcut Password</label>
+                      <input 
+                        type="text"
+                        value={adminConfig?.password || ''}
+                        onChange={(e) => setAdminConfig({ ...adminConfig, password: e.target.value })}
+                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
+                        placeholder="e.g. admin"
+                        required
+                      />
+                    </div>
+                    
+                    <button 
+                      type="submit"
+                      disabled={securityLoading}
+                      className="w-full py-3 bg-brand-green text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      {securityLoading ? 'Updating...' : 'Save Security Settings'}
+                    </button>
+                  </form>
+                </div>
+
+                <div className="pt-8 border-t border-stone-200">
+                  <h2 className="text-xl font-bold text-stone-900 mb-2">Change Account Password</h2>
+                  <p className="text-sm text-stone-500 mb-6">Update the password for your current logged-in account.</p>
+                  
+                  <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-md">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-stone-700">New Password</label>
+                      <input 
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
+                    <button 
+                      type="submit"
+                      disabled={passwordLoading}
+                      className="w-full py-3 bg-stone-900 text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      {passwordLoading ? 'Updating...' : 'Change Password'}
+                    </button>
+                  </form>
+                </div>
+
+                <div className="p-6 bg-amber-50 rounded-2xl border border-amber-100">
+                  <h3 className="text-amber-800 font-bold mb-2">Safety Net</h3>
+                  <p className="text-amber-700 text-sm">
+                    The email <strong>fewazseidahmed@gmail.com</strong> is hardcoded as a master administrator. 
+                    You can always use this email with Google Login to regain access if you forget your shortcut credentials.
+                  </p>
+                </div>
+              </div>
+            ) : content[activeLang] && content[activeLang][activeSection] ? (
               Object.entries(content[activeLang][activeSection]).map(([key, value]) => 
                 renderField(key, value, [activeSection, key])
               )
