@@ -60,12 +60,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       // Handle dynamic admin shortcut
       let fallbackPass = '';
       if (username.toLowerCase() === adminConfig.username.toLowerCase()) {
-        emailToUse = adminConfig.email || 'admin@kidtopiadaycare.com';
+        emailToUse = adminConfig.email || 'admin@kidtopia.com';
         passToUse = password;
         fallbackPass = adminConfig.firebasePassword || 'admin123';
       } else if (!username.includes('@')) {
         // If it's a username without @, treat as internal email
-        emailToUse = `${username.toLowerCase()}@kidtopiadaycare.com`;
+        emailToUse = `${username.toLowerCase()}@kidtopia.com`;
       }
 
       console.log('DEBUG: Attempting login with:', emailToUse, 'password length:', passToUse.length);
@@ -116,9 +116,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       if (user) {
         let role = await getUserRole(user.uid);
         if (!role) {
-          // Default role for new users
-          role = user.email === adminConfig.email ? 'admin' : 'parent';
-          await setUserRole(user.uid, role, user.email || '');
+          // If no role, check if it's the admin email from config
+          if (user.email === adminConfig.email) {
+            role = 'admin';
+            await setUserRole(user.uid, role, user.email || '');
+          } else {
+            // Deny access if no role exists (user was deleted)
+            throw new Error('Your account has been deactivated. Please contact the administrator.');
+          }
         }
         handleRedirect(role);
       }

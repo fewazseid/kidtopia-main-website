@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import db from './db.js';
+import db from './db.ts';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
@@ -108,7 +108,14 @@ export function setupRoutes(app: Express) {
   });
 
   // Image Upload Route
-  app.post('/api/upload', (req, res) => {
+  app.all('/api/upload', (req, res) => {
+    console.log(`Received ${req.method} request to /api/upload`);
+    
+    if (req.method !== 'POST') {
+      console.log(`Method ${req.method} not allowed for /api/upload`);
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     // Note: In a production app with Firebase Auth, you would verify the Firebase ID token here.
     // For this prototype, we allow uploads to the local directory.
     upload.single('image')(req, res, (err) => {
@@ -121,9 +128,11 @@ export function setupRoutes(app: Express) {
       }
 
       if (!req.file) {
+        console.error('No file uploaded');
         return res.status(400).json({ error: 'No file uploaded' });
       }
 
+      console.log('File uploaded successfully:', req.file.filename);
       // Return the public URL of the uploaded file
       const imageUrl = `/uploads/${req.file.filename}`;
       res.json({ url: imageUrl });

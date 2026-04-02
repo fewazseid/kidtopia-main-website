@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
-import { setupRoutes } from './src/server/routes.js';
-import { initDb } from './src/server/db.js';
+import { setupRoutes } from './src/server/routes.ts';
+import { initDb } from './src/server/db.ts';
 
 async function startServer() {
   const app = express();
@@ -10,6 +10,11 @@ async function startServer() {
 
   app.use(express.json({ limit: '50mb' }));
   app.use(cookieParser());
+
+  app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.url}`);
+    next();
+  });
 
   // Initialize DB
   initDb();

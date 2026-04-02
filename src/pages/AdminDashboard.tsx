@@ -78,17 +78,17 @@ export const AdminDashboard: React.FC = () => {
     }
     setSecurityLoading(true);
     try {
-      // Update shortcut username
-      await updateAdminConfig({
-        ...adminConfig,
-        username: adminConfig.username,
-      });
-      
       // Update password if provided
+      let updatedAdminConfig = { ...adminConfig };
       if (newPassword) {
         await updateCurrentUserPassword(newPassword);
+        updatedAdminConfig.password = newPassword;
         setNewPassword('');
       }
+      
+      // Update shortcut username and password
+      await updateAdminConfig(updatedAdminConfig);
+      setAdminConfig(updatedAdminConfig);
       
       setFeedback({ type: 'success', message: 'Security settings updated successfully!' });
     } catch (err: any) {
@@ -790,7 +790,7 @@ export const AdminDashboard: React.FC = () => {
                                 value={user.role}
                                 onChange={(e) => handleUpdateUserRole(user.uid, e.target.value)}
                                 className="text-sm border border-stone-200 rounded-lg px-2 py-1 outline-none focus:border-brand-green"
-                                disabled={user.email === 'admin@kidtopiadaycare.com' || (adminConfig && user.email === adminConfig.email)}
+                                disabled={user.email === 'admin@kidtopia.com' || (adminConfig && user.email === adminConfig.email)}
                               >
                                 <option value="parent">Parent</option>
                                 <option value="staff">Staff</option>
@@ -798,7 +798,7 @@ export const AdminDashboard: React.FC = () => {
                               </select>
                               <button
                                 onClick={() => handleDeleteUser(user.uid)}
-                                disabled={user.email === 'admin@kidtopiadaycare.com' || (adminConfig && user.email === adminConfig.email)}
+                                disabled={user.email === 'admin@kidtopia.com' || (adminConfig && user.email === adminConfig.email)}
                                 className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-stone-400"
                                 title="Remove User Access"
                               >

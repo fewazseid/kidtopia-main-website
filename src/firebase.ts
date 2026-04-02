@@ -71,7 +71,7 @@ export const getAdminConfig = async () => {
   return {
     username: 'admin',
     password: '123456',
-    email: 'admin@kidtopiadaycare.com',
+    email: 'admin@kidtopia.com',
     firebasePassword: 'admin123'
   };
 };
