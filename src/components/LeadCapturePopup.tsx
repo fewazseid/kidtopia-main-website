@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Calendar } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
+import { useLocation } from 'react-router-dom';
 
 interface LeadCapturePopupProps {
   lang: Language;
@@ -11,16 +12,21 @@ interface LeadCapturePopupProps {
 export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
   const [isVisible, setIsVisible] = useState(false);
   const t = useContent(lang).leadCapture;
+  const location = useLocation();
+
+  const isDashboard = ['/login', '/admin', '/staff', '/parent'].includes(location.pathname);
 
   useEffect(() => {
+    if (isDashboard) return;
+
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 30000); // 30 seconds
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isDashboard]);
 
-  if (!isVisible) return null;
+  if (!isVisible || isDashboard) return null;
 
   return (
     <AnimatePresence>

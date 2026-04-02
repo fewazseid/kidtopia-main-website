@@ -21,16 +21,16 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           <div>
             <h3 className="text-white font-serif font-bold text-xl mb-6">{t.contact}</h3>
             <div className="space-y-4">
-              {t.addresses && t.addresses.map((addr: string, idx: number) => (
+              {t.addresses && t.addresses.map((addr: { locationName: string, googleMapsCoordinates: string }, idx: number) => (
                 <a 
                   key={idx}
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr.googleMapsCoordinates || addr.locationName)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start space-x-3 hover:text-white transition-colors group"
                 >
                   <MapPin size={18} className="shrink-0 mt-1 text-brand-orange group-hover:scale-110 transition-transform" />
-                  <span className="text-sm">{addr}</span>
+                  <span className="text-sm">{addr.locationName}</span>
                 </a>
               ))}
               {t.phones && t.phones.map((ph: string, idx: number) => (
@@ -70,7 +70,7 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
 
           {/* Resources */}
           <div>
-            <h3 className="text-white font-serif font-bold text-xl mb-6">{t.resources}</h3>
+            <h3 className="text-white font-serif font-bold text-xl mb-6">{content.nav.parentResources || t.resources}</h3>
             <ul className="space-y-3">
               <li><button className="text-sm hover:text-white transition-colors">Parent Guidelines</button></li>
               <li><button className="text-sm hover:text-white transition-colors">Health Policy</button></li>
@@ -81,7 +81,7 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
 
           {/* Social */}
           <div>
-            <h3 className="text-white font-serif font-bold text-xl mb-6">{t.social.title || 'Social Media'}</h3>
+            <h3 className="text-white font-serif font-bold text-xl mb-6">{content.nav.socialMedia || 'Social Media'}</h3>
             <div className="flex flex-wrap gap-4">
               {t.social.facebook && (
                 <a href={t.social.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white transition-all">

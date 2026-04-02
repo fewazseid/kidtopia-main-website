@@ -1,12 +1,27 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword as firebaseUpdatePassword } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
+
+// Secondary app for creating users without signing out the admin
+const secondaryApp = initializeApp(firebaseConfig, 'SecondaryApp');
+const secondaryAuth = getAuth(secondaryApp);
+
+export const createUserWithoutLogin = async (email: string, pass: string, role: string) => {
+  const result = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+  await setDoc(doc(db, 'users', result.user.uid), {
+    email,
+    role,
+    updatedAt: new Date().toISOString()
+  });
+  await signOut(secondaryAuth);
+  return result.user;
+};
 
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const loginWithEmail = (email: string, pass: string) => signInWithEmailAndPassword(auth, email, pass);
@@ -36,6 +51,10 @@ export const updateUserRole = async (uid: string, role: string) => {
   });
 };
 
+export const deleteUserDoc = async (uid: string) => {
+  await deleteDoc(doc(db, 'users', uid));
+};
+
 export const setUserRole = async (uid: string, role: string, email: string) => {
   await setDoc(doc(db, 'users', uid), {
     role,
@@ -51,8 +70,8 @@ export const getAdminConfig = async () => {
   }
   return {
     username: 'admin',
-    password: 'admin',
-    email: 'admin@kidtopia.com',
+    password: '123456',
+    email: 'admin@kidtopiadaycare.com',
     firebasePassword: 'admin123'
   };
 };

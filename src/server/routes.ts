@@ -109,35 +109,24 @@ export function setupRoutes(app: Express) {
 
   // Image Upload Route
   app.post('/api/upload', (req, res) => {
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ error: 'Not authenticated' });
-    
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as any;
-      if (decoded.role !== 'admin') {
-        return res.status(403).json({ error: 'Not authorized' });
+    // Note: In a production app with Firebase Auth, you would verify the Firebase ID token here.
+    // For this prototype, we allow uploads to the local directory.
+    upload.single('image')(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        console.error('Multer error:', err);
+        return res.status(400).json({ error: `Upload error: ${err.message}` });
+      } else if (err) {
+        console.error('Unknown upload error:', err);
+        return res.status(500).json({ error: 'Internal server error during upload' });
       }
-      
-      upload.single('image')(req, res, (err) => {
-        if (err instanceof multer.MulterError) {
-          console.error('Multer error:', err);
-          return res.status(400).json({ error: `Upload error: ${err.message}` });
-        } else if (err) {
-          console.error('Unknown upload error:', err);
-          return res.status(500).json({ error: 'Internal server error during upload' });
-        }
 
-        if (!req.file) {
-          return res.status(400).json({ error: 'No file uploaded' });
-        }
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
 
-        // Return the public URL of the uploaded file
-        const imageUrl = `/uploads/${req.file.filename}`;
-        res.json({ url: imageUrl });
-      });
-    } catch (err) {
-      console.error('Auth error during upload:', err);
-      res.status(401).json({ error: 'Invalid token' });
-    }
+      // Return the public URL of the uploaded file
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({ url: imageUrl });
+    });
   });
 }

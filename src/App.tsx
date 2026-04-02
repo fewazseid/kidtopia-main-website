@@ -31,9 +31,9 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
   return (
     <div className="min-h-screen selection:bg-brand-green/20">
       {isMinimalLayout ? (
-        <MinimalHeader />
+        <MinimalHeader lang={lang} setLang={setLang} />
       ) : (
-        <Header lang={lang} onScrollTo={scrollToSection} />
+        <Header lang={lang} setLang={setLang} onScrollTo={scrollToSection} />
       )}
       
       <Routes>

@@ -1,8 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Globe } from 'lucide-react';
+import { Language } from '../translations';
 
-export const MinimalHeader: React.FC = () => {
+interface MinimalHeaderProps {
+  lang: Language;
+  setLang: (l: Language) => void;
+}
+
+export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) => {
   const navigate = useNavigate();
 
   return (
@@ -35,6 +41,10 @@ export const MinimalHeader: React.FC = () => {
               International Daycare and Preschool
             </span>
           </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {/* Language switcher removed per user request */}
         </div>
       </div>
     </header>

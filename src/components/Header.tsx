@@ -7,10 +7,11 @@ import { motion, AnimatePresence } from 'motion/react';
 
 interface HeaderProps {
   lang: Language;
+  setLang: (l: Language) => void;
   onScrollTo: (id: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
+export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const t = useContent(lang).nav;
@@ -131,6 +132,12 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            <button 
+              onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
+              className="text-sm font-bold text-stone-600 hover:text-brand-green transition-colors px-3 py-1 rounded-lg bg-stone-100"
+            >
+              {lang === 'en' ? 'አማርኛ' : 'English'}
+            </button>
             <Link to="/login" className="bg-brand-green text-white font-bold rounded-full px-[clamp(0.75rem,1.5vw,1.25rem)] py-2 text-[clamp(10px,1vw,12px)] transition-all hover:opacity-90 active:scale-95 whitespace-nowrap">{t.login}</Link>
           </div>
 
@@ -152,6 +159,17 @@ export const Header: React.FC<HeaderProps> = ({ lang, onScrollTo }) => {
             className="md:hidden bg-white border-t border-brand-cream overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
+              <div className="flex justify-end mb-4">
+                <button 
+                  onClick={() => {
+                    setLang(lang === 'en' ? 'am' : 'en');
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-sm font-bold text-brand-green px-4 py-2 rounded-xl bg-brand-green/5"
+                >
+                  {lang === 'en' ? 'አማርኛ' : 'English'}
+                </button>
+              </div>
               {navItems.map((item, idx) => (
                 <div key={idx}>
                   {item.subItems ? (

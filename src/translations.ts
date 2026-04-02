@@ -15,7 +15,9 @@ export const translations = {
       bookTour: "Book a Tour",
       enrollNow: "Enroll Now",
       login: "Login",
-      language: "Language"
+      language: "Language",
+      socialMedia: "Social Media",
+      parentResources: "Parent Resources"
     },
     hero: {
       headline: "A Safe, Caring, and Inspiring Place for Your Child to Grow",
@@ -93,7 +95,13 @@ export const translations = {
     testimonials: {
       title: "What Parents Say",
       list: [
-        { name: "Faeza Ebrahim", text: "Kidtopia gives us peace of mind. We receive daily updates and our child loves the environment.", rating: 5, image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop" }
+        { 
+          name: "Faeza Ebrahim", 
+          text: "Kidtopia gives us peace of mind. We receive daily updates and our child loves the environment.", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "CEO of Arho Technology"
+        }
       ]
     },
     cta: {
@@ -114,7 +122,12 @@ export const translations = {
         tiktok: "https://tiktok.com",
         youtube: "https://youtube.com"
       },
-      addresses: ["Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia"],
+      addresses: [
+        { 
+          locationName: "Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia", 
+          googleMapsCoordinates: "9.0054,38.8475" 
+        }
+      ],
       phones: ["+251 911 000 000"],
       emails: ["info@kidtopia.com"]
     },
@@ -171,7 +184,9 @@ export const translations = {
       bookTour: "ጉብኝት ያስይዙ",
       enrollNow: "አሁኑኑ ይመዝገቡ",
       login: "ግባ",
-      language: "ቋንቋ"
+      language: "ቋንቋ",
+      socialMedia: "ማህበራዊ ሚዲያ",
+      parentResources: "የወላጆች መርጃ"
     },
     hero: {
       headline: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
@@ -249,7 +264,13 @@ export const translations = {
     testimonials: {
       title: "ወላጆች ምን ይላሉ",
       list: [
-        { name: "ፋኢዛ ኢብራሂም", text: "ኪድቶፒያ የአእምሮ ሰላም ይሰጠናል። ዕለታዊ መረጃዎችን እናገኛለን እና ልጃችን አካባቢውን ይወደዋል።", rating: 5, image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop" }
+        { 
+          name: "ፋኢዛ ኢብራሂም", 
+          text: "ኪድቶፒያ የአእምሮ ሰላም ይሰጠናል። ዕለታዊ መረጃዎችን እናገኛለን እና ልጃችን አካባቢውን ይወደዋል።", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "የአርሆ ቴክኖሎጂ ዋና ስራ አስፈፃሚ"
+        }
       ]
     },
     cta: {
@@ -270,7 +291,12 @@ export const translations = {
         tiktok: "https://tiktok.com",
         youtube: "https://youtube.com"
       },
-      addresses: ["ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት፣ አዲስ አበባ፣ ኢትዮጵያ"],
+      addresses: [
+        { 
+          locationName: "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት፣ አዲስ አበባ፣ ኢትዮጵያ", 
+          googleMapsCoordinates: "9.0054,38.8475" 
+        }
+      ],
       phones: ["+251 911 000 000"],
       emails: ["info@kidtopia.com"]
     },

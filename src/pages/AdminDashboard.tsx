@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -25,6 +25,12 @@ export const AdminDashboard: React.FC = () => {
   const [securityLoading, setSecurityLoading] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showShortcutPassword, setShowShortcutPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [newUserUsername, setNewUserUsername] = useState('');
+  const [newUserPassword, setNewUserPassword] = useState('');
+  const [newUserRole, setNewUserRole] = useState('parent');
+  const [addingUser, setAddingUser] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -57,8 +63,8 @@ export const AdminDashboard: React.FC = () => {
       // Fallback to default if not found or no permission yet
       setAdminConfig({
         username: 'admin',
-        password: 'admin',
-        email: 'admin@kidtopia.com',
+        password: '123456',
+        email: 'admin@kidtopiadaycare.com',
         firebasePassword: 'admin123'
       });
     }
@@ -66,38 +72,30 @@ export const AdminDashboard: React.FC = () => {
 
   const handleUpdateSecurity = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSecurityLoading(true);
-    try {
-      // Only update username/password, not Firebase email
-      await updateAdminConfig({
-        username: adminConfig.username,
-        password: adminConfig.password
-      });
-      setFeedback({ type: 'success', message: 'Security settings updated successfully!' });
-    } catch (err) {
-      console.error('Failed to update security settings', err);
-      setFeedback({ type: 'error', message: 'Failed to update security settings' });
-    } finally {
-      setSecurityLoading(false);
-    }
-  };
-
-  const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPassword.length < 6) {
+    if (newPassword && newPassword.length < 6) {
       setFeedback({ type: 'error', message: 'Password must be at least 6 characters' });
       return;
     }
-    setPasswordLoading(true);
+    setSecurityLoading(true);
     try {
-      await updateCurrentUserPassword(newPassword);
-      setFeedback({ type: 'success', message: 'Password updated successfully!' });
-      setNewPassword('');
+      // Update shortcut username
+      await updateAdminConfig({
+        ...adminConfig,
+        username: adminConfig.username,
+      });
+      
+      // Update password if provided
+      if (newPassword) {
+        await updateCurrentUserPassword(newPassword);
+        setNewPassword('');
+      }
+      
+      setFeedback({ type: 'success', message: 'Security settings updated successfully!' });
     } catch (err: any) {
-      console.error('Failed to update password', err);
-      setFeedback({ type: 'error', message: err.code === 'auth/requires-recent-login' ? 'Please logout and login again to change password' : 'Failed to update password' });
+      console.error('Failed to update security settings', err);
+      setFeedback({ type: 'error', message: err.code === 'auth/requires-recent-login' ? 'Please logout and login again to change password' : 'Failed to update security settings' });
     } finally {
-      setPasswordLoading(false);
+      setSecurityLoading(false);
     }
   };
 
@@ -124,6 +122,52 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDeleteUser = (uid: string) => {
+    setConfirmModal({
+      message: 'Are you sure you want to remove this user? This will revoke their access.',
+      onConfirm: async () => {
+        setConfirmModal(null);
+        try {
+          const { deleteUserDoc } = await import('../firebase');
+          await deleteUserDoc(uid);
+          setUsers(users.filter(u => u.uid !== uid));
+          setFeedback({ type: 'success', message: 'User removed successfully!' });
+        } catch (err) {
+          console.error('Failed to remove user', err);
+          setFeedback({ type: 'error', message: 'Failed to remove user' });
+        }
+      }
+    });
+  };
+
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newUserPassword.length < 6) {
+      setFeedback({ type: 'error', message: 'Password must be at least 6 characters' });
+      return;
+    }
+    if (!newUserUsername || newUserUsername.includes('@')) {
+      setFeedback({ type: 'error', message: 'Please enter a valid username (without @)' });
+      return;
+    }
+    setAddingUser(true);
+    try {
+      const emailToUse = `${newUserUsername.toLowerCase()}@kidtopia.com`;
+      const { createUserWithoutLogin } = await import('../firebase');
+      await createUserWithoutLogin(emailToUse, newUserPassword, newUserRole);
+      setFeedback({ type: 'success', message: 'User added successfully!' });
+      setNewUserUsername('');
+      setNewUserPassword('');
+      setNewUserRole('parent');
+      fetchUsers();
+    } catch (err: any) {
+      console.error('Failed to add user', err);
+      setFeedback({ type: 'error', message: err.message || 'Failed to add user' });
+    } finally {
+      setAddingUser(false);
+    }
+  };
+
   const fetchContent = async () => {
     try {
       let enDoc = await getDoc(doc(db, 'content', 'en'));
@@ -143,9 +187,24 @@ export const AdminDashboard: React.FC = () => {
       }
 
       if (enDoc.exists() && amDoc.exists()) {
+        const enData = enDoc.data();
+        const amData = amDoc.data();
+
+        // Normalize addresses to ensure they are objects
+        if (enData.footer?.addresses) {
+          enData.footer.addresses = enData.footer.addresses.map((a: any) => 
+            typeof a === 'string' ? { locationName: a, googleMapsCoordinates: '' } : a
+          );
+        }
+        if (amData.footer?.addresses) {
+          amData.footer.addresses = amData.footer.addresses.map((a: any) => 
+            typeof a === 'string' ? { locationName: a, googleMapsCoordinates: '' } : a
+          );
+        }
+
         setContent({
-          en: enDoc.data(),
-          am: amDoc.data()
+          en: enData,
+          am: amData
         });
       }
     } catch (err) {
@@ -249,12 +308,14 @@ export const AdminDashboard: React.FC = () => {
       } else {
         // Default template based on key name
         const k = key.toLowerCase();
-        if (['phones', 'emails', 'addresses', 'features', 'highlights'].includes(k)) {
+        if (['phones', 'emails', 'features', 'highlights'].includes(k)) {
           template = '';
+        } else if (k === 'addresses') {
+          template = { locationName: '', googleMapsCoordinates: '' };
         } else if (k === 'members') {
           template = { name: '', role: '', desc: '', image: '' };
         } else if (k === 'list') {
-          template = { name: '', role: '', content: '', image: '', rating: 5 };
+          template = { name: '', text: '', rating: 5, image: '', workInfo: '' };
         } else if (k === 'timeline') {
           template = { time: '', activity: '', icon: 'Clock' };
         } else if (k === 'items') {
@@ -413,7 +474,9 @@ export const AdminDashboard: React.FC = () => {
     }
     
     if (Array.isArray(value)) {
-      const isPrimitiveArray = value.length > 0 ? typeof value[0] !== 'object' : true;
+      // Special case for addresses to ensure they are treated as objects even if empty
+      const isAddresses = key === 'addresses';
+      const isPrimitiveArray = !isAddresses && (value.length > 0 ? typeof value[0] !== 'object' : true);
       
       return (
         <div key={path.join('.')} className="mb-6 p-4 bg-stone-50 rounded-xl border border-stone-200">
@@ -647,7 +710,7 @@ export const AdminDashboard: React.FC = () => {
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-stone-900">Registered Users</h2>
-                    <p className="text-xs text-stone-500 mt-1">To add a new staff or admin, ask them to sign up first, then change their role here.</p>
+                    <p className="text-xs text-stone-500 mt-1">Manage user access and roles.</p>
                   </div>
                   <button 
                     onClick={fetchUsers}
@@ -656,6 +719,45 @@ export const AdminDashboard: React.FC = () => {
                     Refresh List
                   </button>
                 </div>
+
+                <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 mb-6">
+                  <h3 className="text-sm font-bold text-stone-800 mb-3">Add New User</h3>
+                  <form onSubmit={handleAddUser} className="flex flex-col md:flex-row gap-3">
+                    <input
+                      type="text"
+                      value={newUserUsername}
+                      onChange={(e) => setNewUserUsername(e.target.value)}
+                      placeholder="Username (e.g. jsmith)"
+                      required
+                      className="flex-1 px-3 py-2 border border-stone-200 rounded-lg outline-none focus:border-brand-green text-sm"
+                    />
+                    <input
+                      type="password"
+                      value={newUserPassword}
+                      onChange={(e) => setNewUserPassword(e.target.value)}
+                      placeholder="Password (min 6 chars)"
+                      required
+                      className="flex-1 px-3 py-2 border border-stone-200 rounded-lg outline-none focus:border-brand-green text-sm"
+                    />
+                    <select
+                      value={newUserRole}
+                      onChange={(e) => setNewUserRole(e.target.value)}
+                      className="px-3 py-2 border border-stone-200 rounded-lg outline-none focus:border-brand-green text-sm bg-white"
+                    >
+                      <option value="parent">Parent</option>
+                      <option value="staff">Staff</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    <button
+                      type="submit"
+                      disabled={addingUser}
+                      className="bg-brand-green text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {addingUser ? 'Adding...' : 'Add User'}
+                    </button>
+                  </form>
+                </div>
+
                 {usersLoading ? (
                   <div className="flex justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
@@ -683,17 +785,25 @@ export const AdminDashboard: React.FC = () => {
                                 {user.role}
                               </span>
                             </td>
-                            <td className="py-4">
+                            <td className="py-4 flex items-center gap-2">
                               <select 
                                 value={user.role}
                                 onChange={(e) => handleUpdateUserRole(user.uid, e.target.value)}
                                 className="text-sm border border-stone-200 rounded-lg px-2 py-1 outline-none focus:border-brand-green"
-                                disabled={user.email === 'admin@kidtopia.com' || user.email === 'fewazseidahmed@gmail.com' || (adminConfig && user.email === adminConfig.email)}
+                                disabled={user.email === 'admin@kidtopiadaycare.com' || (adminConfig && user.email === adminConfig.email)}
                               >
                                 <option value="parent">Parent</option>
                                 <option value="staff">Staff</option>
                                 <option value="admin">Admin</option>
                               </select>
+                              <button
+                                onClick={() => handleDeleteUser(user.uid)}
+                                disabled={user.email === 'admin@kidtopiadaycare.com' || (adminConfig && user.email === adminConfig.email)}
+                                className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-stone-400"
+                                title="Remove User Access"
+                              >
+                                <Trash2 size={16} />
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -705,12 +815,12 @@ export const AdminDashboard: React.FC = () => {
             ) : activeSection === 'security' ? (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-xl font-bold text-stone-900 mb-2">Admin Login Shortcut</h2>
-                  <p className="text-sm text-stone-500 mb-6">Configure the "admin" username/password shortcut for quick access.</p>
+                  <h2 className="text-xl font-bold text-stone-900 mb-2">Admin Account Settings</h2>
+                  <p className="text-sm text-stone-500 mb-6">Configure your login username and password. This updates both the shortcut and your actual account password.</p>
                   
                   <form onSubmit={handleUpdateSecurity} className="space-y-4 max-w-md">
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-stone-700">Shortcut Username</label>
+                      <label className="text-sm font-bold text-stone-700">Login Username</label>
                       <input 
                         type="text"
                         value={adminConfig?.username || ''}
@@ -718,18 +828,30 @@ export const AdminDashboard: React.FC = () => {
                         className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
                         placeholder="e.g. admin"
                         required
+                        autoCapitalize="none"
+                        autoCorrect="off"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-stone-700">Shortcut Password</label>
-                      <input 
-                        type="text"
-                        value={adminConfig?.password || ''}
-                        onChange={(e) => setAdminConfig({ ...adminConfig, password: e.target.value })}
-                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
-                        placeholder="e.g. admin"
-                        required
-                      />
+                      <label className="text-sm font-bold text-stone-700">New Password (leave blank to keep current)</label>
+                      <div className="relative">
+                        <input 
+                          type={showNewPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green pr-12"
+                          placeholder="••••••••"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-brand-green transition-colors p-1"
+                        >
+                          {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                      </div>
                     </div>
                     
                     <button 
@@ -740,40 +862,6 @@ export const AdminDashboard: React.FC = () => {
                       {securityLoading ? 'Updating...' : 'Save Security Settings'}
                     </button>
                   </form>
-                </div>
-
-                <div className="pt-8 border-t border-stone-200">
-                  <h2 className="text-xl font-bold text-stone-900 mb-2">Change Account Password</h2>
-                  <p className="text-sm text-stone-500 mb-6">Update the password for your current logged-in account.</p>
-                  
-                  <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-md">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-stone-700">New Password</label>
-                      <input 
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
-                        placeholder="••••••••"
-                        required
-                      />
-                    </div>
-                    <button 
-                      type="submit"
-                      disabled={passwordLoading}
-                      className="w-full py-3 bg-stone-900 text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
-                    >
-                      {passwordLoading ? 'Updating...' : 'Change Password'}
-                    </button>
-                  </form>
-                </div>
-
-                <div className="p-6 bg-amber-50 rounded-2xl border border-amber-100">
-                  <h3 className="text-amber-800 font-bold mb-2">Safety Net</h3>
-                  <p className="text-amber-700 text-sm">
-                    The email <strong>fewazseidahmed@gmail.com</strong> is hardcoded as a master administrator. 
-                    You can always use this email with Google Login to regain access if you forget your shortcut credentials.
-                  </p>
                 </div>
               </div>
             ) : content[activeLang] && content[activeLang][activeSection] ? (
