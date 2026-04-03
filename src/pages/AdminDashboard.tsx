@@ -34,13 +34,22 @@ export const AdminDashboard: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<string | null>(null);
 
   const checkApiHealth = async () => {
+    const apiBase = (import.meta as any).env.VITE_API_URL || '';
+    const pingUrl = `${apiBase}/api/ping`;
     try {
-      const apiBase = (import.meta as any).env.VITE_API_URL || '';
-      const res = await fetch(`${apiBase}/api/upload`);
+      setApiStatus(`Checking ${pingUrl}...`);
+      const res = await fetch(pingUrl);
+      
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('text/html')) {
+        setApiStatus(`API Error: Received HTML instead of JSON from ${pingUrl}. This usually means the backend is not reachable at this URL and you are hitting the frontend SPA fallback.`);
+        return;
+      }
+
       const data = await res.json();
-      setApiStatus(`API OK: ${data.message}`);
+      setApiStatus(`API OK: ${data.message} (Status: ${data.status})`);
     } catch (err) {
-      setApiStatus(`API Error: ${err instanceof Error ? err.message : String(err)}`);
+      setApiStatus(`API Error: ${err instanceof Error ? err.message : String(err)} (URL: ${pingUrl})`);
     }
   };
 
@@ -174,7 +183,11 @@ export const AdminDashboard: React.FC = () => {
       fetchUsers();
     } catch (err: any) {
       console.error('Failed to add user', err);
-      setFeedback({ type: 'error', message: err.message || 'Failed to add user' });
+      let msg = err.message || 'Failed to add user';
+      if (err.code === 'auth/email-already-in-use') {
+        msg = 'This username is already taken. Please choose another one.';
+      }
+      setFeedback({ type: 'error', message: msg });
     } finally {
       setAddingUser(false);
     }

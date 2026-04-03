@@ -101,11 +101,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
             console.log('DEBUG: Registration successful for:', user.email);
             await setUserRole(user.uid, 'admin', emailToUse);
           } catch (regErr: any) {
-            console.error('DEBUG: Registration failed:', regErr.code, regErr.message);
             // If registration fails because user already exists, it means the password was wrong
             if (regErr.code === 'auth/email-already-in-use') {
+              console.log('DEBUG: Admin user already exists, re-throwing original login error.');
               throw err; // Re-throw the original login error
             }
+            console.error('DEBUG: Registration failed:', regErr.code, regErr.message);
             throw regErr;
           }
         } else {

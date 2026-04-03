@@ -76,6 +76,10 @@ export function setupRoutes(app: Express) {
   });
 
   // Content Routes
+  app.get('/api/ping', (req, res) => {
+    res.json({ status: 'ok', message: 'API is reachable' });
+  });
+
   app.get('/api/content', (req, res) => {
     const rows = db.prepare('SELECT * FROM content').all() as any[];
     const content: Record<string, any> = {};
