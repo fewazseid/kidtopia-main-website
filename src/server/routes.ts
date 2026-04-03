@@ -113,11 +113,13 @@ export function setupRoutes(app: Express) {
   });
 
   // File Upload Route
-  app.post(['/api/upload', '/api/upload/'], (req, res) => {
-    console.log(`Received POST request to /api/upload`);
+  app.get('/api/upload', (req, res) => {
+    res.json({ message: 'Upload endpoint is active. Use POST to upload files.' });
+  });
+
+  const handleUpload = (req: any, res: any) => {
+    console.log(`Received POST request to ${req.url}`);
     
-    // Note: In a production app with Firebase Auth, you would verify the Firebase ID token here.
-    // For this prototype, we allow uploads to the local directory.
     upload.single('file')(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         console.error('Multer error:', err);
@@ -137,5 +139,15 @@ export function setupRoutes(app: Express) {
       const fileUrl = `/uploads/${req.file.filename}`;
       res.json({ url: fileUrl });
     });
+  };
+
+  app.post('/api/upload', handleUpload);
+  app.post('/api/upload/', handleUpload);
+  app.post('/api/file-upload', handleUpload);
+  
+  // Catch other methods to /api/upload to provide a better error message
+  app.all(['/api/upload', '/api/upload/', '/api/file-upload'], (req, res) => {
+    console.warn(`Received ${req.method} request to ${req.url} - only POST is allowed`);
+    res.status(405).json({ error: `Method ${req.method} not allowed. Use POST to upload files.` });
   });
 }

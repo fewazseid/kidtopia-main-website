@@ -31,6 +31,18 @@ export const AdminDashboard: React.FC = () => {
   const [newUserPassword, setNewUserPassword] = useState('');
   const [newUserRole, setNewUserRole] = useState('parent');
   const [addingUser, setAddingUser] = useState(false);
+  const [apiStatus, setApiStatus] = useState<string | null>(null);
+
+  const checkApiHealth = async () => {
+    try {
+      const apiBase = (import.meta as any).env.VITE_API_URL || '';
+      const res = await fetch(`${apiBase}/api/upload`);
+      const data = await res.json();
+      setApiStatus(`API OK: ${data.message}`);
+    } catch (err) {
+      setApiStatus(`API Error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -237,10 +249,26 @@ export const AdminDashboard: React.FC = () => {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload', {
+      // Use VITE_API_URL if provided, otherwise fallback to relative
+      const apiBase = (import.meta as any).env.VITE_API_URL || '';
+      let uploadUrl = `${apiBase}/api/upload`;
+      
+      console.log(`Attempting to upload ${type} to ${uploadUrl}`);
+
+      let res = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       });
+
+      // If 405 or 404, try the alternative route
+      if (res.status === 405 || res.status === 404) {
+        console.warn(`Primary route ${uploadUrl} returned ${res.status}, trying alternative...`);
+        uploadUrl = `${apiBase}/api/file-upload`;
+        res = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+        });
+      }
 
       if (res.ok) {
         const data = await res.json();
@@ -869,6 +897,25 @@ export const AdminDashboard: React.FC = () => {
                       {securityLoading ? 'Updating...' : 'Save Security Settings'}
                     </button>
                   </form>
+
+                  <div className="mt-12 pt-8 border-t border-stone-100">
+                    <h3 className="text-lg font-bold text-stone-900 mb-2">System Diagnostics</h3>
+                    <p className="text-sm text-stone-500 mb-4">Check the status of the backend server and file upload system.</p>
+                    <div className="flex flex-col gap-4 max-w-md">
+                      <button 
+                        onClick={checkApiHealth}
+                        className="flex items-center justify-center gap-2 px-4 py-2 border border-stone-200 rounded-xl text-stone-700 hover:bg-stone-50 transition-colors font-medium"
+                      >
+                        <Shield size={18} />
+                        Check API Health
+                      </button>
+                      {apiStatus && (
+                        <div className={`p-3 rounded-xl text-sm font-mono break-all ${apiStatus.includes('OK') ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                          {apiStatus}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : content[activeLang] && content[activeLang][activeSection] ? (
