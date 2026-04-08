@@ -63,6 +63,13 @@ export const setUserRole = async (uid: string, role: string, email: string) => {
   }, { merge: true });
 };
 
+export const saveFingerprintTemplate = async (template: string) => {
+  await setDoc(doc(db, 'settings', 'admin_config'), {
+    fingerprintTemplate: template,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+};
+
 export const getAdminConfig = async () => {
   const configDoc = await getDoc(doc(db, 'settings', 'admin_config'));
   if (configDoc.exists()) {

@@ -14,6 +14,13 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
   const [direction, setDirection] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
+  // Reset index if list changes and current index is out of bounds
+  useEffect(() => {
+    if (t.list && currentIndex >= t.list.length) {
+      setCurrentIndex(0);
+    }
+  }, [t.list?.length]);
+
   const next = (manual = false) => {
     if (manual) setIsAutoPlaying(false);
     setDirection(1);
@@ -49,7 +56,11 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
     })
   };
 
+  if (!t.list || t.list.length === 0) return null;
+
   const item = t.list[currentIndex];
+
+  if (!item) return null;
 
   return (
     <section id="testimonials" className="py-24 bg-brand-warm-white overflow-hidden">

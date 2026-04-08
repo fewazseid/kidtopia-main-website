@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
-import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword } from '../firebase';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate } from '../firebase';
+import { captureFingerprint, isSecuGenAvailable } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -32,24 +33,34 @@ export const AdminDashboard: React.FC = () => {
   const [newUserRole, setNewUserRole] = useState('parent');
   const [addingUser, setAddingUser] = useState(false);
   const [apiStatus, setApiStatus] = useState<string | null>(null);
+  const [fingerprintLoading, setFingerprintLoading] = useState(false);
+  const [fingerprintStatus, setFingerprintStatus] = useState<string | null>(null);
 
   const checkApiHealth = async () => {
-    const apiBase = (import.meta as any).env.VITE_API_URL || '';
-    const pingUrl = `${apiBase}/api/ping`;
+    let apiBase = (import.meta as any).env.VITE_API_URL || '';
+    if (apiBase.endsWith('/')) {
+      apiBase = apiBase.slice(0, -1);
+    }
+    const pingUrl = apiBase ? `${apiBase}/api/ping` : '/api/ping';
+    
+    if (!apiBase) {
+      setApiStatus(`Warning: VITE_API_URL is NOT set. Attempting to reach API via relative path: ${pingUrl}. This will fail if your frontend and backend are on different domains.`);
+    }
+
     try {
-      setApiStatus(`Checking ${pingUrl}...`);
+      setApiStatus(prev => `${prev ? prev + '\n\n' : ''}Checking ${pingUrl}...`);
       const res = await fetch(pingUrl);
       
       const contentType = res.headers.get('content-type');
       if (contentType && contentType.includes('text/html')) {
-        setApiStatus(`API Error: Received HTML instead of JSON from ${pingUrl}. This usually means the backend is not reachable at this URL and you are hitting the frontend SPA fallback.`);
+        setApiStatus(prev => `${prev}\n\nAPI Error: Received HTML instead of JSON from ${pingUrl}. \n\nThis means you are hitting the frontend SPA fallback. \n\nFIX: Set the VITE_API_URL environment variable in your Vercel settings to your backend URL (e.g., your Cloud Run URL).`);
         return;
       }
 
       const data = await res.json();
-      setApiStatus(`API OK: ${data.message} (Status: ${data.status})`);
+      setApiStatus(prev => `${prev}\n\nAPI OK: ${data.message} (Status: ${data.status})`);
     } catch (err) {
-      setApiStatus(`API Error: ${err instanceof Error ? err.message : String(err)} (URL: ${pingUrl})`);
+      setApiStatus(prev => `${prev}\n\nAPI Error: ${err instanceof Error ? err.message : String(err)} (URL: ${pingUrl})`);
     }
   };
 
@@ -88,6 +99,39 @@ export const AdminDashboard: React.FC = () => {
         email: 'admin@kidtopiadaycare.com',
         firebasePassword: 'admin123'
       });
+    }
+  };
+
+  const handleRegisterFingerprint = async () => {
+    setFingerprintLoading(true);
+    setFingerprintStatus('Initializing SecuGen WebAPI...');
+    try {
+      const available = await isSecuGenAvailable();
+      if (!available) {
+        throw new Error('SecuGen WebAPI service is not running. Please ensure the driver is installed and running on localhost:8000.');
+      }
+
+      setFingerprintStatus('Please place your finger on the scanner...');
+      const response = await captureFingerprint();
+      
+      if (response.ErrorCode !== 0) {
+        throw new Error(response.ErrorDescription || 'Failed to capture fingerprint.');
+      }
+
+      if (response.Base64Template) {
+        setFingerprintStatus('Saving fingerprint template...');
+        await saveFingerprintTemplate(response.Base64Template);
+        setFingerprintStatus('Fingerprint registered successfully!');
+        setFeedback({ type: 'success', message: 'Fingerprint registered successfully!' });
+      } else {
+        throw new Error('No template received from scanner.');
+      }
+    } catch (err: any) {
+      console.error('Fingerprint Registration Error:', err);
+      setFingerprintStatus(`Error: ${err.message}`);
+      setFeedback({ type: 'error', message: err.message });
+    } finally {
+      setFingerprintLoading(false);
     }
   };
 
@@ -273,6 +317,12 @@ export const AdminDashboard: React.FC = () => {
         body: formData,
       });
 
+      // Check for HTML response (SPA fallback)
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('text/html')) {
+        throw new Error('API Error: Received HTML instead of JSON. This usually means your VITE_API_URL is missing or incorrect in Vercel settings.');
+      }
+
       // If 405 or 404, try the alternative route
       if (res.status === 405 || res.status === 404) {
         console.warn(`Primary route ${uploadUrl} returned ${res.status}, trying alternative...`);
@@ -281,6 +331,12 @@ export const AdminDashboard: React.FC = () => {
           method: 'POST',
           body: formData,
         });
+
+        // Check for HTML response in retry
+        const retryContentType = res.headers.get('content-type');
+        if (retryContentType && retryContentType.includes('text/html')) {
+          throw new Error('API Error: Received HTML instead of JSON from fallback route. Check VITE_API_URL.');
+        }
       }
 
       if (res.ok) {
@@ -910,6 +966,26 @@ export const AdminDashboard: React.FC = () => {
                       {securityLoading ? 'Updating...' : 'Save Security Settings'}
                     </button>
                   </form>
+
+                  <div className="mt-12 pt-8 border-t border-stone-100">
+                    <h3 className="text-lg font-bold text-stone-900 mb-2">Fingerprint Authentication</h3>
+                    <p className="text-sm text-stone-500 mb-4">Register your fingerprint to enable quick login using your SecuGen Hamster Plus scanner.</p>
+                    <div className="flex flex-col gap-4 max-w-md">
+                      <button 
+                        onClick={handleRegisterFingerprint}
+                        disabled={fingerprintLoading}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 text-white rounded-xl hover:bg-stone-800 transition-colors font-bold disabled:opacity-50"
+                      >
+                        <Fingerprint size={20} />
+                        {fingerprintLoading ? 'Processing...' : 'Register Fingerprint'}
+                      </button>
+                      {fingerprintStatus && (
+                        <div className={`p-3 rounded-xl text-sm ${fingerprintStatus.includes('Error') ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-stone-50 text-stone-700 border border-stone-100'}`}>
+                          {fingerprintStatus}
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
                   <div className="mt-12 pt-8 border-t border-stone-100">
                     <h3 className="text-lg font-bold text-stone-900 mb-2">System Diagnostics</h3>

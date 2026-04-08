@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Fingerprint } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginWithGoogle, getUserRole, setUserRole, loginWithEmail, registerWithEmail, getAdminConfig, updateCurrentUserPassword } from '../firebase';
+import { captureFingerprint, matchFingerprints, isSecuGenAvailable } from '../services/fingerprintService';
 
 interface LoginPageProps {
   lang: Language;
@@ -20,6 +21,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [fingerprintLoading, setFingerprintLoading] = useState(false);
 
   const handleRedirect = (role: string) => {
     switch (role) {
@@ -27,6 +29,69 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       case 'staff': navigate('/staff'); break;
       case 'parent': navigate('/parent'); break;
       default: navigate('/');
+    }
+  };
+
+  const handleFingerprintLogin = async () => {
+    setError('');
+    setFingerprintLoading(true);
+    try {
+      const available = await isSecuGenAvailable();
+      if (!available) {
+        throw new Error('SecuGen WebAPI service is not running. Please ensure the driver is installed.');
+      }
+
+      // Fetch admin config to get the admin email
+      let adminConfig: any = { username: 'admin', email: 'admin@kidtopiadaycare.com', firebasePassword: 'admin123' };
+      try {
+        const remoteConfig = await getAdminConfig();
+        adminConfig = { ...adminConfig, ...remoteConfig };
+      } catch (e) {
+        console.warn('Using default admin config for fingerprint login', e);
+      }
+
+      // We need to find the user document for the admin to get their fingerprint template
+      // Since we don't have a direct UID, we'll try to find it by email or use the known admin shortcut logic
+      // For simplicity, let's assume we are logging in as the 'admin' user
+      
+      // First, we need to get the UID for the admin email
+      // We can't easily query by email in Firestore without an index, 
+      // but we can try to sign in with the admin shortcut first to get the UID if needed,
+      // or just assume the admin has a fixed UID if we set it up that way.
+      // Better: The admin must have registered their fingerprint while logged in.
+      
+      const storedTemplate = adminConfig.fingerprintTemplate;
+
+      if (!storedTemplate) {
+        throw new Error('No fingerprint registered for this account. Please login with password and register in settings.');
+      }
+
+      // Now capture the current fingerprint
+      const captureResponse = await captureFingerprint();
+      if (captureResponse.ErrorCode !== 0) {
+        throw new Error(captureResponse.ErrorDescription || 'Failed to capture fingerprint.');
+      }
+
+      if (!captureResponse.Base64Template) {
+        throw new Error('No template received from scanner.');
+      }
+
+      // Match the captured template with the stored one
+      const isMatch = await matchFingerprints(storedTemplate, captureResponse.Base64Template);
+      
+      if (isMatch) {
+        // Success! Now log in using the admin's firebase password
+        const result = await loginWithEmail(adminConfig.email, adminConfig.firebasePassword || 'admin123');
+        const role = await getUserRole(result.user.uid);
+        handleRedirect(role || 'admin');
+      } else {
+        throw new Error('Fingerprint does not match.');
+      }
+    } catch (err: any) {
+      console.error('Fingerprint Login Error:', err);
+      setError(err.message);
+    } finally {
+      setFingerprintLoading(false);
     }
   };
 
@@ -259,11 +324,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
           <div className="space-y-6">
             <button
               onClick={handleGoogleLogin}
-              disabled={loading}
+              disabled={loading || fingerprintLoading}
               className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-stone-50 active:scale-[0.98] border border-stone-200 bg-white disabled:opacity-50"
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
               Login with Google
+            </button>
+
+            <button
+              onClick={handleFingerprintLogin}
+              disabled={loading || fingerprintLoading}
+              className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-stone-900 text-white font-bold text-lg transition-all hover:bg-stone-800 active:scale-[0.98] disabled:opacity-50"
+            >
+              <Fingerprint size={20} />
+              {fingerprintLoading ? 'Scanning...' : 'Login with Fingerprint'}
             </button>
 
             <div className="relative">
