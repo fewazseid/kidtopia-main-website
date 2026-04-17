@@ -59,7 +59,7 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
   return (
     <AnimatePresence>
       {announcement && (announcement.text || announcement.title) && (announcement.text?.trim() !== "" || announcement.title?.trim() !== "") && (
-        <div id="announcement-container" className="sticky top-0 z-40 w-full px-4 pt-4">
+        <div id="announcement-container" className="sticky top-0 z-40 w-full px-4 pt-4 pb-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ 
@@ -73,7 +73,7 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
               rotate: { repeat: Infinity, duration: 1, ease: "easeInOut" },
               opacity: { duration: 0.5 }
             }}
-            className={`rounded-3xl ${styles.bg} shadow-2xl border border-white/20 mx-auto max-w-md md:max-w-4xl w-full`}
+            className={`rounded-3xl ${styles.bg} shadow-2xl border border-white/20 mx-auto max-w-md md:max-w-4xl w-full will-change-transform`}
           >
               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:40px_40px]"></div>
 
