@@ -59,7 +59,7 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
   return (
     <AnimatePresence>
       {announcement && (announcement.text || announcement.title) && (announcement.text?.trim() !== "" || announcement.title?.trim() !== "") && (
-        <div id="announcement-container" className="sticky top-0 z-40 px-4 mt-6">
+        <div id="announcement-container" className="sticky top-0 z-40 px-4 mt-6 md:mt-2 lg:mt-0">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ 
