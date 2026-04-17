@@ -61,51 +61,50 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
   return (
     <AnimatePresence>
       {announcement && (announcement.text || announcement.title) && (announcement.text?.trim() !== "" || announcement.title?.trim() !== "") && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1,
-            y: isFloating ? [0, -15, 0] : 0,
-            rotate: isFloating ? [0, -2, 2, 0] : 0 // Add a subtle shake to floating
-          }}
-          transition={{ 
-            y: { repeat: isFloating ? Infinity : 0, duration: 4, ease: "easeInOut" },
-            rotate: { repeat: isFloating ? Infinity : 0, duration: 2, ease: "easeInOut" },
-            opacity: { duration: 0.5 }
-          }}
-          className={`rounded-3xl ${styles.bg} overflow-hidden shadow-2xl border border-white/10 m-4 ${isSticky ? 'sticky top-4 z-50' : 'relative'}`}
-        >
-          {/* Subtle overlay pattern */}
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:20px_20px]"></div>
+        // Added pt-4 to prevent overlap, increased margin and z-index priority
+        <div className={`transition-all duration-500 ease-in-out ${isSticky ? 'sticky top-0 z-40' : 'relative'} mb-8`}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              y: [0, -8, 0],
+              rotate: [0, -1, 1, 0] // Subtle, smoother motion
+            }}
+            transition={{ 
+              y: { repeat: Infinity, duration: 6, ease: "easeInOut" },
+              rotate: { repeat: Infinity, duration: 4, ease: "easeInOut" },
+              opacity: { duration: 0.8 }
+            }}
+            className={`rounded-b-3xl ${styles.bg} shadow-2xl border-b-4 border-white/20`}
+          >
+            {/* Subtle overlay pattern */}
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:40px_40px]"></div>
 
-          <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-              <div className="flex-shrink-0">
-                <motion.div 
-                  initial={{ scale: 0.8, rotate: -10 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                  className={`p-4 rounded-2xl shadow-lg backdrop-blur-md ${styles.iconBg} border border-white/30`}
-                >
-                  {styles.icon}
-                </motion.div>
-              </div>
-              <div className={`flex-1 flex flex-col justify-center ${styles.text}`}>
-                {announcement.title && (
-                  <h3 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight drop-shadow-sm font-serif">
-                    {announcement.title}
-                  </h3>
-                )}
-                {announcement.text && (
-                  <p className="text-lg md:text-xl opacity-95 leading-relaxed max-w-4xl drop-shadow-sm font-medium">
-                    {announcement.text}
-                  </p>
-                )}
+            {/* Increased padding here to fix spacing issues */}
+            <div className="max-w-6xl mx-auto px-8 py-10 md:py-16 relative z-10">
+              <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+                <div className="flex-shrink-0">
+                  <div className={`p-8 rounded-full shadow-inner backdrop-blur-md ${styles.iconBg} border border-white/30`}>
+                    {styles.icon}
+                  </div>
+                </div>
+                <div className={`flex-1 ${styles.text}`}>
+                  {announcement.title && (
+                    <h3 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight drop-shadow font-serif">
+                      {announcement.title}
+                    </h3>
+                  )}
+                  {announcement.text && (
+                    <p className="text-xl md:text-2xl opacity-95 leading-relaxed max-w-4xl drop-shadow font-medium">
+                      {announcement.text}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );
