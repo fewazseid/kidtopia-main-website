@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Megaphone, X, Info, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Megaphone, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 
@@ -11,6 +11,24 @@ interface AnnouncementProps {
 export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
   const content = useContent(lang);
   const announcement = content?.announcement;
+  const [isSticky, setIsSticky] = useState(true);
+  const [isFloating, setIsFloating] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Threshold check: once user scrolls past 300px, break the sticky behavior
+      if (window.scrollY > 300) {
+        setIsSticky(false);
+        setIsFloating(false);
+      } else {
+        setIsSticky(true);
+        setIsFloating(true);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const getStyles = () => {
     switch (announcement?.type) {
@@ -44,10 +62,19 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
     <AnimatePresence>
       {announcement && (announcement.text || announcement.title) && (announcement.text?.trim() !== "" || announcement.title?.trim() !== "") && (
         <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          className={`relative ${styles.bg} overflow-hidden shadow-xl border-b border-white/10`}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ 
+            opacity: 1, 
+            scale: 1,
+            y: isFloating ? [0, -15, 0] : 0,
+            rotate: isFloating ? [0, -2, 2, 0] : 0 // Add a subtle shake to floating
+          }}
+          transition={{ 
+            y: { repeat: isFloating ? Infinity : 0, duration: 4, ease: "easeInOut" },
+            rotate: { repeat: isFloating ? Infinity : 0, duration: 2, ease: "easeInOut" },
+            opacity: { duration: 0.5 }
+          }}
+          className={`rounded-3xl ${styles.bg} overflow-hidden shadow-2xl border border-white/10 m-4 ${isSticky ? 'sticky top-4 z-50' : 'relative'}`}
         >
           {/* Subtle overlay pattern */}
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:20px_20px]"></div>
