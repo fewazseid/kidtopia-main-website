@@ -62,21 +62,21 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
     <AnimatePresence>
       {announcement && (announcement.text || announcement.title) && (announcement.text?.trim() !== "" || announcement.title?.trim() !== "") && (
         // Added pt-4 to prevent overlap, increased margin and z-index priority
-        <div className={`transition-all duration-500 ease-in-out ${isSticky ? 'sticky top-0 z-40' : 'relative'} mb-8`}>
+        <div className={`transition-all duration-500 ease-in-out ${isSticky ? 'sticky top-0 z-40' : 'relative'} my-6 px-4`}>
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ 
               opacity: 1, 
               scale: 1,
-              y: [0, -8, 0],
-              rotate: [0, -1, 1, 0] // Subtle, smoother motion
+              y: [0, -10, 0],   // Faster, more punchy float
+              rotate: [0, -1.5, 1.5, 0] // Snappier shake
             }}
             transition={{ 
-              y: { repeat: Infinity, duration: 6, ease: "easeInOut" },
-              rotate: { repeat: Infinity, duration: 4, ease: "easeInOut" },
-              opacity: { duration: 0.8 }
+              y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
+              rotate: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+              opacity: { duration: 0.4 }
             }}
-            className={`rounded-b-3xl ${styles.bg} shadow-2xl border-b-4 border-white/20`}
+            className={`rounded-[2rem] ${styles.bg} shadow-2xl border border-white/20`}
           >
             {/* Subtle overlay pattern */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:40px_40px]"></div>
