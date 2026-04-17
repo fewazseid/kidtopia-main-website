@@ -22,16 +22,20 @@ export const HomePage: React.FC<HomePageProps> = ({ lang, onScrollTo }) => {
   return (
     <main>
       <Hero lang={lang} onScrollTo={onScrollTo} />
-      <Announcement lang={lang} />
       
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 3, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <TrustSafety lang={lang} />
-      </motion.div>
+      {/* Wrapper to control stickiness duration */}
+      <div className="relative">
+        <Announcement lang={lang} />
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <TrustSafety lang={lang} />
+        </motion.div>
+      </div>
 
       <Programs lang={lang} />
       

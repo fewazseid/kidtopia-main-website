@@ -38,13 +38,13 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-cream/50 to-brand-cream"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-4 md:pt-20">
         <div className="max-w-3xl">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
-            className="text-5xl md:text-7xl font-serif font-bold leading-tight mb-6 text-stone-900"
+            className="text-4xl md:text-7xl font-serif font-bold leading-tight mb-4 md:mb-6 text-stone-900"
           >
             {t.headline}
           </motion.h1>
@@ -53,16 +53,16 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 2.4, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="text-xl text-stone-600 mb-8 md:mb-10 leading-relaxed"
+            className="text-lg md:text-xl text-stone-600 mb-6 md:mb-10 leading-relaxed"
           >
             {t.subheadline}
           </motion.p>
-
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 2.4, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-wrap gap-4"
+            className="flex flex-wrap gap-4 mb-12"
           >
             <Link to="/contact" className="btn-secondary text-lg px-8 py-4">{t.enroll}</Link>
             <Link to="/virtual-tour" className="btn-yellow text-lg px-8 py-4">{t.virtualTour}</Link>
@@ -74,7 +74,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2.4, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           {t.highlights.map((item: any, idx: number) => (
             <div key={idx} className="card-rounded p-8 flex items-start space-x-4 border border-stone-100 hover:shadow-md transition-shadow">
