@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Calendar } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface LeadCapturePopupProps {
   lang: Language;
@@ -13,8 +13,9 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
   const [isVisible, setIsVisible] = useState(false);
   const t = useContent(lang).leadCapture;
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const isDashboard = ['/login', '/admin', '/staff', '/parent'].includes(location.pathname);
+  const isDashboard = ['/login', '/admin', '/staff', '/parent', '/book-tour'].includes(location.pathname);
 
   useEffect(() => {
     if (isDashboard) return;
@@ -59,8 +60,8 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
               <button 
                 className="btn-yellow w-full py-3"
                 onClick={() => {
-                  console.log('Lead Capture: Book Tour Clicked');
                   setIsVisible(false);
+                  navigate('/book-tour');
                 }}
               >
                 {t.book}

@@ -76,13 +76,19 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
           transition={{ duration: 2.4, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
           className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          {t.highlights.map((item, idx) => (
+          {t.highlights.map((item: any, idx: number) => (
             <div key={idx} className="card-rounded p-8 flex items-start space-x-4 border border-stone-100 hover:shadow-md transition-shadow">
-              <div className={`bg-brand-cream p-3 rounded-2xl ${idx === 0 ? 'text-brand-green' : idx === 1 ? 'text-brand-orange' : 'text-brand-teal'}`}>
-                {idx === 0 && <Shield size={24} />}
-                {idx === 1 && <Users size={24} />}
-                {idx === 2 && <LayoutGrid size={24} />}
-              </div>
+              {item.image ? (
+                <div className="flex-shrink-0 w-12 h-12 rounded-2xl overflow-hidden">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                </div>
+              ) : (
+                <div className={`flex-shrink-0 bg-brand-cream p-3 rounded-2xl ${idx % 3 === 0 ? 'text-brand-green' : idx % 3 === 1 ? 'text-brand-orange' : 'text-brand-teal'}`}>
+                  {idx % 3 === 0 && <Shield size={24} />}
+                  {idx % 3 === 1 && <Users size={24} />}
+                  {idx % 3 === 2 && <LayoutGrid size={24} />}
+                </div>
+              )}
               <div>
                 <h3 className="font-serif font-bold text-xl mb-1">{item.title}</h3>
                 <p className="text-stone-500 text-sm">{item.desc}</p>

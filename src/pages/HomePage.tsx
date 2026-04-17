@@ -1,5 +1,6 @@
 import React from 'react';
 import { Hero } from '../components/Hero';
+import { Announcement } from '../components/Announcement';
 import { TrustSafety } from '../components/TrustSafety';
 import { Programs } from '../components/Programs';
 import { WhyChoose } from '../components/WhyChoose';
@@ -21,6 +22,7 @@ export const HomePage: React.FC<HomePageProps> = ({ lang, onScrollTo }) => {
   return (
     <main>
       <Hero lang={lang} onScrollTo={onScrollTo} />
+      <Announcement lang={lang} />
       
       <motion.div
         initial={{ opacity: 0 }}

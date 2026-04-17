@@ -43,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
     { label: t.virtualTour, path: '/virtual-tour' },
     { label: t.resources, path: '/resources' },
     { label: t.testimonials, path: '/testimonials' },
+    { label: t.bookTour || "Book Tour", path: '/book-tour' },
     { label: t.contact, path: '/contact' },
   ];
 

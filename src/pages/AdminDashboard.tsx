@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
-import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate } from '../firebase';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -35,6 +35,10 @@ export const AdminDashboard: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<string | null>(null);
   const [fingerprintLoading, setFingerprintLoading] = useState(false);
   const [fingerprintStatus, setFingerprintStatus] = useState<string | null>(null);
+
+  const [tourSchedule, setTourSchedule] = useState<any>(null);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
 
   const checkApiHealth = async () => {
     let apiBase = (import.meta as any).env.VITE_API_URL || '';
@@ -237,8 +241,23 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchTourData = async () => {
+    try {
+      setBookingsLoading(true);
+      const schedule = await getTourSchedule();
+      setTourSchedule(schedule);
+      const allBookings = await getAllBookings();
+      setBookings(allBookings.sort((a, b) => new Date(b.createdAt?.toDate() || 0).getTime() - new Date(a.createdAt?.toDate() || 0).getTime()));
+    } catch (err) {
+      console.error('Failed to fetch tour data', err);
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
   const fetchContent = async () => {
     try {
+      fetchTourData();
       let enDoc = await getDoc(doc(db, 'content', 'en'));
       let amDoc = await getDoc(doc(db, 'content', 'am'));
       
@@ -256,8 +275,67 @@ export const AdminDashboard: React.FC = () => {
       }
 
       if (enDoc.exists() && amDoc.exists()) {
-        const enData = enDoc.data();
-        const amData = amDoc.data();
+        const { translations: defaultTranslations } = await import('../translations');
+        const enDocData = enDoc.data();
+        const amDocData = amDoc.data();
+
+        // Deep merge for specific sections to ensure new fields are added
+        const enData = { 
+          ...defaultTranslations.en, 
+          ...enDocData,
+          announcement: { ...defaultTranslations.en.announcement, ...(enDocData.announcement || {}) },
+          virtualTour: { ...defaultTranslations.en.virtualTour, ...(enDocData.virtualTour || {}) }
+        };
+        
+        const amData = { 
+          ...defaultTranslations.am, 
+          ...amDocData,
+          announcement: { ...defaultTranslations.am.announcement, ...(amDocData.announcement || {}) },
+          virtualTour: { ...defaultTranslations.am.virtualTour, ...(amDocData.virtualTour || {}) }
+        };
+
+        // Ensure media array exists in virtualTour
+        if (!enData.virtualTour.media) enData.virtualTour.media = defaultTranslations.en.virtualTour.media;
+        if (!amData.virtualTour.media) amData.virtualTour.media = defaultTranslations.am.virtualTour.media;
+
+        // Remove legacy fields
+        delete enData.virtualTour.image;
+        delete enData.virtualTour.video;
+        delete amData.virtualTour.image;
+        delete amData.virtualTour.video;
+
+        // Normalize media items to ensure they have description
+        if (enData.virtualTour.media) {
+          enData.virtualTour.media = enData.virtualTour.media.map((m: any) => ({ description: '', ...m }));
+        }
+        if (amData.virtualTour.media) {
+          amData.virtualTour.media = amData.virtualTour.media.map((m: any) => ({ description: '', ...m }));
+        }
+
+        // Normalize announcement to ensure it has title
+        if (enData.announcement && typeof enData.announcement.title === 'undefined') {
+          enData.announcement.title = '';
+        }
+        if (amData.announcement && typeof amData.announcement.title === 'undefined') {
+          amData.announcement.title = '';
+        }
+
+        // Normalize arrays to ensure items have image field
+        const arraysToNormalize = [
+          ['hero', 'highlights'],
+          ['safety', 'cards'],
+          ['dailyExperience', 'timeline'],
+          ['resources', 'items']
+        ];
+
+        arraysToNormalize.forEach(([section, arrayName]) => {
+          if (enData[section] && enData[section][arrayName]) {
+            enData[section][arrayName] = enData[section][arrayName].map((item: any) => ({ image: '', ...item }));
+          }
+          if (amData[section] && amData[section][arrayName]) {
+            amData[section][arrayName] = amData[section][arrayName].map((item: any) => ({ image: '', ...item }));
+          }
+        });
 
         // Normalize addresses to ensure they are objects
         if (enData.footer?.addresses) {
@@ -302,60 +380,24 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleFileUpload = async (path: string[], file: File, type: 'image' | 'video' = 'image') => {
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      // Use VITE_API_URL if provided, otherwise fallback to relative
-      const apiBase = (import.meta as any).env.VITE_API_URL || '';
-      let uploadUrl = `${apiBase}/api/upload`;
+      const { storage } = await import('../firebase');
+      const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
       
-      console.log(`Attempting to upload ${type} to ${uploadUrl}`);
-
-      let res = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      // Check for HTML response (SPA fallback)
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('text/html')) {
-        throw new Error('API Error: Received HTML instead of JSON. This usually means your VITE_API_URL is missing or incorrect in Vercel settings.');
-      }
-
-      // If 405 or 404, try the alternative route
-      if (res.status === 405 || res.status === 404) {
-        console.warn(`Primary route ${uploadUrl} returned ${res.status}, trying alternative...`);
-        uploadUrl = `${apiBase}/api/file-upload`;
-        res = await fetch(uploadUrl, {
-          method: 'POST',
-          body: formData,
-        });
-
-        // Check for HTML response in retry
-        const retryContentType = res.headers.get('content-type');
-        if (retryContentType && retryContentType.includes('text/html')) {
-          throw new Error('API Error: Received HTML instead of JSON from fallback route. Check VITE_API_URL.');
-        }
-      }
-
-      if (res.ok) {
-        const data = await res.json();
-        handleChange(path, data.url);
-        setFeedback({ type: 'success', message: `${type === 'image' ? 'Image' : 'Video'} uploaded successfully!` });
-      } else {
-        let errorMessage = `Failed to upload ${type}`;
-        try {
-          const errorData = await res.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          errorMessage = `Server error (${res.status}): ${res.statusText}`;
-        }
-        setFeedback({ type: 'error', message: errorMessage });
-      }
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
+      const storageRef = ref(storage, `uploads/${type}s/${fileName}`);
+      
+      setFeedback({ type: 'success', message: `Uploading ${type}...` });
+      
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      handleChange(path, downloadURL);
+      setFeedback({ type: 'success', message: `${type === 'image' ? 'Image' : 'Video'} uploaded successfully!` });
     } catch (err) {
       console.error(`Error uploading ${type}`, err);
-      setFeedback({ type: 'error', message: `Network error uploading ${type}` });
+      setFeedback({ type: 'error', message: `Error uploading ${type}. Check Firebase Storage rules.` });
     }
   };
 
@@ -405,8 +447,10 @@ export const AdminDashboard: React.FC = () => {
       } else {
         // Default template based on key name
         const k = key.toLowerCase();
-        if (['phones', 'emails', 'features', 'highlights'].includes(k)) {
+        if (['phones', 'emails', 'features'].includes(k)) {
           template = '';
+        } else if (k === 'highlights') {
+          template = { title: '', desc: '', image: '' };
         } else if (k === 'addresses') {
           template = { locationName: '', googleMapsCoordinates: '' };
         } else if (k === 'members') {
@@ -414,13 +458,15 @@ export const AdminDashboard: React.FC = () => {
         } else if (k === 'list') {
           template = { name: '', text: '', rating: 5, image: '', workInfo: '' };
         } else if (k === 'timeline') {
-          template = { time: '', activity: '', icon: 'Clock' };
+          template = { time: '', activity: '', image: '' };
         } else if (k === 'items') {
-          template = { title: '', description: '', link: '', icon: 'FileText' };
+          template = { title: '', description: '', type: '', image: '' };
+        } else if (k === 'media') {
+          template = { url: '', type: 'image', description: '' };
         } else if (k === 'cards') {
-          template = { title: '', description: '', icon: 'Shield', moreInfo: '' };
+          template = { title: '', desc: '', image: '', moreInfo: '' };
         } else {
-          template = { title: '', description: '' };
+          template = { title: '', description: '', image: '' };
         }
       }
       
@@ -460,7 +506,9 @@ export const AdminDashboard: React.FC = () => {
   }
 
   const sections = [
+    { id: 'bookings', icon: <Megaphone size={18} />, label: 'Tour Bookings' },
     { id: 'nav', icon: <Layout size={18} />, label: 'Navigation' },
+    { id: 'announcement', icon: <Megaphone size={18} />, label: 'Announcement' },
     { id: 'hero', icon: <Layout size={18} />, label: 'Hero Section' },
     { id: 'safety', icon: <Shield size={18} />, label: 'Safety & Trust' },
     { id: 'programs', icon: <Settings size={18} />, label: 'Programs' },
@@ -499,9 +547,71 @@ export const AdminDashboard: React.FC = () => {
     }
 
     if (typeof value === 'string') {
-      const isImage = key.toLowerCase().includes('image') || key.toLowerCase().includes('img') || key.toLowerCase().includes('photo') || key.toLowerCase().includes('icon') || key.toLowerCase().includes('avatar');
-      const isVideo = key.toLowerCase().includes('video') || key.toLowerCase().includes('movie') || key.toLowerCase().includes('clip');
+      if (key === 'type' && path[0] === 'announcement') {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Announcement Type
+            </label>
+            <select
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
+            >
+              <option value="info">Info (Blue)</option>
+              <option value="warning">Warning (Amber)</option>
+              <option value="success">Success (Green)</option>
+            </select>
+          </div>
+        );
+      }
+
+      if (key === 'type' && path.includes('media')) {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Media Type
+            </label>
+            <select
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
+            >
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+        );
+      }
+
+      let parentObj = content[activeLang];
+      for (let i = 0; i < path.length - 1; i++) {
+        parentObj = parentObj[path[i]];
+      }
+      const mediaType = parentObj?.type || 'image';
+      const isMediaUrl = key === 'url' && path.includes('media');
+
+      const isImage = key.toLowerCase().includes('image') || key.toLowerCase().includes('img') || key.toLowerCase().includes('photo') || key.toLowerCase().includes('icon') || key.toLowerCase().includes('avatar') || (isMediaUrl && mediaType === 'image');
+      const isVideo = key.toLowerCase().includes('video') || key.toLowerCase().includes('movie') || key.toLowerCase().includes('clip') || (isMediaUrl && mediaType === 'video');
       const isMoreInfo = key === 'moreInfo';
+      const isDescription = key === 'description' || key === 'desc';
+      const isAnnouncementText = key === 'text' && path[0] === 'announcement';
+
+      if (isAnnouncementText) {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              {key}
+            </label>
+            <textarea
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none min-h-[100px]"
+              placeholder={`Enter ${key}...`}
+            />
+          </div>
+        );
+      }
 
       if (isImage || isVideo) {
         return (
@@ -558,12 +668,12 @@ export const AdminDashboard: React.FC = () => {
           <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
             {key.replace(/([A-Z])/g, ' $1').trim()}
           </label>
-          {value.length > 100 || isMoreInfo ? (
+          {value.length > 100 || isMoreInfo || isDescription ? (
             <textarea
               value={value}
               onChange={(e) => handleChange(path, e.target.value)}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
-              rows={isMoreInfo ? 6 : 4}
+              rows={isMoreInfo ? 6 : 3}
             />
           ) : (
             <input
@@ -1005,6 +1115,137 @@ export const AdminDashboard: React.FC = () => {
                       )}
                     </div>
                   </div>
+                </div>
+              </div>
+            ) : activeSection === 'bookings' ? (
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-xl font-bold text-stone-900 mb-4">Tour Schedule Settings</h2>
+                  <p className="text-sm text-stone-500 mb-4">Manage the available time slots for tour bookings (8:30 AM to 6:00 PM).</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-stone-50 rounded-xl border border-stone-200">
+                    {tourSchedule?.slots?.map((slot: any, idx: number) => (
+                      <label key={idx} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-stone-100 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={slot.active}
+                          onChange={async (e) => {
+                            const newSlots = [...tourSchedule.slots];
+                            newSlots[idx].active = e.target.checked;
+                            setTourSchedule({ slots: newSlots });
+                            try {
+                              await updateTourSchedule({ slots: newSlots });
+                              setFeedback({ type: 'success', message: 'Schedule updated!' });
+                            } catch (err) {
+                              setFeedback({ type: 'error', message: 'Failed to update schedule' });
+                            }
+                          }}
+                          className="w-4 h-4 text-brand-green border-stone-300 rounded focus:ring-brand-green"
+                        />
+                        <span className="font-medium text-stone-700">{slot.time}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-stone-200">
+                  <h2 className="text-xl font-bold text-stone-900 mb-4">Recent Bookings</h2>
+                  {bookingsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+                    </div>
+                  ) : bookings.length === 0 ? (
+                    <p className="text-stone-500 text-center py-8">No tours booked yet.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <thead>
+                          <tr className="border-b border-stone-200">
+                            <th className="pb-3 text-sm font-bold text-stone-600">Date & Time</th>
+                            <th className="pb-3 text-sm font-bold text-stone-600">Name</th>
+                            <th className="pb-3 text-sm font-bold text-stone-600">Contact</th>
+                            <th className="pb-3 text-sm font-bold text-stone-600">Status</th>
+                            <th className="pb-3 text-sm font-bold text-stone-600">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100">
+                          {bookings.map((b) => (
+                            <tr key={b.id}>
+                              <td className="py-4 text-sm text-stone-900 font-medium">
+                                {b.date} <br/><span className="text-stone-500 font-normal">{b.time}</span>
+                              </td>
+                              <td className="py-4 text-sm text-stone-800">{b.name}</td>
+                              <td className="py-4 text-sm text-stone-500">
+                                {b.email}<br/>{b.phone}
+                              </td>
+                              <td className="py-4 text-sm">
+                                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                  b.status === 'approved' ? 'bg-green-100 text-green-700' :
+                                  b.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                  'bg-amber-100 text-amber-700'
+                                }`}>
+                                  {b.status.toUpperCase()}
+                                </span>
+                              </td>
+                              <td className="py-4 text-sm">
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={async () => {
+                                      await updateBookingStatus(b.id, 'approved');
+                                      setFeedback({ type: 'success', message: 'Booking approved!' });
+                                      const updated = await getAllBookings();
+                                      setBookings(updated.sort((a, b) => new Date(b.createdAt?.toDate() || 0).getTime() - new Date(a.createdAt?.toDate() || 0).getTime()));
+
+                                      // Send approval email
+                                      if (b.email) {
+                                        const emailHtml = `
+                                            <h2>Your Tour is Confirmed!</h2>
+                                            <p>Hi ${b.name},</p>
+                                            <p>Great news! Your physical tour at Kidtopia has been approved.</p>
+                                            <p><strong>Date:</strong> ${b.date}</p>
+                                            <p><strong>Time:</strong> ${b.time}</p>
+                                            <p>We look forward to meeting you! If you have any questions, please contact us.</p>
+                                        `;
+                                        import('../firebase').then(({ sendEmail }) => {
+                                            sendEmail(b.email, 'Kidtopia Tour Booking - Confirmed', emailHtml).catch(console.error);
+                                        });
+                                      }
+                                    }}
+                                    className="text-brand-green hover:underline font-medium"
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    onClick={async () => {
+                                      await updateBookingStatus(b.id, 'rejected');
+                                      setFeedback({ type: 'success', message: 'Booking rejected' });
+                                      const updated = await getAllBookings();
+                                      setBookings(updated.sort((a, b) => new Date(b.createdAt?.toDate() || 0).getTime() - new Date(a.createdAt?.toDate() || 0).getTime()));
+
+                                      // Send rejection email
+                                      if (b.email) {
+                                        const emailHtml = `
+                                            <h2>Tour Booking Update</h2>
+                                            <p>Hi ${b.name},</p>
+                                            <p>Unfortunately, we are unable to accommodate your physical tour request for ${b.date} at ${b.time}.</p>
+                                            <p>Please feel free to submit a new request with a different time, or contact our office for further assistance.</p>
+                                        `;
+                                        import('../firebase').then(({ sendEmail }) => {
+                                            sendEmail(b.email, 'Kidtopia Tour Booking - Update', emailHtml).catch(console.error);
+                                        });
+                                      }
+                                    }}
+                                    className="text-red-500 hover:underline font-medium ml-2"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : content[activeLang] && content[activeLang][activeSection] ? (

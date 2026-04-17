@@ -1,11 +1,14 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword as firebaseUpdatePassword } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc, deleteDoc, serverTimestamp, query, where, addDoc } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../firebase-applet-config.json';
+
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Secondary app for creating users without signing out the admin
@@ -107,3 +110,159 @@ async function testConnection() {
   }
 }
 testConnection();
+
+// Bookings and Schedule
+export const getTourSchedule = async () => {
+  try {
+    const docRef = doc(db, 'settings', 'tourSchedule');
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      // Default slots
+      const defaultSlots = [];
+      let hour = 8;
+      let minute = 30;
+      while (hour < 18 || (hour === 18 && minute === 0)) {
+        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        defaultSlots.push({ time: timeStr, active: true });
+        minute += 30;
+        if (minute >= 60) {
+          hour++;
+          minute -= 60;
+        }
+      }
+      return { slots: defaultSlots };
+    }
+    return docSnap.data();
+  } catch (err) {
+    console.error("Failed to get tour schedule:", err);
+    throw err;
+  }
+};
+
+export const updateTourSchedule = async (schedule: any) => {
+  try {
+    const docRef = doc(db, 'settings', 'tourSchedule');
+    await setDoc(docRef, schedule, { merge: true });
+  } catch (err) {
+    console.error("Failed to update tour schedule:", err);
+    throw err;
+  }
+};
+
+export const createBooking = async (bookingData: any) => {
+  try {
+    const id = doc(collection(db, 'bookings')).id;
+    const docRef = doc(db, 'bookings', id);
+    const detailsRef = doc(db, 'booking_details', id);
+
+    // Public readable booking data (no PII)
+    await setDoc(docRef, {
+      id,
+      date: bookingData.date,
+      time: bookingData.time,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+
+    // Private booking details (Admin only)
+    await setDoc(detailsRef, {
+      name: bookingData.name,
+      email: bookingData.email,
+      phone: bookingData.phone,
+      bookingId: id
+    });
+    return id;
+  } catch (err) {
+    console.error("Failed to create booking:", err);
+    throw err;
+  }
+};
+
+export const getAllBookings = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'bookings'));
+    const bookings = querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+    
+    // Fetch details for each booking
+    const detailsSnapshot = await getDocs(collection(db, 'booking_details'));
+    const detailsMap = new Map();
+    detailsSnapshot.docs.forEach(doc => detailsMap.set(doc.id, doc.data()));
+
+    return bookings.map(b => ({
+      ...b,
+      ...detailsMap.get(b.id)
+    }));
+  } catch (err) {
+    console.error("Failed to get all bookings:", err);
+    throw err;
+  }
+};
+
+export const getBookingsByDate = async (date: string) => {
+  try {
+    const q = query(collection(db, 'bookings'), where('date', '==', date), where('status', 'in', ['pending', 'approved']));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+  } catch (err) {
+    console.error("Failed to get bookings for date:", err);
+    throw err;
+  }
+};
+
+export const getBooking = async (id: string) => {
+  try {
+    const docRef = doc(db, 'bookings', id);
+    const snapshot = await getDoc(docRef);
+    return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } as any : null;
+  } catch (err) {
+    console.error("Failed to get booking:", err);
+    throw err;
+  }
+};
+
+export const updateBookingTime = async (id: string, date: string, time: string) => {
+  try {
+    const docRef = doc(db, 'bookings', id);
+    await setDoc(docRef, { date, time }, { merge: true });
+  } catch (err) {
+    console.error("Failed to update booking time:", err);
+    throw err;
+  }
+};
+
+export const updateBookingStatus = async (id: string, status: string) => {
+    try {
+      const docRef = doc(db, 'bookings', id);
+      await setDoc(docRef, { status }, { merge: true });
+    } catch (err) {
+      console.error("Failed to update booking status:", err);
+      throw err;
+    }
+  };
+
+export const sendEmail = async (to: string, subject: string, html: string) => {
+  try {
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to,
+        subject,
+        html,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to send email');
+    }
+    
+    console.log("Email sent successfully via Node Mailer!");
+  } catch (err) {
+    console.error("Failed to send email:", err);
+    throw err;
+  }
+};

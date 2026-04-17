@@ -52,9 +52,15 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
               transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow border border-stone-100 flex flex-col items-center text-center group cursor-pointer"
             >
-              <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                {icons[idx]}
-              </div>
+              {resource.image ? (
+                <div className="w-full h-32 rounded-2xl overflow-hidden mb-6">
+                  <img src={resource.image} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  {icons[idx % icons.length]}
+                </div>
+              )}
               <h3 className="text-xl font-bold text-stone-900 mb-3">{resource.title}</h3>
               <p className="text-stone-600 mb-6 flex-grow">{resource.description}</p>
               <span className="text-sm font-medium text-brand-green bg-brand-green/10 px-4 py-1.5 rounded-full">

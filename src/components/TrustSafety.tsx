@@ -29,7 +29,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {t.cards.map((card, idx) => (
+          {t.cards.map((card: any, idx: number) => (
             <motion.div 
               key={idx}
               initial={{ opacity: 0, y: 20 }}
@@ -38,9 +38,15 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
               transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="p-8 rounded-[32px] border border-stone-100 hover:border-brand-green/20 transition-colors bg-brand-cream/30"
             >
-              <div className="w-12 h-12 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center mb-6">
-                {icons[idx]}
-              </div>
+              {card.image ? (
+                <div className="w-12 h-12 rounded-2xl overflow-hidden mb-6">
+                  <img src={card.image} alt={card.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                </div>
+              ) : (
+                <div className="w-12 h-12 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center mb-6">
+                  {icons[idx % icons.length]}
+                </div>
+              )}
               <h3 className="font-serif font-bold text-xl mb-4">{card.title}</h3>
               <p className="text-stone-600 text-sm leading-relaxed">{card.desc}</p>
             </motion.div>

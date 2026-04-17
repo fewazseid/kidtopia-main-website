@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import nodemailer from 'nodemailer';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-kidtopia';
 
@@ -30,6 +31,42 @@ const upload = multer({
 });
 
 export function setupRoutes(app: Express) {
+  // Email sending endpoint
+  app.post('/api/send-email', async (req, res) => {
+    const { to, subject, html } = req.body;
+    
+    // Allow configuration via environment variables
+    const GMAIL_USER = process.env.GMAIL_USER;
+    const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+
+    if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
+      console.warn("Gmail environment variables not configured. Skipping email send.");
+      return res.status(500).json({ error: 'Email configuration missing on server.' });
+    }
+
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: GMAIL_USER,
+          pass: GMAIL_APP_PASSWORD
+        }
+      });
+
+      await transporter.sendMail({
+        from: `"Kidtopia Daycare" <${GMAIL_USER}>`,
+        to: to,
+        subject: subject,
+        html: html
+      });
+      console.log(`Email successfully sent to ${to}`);
+      res.json({ success: true, message: 'Email sent successfully!' });
+    } catch (err: any) {
+      console.error('Nodemailer error:', err);
+      res.status(500).json({ error: 'Failed to send email: ' + err.message });
+    }
+  });
+
   // Auth Routes
   app.post('/api/login', (req, res) => {
     const { username, password } = req.body;

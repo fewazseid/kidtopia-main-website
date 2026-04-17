@@ -19,6 +19,11 @@ export const translations = {
       socialMedia: "Social Media",
       parentResources: "Parent Resources"
     },
+    announcement: {
+      title: "",
+      text: "",
+      type: "info"
+    },
     hero: {
       headline: "A Safe, Caring, and Inspiring Place for Your Child to Grow",
       subheadline: "Welcome to Kidtopia International Daycare and Preschool — where children learn, play, and thrive in a secure and nurturing environment.",
@@ -28,18 +33,18 @@ export const translations = {
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       heroVideo: "",
       highlights: [
-        { title: "Safe Environment", desc: "Strict health and security protocols" },
-        { title: "Qualified Staff", desc: "Trained and carefully selected nannies" },
-        { title: "Small Class Sizes", desc: "Personal attention for every child" }
+        { title: "Safe Environment", desc: "Strict health and security protocols", image: "" },
+        { title: "Qualified Staff", desc: "Trained and carefully selected nannies", image: "" },
+        { title: "Small Class Sizes", desc: "Personal attention for every child", image: "" }
       ]
     },
     safety: {
       title: "Your Child’s Safety is Our Priority",
       cards: [
-        { title: "Health Screening", desc: "All children must provide immunization, TB, HIV, and hepatitis screening before enrollment." },
-        { title: "Staff Background Verification", desc: "Every Kidtopia staff member undergoes strict recruitment and identity verification." },
-        { title: "Secure Check-In and Check-Out", desc: "Our digital system ensures only authorized people can pick up your child." },
-        { title: "Clean Environment", desc: "Blankets and daycare materials are cleaned regularly using our internal laundry system." }
+        { title: "Health Screening", desc: "All children must provide immunization, TB, HIV, and hepatitis screening before enrollment.", image: "" },
+        { title: "Staff Background Verification", desc: "Every Kidtopia staff member undergoes strict recruitment and identity verification.", image: "" },
+        { title: "Secure Check-In and Check-Out", desc: "Our digital system ensures only authorized people can pick up your child.", image: "" },
+        { title: "Clean Environment", desc: "Blankets and daycare materials are cleaned regularly using our internal laundry system.", image: "" }
       ]
     },
     programs: {
@@ -80,17 +85,19 @@ export const translations = {
       title: "Explore Our Daycare",
       watchFull: "Watch Full Virtual Tour",
       schedule: "Schedule a Physical Visit",
-      image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop"
+      media: [
+        { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "Our beautiful and spacious play area." }
+      ]
     },
     dailyExperience: {
       title: "A Day at Kidtopia",
       timeline: [
-        { time: "Morning", activity: "Welcome and check-in" },
-        { time: "Mid-morning", activity: "Learning activities" },
-        { time: "Lunch", activity: "Healthy meal time" },
-        { time: "Afternoon", activity: "Nap and quiet time" },
-        { time: "Late afternoon", activity: "Play and creative activities" },
-        { time: "Evening", activity: "Secure parent pickup" }
+        { time: "Morning", activity: "Welcome and check-in", image: "" },
+        { time: "Mid-morning", activity: "Learning activities", image: "" },
+        { time: "Lunch", activity: "Healthy meal time", image: "" },
+        { time: "Afternoon", activity: "Nap and quiet time", image: "" },
+        { time: "Late afternoon", activity: "Play and creative activities", image: "" },
+        { time: "Evening", activity: "Secure parent pickup", image: "" }
       ]
     },
     testimonials: {
@@ -136,10 +143,10 @@ export const translations = {
       title: "Parent Resources",
       desc: "Helpful materials and guides to support you and your child's journey with us.",
       items: [
-        { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document" },
-        { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms" },
-        { title: "Educational Activities", description: "Fun and educational activities you can do with your child at home.", type: "Video Series" },
-        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide" }
+        { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "" },
+        { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "" },
+        { title: "Educational Activities", description: "Fun and educational activities you can do with your child at home.", type: "Video Series", image: "" },
+        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "" }
       ]
     },
     leadCapture: {
@@ -189,6 +196,11 @@ export const translations = {
       socialMedia: "ማህበራዊ ሚዲያ",
       parentResources: "የወላጆች መርጃ"
     },
+    announcement: {
+      title: "",
+      text: "",
+      type: "info"
+    },
     hero: {
       headline: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
       subheadline: "ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ — ህፃናት ደህንነቱ በተጠበቀ እና በሚንከባከብ አካባቢ የሚማሩበት፣ የሚጫወቱበት እና የሚበለጽጉበት።",
@@ -198,18 +210,18 @@ export const translations = {
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       heroVideo: "",
       highlights: [
-        { title: "ደህንነቱ የተጠበቀ አካባቢ", desc: "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች" },
-        { title: "ብቁ ሰራተኞች", desc: "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች" },
-        { title: "አነስተኛ የክፍል መጠኖች", desc: "ለእያንዳንዱ ልጅ የግል ትኩረት" }
+        { title: "ደህንነቱ የተጠበቀ አካባቢ", desc: "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች", image: "" },
+        { title: "ብቁ ሰራተኞች", desc: "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች", image: "" },
+        { title: "አነስተኛ የክፍል መጠኖች", desc: "ለእያንዳንዱ ልጅ የግል ትኩረት", image: "" }
       ]
     },
     safety: {
       title: "የልጅዎ ደህንነት ቅድሚያ የምንሰጠው ጉዳይ ነው",
       cards: [
-        { title: "የጤና ምርመራ", desc: "ሁሉም ህፃናት ከመመዝገባቸው በፊት የክትባት፣ የቲቢ፣ የኤችአይቪ እና የሄፓታይተስ ምርመራ ማቅረብ አለባቸው።" },
-        { title: "የሰራተኞች ዳራ ማረጋገጫ", desc: "እያንዳንዱ የኪድቶፒያ ሰራተኛ ጥብቅ የቅጥር እና የማንነት ማረጋገጫ ይደረግለታል።" },
-        { title: "ደህንነቱ የተጠበቀ መግቢያ እና መውጫ", desc: "የእኛ ዲጂታል ስርዓት የተፈቀደላቸው ሰዎች ብቻ ልጅዎን መውሰድ እንደሚችሉ ያረጋግጣል።" },
-        { title: "ንጹህ አካባቢ", desc: "ብርድ ልብሶች እና የቀን እንክብካቤ ቁሳቁሶች በውስጣዊ የልብስ ማጠቢያ ስርዓታችን በየጊዜው ይጸዳሉ።" }
+        { title: "የጤና ምርመራ", desc: "ሁሉም ህፃናት ከመመዝገባቸው በፊት የክትባት፣ የቲቢ፣ የኤችአይቪ እና የሄፓታይተስ ምርመራ ማቅረብ አለባቸው።", image: "" },
+        { title: "የሰራተኞች ዳራ ማረጋገጫ", desc: "እያንዳንዱ የኪድቶፒያ ሰራተኛ ጥብቅ የቅጥር እና የማንነት ማረጋገጫ ይደረግለታል።", image: "" },
+        { title: "ደህንነቱ የተጠበቀ መግቢያ እና መውጫ", desc: "የእኛ ዲጂታል ስርዓት የተፈቀደላቸው ሰዎች ብቻ ልጅዎን መውሰድ እንደሚችሉ ያረጋግጣል።", image: "" },
+        { title: "ንጹህ አካባቢ", desc: "ብርድ ልብሶች እና የቀን እንክብካቤ ቁሳቁሶች በውስጣዊ የልብስ ማጠቢያ ስርዓታችን በየጊዜው ይጸዳሉ።", image: "" }
       ]
     },
     programs: {
@@ -250,17 +262,19 @@ export const translations = {
       title: "የህፃናት ማቆያችንን ይጎብኙ",
       watchFull: "ሙሉ ቪርቹዋል ጉብኝቱን ይመልከቱ",
       schedule: "የአካል ጉብኝት ቀጠሮ ይያዙ",
-      image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop"
+      media: [
+        { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "ውብ እና ሰፊ የመጫወቻ ስፍራችን።" }
+      ]
     },
     dailyExperience: {
       title: "አንድ ቀን በኪድቶፒያ",
       timeline: [
-        { time: "ጥዋት", activity: "እንኳን ደህና መጡ እና መግቢያ" },
-        { time: "ረፋድ", activity: "የመማሪያ እንቅስቃሴዎች" },
-        { time: "ምሳ", activity: "ጤናማ የምግብ ሰዓት" },
-        { time: "ከሰዓት", activity: "የእንቅልፍ እና የጸጥታ ሰዓት" },
-        { time: "ከሰዓት በኋላ", activity: "መጫወት እና የፈጠራ ስራዎች" },
-        { time: "ምሽት", activity: "ደህንነቱ የተጠበቀ የወላጅ መረከቢያ" }
+        { time: "ጥዋት", activity: "እንኳን ደህና መጡ እና መግቢያ", image: "" },
+        { time: "ረፋድ", activity: "የመማሪያ እንቅስቃሴዎች", image: "" },
+        { time: "ምሳ", activity: "ጤናማ የምግብ ሰዓት", image: "" },
+        { time: "ከሰዓት", activity: "የእንቅልፍ እና የጸጥታ ሰዓት", image: "" },
+        { time: "ከሰዓት በኋላ", activity: "መጫወት እና የፈጠራ ስራዎች", image: "" },
+        { time: "ምሽት", activity: "ደህንነቱ የተጠበቀ የወላጅ መረከቢያ", image: "" }
       ]
     },
     testimonials: {
@@ -306,10 +320,10 @@ export const translations = {
       title: "የወላጅ መርጃዎች",
       desc: "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።",
       items: [
-        { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ" },
-        { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች" },
-        { title: "ትምህርታዊ እንቅስቃሴዎች", description: "ከቤትዎ ከልጅዎ ጋር ሊያደርጓቸው የሚችሏቸው አስደሳች እና ትምህርታዊ እንቅስቃሴዎች።", type: "የቪዲዮ ተከታታይ" },
-        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ" }
+        { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "" },
+        { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "" },
+        { title: "ትምህርታዊ እንቅስቃሴዎች", description: "ከቤትዎ ከልጅዎ ጋር ሊያደርጓቸው የሚችሏቸው አስደሳች እና ትምህርታዊ እንቅስቃሴዎች።", type: "የቪዲዮ ተከታታይ", image: "" },
+        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "" }
       ]
     },
     leadCapture: {

@@ -21,16 +21,16 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           <div>
             <h3 className="text-white font-serif font-bold text-xl mb-6">{t.contact}</h3>
             <div className="space-y-4">
-              {t.addresses && t.addresses.map((addr: { locationName: string, googleMapsCoordinates: string }, idx: number) => (
+              {t.addresses && t.addresses.map((addr: any, idx: number) => (
                 <a 
                   key={idx}
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr.googleMapsCoordinates || addr.locationName)}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof addr === 'string' ? addr : (addr.googleMapsCoordinates || addr.locationName))}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start space-x-3 hover:text-white transition-colors group"
                 >
                   <MapPin size={18} className="shrink-0 mt-1 text-brand-orange group-hover:scale-110 transition-transform" />
-                  <span className="text-sm">{addr.locationName}</span>
+                  <span className="text-sm">{typeof addr === 'string' ? addr : addr.locationName}</span>
                 </a>
               ))}
               {t.phones && t.phones.map((ph: string, idx: number) => (

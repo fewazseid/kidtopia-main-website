@@ -42,6 +42,11 @@ export const DailyExperience: React.FC<DailyExperienceProps> = ({ lang }) => {
               >
                 <div className="md:w-1/2 flex justify-center md:justify-start px-8">
                   <div className={`card-rounded p-8 w-full max-w-md ${idx % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
+                    {item.image && (
+                      <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
+                        <img src={item.image} alt={item.activity} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      </div>
+                    )}
                     <span className="text-brand-teal font-bold text-sm uppercase tracking-widest mb-2 block">{item.time}</span>
                     <h3 className="text-2xl font-serif font-bold text-stone-800">{item.activity}</h3>
                   </div>

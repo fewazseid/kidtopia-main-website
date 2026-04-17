@@ -16,6 +16,8 @@ import { VirtualTourPage } from './pages/VirtualTourPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
+import { BookTourPage } from './pages/BookTourPage';
+import { RescheduleTourPage } from './pages/RescheduleTourPage';
 import { LoginPage } from './pages/LoginPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { StaffDashboard } from './pages/StaffDashboard';
@@ -26,7 +28,7 @@ import { useLocation } from 'react-router-dom';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
-  const isMinimalLayout = ['/login', '/admin', '/staff', '/parent'].includes(location.pathname);
+  const isMinimalLayout = ['/login', '/admin', '/staff', '/parent', '/book-tour'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
 
   return (
     <div className="min-h-screen selection:bg-brand-green/20">
@@ -44,6 +46,8 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/resources" element={<ResourcesPage lang={lang} />} />
         <Route path="/testimonials" element={<TestimonialsPage lang={lang} />} />
         <Route path="/contact" element={<ContactPage lang={lang} />} />
+        <Route path="/book-tour" element={<BookTourPage lang={lang} />} />
+        <Route path="/reschedule/:id" element={<RescheduleTourPage />} />
         <Route path="/login" element={<LoginPage lang={lang} />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/staff" element={<StaffDashboard />} />

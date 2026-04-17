@@ -76,17 +76,17 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
               </div>
               <h3 className="text-xl font-serif font-bold text-stone-900 mb-4">Location</h3>
               <div className="space-y-2">
-                {t.addresses && t.addresses.map((addr: string, idx: number) => (
+                {t.addresses && t.addresses.map((addr: any, idx: number) => (
                   <motion.a 
                     key={idx}
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr.googleMapsCoordinates || addr.locationName || addr)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="block text-stone-600 hover:text-brand-orange transition-colors"
                   >
-                    {addr}
+                    {typeof addr === 'string' ? addr : addr.locationName}
                   </motion.a>
                 ))}
               </div>

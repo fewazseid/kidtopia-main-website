@@ -44,8 +44,32 @@ service cloud.firestore {
 
     // Settings Collection
     match /settings/{docId} {
-      allow read: if true; // Needed for login shortcut check
+      allow read: if true; // Needed for login shortcut check and tour schedule
       allow write: if isAdmin();
+    }
+
+    // Bookings Collection (Public Date/Time details)
+    match /bookings/{bookingId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if isAdmin() || (
+        resource.data.status == 'pending' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['date', 'time'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Booking Details Collection (PII)
+    match /booking_details/{bookingId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Mail Collection (Firebase Trigger Email)
+    match /mail/{mailId} {
+      // Anyone can create an email via backend process (allow create to let visitors trigger confirmation emails)
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
     }
   }
 }
