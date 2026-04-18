@@ -69,7 +69,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
               onClick={() => setShowAll(!showAll)}
               className="inline-flex items-center gap-2 px-8 py-4 bg-brand-green text-white rounded-full font-bold hover:bg-brand-orange transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              {showAll ? 'Show Less' : 'See More Staff'}
+              {showAll ? t.showLess : t.seeMore}
               {showAll ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>
           </div>

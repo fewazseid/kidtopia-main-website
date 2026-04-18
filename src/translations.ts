@@ -22,7 +22,9 @@ export const translations = {
     announcement: {
       title: "",
       text: "",
-      type: "info"
+      type: "info",
+      buttonText: "",
+      buttonLink: ""
     },
     hero: {
       headline: "A Safe, Caring, and Inspiring Place for Your Child to Grow",
@@ -156,6 +158,8 @@ export const translations = {
     },
     staff: {
       title: "Our Professional Staff",
+      showLess: "Show Less",
+      seeMore: "See More Staff",
       members: [
         { name: "Faeza Ebrahim", role: "School Nurse", desc: "Dedicated to the health and well-being of every child at Kidtopia.", image: "https://picsum.photos/seed/nurse-faeza/600/800" },
         { name: "Miss Mekdes Alemu", role: "Lead Teacher", desc: "Expert in early childhood education and child development.", image: "https://picsum.photos/seed/teacher-mekdes/600/800" },
@@ -176,6 +180,25 @@ export const translations = {
       forgotPassword: "Forgot Password?",
       noAccount: "Don't have an account?",
       contactUs: "Contact Us"
+    },
+    reschedule: {
+      backToHome: "Back to Home",
+      title: "Reschedule Your Tour",
+      notFound: "Booking not found.",
+      alreadyProcessed: "This booking has already been processed and cannot be rescheduled here. Please contact us directly.",
+      failedToLoad: "Failed to load booking details.",
+      failedToUpdate: "Failed to update booking. Please try again.",
+      success: "Tour Rescheduled Successfully!",
+      successDesc: "Your new requested tour time is {date} at {time}. We will notify you once your booking is approved.",
+      currentRequest: "Current Request:",
+      date: "Date:",
+      time: "Time:",
+      selectNewDate: "Select New Date",
+      selectNewTime: "Select New Time",
+      noSlots: "No available slots in schedule.",
+      pleaseSelectDate: "Please select a date first.",
+      updating: "Updating...",
+      updateButton: "Update Tour Time"
     }
   },
   am: {
@@ -199,7 +222,9 @@ export const translations = {
     announcement: {
       title: "",
       text: "",
-      type: "info"
+      type: "info",
+      buttonText: "",
+      buttonLink: ""
     },
     hero: {
       headline: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
@@ -333,6 +358,8 @@ export const translations = {
     },
     staff: {
       title: "የእኛ ፕሮፌሽናል ሰራተኞች",
+      showLess: "ያነሰ አሳይ",
+      seeMore: "ተጨማሪ ሰራተኞችን ይመልከቱ",
       members: [
         { name: "ፋኢዛ ኢብራሂም", role: "የትምህርት ቤት ነርስ", desc: "በኪድቶፒያ ለእያንዳንዱ ልጅ ጤና እና ደህንነት የተሰጠች።", image: "https://picsum.photos/seed/nurse-faeza/600/800" },
         { name: "ሚስ መቅደስ አለሙ", role: "ዋና መምህርት", desc: "በቅድመ ልጅነት ትምህርት እና በልጅ እድገት ላይ ባለሙያ።", image: "https://picsum.photos/seed/teacher-mekdes/600/800" },
@@ -353,6 +380,25 @@ export const translations = {
       forgotPassword: "የይለፍ ቃል ረሱ?",
       noAccount: "መለያ የለዎትም?",
       contactUs: "ያግኙን"
+    },
+    reschedule: {
+      backToHome: "ወደ መነሻ ይመለሱ",
+      title: "ጉብኝትዎን እንደገና ያስይዙ",
+      notFound: "ቀጠሮው አልተገኘም።",
+      alreadyProcessed: "ይህ ቀጠሮ ቀድሞ ተካሂዷል እና እዚህ እንደገና ሊዘጋጅ አይችልም። እባክዎ በቀጥታ ያግኙን።",
+      failedToLoad: "የቀጠሮ ዝርዝሮችን መጫን አልተቻለም።",
+      failedToUpdate: "ቀጠሮውን ማዘመን አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
+      success: "ጉብኝቱ በተሳካ ሁኔታ እንደገና ተቀጥሯል!",
+      successDesc: "አዲሱ የጠየቁት የጉብኝት ሰዓት በ {date} በ {time} ነው። ቀጠሮዎ ሲጸድቅ እናሳውቅዎታለን።",
+      currentRequest: "የአሁኑ ጥያቄ:",
+      date: "ቀን፡",
+      time: "ሰዓት፡",
+      selectNewDate: "አዲስ ቀን ይምረጡ",
+      selectNewTime: "አዲስ ሰዓት ይምረጡ",
+      noSlots: "በጊዜ ሰሌዳው ውስጥ ምንም ክፍት ቦታ የለም።",
+      pleaseSelectDate: "እባክዎ መጀመሪያ ቀን ይምረጡ።",
+      updating: "በማዘመን ላይ...",
+      updateButton: "የጉብኝት ሰዓቱን ያዘምኑ"
     }
   }
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -37,6 +37,8 @@ export const AdminDashboard: React.FC = () => {
   const [fingerprintStatus, setFingerprintStatus] = useState<string | null>(null);
 
   const [tourSchedule, setTourSchedule] = useState<any>(null);
+  const [scheduleViewDay, setScheduleViewDay] = useState('Default');
+  const daysOfWeek = ['Default', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const [bookings, setBookings] = useState<any[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
 
@@ -72,23 +74,23 @@ export const AdminDashboard: React.FC = () => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (!user) {
         navigate('/login');
+      } else {
+        // User is authenticated, now safe to fetch protected data
+        fetchContent();
+        fetchUsers();
+        fetchAdminConfig();
       }
     });
     return () => unsub();
   }, [navigate]);
 
+  // Remove the old useEffect that fetched immediately
   useEffect(() => {
     if (feedback) {
       const timer = setTimeout(() => setFeedback(null), 4000);
       return () => clearTimeout(timer);
     }
   }, [feedback]);
-
-  useEffect(() => {
-    fetchContent();
-    fetchUsers();
-    fetchAdminConfig();
-  }, []);
 
   const fetchAdminConfig = async () => {
     try {
@@ -199,7 +201,7 @@ export const AdminDashboard: React.FC = () => {
         try {
           const { deleteUserDoc } = await import('../firebase');
           await deleteUserDoc(uid);
-          setUsers(users.filter(u => u.uid !== uid));
+          setUsers((prevUsers) => prevUsers.filter(u => u.uid !== uid));
           setFeedback({ type: 'success', message: 'User removed successfully!' });
         } catch (err) {
           console.error('Failed to remove user', err);
@@ -349,6 +351,21 @@ export const AdminDashboard: React.FC = () => {
           );
         }
 
+        // Add emailTemplates default
+        const defaultEmailTemplates = {
+          approval: {
+            subject: 'Kidtopia Tour Booking - Confirmed',
+            body: '<h2>Your Tour is Confirmed!</h2>\n<p>Hi {name},</p>\n<p>Great news! Your physical tour at Kidtopia has been approved.</p>\n<p><strong>Date:</strong> {dayName}, {date}</p>\n<p><strong>Time:</strong> {time}</p>\n<p>We look forward to meeting you! If you have any questions, please contact us.</p>'
+          },
+          rejection: {
+            subject: 'Tour Booking Update',
+            body: '<h2>Tour Booking Update</h2>\n<p>Hi {name},</p>\n<p>Unfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.</p>\n<p>Please feel free to submit a new request with a different time, or contact our office for further assistance.</p>'
+          }
+        };
+
+        if (!(enData as any).emailTemplates) (enData as any).emailTemplates = JSON.parse(JSON.stringify(defaultEmailTemplates));
+        if (!(amData as any).emailTemplates) (amData as any).emailTemplates = JSON.parse(JSON.stringify(defaultEmailTemplates));
+
         setContent({
           en: enData,
           am: amData
@@ -479,19 +496,22 @@ export const AdminDashboard: React.FC = () => {
     setConfirmModal({
       message: 'Are you sure you want to remove this item? This action cannot be undone until you refresh the page without saving.',
       onConfirm: () => {
-        const newContent = JSON.parse(JSON.stringify(content));
-        let current = newContent[activeLang];
-        
-        for (let i = 0; i < path.length - 1; i++) {
-          current = current[path[i]];
-        }
-        
-        const array = current[path[path.length - 1]];
-        if (Array.isArray(array)) {
-          array.splice(index, 1);
-          setContent(newContent);
-          setFeedback({ type: 'success', message: 'Item removed from list' });
-        }
+        setContent((prevContent: any) => {
+          if (!prevContent) return prevContent;
+          const newContent = JSON.parse(JSON.stringify(prevContent));
+          let current = newContent[activeLang];
+          
+          for (let i = 0; i < path.length - 1; i++) {
+            current = current[path[i]];
+          }
+          
+          const array = current[path[path.length - 1]];
+          if (Array.isArray(array)) {
+            array.splice(index, 1);
+            setFeedback({ type: 'success', message: 'Item removed from list' });
+          }
+          return newContent;
+        });
         setConfirmModal(null);
       }
     });
@@ -507,6 +527,7 @@ export const AdminDashboard: React.FC = () => {
 
   const sections = [
     { id: 'bookings', icon: <Megaphone size={18} />, label: 'Tour Bookings' },
+    { id: 'emailTemplates', icon: <Megaphone size={18} />, label: 'Email Templates' },
     { id: 'nav', icon: <Layout size={18} />, label: 'Navigation' },
     { id: 'announcement', icon: <Megaphone size={18} />, label: 'Announcement' },
     { id: 'hero', icon: <Layout size={18} />, label: 'Hero Section' },
@@ -580,6 +601,54 @@ export const AdminDashboard: React.FC = () => {
               <option value="image">Image</option>
               <option value="video">Video</option>
             </select>
+          </div>
+        );
+      }
+
+      if (key === 'buttonLink' && path[0] === 'announcement') {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Call To Action Button Target
+            </label>
+            <select
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
+            >
+              <option value="">None (Don't Show Button)</option>
+              <option value="/book-tour">Book a Tour</option>
+              <option value="/programs">Programs</option>
+              <option value="/about">About Us</option>
+              <option value="/virtual-tour">Virtual Tour</option>
+              <option value="/resources">Parent Resources</option>
+              <option value="/testimonials">Testimonials</option>
+              <option value="/contact">Contact Us</option>
+              <option value="/login">Login</option>
+            </select>
+          </div>
+        );
+      }
+
+      if (key === 'buttonText' && path[0] === 'announcement') {
+        let parentObjTmp = content[activeLang];
+        for (let i = 0; i < path.length - 1; i++) {
+          parentObjTmp = parentObjTmp[path[i]];
+        }
+        if (!parentObjTmp.buttonLink) return null; // Don't show text if no target
+
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Button Display Text Label (e.g. Enroll Now, Book A Tour)
+            </label>
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
+              placeholder="e.g. Enroll Now"
+            />
           </div>
         );
       }
@@ -759,6 +828,17 @@ export const AdminDashboard: React.FC = () => {
         </button>
         <div className="flex gap-2">
           <button 
+            onClick={() => setActiveSection('bookings')}
+            className="p-2 bg-stone-100 text-stone-600 rounded-lg relative"
+          >
+            <Bell size={18} />
+            {bookings.filter(b => b.status === 'pending').length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                {bookings.filter(b => b.status === 'pending').length}
+              </span>
+            )}
+          </button>
+          <button 
             onClick={() => setActiveLang(activeLang === 'en' ? 'am' : 'en')}
             className="px-3 py-1 bg-stone-100 rounded-lg text-xs font-bold text-stone-600"
           >
@@ -851,7 +931,7 @@ export const AdminDashboard: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
+              {/* Desktop Sidebar */}
       <div className="hidden md:flex w-64 bg-white border-r border-stone-200 flex-col h-[calc(100vh-5rem)] sticky top-20">
         <div className="p-6 border-b border-stone-200">
           <h2 className="text-xl font-bold text-stone-800">Admin Control</h2>
@@ -908,14 +988,27 @@ export const AdminDashboard: React.FC = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-stone-900 capitalize">
               {activeSection} Content ({activeLang.toUpperCase()})
             </h1>
-            <button 
-              onClick={handleSave}
-              disabled={saving}
-              className="hidden md:flex items-center gap-2 bg-brand-green text-white px-6 py-2.5 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              <Save size={18} />
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+            <div className="hidden md:flex items-center gap-4">
+              <button 
+                onClick={() => setActiveSection('bookings')}
+                className="relative p-2 text-stone-600 bg-white border border-stone-200 hover:bg-stone-50 rounded-full transition-colors shadow-sm"
+              >
+                <Bell size={20} />
+                {bookings.filter(b => b.status === 'pending').length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold border-2 border-white">
+                    {bookings.filter(b => b.status === 'pending').length}
+                  </span>
+                )}
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center gap-2 bg-brand-green text-white px-6 py-2.5 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                <Save size={18} />
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-4 md:p-8">
@@ -1004,7 +1097,7 @@ export const AdminDashboard: React.FC = () => {
                                 value={user.role}
                                 onChange={(e) => handleUpdateUserRole(user.uid, e.target.value)}
                                 className="text-sm border border-stone-200 rounded-lg px-2 py-1 outline-none focus:border-brand-green"
-                                disabled={user.email === 'admin@kidtopia.com' || (adminConfig && user.email === adminConfig.email)}
+                                disabled={user.email === 'admin@kidtopiaet.com' || (adminConfig && user.email === adminConfig.email)}
                               >
                                 <option value="parent">Parent</option>
                                 <option value="staff">Staff</option>
@@ -1012,7 +1105,7 @@ export const AdminDashboard: React.FC = () => {
                               </select>
                               <button
                                 onClick={() => handleDeleteUser(user.uid)}
-                                disabled={user.email === 'admin@kidtopia.com' || (adminConfig && user.email === adminConfig.email)}
+                                disabled={user.email === 'admin@kidtopiaet.com' || (adminConfig && user.email === adminConfig.email)}
                                 className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-stone-400"
                                 title="Remove User Access"
                               >
@@ -1098,6 +1191,41 @@ export const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div className="mt-12 pt-8 border-t border-stone-100">
+                    <h3 className="text-lg font-bold text-stone-900 mb-2">Notification Emails</h3>
+                    <p className="text-sm text-stone-500 mb-4">Enter the email addresses that should receive alerts (like the 2-hour pending approval reminder). Separate multiple emails with a comma.</p>
+                    <div className="flex flex-col gap-4 max-w-md">
+                      <input 
+                        type="text"
+                        value={adminConfig?.adminEmails?.join(', ') || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const emailsArray = val.split(',').map(e => e.trim()).filter(e => !!e);
+                          setAdminConfig({ ...adminConfig, adminEmails: emailsArray });
+                        }}
+                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
+                        placeholder="admin1@kidtopiaet.com, admin2@kidtopiaet.com"
+                      />
+                      <button 
+                        onClick={async () => {
+                          setSecurityLoading(true);
+                          try {
+                            await updateAdminConfig(adminConfig);
+                            setFeedback({ type: 'success', message: 'Notification emails saved!' });
+                          } catch (err) {
+                            setFeedback({ type: 'error', message: 'Failed to update emails' });
+                          } finally {
+                            setSecurityLoading(false);
+                          }
+                        }}
+                        disabled={securityLoading}
+                        className="py-2 bg-brand-green text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                      >
+                        Save Notification Emails
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-12 pt-8 border-t border-stone-100">
                     <h3 className="text-lg font-bold text-stone-900 mb-2">System Diagnostics</h3>
                     <p className="text-sm text-stone-500 mb-4">Check the status of the backend server and file upload system.</p>
                     <div className="flex flex-col gap-4 max-w-md">
@@ -1119,31 +1247,83 @@ export const AdminDashboard: React.FC = () => {
               </div>
             ) : activeSection === 'bookings' ? (
               <div className="space-y-8">
+                {/* Pending Actions / Notification Panel */}
+                {(() => {
+                   const pending = bookings.filter(b => b.status === 'pending');
+                   if (pending.length === 0) return null;
+                   return (
+                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                       <h3 className="text-amber-800 font-bold mb-2 flex items-center gap-2">
+                         <Megaphone size={18} /> Required Attention: Pending Tours ({pending.length})
+                       </h3>
+                       <p className="text-sm text-amber-700">You have {pending.length} tour booking(s) awaiting approval.</p>
+                     </div>
+                   );
+                })()}
+
                 <div>
                   <h2 className="text-xl font-bold text-stone-900 mb-4">Tour Schedule Settings</h2>
                   <p className="text-sm text-stone-500 mb-4">Manage the available time slots for tour bookings (8:30 AM to 6:00 PM).</p>
+                  
+                  <div className="mb-4">
+                    <label className="text-sm font-bold text-stone-700 block mb-2">Schedule Day</label>
+                    <div className="flex flex-wrap gap-2">
+                      {daysOfWeek.map(day => (
+                        <button
+                          key={day}
+                          onClick={() => setScheduleViewDay(day)}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                            scheduleViewDay === day 
+                              ? 'bg-brand-green text-white border-brand-green' 
+                              : 'bg-white text-stone-600 border-stone-200 hover:border-brand-green'
+                          }`}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-stone-50 rounded-xl border border-stone-200">
-                    {tourSchedule?.slots?.map((slot: any, idx: number) => (
-                      <label key={idx} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-stone-100 rounded-lg">
-                        <input
-                          type="checkbox"
-                          checked={slot.active}
-                          onChange={async (e) => {
-                            const newSlots = [...tourSchedule.slots];
-                            newSlots[idx].active = e.target.checked;
-                            setTourSchedule({ slots: newSlots });
-                            try {
-                              await updateTourSchedule({ slots: newSlots });
-                              setFeedback({ type: 'success', message: 'Schedule updated!' });
-                            } catch (err) {
-                              setFeedback({ type: 'error', message: 'Failed to update schedule' });
-                            }
-                          }}
-                          className="w-4 h-4 text-brand-green border-stone-300 rounded focus:ring-brand-green"
-                        />
-                        <span className="font-medium text-stone-700">{slot.time}</span>
-                      </label>
-                    ))}
+                    {(() => {
+                      const currentSlots = scheduleViewDay === 'Default' 
+                        ? tourSchedule?.slots || []
+                        : (tourSchedule?.daySchedules?.[scheduleViewDay] || JSON.parse(JSON.stringify(tourSchedule?.slots || [])));
+
+                      return currentSlots.map((slot: any, idx: number) => (
+                        <label key={idx} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-stone-100 rounded-lg">
+                          <input
+                            type="checkbox"
+                            checked={slot.active}
+                            onChange={async (e) => {
+                              const newSlots = [...currentSlots];
+                              newSlots[idx].active = e.target.checked;
+                              
+                              const updatedSchedule = { ...tourSchedule };
+                              if (!updatedSchedule.daySchedules) {
+                                updatedSchedule.daySchedules = {};
+                              }
+
+                              if (scheduleViewDay === 'Default') {
+                                updatedSchedule.slots = newSlots;
+                              } else {
+                                updatedSchedule.daySchedules[scheduleViewDay] = newSlots;
+                              }
+                              
+                              setTourSchedule(updatedSchedule);
+                              try {
+                                await updateTourSchedule(updatedSchedule);
+                                setFeedback({ type: 'success', message: 'Schedule updated!' });
+                              } catch (err) {
+                                setFeedback({ type: 'error', message: 'Failed to update schedule' });
+                              }
+                            }}
+                            className="w-4 h-4 text-brand-green border-stone-300 rounded focus:ring-brand-green"
+                          />
+                          <span className="font-medium text-stone-700">{slot.time}</span>
+                        </label>
+                      ));
+                    })()}
                   </div>
                 </div>
 
@@ -1197,16 +1377,29 @@ export const AdminDashboard: React.FC = () => {
 
                                       // Send approval email
                                       if (b.email) {
-                                        const emailHtml = `
+                                        const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+                                        const templateHeader = content[activeLang]?.emailTemplates?.approval?.subject || 'Kidtopia Tour Booking - Confirmed';
+                                        const templateBody = content[activeLang]?.emailTemplates?.approval?.body || `
                                             <h2>Your Tour is Confirmed!</h2>
-                                            <p>Hi ${b.name},</p>
+                                            <p>Hi {name},</p>
                                             <p>Great news! Your physical tour at Kidtopia has been approved.</p>
-                                            <p><strong>Date:</strong> ${b.date}</p>
-                                            <p><strong>Time:</strong> ${b.time}</p>
+                                            <p><strong>Date:</strong> {dayName}, {date}</p>
+                                            <p><strong>Time:</strong> {time}</p>
                                             <p>We look forward to meeting you! If you have any questions, please contact us.</p>
                                         `;
+                                        const emailHtml = templateBody
+                                            .replace(/\{name\}/g, b.name || '')
+                                            .replace(/\{date\}/g, b.date || '')
+                                            .replace(/\{time\}/g, b.time || '')
+                                            .replace(/\{dayName\}/g, dayName);
+                                        const subject = templateHeader
+                                            .replace(/\{name\}/g, b.name || '')
+                                            .replace(/\{date\}/g, b.date || '')
+                                            .replace(/\{time\}/g, b.time || '')
+                                            .replace(/\{dayName\}/g, dayName);
+
                                         import('../firebase').then(({ sendEmail }) => {
-                                            sendEmail(b.email, 'Kidtopia Tour Booking - Confirmed', emailHtml).catch(console.error);
+                                            sendEmail(b.email, subject, emailHtml).catch(console.error);
                                         });
                                       }
                                     }}
@@ -1223,14 +1416,27 @@ export const AdminDashboard: React.FC = () => {
 
                                       // Send rejection email
                                       if (b.email) {
-                                        const emailHtml = `
+                                        const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+                                        const templateHeader = content[activeLang]?.emailTemplates?.rejection?.subject || 'Tour Booking Update';
+                                        const templateBody = content[activeLang]?.emailTemplates?.rejection?.body || `
                                             <h2>Tour Booking Update</h2>
-                                            <p>Hi ${b.name},</p>
-                                            <p>Unfortunately, we are unable to accommodate your physical tour request for ${b.date} at ${b.time}.</p>
+                                            <p>Hi {name},</p>
+                                            <p>Unfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.</p>
                                             <p>Please feel free to submit a new request with a different time, or contact our office for further assistance.</p>
                                         `;
+                                        const emailHtml = templateBody
+                                            .replace(/\{name\}/g, b.name || '')
+                                            .replace(/\{date\}/g, b.date || '')
+                                            .replace(/\{time\}/g, b.time || '')
+                                            .replace(/\{dayName\}/g, dayName);
+                                        const subject = templateHeader
+                                            .replace(/\{name\}/g, b.name || '')
+                                            .replace(/\{date\}/g, b.date || '')
+                                            .replace(/\{time\}/g, b.time || '')
+                                            .replace(/\{dayName\}/g, dayName);
+
                                         import('../firebase').then(({ sendEmail }) => {
-                                            sendEmail(b.email, 'Kidtopia Tour Booking - Update', emailHtml).catch(console.error);
+                                            sendEmail(b.email, subject, emailHtml).catch(console.error);
                                         });
                                       }
                                     }}
@@ -1249,9 +1455,25 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             ) : content[activeLang] && content[activeLang][activeSection] ? (
-              Object.entries(content[activeLang][activeSection]).map(([key, value]) => 
-                renderField(key, value, [activeSection, key])
-              )
+              <>
+                {activeSection === 'emailTemplates' && (
+                  <div className="mb-6 p-4 bg-lime-50 border border-brand-green/20 rounded-xl">
+                    <h3 className="font-bold text-brand-green mb-2 flex items-center gap-2">
+                       <Megaphone size={18}/> Placeholder Variables
+                    </h3>
+                    <p className="text-sm text-stone-600 mb-2">You can use these placeholders inside your email templates. They will be automatically replaced with the booking data when an email is sent:</p>
+                    <ul className="list-disc pl-5 text-sm text-stone-600 space-y-1">
+                      <li><strong>{`{name}`}</strong> - The parent's name</li>
+                      <li><strong>{`{date}`}</strong> - The requested tour date (YYYY-MM-DD)</li>
+                      <li><strong>{`{time}`}</strong> - The requested tour time</li>
+                      <li><strong>{`{dayName}`}</strong> - The day of the week (e.g., Monday, Tuesday)</li>
+                    </ul>
+                  </div>
+                )}
+                {Object.entries(content[activeLang][activeSection]).map(([key, value]) => 
+                  renderField(key, value, [activeSection, key])
+                )}
+              </>
             ) : (
               <p className="text-stone-500">No content available for this section.</p>
             )}

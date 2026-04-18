@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { setupRoutes } from './src/server/routes.ts';
 import { initDb } from './src/server/db.ts';
+import { startReminderJob } from './src/server/reminderJob.ts';
 
 async function startServer() {
   const app = express();
@@ -29,6 +30,9 @@ async function startServer() {
 
   // Setup API Routes
   setupRoutes(app);
+  
+  // Start the background reminder job to check for pending bookings
+  startReminderJob();
 
   // Serve uploads directory
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

@@ -76,13 +76,17 @@ export const saveFingerprintTemplate = async (template: string) => {
 export const getAdminConfig = async () => {
   const configDoc = await getDoc(doc(db, 'settings', 'admin_config'));
   if (configDoc.exists()) {
-    return configDoc.data();
+    return {
+      adminEmails: [],
+      ...configDoc.data()
+    };
   }
   return {
     username: 'admin',
     password: '123456',
-    email: 'admin@kidtopia.com',
-    firebasePassword: 'admin123'
+    email: 'admin@kidtopiaet.com',
+    firebasePassword: 'admin123',
+    adminEmails: []
   };
 };
 
@@ -111,11 +115,20 @@ async function testConnection() {
 }
 testConnection();
 
+const formatToAMPM = (time24: string) => {
+  if (time24.includes('AM') || time24.includes('PM')) return time24;
+  const [h, m] = time24.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${m.toString().padStart(2, '0')} ${period}`;
+};
+
 // Bookings and Schedule
 export const getTourSchedule = async () => {
   try {
     const docRef = doc(db, 'settings', 'tourSchedule');
     const docSnap = await getDoc(docRef);
+    
     if (!docSnap.exists()) {
       // Default slots
       const defaultSlots = [];
@@ -123,16 +136,28 @@ export const getTourSchedule = async () => {
       let minute = 30;
       while (hour < 18 || (hour === 18 && minute === 0)) {
         const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        defaultSlots.push({ time: timeStr, active: true });
+        defaultSlots.push({ time: formatToAMPM(timeStr), active: true });
         minute += 30;
         if (minute >= 60) {
           hour++;
           minute -= 60;
         }
       }
-      return { slots: defaultSlots };
+      return { slots: defaultSlots, daySchedules: {} };
     }
-    return docSnap.data();
+    
+    const data = docSnap.data();
+    if (data.slots) {
+       data.slots = data.slots.map((s: any) => ({ ...s, time: formatToAMPM(s.time) }));
+    }
+    if (!data.daySchedules) {
+       data.daySchedules = {};
+    } else {
+       for (const day in data.daySchedules) {
+          data.daySchedules[day] = data.daySchedules[day].map((s: any) => ({ ...s, time: formatToAMPM(s.time) }));
+       }
+    }
+    return data;
   } catch (err) {
     console.error("Failed to get tour schedule:", err);
     throw err;
@@ -239,6 +264,16 @@ export const updateBookingStatus = async (id: string, status: string) => {
       throw err;
     }
   };
+
+export const updateBookingReminderStatus = async (id: string, reminderSent: boolean) => {
+  try {
+    const docRef = doc(db, 'bookings', id);
+    await setDoc(docRef, { reminderSent }, { merge: true });
+  } catch (err) {
+    console.error("Failed to update reminder status:", err);
+    throw err;
+  }
+};
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
   try {

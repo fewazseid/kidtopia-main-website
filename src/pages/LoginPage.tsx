@@ -42,7 +42,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       }
 
       // Fetch admin config to get the admin email
-      let adminConfig: any = { username: 'admin', email: 'admin@kidtopiadaycare.com', firebasePassword: 'admin123' };
+      let adminConfig: any = { username: 'admin', email: 'admin@kidtopiaet.com', firebasePassword: 'admin123' };
       try {
         const remoteConfig = await getAdminConfig();
         adminConfig = { ...adminConfig, ...remoteConfig };
@@ -106,7 +106,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       let passToUse = password;
 
       // Fetch dynamic admin config
-      let adminConfig = { username: 'admin', password: '123456', email: 'admin@kidtopiadaycare.com', firebasePassword: 'admin123' };
+      let adminConfig = { username: 'admin', password: '123456', email: 'admin@kidtopiaet.com', firebasePassword: 'admin123' };
       try {
         const remoteConfig = await getAdminConfig();
         adminConfig = { ...adminConfig, ...remoteConfig };
@@ -125,12 +125,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       // Handle dynamic admin shortcut
       let fallbackPass = '';
       if (username.toLowerCase() === adminConfig.username.toLowerCase()) {
-        emailToUse = adminConfig.email || 'admin@kidtopia.com';
+        emailToUse = adminConfig.email || 'admin@kidtopiaet.com';
         passToUse = password;
         fallbackPass = adminConfig.firebasePassword || 'admin123';
       } else if (!username.includes('@')) {
         // If it's a username without @, treat as internal email
-        emailToUse = `${username.toLowerCase()}@kidtopia.com`;
+        emailToUse = `${username.toLowerCase()}@kidtopiaet.com`;
       }
 
       console.log('DEBUG: Attempting login with:', emailToUse, 'password length:', passToUse.length);
@@ -220,7 +220,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       const user = result.user;
       
       // Fetch dynamic admin config to check if this email is the configured admin
-      let adminConfig = { email: 'admin@kidtopiadaycare.com' };
+      let adminConfig = { email: 'admin@kidtopiaet.com' };
       try {
         const remoteConfig = await getAdminConfig();
         adminConfig = { ...adminConfig, ...remoteConfig };

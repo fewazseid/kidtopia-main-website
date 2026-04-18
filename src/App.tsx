@@ -47,7 +47,7 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/testimonials" element={<TestimonialsPage lang={lang} />} />
         <Route path="/contact" element={<ContactPage lang={lang} />} />
         <Route path="/book-tour" element={<BookTourPage lang={lang} />} />
-        <Route path="/reschedule/:id" element={<RescheduleTourPage />} />
+        <Route path="/reschedule/:id" element={<RescheduleTourPage lang={lang} />} />
         <Route path="/login" element={<LoginPage lang={lang} />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/staff" element={<StaffDashboard />} />

@@ -3,8 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import { getBooking, getTourSchedule, updateBookingTime } from '../firebase';
 import { Calendar, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 
-export const RescheduleTourPage: React.FC = () => {
+import { Language } from '../translations';
+import { useContent } from '../ContentContext';
+
+interface RescheduleTourPageProps {
+  lang: Language;
+}
+
+export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang }) => {
+  const t = useContent(lang).reschedule;
+  
   const { id } = useParams<{ id: string }>();
+
   const [booking, setBooking] = useState<any>(null);
   const [schedule, setSchedule] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -24,12 +34,12 @@ export const RescheduleTourPage: React.FC = () => {
         ]);
         
         if (!bookData) {
-          setError('Booking not found.');
+          setError(t.notFound);
           return;
         }
 
         if (bookData.status !== 'pending') {
-          setError('This booking has already been processed and cannot be rescheduled here. Please contact us directly.');
+          setError(t.alreadyProcessed);
           return;
         }
 
@@ -39,7 +49,7 @@ export const RescheduleTourPage: React.FC = () => {
         setSelectedTime(bookData.time);
       } catch (err) {
         console.error(err);
-        setError('Failed to load booking details.');
+        setError(t.failedToLoad);
       } finally {
         setLoading(false);
       }
@@ -57,7 +67,7 @@ export const RescheduleTourPage: React.FC = () => {
       setSuccess(true);
     } catch (err) {
       console.error(err);
-      setError('Failed to update booking. Please try again.');
+      setError(t.failedToUpdate);
     } finally {
       setLoading(false);
     }
@@ -81,12 +91,12 @@ export const RescheduleTourPage: React.FC = () => {
     <div className="min-h-screen bg-stone-50 pt-20 pb-12 flex flex-col items-center">
       <div className="max-w-2xl w-full px-4 mt-8">
         <Link to="/" className="inline-flex items-center text-brand-green font-medium hover:underline mb-6">
-          <ArrowLeft size={20} className="mr-2" /> Back to Home
+          <ArrowLeft size={20} className="mr-2" /> {t.backToHome}
         </Link>
 
         <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-stone-100">
           <div className="text-center mb-10">
-            <h1 className="text-3xl font-serif font-bold text-stone-900 mb-4">Reschedule Your Tour</h1>
+            <h1 className="text-3xl font-serif font-bold text-stone-900 mb-4">{t.title}</h1>
           </div>
 
           {error ? (
@@ -98,21 +108,21 @@ export const RescheduleTourPage: React.FC = () => {
               <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle size={40} />
               </div>
-              <h2 className="text-2xl font-bold text-stone-900 mb-4">Tour Rescheduled Successfully!</h2>
-              <p className="text-stone-600 text-lg">Your new requested tour time is {selectedDate} at {selectedTime}. We will notify you once your booking is approved.</p>
+              <h2 className="text-2xl font-bold text-stone-900 mb-4">{t.success}</h2>
+              <p className="text-stone-600 text-lg">{t.successDesc.replace('{date}', selectedDate).replace('{time}', selectedTime)}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="bg-stone-50 p-6 rounded-2xl mb-6">
-                <h3 className="font-bold text-stone-700 mb-2">Current Request:</h3>
-                <p className="text-stone-900"><strong>Date:</strong> {booking?.date}</p>
-                <p className="text-stone-900"><strong>Time:</strong> {booking?.time}</p>
+                <h3 className="font-bold text-stone-700 mb-2">{t.currentRequest}</h3>
+                <p className="text-stone-900"><strong>{t.date}</strong> {booking?.date}</p>
+                <p className="text-stone-900"><strong>{t.time}</strong> {booking?.time}</p>
               </div>
 
               {/* Date Selection */}
               <div className="space-y-4">
                 <label className="flex items-center text-stone-900 font-bold mb-2">
-                  <Calendar className="mr-2 text-brand-green" size={20} /> Select New Date
+                  <Calendar className="mr-2 text-brand-green" size={20} /> {t.selectNewDate}
                 </label>
                 <input
                   type="date"
@@ -127,7 +137,7 @@ export const RescheduleTourPage: React.FC = () => {
               {/* Time Selection */}
               <div className="space-y-4">
                 <label className="flex items-center text-stone-900 font-bold mb-2">
-                  <Clock className="mr-2 text-brand-green" size={20} /> Select New Time
+                  <Clock className="mr-2 text-brand-green" size={20} /> {t.selectNewTime}
                 </label>
                 {selectedDate ? (
                   availableSlots.length > 0 ? (
@@ -148,10 +158,10 @@ export const RescheduleTourPage: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="py-3 text-amber-600 font-medium">No available slots in schedule.</div>
+                    <div className="py-3 text-amber-600 font-medium">{t.noSlots}</div>
                   )
                 ) : (
-                  <div className="py-3 text-stone-400">Please select a date first.</div>
+                  <div className="py-3 text-stone-400">{t.pleaseSelectDate}</div>
                 )}
               </div>
 
@@ -161,7 +171,7 @@ export const RescheduleTourPage: React.FC = () => {
                   disabled={loading || !selectedDate || !selectedTime}
                   className="btn-primary w-full py-4 text-lg disabled:opacity-50"
                 >
-                  {loading ? 'Updating...' : 'Update Tour Time'}
+                  {loading ? t.updating : t.updateButton}
                 </button>
               </div>
             </form>
