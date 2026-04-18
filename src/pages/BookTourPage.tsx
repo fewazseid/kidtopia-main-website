@@ -88,7 +88,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
         const dateObj = new Date(y, m - 1, d);
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
 
-        const rescheduleLink = `${window.location.origin}/reschedule/${bookingId}`;
+        const rescheduleLink = `https://www.kidtopiaet.com/reschedule/${bookingId}`;
         const emailHtml = `
           <h2>Kidtopia Tour Booking Request</h2>
           <p>Hi ${formData.name},</p>

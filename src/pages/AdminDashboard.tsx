@@ -355,11 +355,11 @@ export const AdminDashboard: React.FC = () => {
         const defaultEmailTemplates = {
           approval: {
             subject: 'Kidtopia Tour Booking - Confirmed',
-            body: '<h2>Your Tour is Confirmed!</h2>\n<p>Hi {name},</p>\n<p>Great news! Your physical tour at Kidtopia has been approved.</p>\n<p><strong>Date:</strong> {dayName}, {date}</p>\n<p><strong>Time:</strong> {time}</p>\n<p>We look forward to meeting you! If you have any questions, please contact us.</p>'
+            body: 'Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.'
           },
           rejection: {
             subject: 'Tour Booking Update',
-            body: '<h2>Tour Booking Update</h2>\n<p>Hi {name},</p>\n<p>Unfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.</p>\n<p>Please feel free to submit a new request with a different time, or contact our office for further assistance.</p>'
+            body: 'Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.'
           }
         };
 
@@ -665,6 +665,7 @@ export const AdminDashboard: React.FC = () => {
       const isMoreInfo = key === 'moreInfo';
       const isDescription = key === 'description' || key === 'desc';
       const isAnnouncementText = key === 'text' && path[0] === 'announcement';
+      const isEmailBody = key === 'body' && path[0] === 'emailTemplates';
 
       if (isAnnouncementText) {
         return (
@@ -735,14 +736,14 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
           <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-            {key.replace(/([A-Z])/g, ' $1').trim()}
+            {isEmailBody ? 'Email Content (Line breaks are preserved)' : key.replace(/([A-Z])/g, ' $1').trim()}
           </label>
-          {value.length > 100 || isMoreInfo || isDescription ? (
+          {value.length > 100 || isMoreInfo || isDescription || isEmailBody ? (
             <textarea
               value={value}
               onChange={(e) => handleChange(path, e.target.value)}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
-              rows={isMoreInfo ? 6 : 3}
+              rows={isMoreInfo || isEmailBody ? 6 : 3}
             />
           ) : (
             <input
@@ -1379,19 +1380,15 @@ export const AdminDashboard: React.FC = () => {
                                       if (b.email) {
                                         const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
                                         const templateHeader = content[activeLang]?.emailTemplates?.approval?.subject || 'Kidtopia Tour Booking - Confirmed';
-                                        const templateBody = content[activeLang]?.emailTemplates?.approval?.body || `
-                                            <h2>Your Tour is Confirmed!</h2>
-                                            <p>Hi {name},</p>
-                                            <p>Great news! Your physical tour at Kidtopia has been approved.</p>
-                                            <p><strong>Date:</strong> {dayName}, {date}</p>
-                                            <p><strong>Time:</strong> {time}</p>
-                                            <p>We look forward to meeting you! If you have any questions, please contact us.</p>
-                                        `;
+                                        const templateBody = content[activeLang]?.emailTemplates?.approval?.body || `Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.`;
                                         const emailHtml = templateBody
+                                            .replace(/\n/g, '<br/>')
                                             .replace(/\{name\}/g, b.name || '')
                                             .replace(/\{date\}/g, b.date || '')
                                             .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName);
+                                            .replace(/\{dayName\}/g, dayName)
+                                            // Handle potential legacy <p> tags visually nicely if they exist
+                                            .replace(/<p>/g, '<p style="margin: 0 0 10px 0;">');
                                         const subject = templateHeader
                                             .replace(/\{name\}/g, b.name || '')
                                             .replace(/\{date\}/g, b.date || '')
@@ -1418,17 +1415,14 @@ export const AdminDashboard: React.FC = () => {
                                       if (b.email) {
                                         const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
                                         const templateHeader = content[activeLang]?.emailTemplates?.rejection?.subject || 'Tour Booking Update';
-                                        const templateBody = content[activeLang]?.emailTemplates?.rejection?.body || `
-                                            <h2>Tour Booking Update</h2>
-                                            <p>Hi {name},</p>
-                                            <p>Unfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.</p>
-                                            <p>Please feel free to submit a new request with a different time, or contact our office for further assistance.</p>
-                                        `;
+                                        const templateBody = content[activeLang]?.emailTemplates?.rejection?.body || `Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.`;
                                         const emailHtml = templateBody
+                                            .replace(/\n/g, '<br/>')
                                             .replace(/\{name\}/g, b.name || '')
                                             .replace(/\{date\}/g, b.date || '')
                                             .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName);
+                                            .replace(/\{dayName\}/g, dayName)
+                                            .replace(/<p>/g, '<p style="margin: 0 0 10px 0;">');
                                         const subject = templateHeader
                                             .replace(/\{name\}/g, b.name || '')
                                             .replace(/\{date\}/g, b.date || '')
