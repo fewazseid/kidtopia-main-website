@@ -653,6 +653,24 @@ export const AdminDashboard: React.FC = () => {
         );
       }
 
+      if (key === 'backgroundType' && path[0] === 'hero') {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Background Type
+            </label>
+            <select
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
+            >
+              <option value="image">Photo</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+        );
+      }
+
       let parentObj = content[activeLang];
       for (let i = 0; i < path.length - 1; i++) {
         parentObj = parentObj[path[i]];

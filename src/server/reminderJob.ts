@@ -24,9 +24,13 @@ export function startReminderJob() {
                   role: 'admin',
                   updatedAt: new Date().toISOString()
                });
-             } catch (createErr) {
-               console.error('Failed to create admin user for reminder job', createErr);
-               return;
+             } catch (createErr: any) {
+               if (createErr.code === 'auth/email-already-in-use') {
+                 console.log('Admin user already exists');
+               } else {
+                 console.error('Failed to create admin user for reminder job', createErr);
+                 return;
+               }
              }
            } else {
              console.error('Failed to authenticate reminder job as admin:', authErr);

@@ -32,6 +32,7 @@ export const translations = {
       enroll: "Enroll Your Child",
       bookTour: "Book a Tour",
       virtualTour: "Take a Virtual Tour",
+      backgroundType: "image",
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       heroVideo: "",
       highlights: [
@@ -232,6 +233,7 @@ export const translations = {
       enroll: "ልጅዎን ያስመዝግቡ",
       bookTour: "ጉብኝት ያስይዙ",
       virtualTour: "ቪርቹዋል ጉብኝት ያድርጉ",
+      backgroundType: "image",
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       heroVideo: "",
       highlights: [

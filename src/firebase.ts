@@ -74,27 +74,28 @@ export const saveFingerprintTemplate = async (template: string) => {
 };
 
 export const getAdminConfig = async () => {
-  const configDoc = await getDoc(doc(db, 'settings', 'admin_config'));
-  if (configDoc.exists()) {
-    return {
-      adminEmails: [],
-      ...configDoc.data()
-    };
-  }
-  return {
+  const defaults = {
     username: 'admin',
     password: '123456',
     email: 'admin@kidtopiaet.com',
     firebasePassword: 'admin123',
     adminEmails: []
   };
+  const configDoc = await getDoc(doc(db, 'settings', 'admin_config'));
+  if (configDoc.exists()) {
+    return {
+      ...defaults,
+      ...configDoc.data()
+    };
+  }
+  return defaults;
 };
 
 export const updateAdminConfig = async (config: any) => {
   await setDoc(doc(db, 'settings', 'admin_config'), {
     ...config,
     updatedAt: new Date().toISOString()
-  });
+  }, { merge: true });
 };
 
 export const updateCurrentUserPassword = async (newPass: string) => {

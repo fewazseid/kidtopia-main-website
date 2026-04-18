@@ -17,7 +17,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
     <section className="relative min-h-screen flex items-center pt-16 lg:pt-20 overflow-hidden">
       {/* Background Media */}
       <div className="absolute inset-0 z-0">
-        {t.heroVideo ? (
+        {t.backgroundType === 'video' ? (
           <video 
             src={t.heroVideo} 
             autoPlay 
@@ -26,7 +26,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
             playsInline 
             className="w-full h-full object-cover opacity-50"
           />
-        ) : t.heroImage && (
+        ) : (
           <img 
             src={t.heroImage} 
             alt="Happy children learning and playing" 
