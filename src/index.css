@@ -47,3 +47,20 @@
 .btn-outline {
   @apply border border-brand-green text-brand-green rounded-full px-6 py-3 transition-all hover:bg-brand-green hover:text-white active:scale-95;
 }
+
+.react-player-bg video,
+.react-player-bg iframe {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: scale(1.1); /* Slight scale to hide iframe black borders on certain ratios */
+  pointer-events: none;
+}
+.react-player-bg video,
+.react-player-bg iframe {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: scale(1.1); /* Slight scale to hide iframe black borders on certain ratios */
+  pointer-events: none;
+}

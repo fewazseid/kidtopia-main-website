@@ -107,11 +107,46 @@ export const translations = {
       title: "What Parents Say",
       list: [
         { 
-          name: "Faeza Ebrahim", 
-          text: "Kidtopia gives us peace of mind. We receive daily updates and our child loves the environment.", 
+          name: "Rediet Sisay", 
+          text: "Leaving my child was difficult at first, but the teachers made us feel comfortable and supported from day one.", 
           rating: 5, 
           image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop",
-          workInfo: "CEO of Arho Technology"
+          workInfo: "Enterpreneur"
+        },
+        { 
+          name: "Selamawit Gebretensay", 
+          text: "Kidtopia daycare helped my child interact with other children, its the place where my child learned to talk well, the staff make him loved and generally it is the best daycare i have seen in Addis Ababa. I would 100% recommened it.", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "Pharmacist"
+        },
+        { 
+          name: "Samrawit Kassa", 
+          text: "We are very grateful to be part of Kidtopia International Daycare and Preschool. It has truly been a wonderful experience for both me and my daughter. One of the things I appreciate most is the daily communication book. It keeps me fully informed about my child’s day—what she eats, when she sleeps, her activities, and even small details. This level of care and transparency gives me great peace of mind. The teachers are incredibly kind, protective, and truly loving toward the children.", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "Kidtopia Parent"
+        },
+        { 
+          name: "Rihanna Yimam Hassen", 
+          text: "Kidtopia has truly been the safest and most nurturing place for my baby. Since joining I’ve seen incredible progress in her communication skills, her play, and even her eating habits. Knowing she’s in such a caring and supportive environment gives me complete peace of mind.", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "Consultant at AFSIC"
+        },
+        { 
+          name: "Dr. Serkalem Nurlegn", 
+          text: "At kidtopia our child has found a loving nurturing environment. We live getting updates on his day. He is very happy and looks forward to being there. I definitely recommend kidtopia.", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1550525811-e5869dd03032?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "Kidtopia Parent"
+        },
+        { 
+          name: "Mehret Behailu", 
+          text: "I have visited multiple daycares and preschools but I felt a sense of comfort and “hominess” with kidtopia.The dedicated staff is warm,caring and hardworking combined with fun and educational classroom structure, has truly made a positive impact on our family. I couldn’t imagine my daughter going anywhere else!", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1463453091185-61582044d556?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "Kidtopia Parent"
         }
       ]
     },
@@ -313,6 +348,20 @@ export const translations = {
           rating: 5, 
           image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop",
           workInfo: "የአርሆ ቴክኖሎጂ ዋና ስራ አስፈፃሚ"
+        },
+        { 
+          name: "ፈዋዝ ሰኢድ አህመድ", 
+          text: "አሪፍ ነው", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "የኪድቶፒያ ወላጅ"
+        },
+        { 
+          name: "እመቤት ጌታሁን", 
+          text: "ኪድቶፒያ ለልጃችን ምርጥ እና ምቹ ቦታ ሆኖ አግኝቼዋለሁ ከበር ጀምሮ ያለው አቀባበላችሁ ለልጆቹም ለወላጅም ይማርካል ቀጥሉበት በልጃችን ላይ ብዙ ጥሩ ለውጦችን አይተናል የኔ ልጅ ሲመጣ እየናፈቀ ነው ሚመጣው ተናፋቂ ናችሁ!ልጄ እናተ ጋር ሲውል ለደህንነቱ ተማምኜ ነው እምውለው የመጣሁትም ስለእናተ የልጅ አያያዝ ጥሩ ምስክርነት ሰምቼ ነበር የበለጠ ሆኖ አግኝቼዋለሁ እኔም ልጄም እንወዳችኃለን!", 
+          rating: 5, 
+          image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&h=100&auto=format&fit=crop",
+          workInfo: "የኪድቶፒያ ወላጅ"
         }
       ]
     },

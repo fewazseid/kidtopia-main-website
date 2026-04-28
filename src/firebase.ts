@@ -16,14 +16,30 @@ const secondaryApp = initializeApp(firebaseConfig, 'SecondaryApp');
 const secondaryAuth = getAuth(secondaryApp);
 
 export const createUserWithoutLogin = async (email: string, pass: string, role: string) => {
-  const result = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-  await setDoc(doc(db, 'users', result.user.uid), {
+  let user;
+  try {
+    const result = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+    user = result.user;
+  } catch (err: any) {
+    if (err.code === 'auth/email-already-in-use') {
+      try {
+        const signinResult = await signInWithEmailAndPassword(secondaryAuth, email, pass);
+        user = signinResult.user;
+      } catch (loginErr: any) {
+        throw new Error('User exists in Database but password does not match. Please use correct password to restore, or delete from Firebase console.');
+      }
+    } else {
+      throw err;
+    }
+  }
+
+  await setDoc(doc(db, 'users', user.uid), {
     email,
     role,
     updatedAt: new Date().toISOString()
   });
   await signOut(secondaryAuth);
-  return result.user;
+  return user;
 };
 
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
@@ -32,6 +48,19 @@ export const registerWithEmail = (email: string, pass: string) => createUserWith
 export const logout = () => signOut(auth);
 
 export const getUserRole = async (uid: string) => {
+  if (auth.currentUser?.email === 'admin@kidtopiaet.com' || auth.currentUser?.email === 'system_worker@kidtopiaet.internal') {
+    return 'admin';
+  }
+  
+  try {
+    const config = await getAdminConfig();
+    if (auth.currentUser?.email === config.email) {
+      return 'admin';
+    }
+  } catch (e) {
+    // Ignore config fetch errors if not allowed
+  }
+
   const userDoc = await getDoc(doc(db, 'users', uid));
   if (userDoc.exists()) {
     return userDoc.data().role;
@@ -77,15 +106,19 @@ export const getAdminConfig = async () => {
   const defaults = {
     username: 'admin',
     password: '123456',
-    email: 'admin@kidtopiaet.com',
-    firebasePassword: 'admin123',
+    email: 'system_worker@kidtopiaet.internal',
+    firebasePassword: 'internal_system_password_99X',
     adminEmails: []
   };
   const configDoc = await getDoc(doc(db, 'settings', 'admin_config'));
   if (configDoc.exists()) {
+    const data = configDoc.data();
     return {
       ...defaults,
-      ...configDoc.data()
+      ...data,
+      // Force internal creds for firebase operations on server
+      email: data.firebaseWorkerEmail || defaults.email,
+      firebasePassword: data.firebaseWorkerPassword || defaults.firebasePassword,
     };
   }
   return defaults;
@@ -218,8 +251,14 @@ export const getAllBookings = async () => {
       ...b,
       ...detailsMap.get(b.id)
     }));
-  } catch (err) {
-    console.error("Failed to get all bookings:", err);
+  } catch (err: any) {
+    if (err.message.includes('booking_details')) {
+      console.error("Failed to get all bookings: Permission denied on booking_details", err);
+    } else if (err.message.includes('bookings')) {
+      console.error("Failed to get all bookings: Permission denied on bookings", err);
+    } else {
+      console.error("Failed to get all bookings:", err);
+    }
     throw err;
   }
 };

@@ -8,6 +8,7 @@ import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdm
 import { captureFingerprint, isSecuGenAvailable } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { translations as defaultTranslations } from '../translations';
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -223,7 +224,7 @@ export const AdminDashboard: React.FC = () => {
     }
     setAddingUser(true);
     try {
-      const emailToUse = `${newUserUsername.toLowerCase()}@kidtopia.com`;
+      const emailToUse = `${newUserUsername.toLowerCase()}@kidtopiaet.com`;
       const { createUserWithoutLogin } = await import('../firebase');
       await createUserWithoutLogin(emailToUse, newUserPassword, newUserRole);
       setFeedback({ type: 'success', message: 'User added successfully!' });
@@ -232,12 +233,16 @@ export const AdminDashboard: React.FC = () => {
       setNewUserRole('parent');
       fetchUsers();
     } catch (err: any) {
-      console.error('Failed to add user', err);
-      let msg = err.message || 'Failed to add user';
-      if (err.code === 'auth/email-already-in-use') {
-        msg = 'This username is already taken. Please choose another one.';
+      if (err.code === 'auth/email-already-in-use' || (err.message && err.message.includes('email-already-in-use'))) {
+        setFeedback({ type: 'error', message: 'This username is already taken. Please choose another one.' });
+      } else {
+        console.error('Failed to add user', err);
+        let msg = err.message || 'Failed to add user';
+        if (err.message?.includes('permission-denied')) {
+          msg = 'You do not have permission to add users.';
+        }
+        setFeedback({ type: 'error', message: msg });
       }
-      setFeedback({ type: 'error', message: msg });
     } finally {
       setAddingUser(false);
     }
@@ -378,6 +383,30 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (content && activeSection === 'hero') {
+      const hero = content[activeLang].hero;
+      if (hero && (hero.backgroundType === undefined || hero.heroVideo === undefined)) {
+        const newContent = JSON.parse(JSON.stringify(content));
+        if (newContent[activeLang].hero.backgroundType === undefined) newContent[activeLang].hero.backgroundType = 'image';
+        if (newContent[activeLang].hero.heroVideo === undefined) newContent[activeLang].hero.heroVideo = '';
+        setContent(newContent);
+      }
+    }
+  }, [content, activeLang, activeSection]);
+
+  useEffect(() => {
+    if (content && activeSection === 'hero') {
+      const hero = content[activeLang].hero;
+      if (hero && (hero.backgroundType === undefined || hero.heroVideo === undefined)) {
+        const newContent = JSON.parse(JSON.stringify(content));
+        if (newContent[activeLang].hero.backgroundType === undefined) newContent[activeLang].hero.backgroundType = 'image';
+        if (newContent[activeLang].hero.heroVideo === undefined) newContent[activeLang].hero.heroVideo = '';
+        setContent(newContent);
+      }
+    }
+  }, [content, activeLang, activeSection]);
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -412,9 +441,9 @@ export const AdminDashboard: React.FC = () => {
       
       handleChange(path, downloadURL);
       setFeedback({ type: 'success', message: `${type === 'image' ? 'Image' : 'Video'} uploaded successfully!` });
-    } catch (err) {
+    } catch (err: any) {
       console.error(`Error uploading ${type}`, err);
-      setFeedback({ type: 'error', message: `Error uploading ${type}. Check Firebase Storage rules.` });
+      setFeedback({ type: 'error', message: `Upload failed: ${err.message || 'Check permissions'}` });
     }
   };
 
@@ -547,6 +576,43 @@ export const AdminDashboard: React.FC = () => {
     { id: 'security', icon: <Shield size={18} />, label: 'Security Settings' },
   ];
 
+  const sortObjectKeysByTemplate = (obj: any, path: string[]) => {
+    if (!obj || typeof obj !== 'object') return [];
+    
+    let templateObj: any = defaultTranslations.en;
+    for (const segment of path) {
+      if (!templateObj) break;
+      if (Array.isArray(templateObj)) {
+        if (!isNaN(Number(segment))) {
+          templateObj = templateObj[0] || {};
+        } else {
+          // It's an array but the segment isn't a number? Should rarely happen unless structure mismatches
+          templateObj = undefined;
+        }
+      } else {
+        templateObj = templateObj[segment];
+      }
+    }
+    
+    if (Array.isArray(templateObj)) {
+      templateObj = templateObj[0] || {};
+    }
+    
+    if (!templateObj || typeof templateObj !== 'object') {
+      return Object.keys(obj);
+    }
+    
+    const templateKeys = Object.keys(templateObj);
+    return Object.keys(obj).sort((a, b) => {
+      const idxA = templateKeys.indexOf(a);
+      const idxB = templateKeys.indexOf(b);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.localeCompare(b);
+    });
+  };
+
   const renderField = (key: string, value: any, path: string[]) => {
     const isRating = key.toLowerCase() === 'rating' || key.toLowerCase() === 'rate';
     if (typeof value === 'number' || isRating) {
@@ -653,7 +719,7 @@ export const AdminDashboard: React.FC = () => {
         );
       }
 
-      if (key === 'backgroundType' && path[0] === 'hero') {
+      if (key === 'backgroundType' && path[0] === 'hero') {                
         return (
           <div key={path.join('.')} className="mb-4">
             <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
@@ -667,6 +733,24 @@ export const AdminDashboard: React.FC = () => {
               <option value="image">Photo</option>
               <option value="video">Video</option>
             </select>
+          </div>
+        );
+      }
+      
+      // Explicitly check for video URL even if not initially present
+      if (key === 'heroVideo' && path[0] === 'hero') {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Hero Video URL
+            </label>
+            <input
+              type="text"
+              value={value || ""}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
+              placeholder="Paste YouTube or direct video URL here"
+            />
           </div>
         );
       }
@@ -784,13 +868,6 @@ export const AdminDashboard: React.FC = () => {
         <div key={path.join('.')} className="mb-6 p-4 bg-stone-50 rounded-xl border border-stone-200">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-stone-800 capitalize">{key}</h3>
-            <button 
-              onClick={() => addItem(path)}
-              className="flex items-center gap-1 text-sm bg-brand-green text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
-            >
-              <Plus size={14} />
-              Add Item
-            </button>
           </div>
           {value.map((item, index) => (
             <div key={index} className="mb-4 p-4 bg-white rounded-lg border border-stone-200 relative group">
@@ -810,12 +887,19 @@ export const AdminDashboard: React.FC = () => {
                   className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
                 />
               ) : (
-                Object.entries(item).map(([itemKey, itemValue]) => 
-                  renderField(itemKey, itemValue, [...path, index.toString(), itemKey])
+                sortObjectKeysByTemplate(item, path).map((itemKey) => 
+                  renderField(itemKey, item[itemKey], [...path, index.toString(), itemKey])
                 )
               )}
             </div>
           ))}
+          <button 
+            onClick={() => addItem(path)}
+            className="flex items-center gap-1 text-sm text-brand-green border border-brand-green px-3 py-2 rounded-lg hover:bg-brand-green hover:text-white transition-colors w-max mt-2"
+          >
+            <Plus size={16} />
+            Add Item
+          </button>
         </div>
       );
     }
@@ -824,8 +908,8 @@ export const AdminDashboard: React.FC = () => {
       return (
         <div key={path.join('.')} className="mb-6">
           <h3 className="text-lg font-bold text-stone-800 mb-4 capitalize">{key}</h3>
-          {Object.entries(value).map(([objKey, objValue]) => 
-            renderField(objKey, objValue, [...path, objKey])
+          {sortObjectKeysByTemplate(value, path).map((objKey) => 
+            renderField(objKey, value[objKey], [...path, objKey])
           )}
         </div>
       );
@@ -1482,8 +1566,8 @@ export const AdminDashboard: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                {Object.entries(content[activeLang][activeSection]).map(([key, value]) => 
-                  renderField(key, value, [activeSection, key])
+                {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 
+                  renderField(key, content[activeLang][activeSection][key], [activeSection, key])
                 )}
               </>
             ) : (

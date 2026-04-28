@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
+import ReactPlayer from 'react-player';
 import { Shield, Users, LayoutGrid } from 'lucide-react';
 
 interface HeroProps {
@@ -13,19 +14,38 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
   const t = useContent(lang).hero;
 
+  console.log('Hero t object:', t);
+  console.log('Hero backgroundType:', t.backgroundType);
+  console.log('Hero heroVideo:', t.heroVideo);
+
   return (
     <section className="relative min-h-screen flex items-center pt-16 lg:pt-20 overflow-hidden">
       {/* Background Media */}
       <div className="absolute inset-0 z-0">
         {t.backgroundType === 'video' ? (
-          <video 
-            src={t.heroVideo} 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="w-full h-full object-cover opacity-50"
-          />
+          <div className="absolute inset-0 pointer-events-none overflow-hidden bg-black z-0">
+            {React.createElement(ReactPlayer as any, {
+              url: t.heroVideo,
+              playing: true,
+              loop: true,
+              muted: true,
+              playsinline: true,
+              width: "100%",
+              height: "100%",
+              className: "react-player-bg absolute inset-0 w-full h-full opacity-50",
+              config: {
+                youtube: {
+                  playerVars: { 
+                    controls: 0, 
+                    disablekb: 1, 
+                    modestbranding: 1, 
+                    rel: 0, 
+                    iv_load_policy: 3 
+                  }
+                } as any
+              }
+            })}
+          </div>
         ) : (
           <img 
             src={t.heroImage} 

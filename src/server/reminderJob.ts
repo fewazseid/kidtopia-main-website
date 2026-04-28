@@ -11,32 +11,34 @@ export function startReminderJob() {
       // Authenticate as admin before querying private collections
       const config = await getAdminConfig();
       if (config.email && config.firebasePassword) {
-        try {
-           await signInWithEmailAndPassword(auth, config.email, config.firebasePassword);
-         } catch (authErr: any) {
-           if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential') {
-             try {
-               const { createUserWithEmailAndPassword } = await import('firebase/auth');
-               const result = await createUserWithEmailAndPassword(auth, config.email, config.firebasePassword);
-               const { doc, setDoc } = await import('firebase/firestore');
-               await setDoc(doc(auth.app ? (await import('firebase/firestore')).getFirestore(auth.app) : (await import('../firebase.ts')).db, 'users', result.user.uid), {
-                  email: config.email,
-                  role: 'admin',
-                  updatedAt: new Date().toISOString()
-               });
-             } catch (createErr: any) {
-               if (createErr.code === 'auth/email-already-in-use') {
-                 console.log('Admin user already exists');
-               } else {
-                 console.error('Failed to create admin user for reminder job', createErr);
-                 return;
+        if (!auth.currentUser || auth.currentUser.email !== config.email) {
+          try {
+             await signInWithEmailAndPassword(auth, config.email, config.firebasePassword);
+           } catch (authErr: any) {
+             if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential') {
+               try {
+                 const { createUserWithEmailAndPassword } = await import('firebase/auth');
+                 const result = await createUserWithEmailAndPassword(auth, config.email, config.firebasePassword);
+                 const { doc, setDoc } = await import('firebase/firestore');
+                 await setDoc(doc(auth.app ? (await import('firebase/firestore')).getFirestore(auth.app) : (await import('../firebase.ts')).db, 'users', result.user.uid), {
+                    email: config.email,
+                    role: 'admin',
+                    updatedAt: new Date().toISOString()
+                 });
+               } catch (createErr: any) {
+                 if (createErr.code === 'auth/email-already-in-use') {
+                   console.log('Admin user already exists');
+                 } else {
+                   console.error('Failed to create admin user for reminder job', createErr);
+                   return;
+                 }
                }
+             } else {
+               console.error('Failed to authenticate reminder job as admin:', authErr);
+               return;
              }
-           } else {
-             console.error('Failed to authenticate reminder job as admin:', authErr);
-             return;
            }
-         }
+        }
       }
 
       const bookings = await getAllBookings();

@@ -22,6 +22,7 @@ import { LoginPage } from './pages/LoginPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { StaffDashboard } from './pages/StaffDashboard';
 import { ParentDashboard } from './pages/ParentDashboard';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { ContentProvider } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
 import { useLocation } from 'react-router-dom';
@@ -49,9 +50,9 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/book-tour" element={<BookTourPage lang={lang} />} />
         <Route path="/reschedule/:id" element={<RescheduleTourPage lang={lang} />} />
         <Route path="/login" element={<LoginPage lang={lang} />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/staff" element={<StaffDashboard />} />
-        <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/staff" element={<ProtectedRoute><StaffDashboard /></ProtectedRoute>} />
+        <Route path="/parent" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />
       </Routes>
 
       {!isMinimalLayout && <Footer lang={lang} />}
