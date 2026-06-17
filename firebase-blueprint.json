@@ -18,7 +18,8 @@
         "resources": { "type": "object" },
         "leadCapture": { "type": "object" },
         "staff": { "type": "object" },
-        "login": { "type": "object" }
+        "login": { "type": "object" },
+        "enrollmentPage": { "type": "object" }
       }
     }
   },

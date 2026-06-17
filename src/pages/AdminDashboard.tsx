@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -291,14 +291,16 @@ export const AdminDashboard: React.FC = () => {
           ...defaultTranslations.en, 
           ...enDocData,
           announcement: { ...defaultTranslations.en.announcement, ...(enDocData.announcement || {}) },
-          virtualTour: { ...defaultTranslations.en.virtualTour, ...(enDocData.virtualTour || {}) }
+          virtualTour: { ...defaultTranslations.en.virtualTour, ...(enDocData.virtualTour || {}) },
+          enrollmentPage: { ...defaultTranslations.en.enrollmentPage, ...(enDocData.enrollmentPage || {}) }
         };
         
         const amData = { 
           ...defaultTranslations.am, 
           ...amDocData,
           announcement: { ...defaultTranslations.am.announcement, ...(amDocData.announcement || {}) },
-          virtualTour: { ...defaultTranslations.am.virtualTour, ...(amDocData.virtualTour || {}) }
+          virtualTour: { ...defaultTranslations.am.virtualTour, ...(amDocData.virtualTour || {}) },
+          enrollmentPage: { ...defaultTranslations.am.enrollmentPage, ...(amDocData.enrollmentPage || {}) }
         };
 
         // Ensure media array exists in virtualTour
@@ -511,6 +513,10 @@ export const AdminDashboard: React.FC = () => {
           template = { url: '', type: 'image', description: '' };
         } else if (k === 'cards') {
           template = { title: '', desc: '', image: '', moreInfo: '' };
+        } else if (k === 'processsteps') {
+          template = { step: '', title: '', desc: '' };
+        } else if (k === 'documentslist') {
+          template = { title: '', desc: '' };
         } else {
           template = { title: '', description: '', image: '' };
         }
@@ -572,6 +578,7 @@ export const AdminDashboard: React.FC = () => {
     { id: 'footer', icon: <Layout size={18} />, label: 'Footer' },
     { id: 'login', icon: <Users size={18} />, label: 'Login Page' },
     { id: 'leadCapture', icon: <Layout size={18} />, label: 'Lead Capture' },
+    { id: 'enrollmentPage', icon: <FileText size={18} />, label: 'Enrollment Page' },
     { id: 'users', icon: <Users size={18} />, label: 'User Management' },
     { id: 'security', icon: <Shield size={18} />, label: 'Security Settings' },
   ];

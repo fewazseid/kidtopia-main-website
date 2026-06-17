@@ -63,7 +63,7 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               <li><Link to="/about" className="text-sm hover:text-white transition-colors">{nav.about}</Link></li>
               <li><Link to="/programs" className="text-sm hover:text-white transition-colors">{nav.programs}</Link></li>
               <li><Link to="/virtual-tour" className="text-sm hover:text-white transition-colors">{nav.virtualTour}</Link></li>
-              <li><Link to="/contact" className="text-sm hover:text-white transition-colors">{nav.enrollNow}</Link></li>
+              <li><Link to="/enroll" className="text-sm hover:text-white transition-colors">{nav.enrollNow}</Link></li>
               <li><Link to="/contact" className="text-sm hover:text-white transition-colors">{nav.contact}</Link></li>
             </ul>
           </div>

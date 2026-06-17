@@ -19,6 +19,7 @@ import { ContactPage } from './pages/ContactPage';
 import { BookTourPage } from './pages/BookTourPage';
 import { RescheduleTourPage } from './pages/RescheduleTourPage';
 import { LoginPage } from './pages/LoginPage';
+import { EnrollPage } from './pages/EnrollPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { StaffDashboard } from './pages/StaffDashboard';
 import { ParentDashboard } from './pages/ParentDashboard';
@@ -50,6 +51,7 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/book-tour" element={<BookTourPage lang={lang} />} />
         <Route path="/reschedule/:id" element={<RescheduleTourPage lang={lang} />} />
         <Route path="/login" element={<LoginPage lang={lang} />} />
+        <Route path="/enroll" element={<EnrollPage lang={lang} />} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
         <Route path="/staff" element={<ProtectedRoute><StaffDashboard /></ProtectedRoute>} />
         <Route path="/parent" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />

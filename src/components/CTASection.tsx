@@ -45,7 +45,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ lang }) => {
           transition={{ duration: 2, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-wrap justify-center gap-6"
         >
-          <Link to="/contact" className="bg-white text-brand-green rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-cream transition-colors shadow-xl">
+          <Link to="/enroll" className="bg-white text-brand-green rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-cream transition-colors shadow-xl">
             {t.enroll}
           </Link>
           <Link to="/virtual-tour" className="bg-brand-yellow text-stone-900 rounded-full px-10 py-4 text-lg font-bold hover:bg-brand-yellow/90 transition-colors">

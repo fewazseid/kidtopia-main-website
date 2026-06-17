@@ -23,9 +23,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [fingerprintLoading, setFingerprintLoading] = useState(false);
 
+  const [isAdminSelect, setIsAdminSelect] = useState(false);
+
   const handleRedirect = (role: string) => {
+    if (role === 'admin') {
+      setIsAdminSelect(true);
+      return;
+    }
     switch (role) {
-      case 'admin': navigate('/admin'); break;
       case 'staff': navigate('/staff'); break;
       case 'parent': navigate('/parent'); break;
       default: navigate('/');
@@ -252,112 +257,152 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
         className="w-full max-w-md"
       >
         <div className="card-rounded p-8 sm:p-10">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-stone-900 mb-2">{t.title}</h1>
-            <p className="text-stone-500">{t.subtitle}</p>
-          </div>
+          {isAdminSelect ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center"
+            >
+              <div className="w-16 h-16 bg-brand-green/10 text-brand-green rounded-full flex items-center justify-center mx-auto mb-6">
+                <ShieldCheck size={36} />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 mb-2">Welcome Back, Admin!</h1>
+              <p className="text-stone-500 mb-8 max-w-sm mx-auto">Please choose your destination to continue.</p>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl text-sm text-center">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-4 mb-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-stone-700 flex items-center gap-2">
-                <User size={16} />
-                Username / Email
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
-                placeholder="Enter username or email"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-stone-700 flex items-center gap-2">
-                <Lock size={16} />
-                {t.password}
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all pr-12"
-                  placeholder="6-digit password"
-                  required
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                />
+              <div className="space-y-4">
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-brand-green transition-colors p-1"
+                  onClick={() => navigate('/admin')}
+                  className="w-full py-4 px-4 bg-brand-green text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-green/90 active:scale-[0.98] shadow-lg shadow-brand-green/10 flex items-center justify-center gap-2"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  Continue Website Editing
+                </button>
+
+                <a
+                  href="https://kidtopia-main-u5x6pj.laravel.cloud/dashboard"
+                  className="w-full py-4 px-4 bg-brand-orange text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-orange/90 active:scale-[0.98] shadow-lg shadow-brand-orange/10 flex items-center justify-center gap-2 text-center"
+                >
+                  Continue to Dashboard
+                </a>
+
+                <button
+                  onClick={() => setIsAdminSelect(false)}
+                  className="w-full text-center text-sm font-medium text-stone-400 hover:text-stone-600 transition-colors pt-4 block"
+                >
+                  Back to Sign In
                 </button>
               </div>
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 px-4 bg-brand-green text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-green/90 active:scale-[0.98] disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : t.submit}
-            </button>
-          </form>
-
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-stone-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-stone-500">OR</span>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <button
-              onClick={handleGoogleLogin}
-              disabled={loading || fingerprintLoading}
-              className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-stone-50 active:scale-[0.98] border border-stone-200 bg-white disabled:opacity-50"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-              Login with Google
-            </button>
-
-            <button
-              onClick={handleFingerprintLogin}
-              disabled={loading || fingerprintLoading}
-              className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-stone-900 text-white font-bold text-lg transition-all hover:bg-stone-800 active:scale-[0.98] disabled:opacity-50"
-            >
-              <Fingerprint size={20} />
-              {fingerprintLoading ? 'Scanning...' : 'Login with Fingerprint'}
-            </button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-stone-200"></div>
+            </motion.div>
+          ) : (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-stone-900 mb-2">{t.title}</h1>
+                <p className="text-stone-500">{t.subtitle}</p>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-stone-500">Secure Access</span>
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-8 text-center text-sm text-stone-500">
-            <p>
-              {t.noAccount}{' '}
-              <Link to="/contact" className="font-medium text-brand-green hover:text-brand-orange transition-colors">
-                {t.contactUs}
-              </Link>
-            </p>
-          </div>
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl text-sm text-center">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleLogin} className="space-y-4 mb-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-stone-700 flex items-center gap-2">
+                    <User size={16} />
+                    Username / Email
+                  </label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
+                    placeholder="Enter username or email"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-stone-700 flex items-center gap-2">
+                    <Lock size={16} />
+                    {t.password}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all pr-12"
+                      placeholder="6-digit password"
+                      required
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-brand-green transition-colors p-1"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-4 px-4 bg-brand-green text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-green/90 active:scale-[0.98] disabled:opacity-50"
+                >
+                  {loading ? 'Processing...' : t.submit}
+                </button>
+              </form>
+
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-stone-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-stone-500">OR</span>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <button
+                  onClick={handleGoogleLogin}
+                  disabled={loading || fingerprintLoading}
+                  className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-stone-50 active:scale-[0.98] border border-stone-200 bg-white disabled:opacity-50"
+                >
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                  Login with Google
+                </button>
+
+                <button
+                  onClick={handleFingerprintLogin}
+                  disabled={loading || fingerprintLoading}
+                  className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-stone-900 text-white font-bold text-lg transition-all hover:bg-stone-800 active:scale-[0.98] disabled:opacity-50"
+                >
+                  <Fingerprint size={20} />
+                  {fingerprintLoading ? 'Scanning...' : 'Login with Fingerprint'}
+                </button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-stone-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-stone-500">Secure Access</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 text-center text-sm text-stone-500">
+                <p>
+                  {t.noAccount}{' '}
+                  <Link to="/contact" className="font-medium text-brand-green hover:text-brand-orange transition-colors">
+                    {t.contactUs}
+                  </Link>
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </motion.div>
     </main>

@@ -84,7 +84,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
             transition={{ duration: 2.4, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-wrap gap-4 mb-12"
           >
-            <Link to="/contact" className="btn-secondary text-lg px-8 py-4">{t.enroll}</Link>
+            <Link to="/enroll" className="btn-secondary text-lg px-8 py-4">{t.enroll}</Link>
             <Link to="/virtual-tour" className="btn-yellow text-lg px-8 py-4">{t.virtualTour}</Link>
           </motion.div>
         </div>
