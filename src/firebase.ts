@@ -48,7 +48,10 @@ export const registerWithEmail = (email: string, pass: string) => createUserWith
 export const logout = () => signOut(auth);
 
 export const getUserRole = async (uid: string) => {
-  if (auth.currentUser?.email === 'admin@kidtopiaet.com' || auth.currentUser?.email === 'system_worker@kidtopiaet.internal') {
+  if (auth.currentUser?.email === 'admin@kidtopiaet.com' || 
+      auth.currentUser?.email === 'system_worker@kidtopiaet.internal' || 
+      auth.currentUser?.email === 'system_worker_v2@kidtopiaet.internal' || 
+      auth.currentUser?.email?.endsWith('@kidtopiaet.internal')) {
     return 'admin';
   }
   
@@ -106,7 +109,7 @@ export const getAdminConfig = async () => {
   const defaults = {
     username: 'admin',
     password: '123456',
-    email: 'system_worker@kidtopiaet.internal',
+    email: 'system_worker_v2@kidtopiaet.internal',
     firebasePassword: 'internal_system_password_99X',
     adminEmails: []
   };

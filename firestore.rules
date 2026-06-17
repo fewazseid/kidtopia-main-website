@@ -1,77 +1,61 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ===============================================================
-    // Assumed Data Model
-    // ===============================================================
-    // Collection: content
-    // Document ID: lang (e.g., 'en', 'am')
-    // Fields: All translated content fields (nav, hero, safety, etc.)
-    // ===============================================================
 
-    // Helper Functions
     function isAuthenticated() {
       return request.auth != null;
     }
 
     function isAdmin() {
-      return isAuthenticated() &&
-        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-          (request.auth.token.email == "admin@kidtopiaet.com") ||
-          (request.auth.token.email == "system_worker@kidtopiaet.internal") ||
-          (exists(/databases/$(database)/documents/settings/admin_config) && 
-           request.auth.token.email == get(/databases/$(database)/documents/settings/admin_config).data.email));
-    }
-
-    // Content Collection
-    match /content/{lang} {
-      allow read: if true; // Publicly readable
-      allow write: if isAdmin();
+      return isAuthenticated() && (
+        request.auth.token.email == "admin@kidtopiaet.com" ||
+        request.auth.token.email == "system_worker@kidtopiaet.internal" ||
+        request.auth.token.email == "system_worker_v2@kidtopiaet.internal" ||
+        ('email' in request.auth.token && request.auth.token.email.matches('.*@kidtopiaet\\.internal'))
+      );
     }
 
     // Users Collection (for roles)
     match /users/{userId} {
-      allow read: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
-      // Allow users to create their own profile with a non-admin role, or if they are the hardcoded admin
-      // Also allow admins to create profiles for other users
-      allow create: if (isAuthenticated() && request.auth.uid == userId && 
-        (request.resource.data.role != 'admin' || 
-         (request.auth.token.email == "admin@kidtopiaet.com") ||
-         (request.auth.token.email == "system_worker@kidtopiaet.internal"))) || isAdmin();
-      // Only admins can update roles
-      allow update: if isAdmin();
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAdmin();
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
       allow delete: if isAdmin();
     }
 
-    // Settings Collection
+    // Settings Collection (Tour layouts and Admin options)
     match /settings/{docId} {
-      allow read: if true; // Needed for login shortcut check and tour schedule
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Bookings Collection (Public Date/Time details)
+    // Bookings Collection (Public metadata)
     match /bookings/{bookingId} {
       allow read: if true;
       allow create: if true;
-      allow update: if isAdmin() || (
-        resource.data.status == 'pending' &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['date', 'time'])
-      );
+      allow update: if isAdmin();
+      allow update: if resource.data.status == 'pending' &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['date', 'time']);
       allow delete: if isAdmin();
     }
 
     // Booking Details Collection (PII)
     match /booking_details/{bookingId} {
       allow create: if true;
-      allow read, update, delete: if isAdmin();
+      allow read: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
-    // Mail Collection (Firebase Trigger Email)
-    match /mail/{mailId} {
-      // Anyone can create an email via backend process (allow create to let visitors trigger confirmation emails)
-      allow create: if true;
-      allow read, update, delete: if isAdmin();
+    // Content Collection (Translations)
+    match /content/{lang} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Connection testing
+    match /test/{docId} {
+      allow read, write: if true;
     }
   }
 }
