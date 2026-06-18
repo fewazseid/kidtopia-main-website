@@ -241,10 +241,16 @@ export const createBooking = async (bookingData: any) => {
 };
 
 export const getAllBookings = async () => {
+  let bookings: any[] = [];
   try {
     const querySnapshot = await getDocs(collection(db, 'bookings'));
-    const bookings = querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
-    
+    bookings = querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+  } catch (err: any) {
+    console.error("Failed to get all bookings (bookings collection):", err);
+    throw err;
+  }
+
+  try {
     // Fetch details for each booking
     const detailsSnapshot = await getDocs(collection(db, 'booking_details'));
     const detailsMap = new Map();
@@ -255,14 +261,14 @@ export const getAllBookings = async () => {
       ...detailsMap.get(b.id)
     }));
   } catch (err: any) {
-    if (err.message.includes('booking_details')) {
-      console.error("Failed to get all bookings: Permission denied on booking_details", err);
-    } else if (err.message.includes('bookings')) {
-      console.error("Failed to get all bookings: Permission denied on bookings", err);
-    } else {
-      console.error("Failed to get all bookings:", err);
-    }
-    throw err;
+    console.warn("Failed to get booking details (graceful degradation):", err);
+    // Return bookings list even without details if permission is denied or details can't be fetched
+    return bookings.map(b => ({
+      ...b,
+      name: b.name || "Guest Access Only",
+      email: b.email || "Confidential",
+      phone: b.phone || "Confidential"
+    }));
   }
 };
 
