@@ -248,13 +248,20 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const getTimestampTime = (dt: any) => {
+    if (!dt) return 0;
+    if (typeof dt.toDate === 'function') return dt.toDate().getTime();
+    if (dt.seconds) return dt.seconds * 1000;
+    return new Date(dt).getTime() || 0;
+  };
+
   const fetchTourData = async () => {
     try {
       setBookingsLoading(true);
       const schedule = await getTourSchedule();
       setTourSchedule(schedule);
       const allBookings = await getAllBookings();
-      setBookings(allBookings.sort((a, b) => new Date(b.createdAt?.toDate() || 0).getTime() - new Date(a.createdAt?.toDate() || 0).getTime()));
+      setBookings(allBookings.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
     } catch (err) {
       console.error('Failed to fetch tour data', err);
     } finally {
@@ -690,6 +697,7 @@ export const AdminDashboard: React.FC = () => {
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
               <option value="">None (Don't Show Button)</option>
+              <option value="/enroll">Enroll Now</option>
               <option value="/book-tour">Book a Tour</option>
               <option value="/programs">Programs</option>
               <option value="/about">About Us</option>
@@ -1483,7 +1491,7 @@ export const AdminDashboard: React.FC = () => {
                                       await updateBookingStatus(b.id, 'approved');
                                       setFeedback({ type: 'success', message: 'Booking approved!' });
                                       const updated = await getAllBookings();
-                                      setBookings(updated.sort((a, b) => new Date(b.createdAt?.toDate() || 0).getTime() - new Date(a.createdAt?.toDate() || 0).getTime()));
+                                      setBookings(updated.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
 
                                       // Send approval email
                                       if (b.email) {
@@ -1518,7 +1526,7 @@ export const AdminDashboard: React.FC = () => {
                                       await updateBookingStatus(b.id, 'rejected');
                                       setFeedback({ type: 'success', message: 'Booking rejected' });
                                       const updated = await getAllBookings();
-                                      setBookings(updated.sort((a, b) => new Date(b.createdAt?.toDate() || 0).getTime() - new Date(a.createdAt?.toDate() || 0).getTime()));
+                                      setBookings(updated.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
 
                                       // Send rejection email
                                       if (b.email) {

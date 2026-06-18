@@ -9,17 +9,36 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.token.email == "admin@kidtopiaet.com" ||
+        request.auth.token.email == "fewazseidahmed@gmail.com" ||
         request.auth.token.email == "system_worker@kidtopiaet.internal" ||
         request.auth.token.email == "system_worker_v2@kidtopiaet.internal" ||
-        ('email' in request.auth.token && request.auth.token.email.matches('.*@kidtopiaet\\.internal'))
+        ('email' in request.auth.token && request.auth.token.email.matches('.*@kidtopiaet\\.internal')) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
       );
+    }
+
+    function isStaff() {
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "staff" ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
+      );
+    }
+
+    function isAuthorizedPersonnel() {
+      return isAdmin() || isStaff();
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
     }
 
     // Users Collection (for roles)
     match /users/{userId} {
-      allow read: if isAuthenticated() && request.auth.uid == userId;
-      allow read: if isAdmin();
-      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create, update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       allow delete: if isAdmin();
     }
 
@@ -33,7 +52,7 @@ service cloud.firestore {
     match /bookings/{bookingId} {
       allow read: if true;
       allow create: if true;
-      allow update: if isAdmin();
+      allow update: if isAuthorizedPersonnel();
       allow update: if resource.data.status == 'pending' &&
                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['date', 'time']);
       allow delete: if isAdmin();
@@ -42,8 +61,8 @@ service cloud.firestore {
     // Booking Details Collection (PII)
     match /booking_details/{bookingId} {
       allow create: if true;
-      allow read: if isAdmin();
-      allow update: if isAdmin();
+      allow read: if isAuthorizedPersonnel();
+      allow update: if isAuthorizedPersonnel();
       allow delete: if isAdmin();
     }
 

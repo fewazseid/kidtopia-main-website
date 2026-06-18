@@ -24,6 +24,8 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
   };
 
   const [checkedDocs, setCheckedDocs] = useState<Record<number, boolean>>({});
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
   const totalDocs = data.documentsList?.length || 0;
   const checkedCount = Object.values(checkedDocs).filter(Boolean).length;
   const progressPercent = totalDocs > 0 ? Math.round((checkedCount / totalDocs) * 100) : 0;
@@ -234,6 +236,95 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           </div>
         </motion.div>
 
+        {/* Enrollment Terms and Conditions Card */}
+        <motion.div 
+          id="terms-section"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className={`bg-white rounded-3xl p-6 md:p-8 border shadow-sm mb-8 transition-all duration-350 ${
+            showWarning && !termsAccepted ? 'border-brand-orange/50 bg-brand-orange/3 ring-2 ring-brand-orange/10' : 'border-stone-100'
+          }`}
+        >
+          <h3 className="font-serif font-bold text-stone-900 text-xl mb-4 flex items-center gap-2">
+            <FileCheck className="text-brand-green" size={24} />
+            <span>{lang === 'am' ? 'የምዝገባ ደንቦች እና ሁኔታዎች' : 'Enrollment Terms & Conditions'}</span>
+          </h3>
+
+          <div className="bg-stone-50 rounded-2xl p-4 md:p-5 text-sm text-stone-600 space-y-3 mb-6 max-h-48 overflow-y-auto border border-stone-150 scrollbar-thin scrollbar-thumb-stone-200">
+            <p className="font-bold text-stone-800">
+              {lang === 'am' ? '1. የጤና እና የክትባት ማረጋገጫ' : '1. Health & Custom Screenings'}
+            </p>
+            <p className="leading-relaxed">
+              {lang === 'am'
+                ? 'ወላጅ ወይም ህጋዊ አሳዳጊ ሁሉም የላብራቶሪ ምርመራ ሰነዶች (ቲቢ፣ ኤችአይቪ፣ ሄፓታይተስ) እና የክትባት መረጃዎች ትክክለኛ እና በኪድቶፒያ የተረጋገጡ መሆናቸውን መስማማት አለባቸው።'
+                : 'All laboratory screening documents (Tuberculosis, HIV, and Hepatitis B) must be genuine and certified by a recognized laboratory. Immunizations must be up to date.'}
+            </p>
+
+            <p className="font-bold text-stone-800">
+              {lang === 'am' ? '2. የደህንነት እና የልጅ መውሰጃ መመሪያ' : '2. Security & Authorized Pickup'}
+            </p>
+            <p className="leading-relaxed">
+              {lang === 'am'
+                ? 'በደህንነት ስርዓታችን መሰረተ፣ በፎቶ መግለጫ መዝገብ ላይ ያልተጠቀሰ ሌላ ሰው ህፃናትን መውሰድ አይችልም። በድንገተኛ ጊዜ አስቀድሞ ለትምህርት ቤቱ መታወቅ አለበት።'
+                : 'Only recognized individuals with approved photo identification on record are authorized to pick up children. Emergency changes must be filed formally.'}
+            </p>
+
+            <p className="font-bold text-stone-800">
+              {lang === 'am' ? '3. የድንገተኛ ህክምና ስልጣን' : '3. Emergency Medical Consent'}
+            </p>
+            <p className="leading-relaxed">
+              {lang === 'am'
+                ? 'አስቸኳይ አደጋ ሲያጋጥም እና ወላጅ በስልክ በማይገኝበት ጊዜ፣ በትምህርት ቤቱ ነርስ ውሳኔ ልጅዎ ወደ ህክምና ተቋም እንዲወሰድ እና የመጀመሪያ እርዳታ እንዲያገኝ ፍቃድ ይሰጣሉ።'
+                : 'In real emergency situations where natural parents cannot be reached, you grant Kidtopia’s registered nurse and staff the authority to seek immediate professional medical treatment.'}
+            </p>
+
+            <p className="font-bold text-stone-800">
+              {lang === 'am' ? '4. የክፍያ ስምምነት' : '4. Payment & Refund Policies'}
+            </p>
+            <p className="leading-relaxed">
+              {lang === 'am'
+                ? 'ምዝገባውን ለማጠናቀቅ የሚከፈሉ ክፍያዎች አስቀድሞ መከፈል ያለባቸው ሲሆን፣ ሁሉም ክፍያዎች የማይመለሱ መሆናቸውን እና በየወቅቱ መከፈል አለባቸው።'
+                : 'Tuition fees must be paid in advance according to the chosen package. All paid registration fees are non-refundable and late pick-ups are subject to penalty clauses.'}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <label className="flex items-start gap-3 cursor-pointer select-none group">
+              <input
+                id="terms-checkbox"
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => {
+                  setTermsAccepted(e.target.checked);
+                  if (e.target.checked) setShowWarning(false);
+                }}
+                className="mt-1 h-5 w-5 rounded border-stone-300 text-brand-green focus:ring-brand-green/30 cursor-pointer accent-brand-green transition-all"
+              />
+              <span className="text-stone-700 text-sm font-medium leading-relaxed group-hover:text-stone-900 transition-colors">
+                {lang === 'am'
+                  ? 'ሁሉንም የምዝገባ ደንቦች እና ሁኔታዎች አንብቤያለሁ፣ በተገለጹት መመሪያዎችም ሙሉ በሙሉ ተስማምቻለሁ።'
+                  : 'I have read, understood, and voluntarily accept all of the enrollment Terms & Conditions of Kidtopia.'}
+              </span>
+            </label>
+
+            {showWarning && !termsAccepted && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-1.5 text-brand-orange text-xs font-semibold mt-1"
+              >
+                <AlertCircle size={14} />
+                <span>
+                  {lang === 'am' 
+                    ? 'እባክዎ ከመቀጠልዎ በፊት በደንቦች እና ሁኔታዎች መስማማትዎን ለማረጋገጥ ሳጥኑን ምልክት ያድርጉ' 
+                    : 'Please check the box to accept the terms and conditions before proceeding.'}
+                </span>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+
         {/* Action Controls */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -250,15 +341,31 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
             </p>
           </div>
           
-          <a 
-            href={data.externalEnrollmentUrl || "https://kidtopia-main-u5x6pj.laravel.cloud/enroll"} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 btn-secondary text-base font-bold tracking-wide px-8 py-4 px-10 shadow-lg shadow-brand-orange/20 hover:scale-[1.02] transition-transform"
-          >
-            <span>{data.proceedButton}</span>
-            <ArrowRight size={18} />
-          </a>
+          {termsAccepted ? (
+            <a 
+              href={data.externalEnrollmentUrl || "https://kidtopia-main-u5x6pj.laravel.cloud/enroll"} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 btn-secondary text-base font-bold tracking-wide px-8 py-4 px-10 shadow-lg shadow-brand-orange/20 hover:scale-[1.02] transition-transform"
+            >
+              <span>{data.proceedButton}</span>
+              <ArrowRight size={18} />
+            </a>
+          ) : (
+            <button
+              onClick={() => {
+                setShowWarning(true);
+                const section = document.getElementById('terms-section');
+                if (section) {
+                  section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}
+              className="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 bg-stone-100 text-stone-400 font-semibold text-base py-4 px-10 rounded-full border border-stone-200 cursor-pointer hover:bg-stone-200/60 active:scale-95 transition-all"
+            >
+              <span>{data.proceedButton}</span>
+              <ArrowRight size={18} />
+            </button>
+          )}
         </motion.div>
       </div>
     </main>

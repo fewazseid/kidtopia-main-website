@@ -3,6 +3,7 @@ import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, ChevronUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ProgramsProps {
   lang: Language;
@@ -53,13 +54,21 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                   <span className={`font-medium text-sm uppercase tracking-wider mb-2 ${idx === 0 ? 'text-brand-orange' : 'text-brand-teal'}`}>{card.age}</span>
                   <h3 className="text-3xl font-serif font-bold mb-4">{card.name}</h3>
                   <p className="text-stone-600 mb-8 leading-relaxed">{card.desc}</p>
-                  <button 
-                    onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
-                    className="flex items-center text-brand-green font-bold hover:translate-x-2 transition-transform"
-                  >
-                    {expandedIdx === idx ? 'Show Less' : card.btn} 
-                    {expandedIdx === idx ? <ChevronUp size={18} className="ml-2" /> : <ArrowRight size={18} className="ml-2" />}
-                  </button>
+                  <div className="flex flex-wrap items-center gap-6">
+                    <button 
+                      onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+                      className="flex items-center text-brand-green font-bold hover:translate-x-2 transition-transform cursor-pointer"
+                    >
+                      {expandedIdx === idx ? 'Show Less' : card.btn} 
+                      {expandedIdx === idx ? <ChevronUp size={18} className="ml-2" /> : <ArrowRight size={18} className="ml-2" />}
+                    </button>
+                    <Link 
+                      to="/enroll"
+                      className="btn-secondary text-sm font-bold px-6 py-2.5 inline-flex items-center shadow-lg shadow-brand-orange/15 hover:scale-[1.03]"
+                    >
+                      {lang === 'am' ? 'አሁኑኑ ይመዝገቡ' : 'Enroll Now'}
+                    </Link>
+                  </div>
                 </div>
               </div>
               
