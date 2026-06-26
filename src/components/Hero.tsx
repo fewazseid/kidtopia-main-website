@@ -94,19 +94,19 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
         <div className="flex flex-wrap justify-center gap-4">
           {t.highlights.map((item: any, idx: number) => (
             <div key={idx} className="w-full md:w-[calc(33.333%-0.75rem)] min-w-[280px] flex">
-              <GlassCard delay={idx * 0.15} className="p-8 flex flex-col items-center text-center w-full">
+              <GlassCard delay={idx * 0.15} className="p-8 flex flex-row items-center space-x-4 text-left w-full">
                 {item.image ? (
-                  <div className="flex-shrink-0 w-12 h-12 rounded-2xl overflow-hidden mb-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-2xl overflow-hidden">
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                 ) : (
-                  <div className={`flex-shrink-0 bg-brand-cream p-3 rounded-2xl mb-4 ${idx % 3 === 0 ? 'text-brand-green' : idx % 3 === 1 ? 'text-brand-orange' : 'text-brand-teal'}`}>
+                  <div className={`flex-shrink-0 bg-brand-cream p-3 rounded-2xl ${idx % 3 === 0 ? 'text-brand-green' : idx % 3 === 1 ? 'text-brand-orange' : 'text-brand-teal'}`}>
                     {idx % 3 === 0 && <Shield size={24} />}
                     {idx % 3 === 1 && <Users size={24} />}
                     {idx % 3 === 2 && <LayoutGrid size={24} />}
                   </div>
                 )}
-                <div>
+                <div className="flex-1">
                   <h3 className="font-serif font-bold text-xl mb-1 text-stone-850">{item.title}</h3>
                   <p className="text-stone-650 text-sm">{item.desc}</p>
                 </div>

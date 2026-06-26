@@ -34,9 +34,9 @@ export const WhyChoose: React.FC<WhyChooseProps> = ({ lang }) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1.6, delay: idx * 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex items-start space-x-3"
+                  className="flex items-center space-x-3"
                 >
-                  <CheckCircle2 className="text-brand-teal shrink-0 mt-1" size={20} />
+                  <CheckCircle2 className="text-brand-teal shrink-0" size={20} />
                   <span className="text-stone-700 font-medium">{feature}</span>
                 </motion.div>
               ))}

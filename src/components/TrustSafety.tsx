@@ -34,19 +34,21 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
             <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex">
               <GlassCard 
                 delay={idx * 0.15}
-                className="p-8 w-full flex flex-col items-center text-center"
+                className="p-8 w-full flex flex-row items-center gap-4 text-left"
               >
                 {card.image ? (
-                  <div className="w-12 h-12 rounded-2xl overflow-hidden mb-6 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0">
                     <img src={card.image} alt={card.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                 ) : (
-                  <div className="w-12 h-12 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center mb-6">
+                  <div className="w-12 h-12 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center flex-shrink-0">
                     {icons[idx % icons.length]}
                   </div>
                 )}
-                <h3 className="font-serif font-bold text-xl mb-4">{card.title}</h3>
-                <p className="text-stone-600 text-sm leading-relaxed">{card.desc}</p>
+                <div className="flex-1">
+                  <h3 className="font-serif font-bold text-xl mb-2 text-stone-900 leading-tight">{card.title}</h3>
+                  <p className="text-stone-600 text-sm leading-relaxed">{card.desc}</p>
+                </div>
               </GlassCard>
             </div>
           ))}

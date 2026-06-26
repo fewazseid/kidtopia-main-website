@@ -48,22 +48,28 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
             <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex">
               <GlassCard
                 delay={idx * 0.15}
-                className="rounded-3xl p-8 flex flex-col items-center text-center group w-full"
+                className="rounded-3xl p-8 flex flex-row items-center gap-5 group w-full text-left"
               >
                 {resource.image ? (
-                  <div className="w-full h-32 rounded-2xl overflow-hidden mb-6">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0">
                     <img src={resource.image} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform text-brand-green">
                     {icons[idx % icons.length]}
                   </div>
                 )}
-                <h3 className="text-xl font-bold text-stone-900 mb-3">{resource.title}</h3>
-                <p className="text-stone-600 mb-6 flex-grow">{resource.description}</p>
-                <span className="text-sm font-medium text-brand-green bg-brand-green/10 px-4 py-1.5 rounded-full">
-                  {resource.type}
-                </span>
+                <div className="flex flex-col h-full justify-between flex-1">
+                  <div>
+                    <h3 className="text-xl font-bold text-stone-900 mb-2 leading-tight">{resource.title}</h3>
+                    <p className="text-stone-600 text-sm mb-4 leading-relaxed">{resource.description}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-brand-green bg-brand-green/10 px-3 py-1.5 rounded-full inline-block">
+                      {resource.type}
+                    </span>
+                  </div>
+                </div>
               </GlassCard>
             </div>
           ))}

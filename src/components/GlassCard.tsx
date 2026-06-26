@@ -72,6 +72,37 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     setIsPressed(false);
   };
 
+  // Split className into outer container classes (paddings, dimensions, border, etc.)
+  // and inner container classes (flex, align, justify, gap, space, text, etc.)
+  const outerClassesList: string[] = [];
+  const innerClassesList: string[] = [];
+
+  className.split(/\s+/).forEach((cls) => {
+    if (!cls) return;
+    if (
+      cls.startsWith('flex') ||
+      cls.startsWith('items-') ||
+      cls.startsWith('justify-') ||
+      cls.startsWith('gap-') ||
+      cls.startsWith('space-') ||
+      cls.startsWith('text-') ||
+      cls.startsWith('sm:text-') ||
+      cls.startsWith('md:text-') ||
+      cls.startsWith('lg:text-') ||
+      cls.startsWith('xl:text-') ||
+      cls.startsWith('grid') ||
+      cls.startsWith('col-') ||
+      cls.startsWith('row-')
+    ) {
+      innerClassesList.push(cls);
+    } else {
+      outerClassesList.push(cls);
+    }
+  });
+
+  const outerClassName = outerClassesList.join(' ');
+  const innerClassName = innerClassesList.join(' ');
+
   return (
     <div
       style={{ perspective: '1200px' }}
@@ -105,7 +136,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
           backdropFilter: 'blur(28px) saturate(210%)',
           WebkitBackdropFilter: 'blur(28px) saturate(210%)',
         }}
-        className={`relative overflow-hidden cursor-pointer rounded-3xl border border-white/55 ${className}`}
+        className={`relative overflow-hidden cursor-pointer rounded-3xl border border-white/55 ${outerClassName}`}
       >
         {/* Dynamic Sheen/Glare Overlay */}
         <motion.div
@@ -126,7 +157,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         {/* Content wrapper with layer offset for parallax effect */}
         <div 
           style={{ transform: 'translateZ(20px)', transformStyle: 'preserve-3d' }}
-          className="relative z-20 w-full h-full"
+          className={`relative z-20 w-full h-full ${innerClassName}`}
         >
           {children}
         </div>

@@ -74,7 +74,7 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
               <X size={20} />
             </button>
 
-            <div className="flex items-start space-x-4 mb-4">
+            <div className="flex items-center space-x-4 mb-4">
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${styles.iconBg}`}>
                 <Calendar size={24} />
               </div>
