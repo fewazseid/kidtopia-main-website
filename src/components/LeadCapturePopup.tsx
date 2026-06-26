@@ -20,78 +20,41 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
   useEffect(() => {
     if (isDashboard || !t || t.enabled === 'false') return;
 
-    const handleScroll = () => {
-      // Trigger the lead capture popup after scrolling past the announcement panel (e.g. 80px scroll)
-      if (window.scrollY > 80) {
-        setIsVisible(true);
-        window.removeEventListener('scroll', handleScroll);
-      }
-    };
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 30000); // 30 seconds
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => clearTimeout(timer);
   }, [isDashboard, t]);
 
   if (!isVisible || isDashboard || !t || t.enabled === 'false') return null;
 
-  // Handle customizable colors based on the Kidtopia logo colors config
+  // Handle customizable colors based on the type
   const getStyles = () => {
-    const accentColor = t.color || 'brand-green';
-    const buttonColor = t.buttonColor || 'brand-orange';
-
-    let iconBg = 'bg-brand-green/10 text-brand-green';
-    let borderClass = 'border-brand-green/30';
-    
-    switch (accentColor) {
-      case 'brand-orange':
-        iconBg = 'bg-brand-orange/10 text-brand-orange';
-        borderClass = 'border-brand-orange/30';
-        break;
-      case 'brand-yellow':
-        iconBg = 'bg-brand-yellow/20 text-brand-yellow-dark text-amber-600';
-        borderClass = 'border-brand-yellow/30';
-        break;
-      case 'brand-teal':
-        iconBg = 'bg-brand-teal/10 text-brand-teal';
-        borderClass = 'border-brand-teal/30';
-        break;
-      case 'brand-green':
+    switch (t.type) {
+      case 'warning':
+        return {
+          iconBg: 'bg-brand-orange/10 text-brand-orange',
+          btnClass: 'bg-brand-orange hover:bg-brand-orange/95 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-brand-orange/30'
+        };
+      case 'success':
+        return {
+          iconBg: 'bg-brand-teal/10 text-brand-teal',
+          btnClass: 'bg-brand-teal hover:bg-brand-teal/95 text-white font-bold rounded-xl shadow-lg shadow-brand-teal/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-brand-teal/30'
+        };
+      case 'info':
       default:
-        iconBg = 'bg-brand-green/10 text-brand-green';
-        borderClass = 'border-brand-green/30';
-        break;
+        return {
+          iconBg: 'bg-brand-green/10 text-brand-green',
+          btnClass: 'bg-brand-green hover:bg-brand-green/95 text-white font-bold rounded-xl shadow-lg shadow-brand-green/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-brand-green/30'
+        };
     }
-
-    let btnClass = 'bg-brand-orange hover:bg-brand-orange/95 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/20 transition-all transform hover:scale-[1.02]';
-    switch (buttonColor) {
-      case 'brand-green':
-        btnClass = 'bg-brand-green hover:bg-brand-green/95 text-white font-bold rounded-xl shadow-lg shadow-brand-green/20 transition-all transform hover:scale-[1.02]';
-        break;
-      case 'brand-orange':
-        btnClass = 'bg-brand-orange hover:bg-brand-orange/95 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/20 transition-all transform hover:scale-[1.02]';
-        break;
-      case 'brand-yellow':
-        btnClass = 'bg-brand-yellow hover:bg-brand-yellow/95 text-stone-900 font-bold rounded-xl shadow-lg shadow-brand-yellow/20 transition-all transform hover:scale-[1.02]';
-        break;
-      case 'brand-teal':
-        btnClass = 'bg-brand-teal hover:bg-brand-teal/95 text-white font-bold rounded-xl shadow-lg shadow-brand-teal/20 transition-all transform hover:scale-[1.02]';
-        break;
-    }
-
-    return { iconBg, borderClass, btnClass };
   };
 
   const styles = getStyles();
-
-  const handleButtonClick = () => {
-    setIsVisible(false);
-    const link = t.buttonLink || '/book-tour';
-    if (link.startsWith('http://') || link.startsWith('https://')) {
-      window.open(link, '_blank', 'noopener,noreferrer');
-    } else {
-      navigate(link);
-    }
-  };
 
   return (
     <AnimatePresence>
@@ -130,7 +93,10 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
             <div className="flex flex-col space-y-3 mt-6">
               <button 
                 className={`w-full py-3 ${styles.btnClass}`}
-                onClick={handleButtonClick}
+                onClick={() => {
+                  setIsVisible(false);
+                  navigate(t.buttonLink || '/book-tour');
+                }}
               >
                 {t.buttonText || t.book || 'Book Tour'}
               </button>

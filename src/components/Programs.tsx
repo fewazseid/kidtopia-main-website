@@ -34,7 +34,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
           {t.cards.map((card: any, idx: number) => (
             <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col">
               <GlassCard 
-                disableTilt={true}
+                layout
                 className="overflow-hidden flex flex-col group w-full h-full"
                 delay={idx * 0.25}
               >

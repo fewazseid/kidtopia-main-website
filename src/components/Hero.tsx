@@ -27,24 +27,18 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-16 lg:pt-20 overflow-hidden">
-      {/* Background Media with beautiful diffused gradient backdrop */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-tr from-brand-cream via-brand-cream/95 to-brand-cream/80 overflow-hidden">
-        {/* Soft atmospheric gradient color glow representing all Kidtopia logo brand colors */}
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-brand-green/10 blur-[130px] pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full bg-brand-orange/10 blur-[150px] pointer-events-none"></div>
-        <div className="absolute top-[20%] right-[10%] w-[50%] h-[50%] rounded-full bg-brand-teal/8 blur-[120px] pointer-events-none"></div>
-        <div className="absolute top-[40%] left-[30%] w-[40%] h-[40%] rounded-full bg-brand-yellow/8 blur-[100px] pointer-events-none"></div>
-
+      {/* Background Media */}
+      <div className="absolute inset-0 z-0 bg-brand-cream/20">
         {!loading && t.backgroundType === 'video' ? (
           isGif(t.heroVideo) ? (
             <img 
               src={t.heroVideo} 
               alt="Background GIF" 
-              className="w-full h-full object-cover opacity-45 mix-blend-multiply"
+              className="w-full h-full object-cover opacity-50"
               referrerPolicy="no-referrer"
             />
           ) : (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden bg-black/10 z-0 mix-blend-multiply">
+            <div className="absolute inset-0 pointer-events-none overflow-hidden bg-black z-0">
               {React.createElement(ReactPlayer as any, {
                 url: t.heroVideo,
                 playing: true,
@@ -53,7 +47,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
                 playsinline: true,
                 width: "100%",
                 height: "100%",
-                className: "react-player-bg absolute inset-0 w-full h-full opacity-45",
+                className: "react-player-bg absolute inset-0 w-full h-full opacity-50",
                 config: {
                   youtube: {
                     playerVars: { 
@@ -72,15 +66,14 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
           <img 
             src={t.heroImage} 
             alt="Happy children learning and playing" 
-            className="w-full h-full object-cover opacity-45 mix-blend-multiply"
+            className="w-full h-full object-cover opacity-50"
             referrerPolicy="no-referrer"
           />
         ) : (
           <div className="w-full h-full bg-brand-cream/10 animate-pulse" />
         )}
-        {/* Superior premium gradient overlays to smooth transition */}
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-cream/98 via-brand-cream/75 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-cream/25 to-brand-cream"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-cream/95 via-brand-cream/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-cream/50 to-brand-cream"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-4 md:pt-20">

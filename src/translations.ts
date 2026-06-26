@@ -24,9 +24,7 @@ export const translations = {
       text: "",
       type: "info",
       buttonText: "",
-      buttonLink: "",
-      buttonColor: "brand-orange",
-      color: "brand-green"
+      buttonLink: ""
     },
     hero: {
       headline: "A Safe, Caring, and Inspiring Place for Your Child to Grow",
@@ -196,9 +194,7 @@ export const translations = {
       buttonLink: "/book-tour",
       laterText: "Later",
       type: "info",
-      enabled: "true",
-      buttonColor: "brand-orange",
-      color: "brand-green"
+      enabled: "true"
     },
     staff: {
       title: "Our Professional Staff",
@@ -291,9 +287,7 @@ export const translations = {
       text: "",
       type: "info",
       buttonText: "",
-      buttonLink: "",
-      buttonColor: "brand-orange",
-      color: "brand-green"
+      buttonLink: ""
     },
     hero: {
       headline: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
@@ -442,9 +436,7 @@ export const translations = {
       buttonLink: "/book-tour",
       laterText: "በኋላ",
       type: "info",
-      enabled: "true",
-      buttonColor: "brand-orange",
-      color: "brand-green"
+      enabled: "true"
     },
     staff: {
       title: "የእኛ ፕሮፌሽናል ሰራተኞች",
