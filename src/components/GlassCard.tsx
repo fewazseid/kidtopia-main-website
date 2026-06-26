@@ -8,6 +8,7 @@ interface GlassCardProps {
   id?: string;
   delay?: number;
   layout?: boolean | 'x' | 'y' | 'size' | 'position';
+  disableTilt?: boolean;
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -17,6 +18,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   id,
   delay = 0,
   layout,
+  disableTilt = false,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -27,19 +29,19 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   const y = useMotionValue(0);
 
   // Smooth springs for tilt values
-  const springConfig = { damping: 25, stiffness: 180, mass: 0.8 };
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [12, -12]), springConfig);
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-12, 12]), springConfig);
+  const springConfig = { damping: 30, stiffness: 200, mass: 0.6 };
+  const maxTilt = disableTilt ? 0 : 3; // 3 degrees max is extremely subtle and premium
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [maxTilt, -maxTilt]), springConfig);
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-maxTilt, maxTilt]), springConfig);
 
   // Glare overlay positions
   const glareX = useSpring(useTransform(x, [-0.5, 0.5], [0, 100]), springConfig);
   const glareY = useSpring(useTransform(y, [-0.5, 0.5], [0, 100]), springConfig);
 
-  // Depth push-back (scale and translation into Z-space)
-  // When clicked, it sinks back into the screen (scale 0.95, TranslateZ negative)
-  const scale = useSpring(isPressed ? 0.94 : isHovered ? 1.02 : 1, springConfig);
-  const translateZ = useSpring(isPressed ? -30 : isHovered ? 15 : 0, springConfig);
-  const shadowOpacity = useSpring(isPressed ? 0.04 : isHovered ? 0.12 : 0.03, springConfig);
+  // Depth push-back (extremely gentle scale and translation)
+  const scale = useSpring(isPressed ? 0.98 : isHovered ? 1.005 : 1, springConfig);
+  const translateZ = useSpring(isPressed ? -10 : isHovered ? 4 : 0, springConfig);
+  const shadowOpacity = useSpring(isPressed ? 0.04 : isHovered ? 0.10 : 0.03, springConfig);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;

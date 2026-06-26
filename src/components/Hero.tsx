@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
-import { useContent } from '../ContentContext';
+import { useContent, useContentLoading } from '../ContentContext';
 import { motion } from 'motion/react';
 import ReactPlayer from 'react-player';
 import { Shield, Users, LayoutGrid } from 'lucide-react';
@@ -12,8 +12,14 @@ interface HeroProps {
   onScrollTo: (id: string) => void;
 }
 
+const isGif = (url: string) => {
+  if (!url) return false;
+  return url.toLowerCase().includes('.gif') || url.toLowerCase().includes('giphy.com');
+};
+
 export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
   const t = useContent(lang).hero;
+  const loading = useContentLoading();
 
   console.log('Hero t object:', t);
   console.log('Hero backgroundType:', t.backgroundType);
@@ -22,38 +28,49 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
   return (
     <section className="relative min-h-screen flex items-center pt-16 lg:pt-20 overflow-hidden">
       {/* Background Media */}
-      <div className="absolute inset-0 z-0">
-        {t.backgroundType === 'video' ? (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden bg-black z-0">
-            {React.createElement(ReactPlayer as any, {
-              url: t.heroVideo,
-              playing: true,
-              loop: true,
-              muted: true,
-              playsinline: true,
-              width: "100%",
-              height: "100%",
-              className: "react-player-bg absolute inset-0 w-full h-full opacity-50",
-              config: {
-                youtube: {
-                  playerVars: { 
-                    controls: 0, 
-                    disablekb: 1, 
-                    modestbranding: 1, 
-                    rel: 0, 
-                    iv_load_policy: 3 
-                  }
-                } as any
-              }
-            })}
-          </div>
-        ) : (
+      <div className="absolute inset-0 z-0 bg-brand-cream/20">
+        {!loading && t.backgroundType === 'video' ? (
+          isGif(t.heroVideo) ? (
+            <img 
+              src={t.heroVideo} 
+              alt="Background GIF" 
+              className="w-full h-full object-cover opacity-50"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden bg-black z-0">
+              {React.createElement(ReactPlayer as any, {
+                url: t.heroVideo,
+                playing: true,
+                loop: true,
+                muted: true,
+                playsinline: true,
+                width: "100%",
+                height: "100%",
+                className: "react-player-bg absolute inset-0 w-full h-full opacity-50",
+                config: {
+                  youtube: {
+                    playerVars: { 
+                      controls: 0, 
+                      disablekb: 1, 
+                      modestbranding: 1, 
+                      rel: 0, 
+                      iv_load_policy: 3 
+                    }
+                  } as any
+                }
+              })}
+            </div>
+          )
+        ) : !loading && t.backgroundType === 'image' ? (
           <img 
             src={t.heroImage} 
             alt="Happy children learning and playing" 
             className="w-full h-full object-cover opacity-50"
             referrerPolicy="no-referrer"
           />
+        ) : (
+          <div className="w-full h-full bg-brand-cream/10 animate-pulse" />
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-brand-cream/95 via-brand-cream/80 to-transparent"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-cream/50 to-brand-cream"></div>
