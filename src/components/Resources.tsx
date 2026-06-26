@@ -43,28 +43,29 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="flex flex-wrap justify-center gap-8 items-stretch">
           {t.items.map((resource: any, idx: number) => (
-            <GlassCard
-              key={idx}
-              delay={idx * 0.15}
-              className="rounded-3xl p-8 flex flex-col items-center text-center group"
-            >
-              {resource.image ? (
-                <div className="w-full h-32 rounded-2xl overflow-hidden mb-6">
-                  <img src={resource.image} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
-                </div>
-              ) : (
-                <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  {icons[idx % icons.length]}
-                </div>
-              )}
-              <h3 className="text-xl font-bold text-stone-900 mb-3">{resource.title}</h3>
-              <p className="text-stone-600 mb-6 flex-grow">{resource.description}</p>
-              <span className="text-sm font-medium text-brand-green bg-brand-green/10 px-4 py-1.5 rounded-full">
-                {resource.type}
-              </span>
-            </GlassCard>
+            <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex">
+              <GlassCard
+                delay={idx * 0.15}
+                className="rounded-3xl p-8 flex flex-col items-center text-center group w-full"
+              >
+                {resource.image ? (
+                  <div className="w-full h-32 rounded-2xl overflow-hidden mb-6">
+                    <img src={resource.image} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    {icons[idx % icons.length]}
+                  </div>
+                )}
+                <h3 className="text-xl font-bold text-stone-900 mb-3">{resource.title}</h3>
+                <p className="text-stone-600 mb-6 flex-grow">{resource.description}</p>
+                <span className="text-sm font-medium text-brand-green bg-brand-green/10 px-4 py-1.5 rounded-full">
+                  {resource.type}
+                </span>
+              </GlassCard>
+            </div>
           ))}
         </div>
       </div>

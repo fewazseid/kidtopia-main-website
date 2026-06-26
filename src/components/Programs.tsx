@@ -30,64 +30,64 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
           <div className="w-24 h-1 bg-brand-green mx-auto rounded-full"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="flex flex-wrap justify-center gap-8 items-start">
           {t.cards.map((card: any, idx: number) => (
-            <GlassCard 
-              key={idx}
-              className="overflow-hidden flex flex-col group h-full"
-              delay={idx * 0.25}
-            >
-              <div className="flex flex-col md:flex-row h-full">
-                <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
-                  {card.image && (
-                    <img 
-                      src={card.image} 
-                      alt={card.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      referrerPolicy="no-referrer"
-                    />
-                  )}
-                </div>
-                <div className="md:w-1/2 p-10 flex flex-col justify-center">
-                  <span className={`font-medium text-sm uppercase tracking-wider mb-2 ${idx === 0 ? 'text-brand-orange' : 'text-brand-teal'}`}>{card.age}</span>
-                  <h3 className="text-3xl font-serif font-bold mb-4">{card.name}</h3>
-                  <p className="text-stone-600 mb-8 leading-relaxed">{card.desc}</p>
-                  <div className="flex flex-wrap items-center gap-6">
-                    <button 
-                      onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
-                      className="flex items-center text-brand-green font-bold hover:translate-x-2 transition-transform cursor-pointer"
-                    >
-                      {expandedIdx === idx ? 'Show Less' : card.btn} 
-                      {expandedIdx === idx ? <ChevronUp size={18} className="ml-2" /> : <ArrowRight size={18} className="ml-2" />}
-                    </button>
-                    <Link 
-                      to="/enroll"
-                      className="btn-secondary text-sm font-bold px-6 py-2.5 inline-flex items-center shadow-lg shadow-brand-orange/15 hover:scale-[1.03]"
-                    >
-                      {lang === 'am' ? 'አሁኑኑ ይመዝገቡ' : 'Enroll Now'}
-                    </Link>
+            <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col items-stretch">
+              <GlassCard 
+                className="overflow-hidden flex flex-col group w-full"
+                delay={idx * 0.25}
+              >
+                <div className="flex flex-col md:flex-row h-full">
+                  <div className="md:w-1/2 h-64 md:h-auto min-h-[260px] relative overflow-hidden">
+                    {card.image && (
+                      <img 
+                        src={card.image} 
+                        alt={card.name} 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
                   </div>
-                </div>
-              </div>
-              
-              <AnimatePresence>
-                {expandedIdx === idx && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-10 border-t border-white/20 bg-white/5">
-                      <p className="text-stone-600 leading-relaxed italic">
-                        {card.moreInfo || "More information coming soon..."}
+                  <div className="md:w-1/2 p-10 flex flex-col justify-between">
+                    <div>
+                      <span className={`font-medium text-sm uppercase tracking-wider mb-2 block ${idx === 0 ? 'text-brand-orange' : 'text-brand-teal'}`}>{card.age}</span>
+                      <h3 className="text-3xl font-serif font-bold mb-4">{card.name}</h3>
+                      <p className="text-stone-650 leading-relaxed text-base">
+                        {card.desc}
+                        <AnimatePresence>
+                          {expandedIdx === idx && (
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="text-stone-650 font-normal leading-relaxed text-base"
+                            >
+                              {" "}{card.moreInfo || "More information coming soon..."}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
                       </p>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </GlassCard>
+                    <div className="flex flex-wrap items-center gap-6 mt-8">
+                      <button 
+                        onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+                        className="flex items-center text-brand-green font-bold hover:translate-x-1 transition-transform cursor-pointer"
+                      >
+                        {expandedIdx === idx ? 'Show Less' : card.btn} 
+                        {expandedIdx === idx ? <ChevronUp size={18} className="ml-2" /> : <ArrowRight size={18} className="ml-2" />}
+                      </button>
+                      <Link 
+                        to="/enroll"
+                        className="btn-secondary text-sm font-bold px-6 py-2.5 inline-flex items-center shadow-lg shadow-brand-orange/15 hover:scale-[1.03]"
+                      >
+                        {lang === 'am' ? 'አሁኑኑ ይመዝገቡ' : 'Enroll Now'}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </GlassCard>
+            </div>
           ))}
         </div>
       </div>

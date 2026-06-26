@@ -12,22 +12,6 @@ interface AnnouncementProps {
 export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
   const content = useContent(lang);
   const announcement = content?.announcement;
-  const [isFloating, setIsFloating] = useState(true);
-
-  // Still keep floating logic for the animation, but rely on native CSS for stickiness
-  useEffect(() => {
-    const handleFloating = () => {
-      // Only disable floating animation if scrolled past 1000px
-      if (window.scrollY > 1000) {
-        setIsFloating(false);
-      } else {
-        setIsFloating(true);
-      }
-    };
-    
-    window.addEventListener('scroll', handleFloating);
-    return () => window.removeEventListener('scroll', handleFloating);
-  }, []);
 
   const getStyles = () => {
     switch (announcement?.type) {
@@ -66,20 +50,15 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
         <div id="announcement-container" className="sticky top-[72px] z-40 w-full px-4 pt-4 pb-4 md:top-[80px]">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={isFloating ? { 
+            animate={{ 
               opacity: 1, 
               scale: 1,
               y: [0, -12, 0, -6, 0],
-              rotate: [0, -2, 2, -1, 1, 0]
-            } : {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              rotate: 0
+              rotate: [0, -1.5, 1.5, -0.8, 0.8, 0]
             }}
             transition={{ 
-              y: { repeat: Infinity, duration: 2.5, ease: "easeInOut" },
-              rotate: { repeat: Infinity, duration: 1, ease: "easeInOut" },
+              y: { repeat: Infinity, duration: 3.5, ease: "easeInOut" },
+              rotate: { repeat: Infinity, duration: 1.8, ease: "easeInOut" },
               opacity: { duration: 0.5 }
             }}
             className={`rounded-2xl ${styles.bg} shadow-2xl border border-white/20 mx-auto max-w-md md:max-w-4xl w-full will-change-transform`}

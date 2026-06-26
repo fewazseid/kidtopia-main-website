@@ -30,7 +30,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
           <div className="w-24 h-1 bg-brand-green mx-auto rounded-full"></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="flex flex-wrap justify-center gap-8 items-stretch">
           <AnimatePresence mode="popLayout">
             {displayedMembers.map((member: any, idx: number) => (
               <motion.div
@@ -39,7 +39,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="group"
+                className="group w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex flex-col"
               >
                 <div className="relative aspect-[3/4] overflow-hidden rounded-3xl mb-6 shadow-lg">
                   {member.image && (
