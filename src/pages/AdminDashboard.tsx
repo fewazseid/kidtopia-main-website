@@ -735,6 +735,43 @@ export const AdminDashboard: React.FC = () => {
         );
       }
 
+      if (key === 'type' && path[0] === 'leadCapture') {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Popup Style / Accent Theme
+            </label>
+            <select
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
+            >
+              <option value="info">Primary (Green Accent)</option>
+              <option value="warning">Attention (Orange Accent)</option>
+              <option value="success">Nurturing (Teal Accent)</option>
+            </select>
+          </div>
+        );
+      }
+
+      if (key === 'enabled' && path[0] === 'leadCapture') {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              Popup Status (Active / Disabled)
+            </label>
+            <select
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
+            >
+              <option value="true">Active (Show Popup after 30 seconds)</option>
+              <option value="false">Disabled (Do Not Show)</option>
+            </select>
+          </div>
+        );
+      }
+
       if (key === 'type' && path.includes('media')) {
         return (
           <div key={path.join('.')} className="mb-4">
@@ -753,7 +790,7 @@ export const AdminDashboard: React.FC = () => {
         );
       }
 
-      if (key === 'buttonLink' && path[0] === 'announcement') {
+      if (key === 'buttonLink' && (path[0] === 'announcement' || path[0] === 'leadCapture')) {
         return (
           <div key={path.join('.')} className="mb-4">
             <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
@@ -764,9 +801,9 @@ export const AdminDashboard: React.FC = () => {
               onChange={(e) => handleChange(path, e.target.value)}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
-              <option value="">None (Don't Show Button)</option>
-              <option value="/enroll">Enroll Now</option>
+              {path[0] === 'announcement' && <option value="">None (Don't Show Button)</option>}
               <option value="/book-tour">Book a Tour</option>
+              <option value="/enroll">Enroll Now</option>
               <option value="/programs">Programs</option>
               <option value="/about">About Us</option>
               <option value="/virtual-tour">Virtual Tour</option>
@@ -779,12 +816,12 @@ export const AdminDashboard: React.FC = () => {
         );
       }
 
-      if (key === 'buttonText' && path[0] === 'announcement') {
+      if (key === 'buttonText' && (path[0] === 'announcement' || path[0] === 'leadCapture')) {
         let parentObjTmp = content[activeLang];
         for (let i = 0; i < path.length - 1; i++) {
           parentObjTmp = parentObjTmp[path[i]];
         }
-        if (!parentObjTmp.buttonLink) return null; // Don't show text if no target
+        if (path[0] === 'announcement' && !parentObjTmp.buttonLink) return null; // Don't show text if no target for announcement
 
         return (
           <div key={path.join('.')} className="mb-4">
@@ -849,7 +886,7 @@ export const AdminDashboard: React.FC = () => {
       const isVideo = key.toLowerCase().includes('video') || key.toLowerCase().includes('movie') || key.toLowerCase().includes('clip') || (isMediaUrl && mediaType === 'video');
       const isMoreInfo = key === 'moreInfo';
       const isDescription = key === 'description' || key === 'desc';
-      const isAnnouncementText = key === 'text' && path[0] === 'announcement';
+      const isAnnouncementText = (key === 'text' && path[0] === 'announcement') || (key === 'text' && path[0] === 'leadCapture');
       const isEmailBody = key === 'body' && path[0] === 'emailTemplates';
 
       if (isAnnouncementText) {

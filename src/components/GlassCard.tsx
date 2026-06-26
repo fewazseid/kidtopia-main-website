@@ -7,6 +7,7 @@ interface GlassCardProps {
   onClick?: () => void;
   id?: string;
   delay?: number;
+  layout?: boolean | 'x' | 'y' | 'size' | 'position';
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -15,6 +16,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   onClick,
   id,
   delay = 0,
+  layout,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -78,6 +80,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       <motion.div
         ref={cardRef}
         id={id}
+        layout={layout}
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -98,7 +101,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
             shadowOpacity,
             (opacity) => `0 ${isHovered ? '24px' : '10px'} ${isHovered ? '48px' : '20px'} rgba(0, 0, 0, ${opacity}), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)`
           ),
-          background: 'rgba(255, 255, 255, 0.42)',
+          background: 'rgba(255, 255, 255, 0.65)',
           backdropFilter: 'blur(28px) saturate(210%)',
           WebkitBackdropFilter: 'blur(28px) saturate(210%)',
         }}

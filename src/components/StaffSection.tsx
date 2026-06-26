@@ -14,6 +14,16 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
 
   const displayedMembers = showAll ? t.members : t.members.slice(0, 4);
 
+  const handleToggle = () => {
+    if (showAll) {
+      const element = document.getElementById('staff');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    setShowAll(!showAll);
+  };
+
   return (
     <section id="staff" className="py-24 bg-transparent scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,11 +73,11 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
           </AnimatePresence>
         </div>
 
-        {t.members.length > 4 && (
+        {t.members.length >= 4 && (
           <div className="mt-16 text-center">
             <button 
-              onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-brand-green text-white rounded-full font-bold hover:bg-brand-orange transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              onClick={handleToggle}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-brand-green text-white rounded-full font-bold hover:bg-brand-orange transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer"
             >
               {showAll ? t.showLess : t.seeMore}
               {showAll ? <ChevronUp size={20} /> : <ChevronDown size={20} />}

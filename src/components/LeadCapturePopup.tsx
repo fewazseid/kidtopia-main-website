@@ -18,16 +18,43 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
   const isDashboard = ['/login', '/admin', '/staff', '/parent', '/book-tour'].includes(location.pathname);
 
   useEffect(() => {
-    if (isDashboard) return;
+    if (isDashboard || !t || t.enabled === 'false') return;
 
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 30000); // 30 seconds
 
     return () => clearTimeout(timer);
-  }, [isDashboard]);
+  }, [isDashboard, t]);
 
-  if (!isVisible || isDashboard) return null;
+  if (!isVisible || isDashboard || !t || t.enabled === 'false') return null;
+
+  // Handle customizable colors based on the type
+  const getStyles = () => {
+    switch (t.type) {
+      case 'warning':
+        return {
+          iconBg: 'bg-brand-orange/10 text-brand-orange',
+          btnClass: 'bg-brand-orange hover:bg-brand-orange/95 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-brand-orange/30'
+        };
+      case 'success':
+        return {
+          iconBg: 'bg-brand-teal/10 text-brand-teal',
+          btnClass: 'bg-brand-teal hover:bg-brand-teal/95 text-white font-bold rounded-xl shadow-lg shadow-brand-teal/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-brand-teal/30'
+        };
+      case 'info':
+      default:
+        return {
+          iconBg: 'bg-brand-green/10 text-brand-green',
+          btnClass: 'bg-brand-green hover:bg-brand-green/95 text-white font-bold rounded-xl shadow-lg shadow-brand-green/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-brand-green/30'
+        };
+    }
+  };
+
+  const styles = getStyles();
 
   return (
     <AnimatePresence>
@@ -38,7 +65,7 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-            className="card-rounded p-8 shadow-2xl border border-brand-cream max-w-sm w-full pointer-events-auto relative"
+            className={`glass-panel p-8 shadow-2xl border ${styles.borderClass} max-w-sm w-full pointer-events-auto relative rounded-3xl`}
           >
             <button 
               onClick={() => setIsVisible(false)}
@@ -47,30 +74,37 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
               <X size={20} />
             </button>
 
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="w-12 h-12 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center">
+            <div className="flex items-start space-x-4 mb-4">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${styles.iconBg}`}>
                 <Calendar size={24} />
               </div>
-              <h3 className="font-serif font-bold text-xl leading-tight">
-                {t.title}
-              </h3>
+              <div>
+                <h3 className="font-serif font-bold text-xl leading-tight text-stone-900">
+                  {t.title}
+                </h3>
+                {t.text && (
+                  <p className="text-stone-600 text-sm mt-2 leading-relaxed">
+                    {t.text}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="flex flex-col space-y-3">
+            <div className="flex flex-col space-y-3 mt-6">
               <button 
-                className="btn-yellow w-full py-3"
+                className={`w-full py-3 ${styles.btnClass}`}
                 onClick={() => {
                   setIsVisible(false);
-                  navigate('/book-tour');
+                  navigate(t.buttonLink || '/book-tour');
                 }}
               >
-                {t.book}
+                {t.buttonText || t.book || 'Book Tour'}
               </button>
               <button 
                 className="text-stone-500 text-sm font-medium hover:text-stone-900 transition-colors"
                 onClick={() => setIsVisible(false)}
               >
-                {t.later}
+                {t.laterText || t.later || 'Later'}
               </button>
             </div>
           </motion.div>

@@ -32,8 +32,9 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
 
         <div className="flex flex-wrap justify-center gap-8 items-start">
           {t.cards.map((card: any, idx: number) => (
-            <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col items-stretch">
+            <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col items-start justify-start">
               <GlassCard 
+                layout
                 className="overflow-hidden flex flex-col group w-full"
                 delay={idx * 0.25}
               >
@@ -48,28 +49,31 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                       />
                     )}
                   </div>
-                  <div className="md:w-1/2 p-10 flex flex-col justify-between">
-                    <div>
+                  <div className="md:w-1/2 p-10 flex flex-col justify-between items-center text-center">
+                    <div className="w-full">
                       <span className={`font-medium text-sm uppercase tracking-wider mb-2 block ${idx === 0 ? 'text-brand-orange' : 'text-brand-teal'}`}>{card.age}</span>
                       <h3 className="text-3xl font-serif font-bold mb-4">{card.name}</h3>
                       <p className="text-stone-650 leading-relaxed text-base">
                         {card.desc}
-                        <AnimatePresence>
+                      </p>
+                      
+                      <div className="overflow-hidden w-full">
+                        <AnimatePresence initial={false}>
                           {expandedIdx === idx && (
-                            <motion.span
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="text-stone-650 font-normal leading-relaxed text-base"
+                            <motion.div
+                              initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                              animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                              exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                              transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                              className="text-stone-650 font-normal leading-relaxed text-base border-t border-stone-200/50 pt-4"
                             >
-                              {" "}{card.moreInfo || "More information coming soon..."}
-                            </motion.span>
+                              {card.moreInfo || "More information coming soon..."}
+                            </motion.div>
                           )}
                         </AnimatePresence>
-                      </p>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-6 mt-8">
+                    <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
                       <button 
                         onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
                         className="flex items-center text-brand-green font-bold hover:translate-x-1 transition-transform cursor-pointer"

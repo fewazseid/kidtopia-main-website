@@ -34,10 +34,10 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
             <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex">
               <GlassCard 
                 delay={idx * 0.15}
-                className="p-8 w-full"
+                className="p-8 w-full flex flex-col items-center text-center"
               >
                 {card.image ? (
-                  <div className="w-12 h-12 rounded-2xl overflow-hidden mb-6">
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden mb-6 flex items-center justify-center">
                     <img src={card.image} alt={card.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                 ) : (

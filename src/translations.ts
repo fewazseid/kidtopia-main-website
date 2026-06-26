@@ -189,8 +189,12 @@ export const translations = {
     },
     leadCapture: {
       title: "Would you like to schedule a tour?",
-      book: "Book Tour",
-      later: "Later"
+      text: "Schedule a visit to Kidtopia and see our wonderful environment.",
+      buttonText: "Book Tour",
+      buttonLink: "/book-tour",
+      laterText: "Later",
+      type: "info",
+      enabled: "true"
     },
     staff: {
       title: "Our Professional Staff",
@@ -427,8 +431,12 @@ export const translations = {
     },
     leadCapture: {
       title: "የጉብኝት ቀጠሮ መያዝ ይፈልጋሉ?",
-      book: "ጉብኝት ያስይዙ",
-      later: "በኋላ"
+      text: "የኪድቶፒያ ድንቅ አካባቢን ለማየት የአካል ጉብኝት ቀጠሮ ይያዙ።",
+      buttonText: "ጉብኝት ያስይዙ",
+      buttonLink: "/book-tour",
+      laterText: "በኋላ",
+      type: "info",
+      enabled: "true"
     },
     staff: {
       title: "የእኛ ፕሮፌሽናል ሰራተኞች",

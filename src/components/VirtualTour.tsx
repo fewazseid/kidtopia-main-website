@@ -36,7 +36,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
         </div>
 
         <div className="relative max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex flex-wrap justify-center gap-8 items-stretch">
             {t.media && t.media.map((item: any, index: number) => {
               const ytId = item.type === 'video' ? getYouTubeId(item.url) : null;
               
@@ -47,7 +47,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, delay: index * 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex flex-col gap-4"
+                  className="flex flex-col gap-4 w-full md:w-[calc(50%-1rem)] max-w-2xl"
                 >
                   <div className="aspect-video rounded-[30px] overflow-hidden relative group cursor-pointer shadow-2xl">
                     {item.type === 'video' ? (
