@@ -94,7 +94,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
         <div className="flex flex-wrap justify-center gap-4">
           {t.highlights.map((item: any, idx: number) => (
             <div key={idx} className="w-full md:w-[calc(33.333%-0.75rem)] min-w-[280px] flex h-full">
-              <GlassCard delay={idx * 0.15} className="p-8 flex flex-row items-center space-x-4 text-left w-full">
+              <GlassCard delay={idx * 0.15} className="p-8 h-full flex flex-row items-center space-x-4 text-left w-full">
                 {item.image ? (
                   <div className="flex-shrink-0 w-12 h-12 rounded-2xl overflow-hidden">
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />

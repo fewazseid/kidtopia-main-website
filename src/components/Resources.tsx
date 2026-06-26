@@ -48,7 +48,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
             <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex h-full">
               <GlassCard
                 delay={idx * 0.15}
-                className="rounded-3xl p-8 flex flex-row items-center gap-5 group w-full text-left"
+                className="rounded-3xl p-8 h-full flex flex-row items-center gap-5 group w-full text-left"
               >
                 {resource.image ? (
                   <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0">

@@ -34,7 +34,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
             <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex h-full">
               <GlassCard 
                 delay={idx * 0.15}
-                className="p-8 w-full flex flex-row items-center gap-4 text-left"
+                className="p-8 w-full h-full flex flex-row items-center gap-4 text-left"
               >
                 {card.image ? (
                   <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0">
