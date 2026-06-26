@@ -30,13 +30,12 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
           <div className="w-24 h-1 bg-brand-green mx-auto rounded-full"></div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-8 items-stretch">
+        <div className="flex flex-wrap justify-center gap-8 items-start">
           {t.cards.map((card: any, idx: number) => (
-            <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col">
+            <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col items-start justify-start">
               <GlassCard 
                 layout
-                disableMotion
-                className="overflow-hidden flex flex-col group w-full h-full"
+                className="overflow-hidden flex flex-col group w-full"
                 delay={idx * 0.25}
               >
                 <div className="flex flex-col md:flex-row h-full">
@@ -45,12 +44,12 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                       <img 
                         src={card.image} 
                         alt={card.name} 
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         referrerPolicy="no-referrer"
                       />
                     )}
                   </div>
-                  <div className="md:w-1/2 p-10 flex flex-col justify-between items-center text-center flex-grow">
+                  <div className="md:w-1/2 p-10 flex flex-col justify-between items-center text-center">
                     <div className="w-full">
                       <span className={`font-medium text-sm uppercase tracking-wider mb-2 block ${idx === 0 ? 'text-brand-orange' : 'text-brand-teal'}`}>{card.age}</span>
                       <h3 className="text-3xl font-serif font-bold mb-4">{card.name}</h3>

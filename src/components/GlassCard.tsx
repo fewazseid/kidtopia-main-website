@@ -8,8 +8,6 @@ interface GlassCardProps {
   id?: string;
   delay?: number;
   layout?: boolean | 'x' | 'y' | 'size' | 'position';
-  disableTilt?: boolean;
-  disableMotion?: boolean;
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -19,8 +17,6 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   id,
   delay = 0,
   layout,
-  disableTilt = false,
-  disableMotion = false,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -31,22 +27,21 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   const y = useMotionValue(0);
 
   // Smooth springs for tilt values
-  const springConfig = { damping: 30, stiffness: 200, mass: 0.6 };
-  const maxTilt = (disableTilt || disableMotion) ? 0 : 3; // 3 degrees max is extremely subtle and premium
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [maxTilt, -maxTilt]), springConfig);
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-maxTilt, maxTilt]), springConfig);
+  const springConfig = { damping: 25, stiffness: 180, mass: 0.8 };
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [12, -12]), springConfig);
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-12, 12]), springConfig);
 
   // Glare overlay positions
   const glareX = useSpring(useTransform(x, [-0.5, 0.5], [0, 100]), springConfig);
   const glareY = useSpring(useTransform(y, [-0.5, 0.5], [0, 100]), springConfig);
 
-  // Depth push-back (extremely gentle scale and translation)
-  const scale = useSpring(disableMotion ? 1 : (isPressed ? 0.98 : isHovered ? 1.005 : 1), springConfig);
-  const translateZ = useSpring(disableMotion ? 0 : (isPressed ? -10 : isHovered ? 4 : 0), springConfig);
-  const shadowOpacity = useSpring(disableMotion ? 0.03 : (isPressed ? 0.04 : isHovered ? 0.10 : 0.03), springConfig);
+  // Depth push-back (scale and translation into Z-space)
+  // When clicked, it sinks back into the screen (scale 0.95, TranslateZ negative)
+  const scale = useSpring(isPressed ? 0.94 : isHovered ? 1.02 : 1, springConfig);
+  const translateZ = useSpring(isPressed ? -30 : isHovered ? 15 : 0, springConfig);
+  const shadowOpacity = useSpring(isPressed ? 0.04 : isHovered ? 0.12 : 0.03, springConfig);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (disableMotion) return;
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     
@@ -59,7 +54,6 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   };
 
   const handleMouseEnter = () => {
-    if (disableMotion) return;
     setIsHovered(true);
   };
 
@@ -71,7 +65,6 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   };
 
   const handleMouseDown = () => {
-    if (disableMotion) return;
     setIsPressed(true);
   };
 
@@ -79,21 +72,10 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     setIsPressed(false);
   };
 
-  // Split classes to apply layout-specific classes to the inner content wrapper
-  const classes = className.split(' ');
-  const layoutClasses = classes.filter(c => 
-    c.startsWith('flex') || 
-    c.startsWith('items-') || 
-    c.startsWith('justify-') || 
-    c.startsWith('text-') || 
-    c.startsWith('gap-') ||
-    c === 'flex-grow'
-  ).join(' ');
-
   return (
     <div
       style={{ perspective: '1200px' }}
-      className="w-full h-full flex flex-col items-stretch"
+      className="w-full h-full"
     >
       <motion.div
         ref={cardRef}
@@ -123,21 +105,19 @@ export const GlassCard: React.FC<GlassCardProps> = ({
           backdropFilter: 'blur(28px) saturate(210%)',
           WebkitBackdropFilter: 'blur(28px) saturate(210%)',
         }}
-        className={`relative overflow-hidden cursor-pointer rounded-3xl border border-white/55 h-full flex flex-col items-stretch ${className}`}
+        className={`relative overflow-hidden cursor-pointer rounded-3xl border border-white/55 ${className}`}
       >
         {/* Dynamic Sheen/Glare Overlay */}
-        {!disableMotion && (
-          <motion.div
-            className="absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            style={{
-              opacity: isHovered ? 0.35 : 0,
-              background: useTransform(
-                [glareX, glareY],
-                ([gx, gy]) => `radial-gradient(circle 280px at ${gx}% ${gy}%, rgba(255, 255, 255, 0.65), transparent)`
-              ),
-            }}
-          />
-        )}
+        <motion.div
+          className="absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{
+            opacity: isHovered ? 0.35 : 0,
+            background: useTransform(
+              [glareX, glareY],
+              ([gx, gy]) => `radial-gradient(circle 280px at ${gx}% ${gy}%, rgba(255, 255, 255, 0.65), transparent)`
+            ),
+          }}
+        />
 
         {/* Floating Ambient Highlights */}
         <div className="absolute -top-12 -left-12 w-24 h-24 bg-white/20 rounded-full blur-xl pointer-events-none" />
@@ -145,8 +125,8 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 
         {/* Content wrapper with layer offset for parallax effect */}
         <div 
-          style={{ transform: disableMotion ? 'none' : 'translateZ(20px)', transformStyle: disableMotion ? 'flat' : 'preserve-3d' }}
-          className={`relative z-20 w-full h-full flex flex-col flex-grow items-stretch justify-start ${layoutClasses}`}
+          style={{ transform: 'translateZ(20px)', transformStyle: 'preserve-3d' }}
+          className="relative z-20 w-full h-full"
         >
           {children}
         </div>
