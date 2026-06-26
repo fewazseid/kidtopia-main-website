@@ -3,6 +3,7 @@ import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { ClipboardCheck, UserCheck, Key, Sparkles } from 'lucide-react';
+import { GlassCard } from './GlassCard';
 
 interface TrustSafetyProps {
   lang: Language;
@@ -30,13 +31,10 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {t.cards.map((card: any, idx: number) => (
-            <motion.div 
+            <GlassCard 
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="p-8 rounded-[32px] glass-panel hover:border-brand-green/40 transition-all shadow-sm hover:shadow-lg"
+              delay={idx * 0.15}
+              className="p-8"
             >
               {card.image ? (
                 <div className="w-12 h-12 rounded-2xl overflow-hidden mb-6">
@@ -49,7 +47,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
               )}
               <h3 className="font-serif font-bold text-xl mb-4">{card.title}</h3>
               <p className="text-stone-600 text-sm leading-relaxed">{card.desc}</p>
-            </motion.div>
+            </GlassCard>
           ))}
         </div>
       </div>

@@ -3,6 +3,7 @@ import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { BookOpen, Download, FileText, Video } from 'lucide-react';
+import { GlassCard } from './GlassCard';
 
 interface ResourcesProps {
   lang: Language;
@@ -44,13 +45,10 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {t.items.map((resource: any, idx: number) => (
-            <motion.div
+            <GlassCard
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="glass-panel rounded-3xl p-8 hover:shadow-lg transition-all flex flex-col items-center text-center group cursor-pointer"
+              delay={idx * 0.15}
+              className="rounded-3xl p-8 flex flex-col items-center text-center group"
             >
               {resource.image ? (
                 <div className="w-full h-32 rounded-2xl overflow-hidden mb-6">
@@ -66,7 +64,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
               <span className="text-sm font-medium text-brand-green bg-brand-green/10 px-4 py-1.5 rounded-full">
                 {resource.type}
               </span>
-            </motion.div>
+            </GlassCard>
           ))}
         </div>
       </div>

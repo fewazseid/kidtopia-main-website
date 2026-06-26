@@ -4,6 +4,7 @@ import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { GlassCard } from '../components/GlassCard';
 
 interface ContactPageProps {
   lang: Language;
@@ -21,7 +22,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl md:text-6xl font-serif font-bold text-stone-900 mb-4"
             >
               {nav.contact}
@@ -30,7 +31,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center hover:shadow-md transition-all group">
+            <GlassCard delay={0.1} className="p-8 flex flex-col items-center text-center group">
               <div className="w-16 h-16 rounded-full bg-brand-yellow/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Phone className="text-brand-yellow" size={32} />
               </div>
@@ -48,9 +49,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
                   </motion.a>
                 ))}
               </div>
-            </div>
+            </GlassCard>
 
-            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center hover:shadow-md transition-all group">
+            <GlassCard delay={0.2} className="p-8 flex flex-col items-center text-center group">
               <div className="w-16 h-16 rounded-full bg-brand-teal/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Mail className="text-brand-teal" size={32} />
               </div>
@@ -68,9 +69,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
                   </motion.a>
                 ))}
               </div>
-            </div>
+            </GlassCard>
 
-            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center hover:shadow-md transition-all group">
+            <GlassCard delay={0.3} className="p-8 flex flex-col items-center text-center group">
               <div className="w-16 h-16 rounded-full bg-brand-orange/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <MapPin className="text-brand-orange" size={32} />
               </div>
@@ -90,7 +91,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
                   </motion.a>
                 ))}
               </div>
-            </div>
+            </GlassCard>
           </div>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { useContent } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, ChevronUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { GlassCard } from './GlassCard';
 
 interface ProgramsProps {
   lang: Language;
@@ -31,15 +32,12 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {t.cards.map((card: any, idx: number) => (
-            <motion.div 
+            <GlassCard 
               key={idx}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 2, delay: idx * 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="card-rounded overflow-hidden flex flex-col group"
+              className="overflow-hidden flex flex-col group h-full"
+              delay={idx * 0.25}
             >
-              <div className="flex flex-col md:flex-row">
+              <div className="flex flex-col md:flex-row h-full">
                 <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
                   {card.image && (
                     <img 
@@ -81,7 +79,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="p-10 border-t border-stone-100 bg-stone-50/50">
+                    <div className="p-10 border-t border-white/20 bg-white/5">
                       <p className="text-stone-600 leading-relaxed italic">
                         {card.moreInfo || "More information coming soon..."}
                       </p>
@@ -89,7 +87,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </GlassCard>
           ))}
         </div>
       </div>

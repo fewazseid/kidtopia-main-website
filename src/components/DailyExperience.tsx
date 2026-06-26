@@ -2,6 +2,7 @@ import React from 'react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
+import { GlassCard } from './GlassCard';
 
 interface DailyExperienceProps {
   lang: Language;
@@ -41,7 +42,10 @@ export const DailyExperience: React.FC<DailyExperienceProps> = ({ lang }) => {
                 className={`flex flex-col md:flex-row items-center ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
               >
                 <div className="md:w-1/2 flex justify-center md:justify-start px-8">
-                  <div className={`card-rounded p-8 w-full max-w-md ${idx % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
+                  <GlassCard 
+                    className={`p-8 w-full max-w-md ${idx % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}
+                    delay={idx * 0.1}
+                  >
                     {item.image && (
                       <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
                         <img src={item.image} alt={item.activity} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -49,7 +53,7 @@ export const DailyExperience: React.FC<DailyExperienceProps> = ({ lang }) => {
                     )}
                     <span className="text-brand-teal font-bold text-sm uppercase tracking-widest mb-2 block">{item.time}</span>
                     <h3 className="text-2xl font-serif font-bold text-stone-800">{item.activity}</h3>
-                  </div>
+                  </GlassCard>
                 </div>
                 
                 <div className="w-10 h-10 bg-brand-green rounded-full border-4 border-brand-cream z-10 my-4 md:my-0 flex items-center justify-center text-white font-bold text-sm">
