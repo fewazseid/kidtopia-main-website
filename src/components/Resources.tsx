@@ -45,7 +45,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
 
         <div className="flex flex-wrap justify-center gap-8 items-stretch">
           {t.items.map((resource: any, idx: number) => (
-            <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex">
+            <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex h-full">
               <GlassCard
                 delay={idx * 0.15}
                 className="rounded-3xl p-8 flex flex-row items-center gap-5 group w-full text-left"

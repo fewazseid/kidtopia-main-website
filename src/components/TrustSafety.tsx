@@ -31,7 +31,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
 
         <div className="flex flex-wrap justify-center gap-8 items-stretch">
           {t.cards.map((card: any, idx: number) => (
-            <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex">
+            <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex h-full">
               <GlassCard 
                 delay={idx * 0.15}
                 className="p-8 w-full flex flex-row items-center gap-4 text-left"

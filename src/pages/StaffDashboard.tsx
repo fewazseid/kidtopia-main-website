@@ -32,7 +32,7 @@ export const StaffDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GlassCard className="p-6 flex flex-row items-center gap-4 text-left" delay={0.05}>
+          <GlassCard className="p-6 flex flex-row items-center gap-4 text-left h-full" delay={0.05}>
             <div className="w-12 h-12 bg-brand-green/10 rounded-xl flex items-center justify-center text-brand-green shrink-0">
               <Calendar size={24} />
             </div>
@@ -41,7 +41,7 @@ export const StaffDashboard: React.FC = () => {
               <p className="text-stone-500 text-sm">View your daily classes and activities.</p>
             </div>
           </GlassCard>
-          <GlassCard className="p-6 flex flex-row items-center gap-4 text-left" delay={0.1}>
+          <GlassCard className="p-6 flex flex-row items-center gap-4 text-left h-full" delay={0.1}>
             <div className="w-12 h-12 bg-brand-orange/10 rounded-xl flex items-center justify-center text-brand-orange shrink-0">
               <Clock size={24} />
             </div>
@@ -50,7 +50,7 @@ export const StaffDashboard: React.FC = () => {
               <p className="text-stone-500 text-sm">Mark and track student attendance.</p>
             </div>
           </GlassCard>
-          <GlassCard className="p-6 flex flex-row items-center gap-4 text-left" delay={0.15}>
+          <GlassCard className="p-6 flex flex-row items-center gap-4 text-left h-full" delay={0.15}>
             <div className="w-12 h-12 bg-brand-teal/10 rounded-xl flex items-center justify-center text-brand-teal shrink-0">
               <MessageSquare size={24} />
             </div>
