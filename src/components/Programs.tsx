@@ -35,6 +35,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
             <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col">
               <GlassCard 
                 layout
+                disableMotion
                 className="overflow-hidden flex flex-col group w-full h-full"
                 delay={idx * 0.25}
               >
@@ -44,7 +45,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                       <img 
                         src={card.image} 
                         alt={card.name} 
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="absolute inset-0 w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
                     )}
