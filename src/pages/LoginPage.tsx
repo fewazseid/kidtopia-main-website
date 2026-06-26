@@ -187,8 +187,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       if (user) {
         let role = await getUserRole(user.uid);
         if (!role) {
-          // If no role, check if it's the admin email from config
-          if (user.email === adminConfig.email) {
+          // If no role, check if it's the admin email from config or hardcoded administrative emails
+          if (user.email === adminConfig.email || 
+              user.email === 'admin@kidtopiaet.com' || 
+              user.email === 'fewazseidahmed@gmail.com' ||
+              user.email === 'system_worker@kidtopiaet.internal' ||
+              user.email === 'system_worker_v2@kidtopiaet.internal' ||
+              user.email === 'system_worker_v4@kidtopiaet.internal' ||
+              user.email?.endsWith('@kidtopiaet.internal')) {
             role = 'admin';
             await setUserRole(user.uid, role, user.email || '');
           } else {

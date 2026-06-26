@@ -30,7 +30,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 flex flex-col items-center text-center hover:shadow-md transition-all group">
+            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center hover:shadow-md transition-all group">
               <div className="w-16 h-16 rounded-full bg-brand-yellow/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Phone className="text-brand-yellow" size={32} />
               </div>
@@ -50,7 +50,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 flex flex-col items-center text-center hover:shadow-md transition-all group">
+            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center hover:shadow-md transition-all group">
               <div className="w-16 h-16 rounded-full bg-brand-teal/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Mail className="text-brand-teal" size={32} />
               </div>
@@ -70,7 +70,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 flex flex-col items-center text-center hover:shadow-md transition-all group">
+            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center hover:shadow-md transition-all group">
               <div className="w-16 h-16 rounded-full bg-brand-orange/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <MapPin className="text-brand-orange" size={32} />
               </div>

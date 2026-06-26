@@ -94,7 +94,7 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang }) 
           <ArrowLeft size={20} className="mr-2" /> {t.backToHome}
         </Link>
 
-        <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-stone-100">
+        <div className="card-rounded p-8 md:p-12">
           <div className="text-center mb-10">
             <h1 className="text-3xl font-serif font-bold text-stone-900 mb-4">{t.title}</h1>
           </div>

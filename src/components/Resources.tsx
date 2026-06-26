@@ -50,7 +50,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow border border-stone-100 flex flex-col items-center text-center group cursor-pointer"
+              className="glass-panel rounded-3xl p-8 hover:shadow-lg transition-all flex flex-col items-center text-center group cursor-pointer"
             >
               {resource.image ? (
                 <div className="w-full h-32 rounded-2xl overflow-hidden mb-6">

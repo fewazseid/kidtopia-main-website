@@ -61,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
   }, []);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gradient-to-r from-white via-brand-cream to-white shadow-md py-2' : 'bg-transparent py-4'}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/75 backdrop-blur-md border-b border-white/20 shadow-sm py-2' : 'bg-transparent py-4'}`}>
       <div className="w-full px-4 sm:px-8 lg:px-12">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -108,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                 )}
 
                 {item.subItems && activeDropdown === idx && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-brand-cream overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-white/80 backdrop-blur-md rounded-xl shadow-xl border border-white/40 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                     {item.subItems.map((sub, sIdx) => (
                       <Link
                         key={sIdx}
@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden bg-white border-t border-brand-cream overflow-hidden"
+            className="md:hidden bg-white/85 backdrop-blur-md border-t border-brand-cream overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               <div className="flex justify-end mb-4">

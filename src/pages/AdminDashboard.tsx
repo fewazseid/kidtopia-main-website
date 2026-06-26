@@ -416,11 +416,52 @@ export const AdminDashboard: React.FC = () => {
     }
   }, [content, activeLang, activeSection]);
 
+  const isNonTextField = (key: string, value: any): boolean => {
+    if (typeof value !== 'string') return true;
+    const lowerKey = key.toLowerCase();
+    const nonTextKeys = [
+      'image', 'video', 'heroimage', 'herovideo', 'url', 'type', 
+      'backgroundtype', 'icon', 'logo', 'buttonlink', 'googlemapscoordinates',
+      'image1', 'image2', 'rating', 'rate'
+    ];
+    if (nonTextKeys.includes(lowerKey)) return true;
+    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
+      return true;
+    }
+    return false;
+  };
+
+  const transformToOtherLangItem = (obj: any): any => {
+    if (obj === null || obj === undefined) return obj;
+    if (Array.isArray(obj)) {
+      return obj.map(item => transformToOtherLangItem(item));
+    }
+    if (typeof obj === 'object') {
+      const newObj: any = {};
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          const value = obj[key];
+          if (isNonTextField(key, value)) {
+            newObj[key] = transformToOtherLangItem(value);
+          } else {
+            newObj[key] = "";
+          }
+        }
+      }
+      return newObj;
+    }
+    if (typeof obj === 'string') {
+      return "";
+    }
+    return obj;
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
-      await setDoc(doc(db, 'content', activeLang), content[activeLang]);
-      setFeedback({ type: 'success', message: 'Content saved successfully!' });
+      await setDoc(doc(db, 'content', 'en'), content.en);
+      await setDoc(doc(db, 'content', 'am'), content.am);
+      setFeedback({ type: 'success', message: 'Content saved successfully for both languages!' });
     } catch (err) {
       console.error('Failed to save content', err);
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Unknown error' });
@@ -458,35 +499,49 @@ export const AdminDashboard: React.FC = () => {
 
   const handleChange = (path: string[], value: any) => {
     const newContent = JSON.parse(JSON.stringify(content));
-    let current = newContent[activeLang];
-    
-    for (let i = 0; i < path.length - 1; i++) {
-      current = current[path[i]];
+    const lastKey = path[path.length - 1];
+
+    const writeToLang = (lang: 'en' | 'am', val: any) => {
+      let current = newContent[lang];
+      for (let i = 0; i < path.length - 1; i++) {
+        if (!current[path[i]]) return;
+        current = current[path[i]];
+      }
+      current[lastKey] = val;
+    };
+
+    if (isNonTextField(lastKey, value)) {
+      writeToLang('en', value);
+      writeToLang('am', value);
+    } else {
+      writeToLang(activeLang, value);
     }
-    
-    current[path[path.length - 1]] = value;
+
     setContent(newContent);
   };
 
   const addItem = (path: string[]) => {
     const newContent = JSON.parse(JSON.stringify(content));
-    let current = newContent[activeLang];
     
-    for (let i = 0; i < path.length - 1; i++) {
-      current = current[path[i]];
-    }
-    
-    const array = current[path[path.length - 1]];
-    const key = path[path.length - 1];
-    
-    if (Array.isArray(array)) {
-      let template;
-      if (array.length > 0) {
-        if (typeof array[0] !== 'object' || array[0] === null) {
+    const getArrayAt = (lang: 'en' | 'am') => {
+      let current = newContent[lang];
+      for (let i = 0; i < path.length - 1; i++) {
+        if (!current[path[i]]) return null;
+        current = current[path[i]];
+      }
+      return current[path[path.length - 1]];
+    };
+
+    const activeArray = getArrayAt(activeLang);
+    if (Array.isArray(activeArray)) {
+      const key = path[path.length - 1];
+      let template: any;
+      if (activeArray.length > 0) {
+        if (typeof activeArray[0] !== 'object' || activeArray[0] === null) {
           template = '';
         } else {
-          template = Object.keys(array[0]).reduce((acc, k) => {
-            const originalValue = (array[0] as any)[k];
+          template = Object.keys(activeArray[0]).reduce((acc, k) => {
+            const originalValue = (activeArray[0] as any)[k];
             if (typeof originalValue === 'object' && originalValue !== null && !Array.isArray(originalValue)) {
               return { 
                 ...acc, 
@@ -529,29 +584,42 @@ export const AdminDashboard: React.FC = () => {
         }
       }
       
-      array.push(template);
+      activeArray.push(template);
+      
+      const otherLang = activeLang === 'en' ? 'am' : 'en';
+      const otherArray = getArrayAt(otherLang);
+      if (Array.isArray(otherArray)) {
+        otherArray.push(transformToOtherLangItem(template));
+      }
+      
       setContent(newContent);
     }
   };
 
   const removeItem = (path: string[], index: number) => {
     setConfirmModal({
-      message: 'Are you sure you want to remove this item? This action cannot be undone until you refresh the page without saving.',
+      message: 'Are you sure you want to remove this item? This action will remove it from both English and Amharic versions to keep them structurally identical.',
       onConfirm: () => {
         setContent((prevContent: any) => {
           if (!prevContent) return prevContent;
           const newContent = JSON.parse(JSON.stringify(prevContent));
-          let current = newContent[activeLang];
           
-          for (let i = 0; i < path.length - 1; i++) {
-            current = current[path[i]];
-          }
+          const removeForLang = (lang: 'en' | 'am') => {
+            let current = newContent[lang];
+            for (let i = 0; i < path.length - 1; i++) {
+              if (!current[path[i]]) return;
+              current = current[path[i]];
+            }
+            const array = current[path[path.length - 1]];
+            if (Array.isArray(array)) {
+              array.splice(index, 1);
+            }
+          };
           
-          const array = current[path[path.length - 1]];
-          if (Array.isArray(array)) {
-            array.splice(index, 1);
-            setFeedback({ type: 'success', message: 'Item removed from list' });
-          }
+          removeForLang('en');
+          removeForLang('am');
+          
+          setFeedback({ type: 'success', message: 'Item removed from both languages' });
           return newContent;
         });
         setConfirmModal(null);

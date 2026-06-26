@@ -91,7 +91,7 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
                 x: { type: "spring", stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 }
               }}
-              className="card-rounded p-8 md:p-12 relative text-center bg-white shadow-sm"
+              className="card-rounded p-8 md:p-12 relative text-center"
             >
               <Quote className="absolute top-8 left-8 text-brand-green/10" size={80} />
               

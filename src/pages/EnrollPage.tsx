@@ -58,7 +58,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-stone-100 mb-8 overflow-hidden relative"
+          className="card-rounded p-8 md:p-12 mb-8 overflow-hidden relative"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/10 rounded-bl-full z-0" />
           <div className="relative z-10">
@@ -80,7 +80,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-stone-100 mb-8"
+          className="card-rounded p-8 md:p-10 mb-8"
         >
           <h2 className="text-2xl md:text-3xl font-serif text-stone-900 mb-6 flex items-center gap-2">
             <ShieldCheck className="text-brand-green" size={26} />
@@ -116,7 +116,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-stone-100 mb-8"
+          className="card-rounded p-8 md:p-10 mb-8"
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
@@ -242,8 +242,8 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.35 }}
-          className={`bg-white rounded-3xl p-6 md:p-8 border shadow-sm mb-8 transition-all duration-350 ${
-            showWarning && !termsAccepted ? 'border-brand-orange/50 bg-brand-orange/3 ring-2 ring-brand-orange/10' : 'border-stone-100'
+          className={`bg-white/70 backdrop-blur-md rounded-3xl p-6 md:p-8 border shadow-sm mb-8 transition-all duration-350 ${
+            showWarning && !termsAccepted ? 'border-brand-orange/50 bg-brand-orange/3 ring-2 ring-brand-orange/10' : 'border-white/40'
           }`}
         >
           <h3 className="font-serif font-bold text-stone-900 text-xl mb-4 flex items-center gap-2">
@@ -330,7 +330,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-white rounded-3xl border border-stone-100 shadow-sm"
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 glass-panel rounded-3xl"
         >
           <div className="text-center sm:text-left">
             <h4 className="font-serif font-bold text-stone-900 text-lg">

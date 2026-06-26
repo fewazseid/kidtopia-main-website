@@ -37,7 +37,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 2, delay: idx * 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="card-rounded overflow-hidden flex flex-col group bg-white"
+              className="card-rounded overflow-hidden flex flex-col group"
             >
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">

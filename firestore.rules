@@ -12,6 +12,7 @@ service cloud.firestore {
         request.auth.token.email == "fewazseidahmed@gmail.com" ||
         request.auth.token.email == "system_worker@kidtopiaet.internal" ||
         request.auth.token.email == "system_worker_v2@kidtopiaet.internal" ||
+        request.auth.token.email == "system_worker_v4@kidtopiaet.internal" ||
         ('email' in request.auth.token && request.auth.token.email.matches('.*@kidtopiaet\\.internal')) ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")

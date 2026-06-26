@@ -29,7 +29,19 @@
 }
 
 .card-rounded {
-  @apply rounded-[32px] bg-brand-warm-white shadow-sm;
+  @apply rounded-[32px] bg-brand-warm-white/75 backdrop-blur-md border border-white/40 shadow-lg shadow-stone-200/30;
+}
+
+.glass-panel {
+  @apply bg-brand-warm-white/70 backdrop-blur-md border border-white/40 shadow-md;
+}
+
+.glass-dropdown {
+  @apply bg-brand-warm-white/85 backdrop-blur-md border border-white/40 shadow-xl;
+}
+
+.glass-header {
+  @apply bg-white/75 backdrop-blur-md border-b border-white/20 shadow-sm;
 }
 
 .btn-primary {

@@ -31,21 +31,21 @@ export const StaffDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+          <div className="glass-panel p-6 rounded-2xl">
             <div className="w-12 h-12 bg-brand-green/10 rounded-xl flex items-center justify-center text-brand-green mb-4">
               <Calendar size={24} />
             </div>
             <h3 className="text-lg font-bold text-stone-900 mb-2">Schedule</h3>
             <p className="text-stone-500 text-sm">View your daily classes and activities.</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+          <div className="glass-panel p-6 rounded-2xl">
             <div className="w-12 h-12 bg-brand-orange/10 rounded-xl flex items-center justify-center text-brand-orange mb-4">
               <Clock size={24} />
             </div>
             <h3 className="text-lg font-bold text-stone-900 mb-2">Attendance</h3>
             <p className="text-stone-500 text-sm">Mark and track student attendance.</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+          <div className="glass-panel p-6 rounded-2xl">
             <div className="w-12 h-12 bg-brand-teal/10 rounded-xl flex items-center justify-center text-brand-teal mb-4">
               <MessageSquare size={24} />
             </div>
