@@ -14,32 +14,60 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
   const announcement = content?.announcement;
 
   const getStyles = () => {
-    switch (announcement?.type) {
-      case 'warning':
-        return {
-          bg: 'bg-gradient-to-r from-amber-500 via-amber-400 to-orange-400',
-          text: 'text-white',
-          iconBg: 'bg-white/20',
-          icon: <AlertTriangle className="w-8 h-8 text-white drop-shadow-md" />,
-          buttonHover: 'hover:bg-amber-600'
-        };
-      case 'success':
-        return {
-          bg: 'bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400',
-          text: 'text-white',
-          iconBg: 'bg-white/20',
-          icon: <CheckCircle className="w-8 h-8 text-white drop-shadow-md" />,
-          buttonHover: 'hover:bg-emerald-600'
-        };
+    // If we have custom color protocols configured, use them!
+    const panelColor = announcement?.color || 'brand-green';
+    const buttonColor = announcement?.buttonColor || 'brand-orange';
+
+    let bg = '';
+    let text = '';
+    let iconBg = '';
+    let icon = <Megaphone className="w-8 h-8 text-white drop-shadow-md" />;
+
+    switch (panelColor) {
+      case 'brand-orange':
+        bg = 'bg-gradient-to-r from-brand-orange via-amber-600 to-brand-orange';
+        text = 'text-white';
+        iconBg = 'bg-white/20';
+        icon = <AlertTriangle className="w-8 h-8 text-white drop-shadow-md" />;
+        break;
+      case 'brand-yellow':
+        bg = 'bg-gradient-to-r from-brand-yellow via-amber-400 to-brand-yellow';
+        text = 'text-stone-900';
+        iconBg = 'bg-black/10';
+        icon = <Info className="w-8 h-8 text-stone-900 drop-shadow-md" />;
+        break;
+      case 'brand-teal':
+        bg = 'bg-gradient-to-r from-brand-teal via-emerald-600 to-brand-teal';
+        text = 'text-white';
+        iconBg = 'bg-white/20';
+        icon = <CheckCircle className="w-8 h-8 text-white drop-shadow-md" />;
+        break;
+      case 'brand-green':
       default:
-        return {
-          bg: 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500',
-          text: 'text-white',
-          iconBg: 'bg-white/20',
-          icon: <Info className="w-8 h-8 text-white drop-shadow-md" />,
-          buttonHover: 'hover:bg-blue-700'
-        };
+        bg = 'bg-gradient-to-r from-brand-green via-emerald-800 to-brand-green';
+        text = 'text-white';
+        iconBg = 'bg-white/20';
+        icon = <Megaphone className="w-8 h-8 text-white drop-shadow-md" />;
+        break;
     }
+
+    let buttonClass = 'bg-white text-stone-900 hover:bg-stone-100';
+    switch (buttonColor) {
+      case 'brand-green':
+        buttonClass = 'bg-brand-green text-white hover:bg-brand-green/90 shadow-brand-green/20';
+        break;
+      case 'brand-orange':
+        buttonClass = 'bg-brand-orange text-white hover:bg-brand-orange/90 shadow-brand-orange/20';
+        break;
+      case 'brand-yellow':
+        buttonClass = 'bg-brand-yellow text-stone-900 hover:bg-brand-yellow/90 shadow-brand-yellow/20';
+        break;
+      case 'brand-teal':
+        buttonClass = 'bg-brand-teal text-white hover:bg-brand-teal/90 shadow-brand-teal/20';
+        break;
+    }
+
+    return { bg, text, iconBg, icon, buttonClass };
   };
 
   const styles = getStyles();
@@ -90,7 +118,7 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
                 <div className="mt-2 md:mt-0 flex-shrink-0">
                   <Link 
                     to={announcement.buttonLink} 
-                    className={`inline-flex items-center gap-2 bg-white text-stone-900 px-5 py-2.5 rounded-xl font-bold text-sm transition-all hover:-translate-y-0.5 shadow-lg ${styles.buttonHover} hover:text-white group`}
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all hover:-translate-y-0.5 shadow-lg ${styles.buttonClass} group`}
                   >
                     {announcement.buttonText}
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
