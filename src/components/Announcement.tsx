@@ -31,6 +31,39 @@ export const Announcement: React.FC<AnnouncementProps> = ({ lang }) => {
           icon: <CheckCircle className="w-8 h-8 text-white drop-shadow-md" />,
           buttonHover: 'hover:bg-emerald-600'
         };
+      case 'danger':
+        return {
+          bg: 'bg-gradient-to-r from-rose-500 via-red-500 to-orange-500',
+          text: 'text-white',
+          iconBg: 'bg-white/20',
+          icon: <AlertTriangle className="w-8 h-8 text-white drop-shadow-md" />,
+          buttonHover: 'hover:bg-rose-600'
+        };
+      case 'royal':
+        return {
+          bg: 'bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500',
+          text: 'text-white',
+          iconBg: 'bg-white/20',
+          icon: <Megaphone className="w-8 h-8 text-white drop-shadow-md" />,
+          buttonHover: 'hover:bg-violet-700'
+        };
+      case 'sunset':
+        return {
+          bg: 'bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500',
+          text: 'text-white',
+          iconBg: 'bg-white/20',
+          icon: <Megaphone className="w-8 h-8 text-white drop-shadow-md" />,
+          buttonHover: 'hover:bg-orange-600'
+        };
+      case 'teal':
+        return {
+          bg: 'bg-gradient-to-r from-teal-600 via-emerald-500 to-cyan-500',
+          text: 'text-white',
+          iconBg: 'bg-white/20',
+          icon: <CheckCircle className="w-8 h-8 text-white drop-shadow-md" />,
+          buttonHover: 'hover:bg-teal-700'
+        };
+      case 'info':
       default:
         return {
           bg: 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500',

@@ -730,6 +730,10 @@ export const AdminDashboard: React.FC = () => {
               <option value="info">Info (Blue)</option>
               <option value="warning">Warning (Amber)</option>
               <option value="success">Success (Green)</option>
+              <option value="danger">Urgent / Danger (Rose-Red)</option>
+              <option value="royal">Royal (Purple)</option>
+              <option value="sunset">Sunset (Orange)</option>
+              <option value="teal">Calm (Teal)</option>
             </select>
           </div>
         );
