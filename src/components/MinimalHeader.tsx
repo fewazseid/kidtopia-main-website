@@ -12,7 +12,7 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-brand-green/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/65 backdrop-blur-md border-b border-white/20 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button 

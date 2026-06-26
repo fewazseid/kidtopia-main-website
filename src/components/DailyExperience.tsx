@@ -11,7 +11,7 @@ export const DailyExperience: React.FC<DailyExperienceProps> = ({ lang }) => {
   const t = useContent(lang).dailyExperience;
 
   return (
-    <section className="py-24 bg-brand-cream overflow-hidden">
+    <section className="py-24 bg-transparent overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h2 

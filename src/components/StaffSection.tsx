@@ -15,7 +15,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
   const displayedMembers = showAll ? t.members : t.members.slice(0, 4);
 
   return (
-    <section id="staff" className="py-24 bg-white scroll-mt-24">
+    <section id="staff" className="py-24 bg-transparent scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h2 

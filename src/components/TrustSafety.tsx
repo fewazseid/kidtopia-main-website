@@ -13,7 +13,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
   const icons = [<ClipboardCheck />, <UserCheck />, <Key />, <Sparkles />];
 
   return (
-    <section className="py-24 bg-brand-warm-white">
+    <section className="py-24 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h2 
@@ -36,7 +36,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 2, delay: idx * 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="p-8 rounded-[32px] border border-stone-100 hover:border-brand-green/20 transition-colors bg-brand-cream/30"
+              className="p-8 rounded-[32px] glass-panel hover:border-brand-green/40 transition-all shadow-sm hover:shadow-lg"
             >
               {card.image ? (
                 <div className="w-12 h-12 rounded-2xl overflow-hidden mb-6">

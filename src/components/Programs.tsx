@@ -14,7 +14,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
 
   return (
-    <section id="programs" className="py-24 bg-brand-cream">
+    <section id="programs" className="py-24 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h2 

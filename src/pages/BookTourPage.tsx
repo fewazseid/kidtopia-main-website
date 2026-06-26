@@ -125,7 +125,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
   const minDate = tomorrow.toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-stone-50 pt-20 pb-12 flex flex-col items-center">
+    <div className="min-h-screen bg-transparent pt-20 pb-12 flex flex-col items-center">
       <div className="max-w-3xl w-full px-4 mt-8">
           <Link to="/" className="inline-flex items-center text-brand-green font-medium hover:underline mb-6">
             <ArrowLeft size={20} className="mr-2" /> {lang === 'en' ? 'Back to Home' : 'ወደ መነሻ ይመለሱ'}

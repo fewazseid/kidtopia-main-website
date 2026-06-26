@@ -255,7 +255,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
   };
 
   return (
-    <main className="pt-32 pb-24 min-h-screen flex items-center justify-center bg-brand-cream px-4">
+    <main className="pt-32 pb-24 min-h-screen flex items-center justify-center bg-transparent px-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -322,7 +322,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
+                    className="w-full px-4 py-3 rounded-xl glass-input-ios outline-none transition-all text-stone-900"
                     placeholder="Enter username or email"
                     required
                   />
@@ -337,7 +337,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all pr-12"
+                      className="w-full px-4 py-3 rounded-xl glass-input-ios outline-none transition-all pr-12 text-stone-900"
                       placeholder="6-digit password"
                       required
                       autoCapitalize="none"
@@ -363,10 +363,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
 
               <div className="relative mb-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-stone-200"></div>
+                  <div className="w-full border-t border-white/35"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-stone-500">OR</span>
+                  <span className="px-2 text-stone-500 font-bold bg-transparent">OR</span>
                 </div>
               </div>
 
@@ -374,7 +374,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
                 <button
                   onClick={handleGoogleLogin}
                   disabled={loading || fingerprintLoading}
-                  className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-stone-50 active:scale-[0.98] border border-stone-200 bg-white disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-white/50 active:scale-[0.98] border border-white/60 bg-white/40 backdrop-blur-md shadow-sm disabled:opacity-50"
                 >
                   <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
                   Login with Google
@@ -391,10 +391,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-stone-200"></div>
+                    <div className="w-full border-t border-white/35"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-stone-500">Secure Access</span>
+                    <span className="px-2 text-stone-500 font-medium bg-transparent">Secure Access</span>
                   </div>
                 </div>
               </div>

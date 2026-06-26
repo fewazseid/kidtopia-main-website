@@ -42,7 +42,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
   };
 
   return (
-    <main className="pt-28 pb-20 bg-brand-cream/40 min-h-screen">
+    <main className="pt-28 pb-20 bg-transparent min-h-screen">
       <div className="max-w-4xl mx-auto px-4">
         {/* Back Button */}
         <Link 

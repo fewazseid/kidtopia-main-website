@@ -29,35 +29,133 @@
 }
 
 .card-rounded {
-  @apply rounded-[32px] bg-brand-warm-white/75 backdrop-blur-md border border-white/40 shadow-lg shadow-stone-200/30;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 32px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.03), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .glass-panel {
-  @apply bg-brand-warm-white/70 backdrop-blur-md border border-white/40 shadow-md;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.02), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .glass-dropdown {
-  @apply bg-brand-warm-white/85 backdrop-blur-md border border-white/40 shadow-xl;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.06), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .glass-header {
-  @apply bg-white/75 backdrop-blur-md border-b border-white/20 shadow-sm;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border-b: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.01);
 }
 
+/* Glassy UI input fields */
+.glass-input-ios {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-input-ios:focus {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(58, 91, 50, 0.5); /* brand-green */
+  box-shadow: 0 0 0 4px rgba(58, 91, 50, 0.12);
+}
+
+/* Translucent Glassy Buttons */
 .btn-primary {
-  @apply bg-brand-green text-white rounded-full px-6 py-3 transition-all hover:opacity-90 active:scale-95;
+  background: rgba(58, 91, 50, 0.85); /* Translucent brand-green */
+  color: white;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(58, 91, 50, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-primary:hover {
+  background: rgba(58, 91, 50, 0.95);
+  box-shadow: 0 6px 20px rgba(58, 91, 50, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-secondary {
-  @apply bg-brand-orange text-white rounded-full px-6 py-3 transition-all hover:opacity-90 active:scale-95;
+  background: rgba(200, 106, 61, 0.85); /* Translucent brand-orange */
+  color: white;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(200, 106, 61, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-secondary:hover {
+  background: rgba(200, 106, 61, 0.95);
+  box-shadow: 0 6px 20px rgba(200, 106, 61, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.btn-secondary:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-yellow {
-  @apply bg-brand-yellow text-stone-900 font-bold rounded-full px-6 py-3 transition-all hover:opacity-90 active:scale-95;
+  background: rgba(229, 177, 93, 0.85); /* Translucent brand-yellow */
+  color: #1c1917;
+  font-weight: 700;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(229, 177, 93, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-yellow:hover {
+  background: rgba(229, 177, 93, 0.95);
+  box-shadow: 0 6px 20px rgba(229, 177, 93, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+.btn-yellow:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-outline {
-  @apply border border-brand-green text-brand-green rounded-full px-6 py-3 transition-all hover:bg-brand-green hover:text-white active:scale-95;
+  border: 1px solid rgba(58, 91, 50, 0.5);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-brand-green);
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-outline:hover {
+  background: rgba(58, 91, 50, 0.85);
+  border-color: rgba(58, 91, 50, 0.85);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(58, 91, 50, 0.15);
+}
+.btn-outline:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .react-player-bg video,

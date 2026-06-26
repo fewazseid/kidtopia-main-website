@@ -33,7 +33,15 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
   const isMinimalLayout = ['/login', '/admin', '/staff', '/parent', '/book-tour'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
 
   return (
-    <div className="min-h-screen selection:bg-brand-green/20">
+    <div className="min-h-screen selection:bg-brand-green/20 relative">
+      {/* iOS-Style Premium Frosted Backdrop Blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 bg-brand-cream/40">
+        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-green/10 blur-[140px] animate-pulse" style={{ animationDuration: '10s' }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-brand-orange/8 blur-[160px] animate-pulse" style={{ animationDuration: '15s' }} />
+        <div className="absolute top-[45%] left-[10%] w-[50vw] h-[50vw] rounded-full bg-brand-yellow/10 blur-[140px] animate-pulse" style={{ animationDuration: '12s' }} />
+        <div className="absolute top-[15%] right-[5%] w-[45vw] h-[45vw] rounded-full bg-brand-teal/8 blur-[120px] animate-pulse" style={{ animationDuration: '18s' }} />
+      </div>
+
       {isMinimalLayout ? (
         <MinimalHeader lang={lang} setLang={setLang} />
       ) : (
