@@ -30,12 +30,12 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
           <div className="w-24 h-1 bg-brand-green mx-auto rounded-full"></div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-8 items-start">
+        <div className="flex flex-wrap justify-center gap-8 items-stretch">
           {t.cards.map((card: any, idx: number) => (
-            <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex flex-col items-start justify-start">
+            <div key={idx} className="w-full lg:w-[calc(50%-1rem)] flex h-full">
               <GlassCard 
                 layout
-                className="overflow-hidden flex flex-col group w-full"
+                className="overflow-hidden flex flex-col group w-full h-full"
                 delay={idx * 0.25}
               >
                 <div className="flex flex-col md:flex-row h-full">
@@ -49,7 +49,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                       />
                     )}
                   </div>
-                  <div className="md:w-1/2 p-10 flex flex-col justify-between items-center text-center">
+                  <div className="md:w-1/2 p-10 flex flex-col justify-between items-start text-left">
                     <div className="w-full">
                       <span className={`font-medium text-sm uppercase tracking-wider mb-2 block ${idx === 0 ? 'text-brand-orange' : 'text-brand-teal'}`}>{card.age}</span>
                       <h3 className="text-3xl font-serif font-bold mb-4">{card.name}</h3>
@@ -73,7 +73,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                         </AnimatePresence>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
+                    <div className="flex flex-wrap items-center justify-start gap-6 mt-8">
                       <button 
                         onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
                         className="flex items-center text-brand-green font-bold hover:translate-x-1 transition-transform cursor-pointer"
