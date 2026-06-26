@@ -102,7 +102,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
           backdropFilter: 'blur(28px) saturate(210%)',
           WebkitBackdropFilter: 'blur(28px) saturate(210%)',
         }}
-        className={`relative overflow-hidden cursor-pointer rounded-3xl border border-white/55 transition-all duration-300 ${className}`}
+        className={`relative overflow-hidden cursor-pointer rounded-3xl border border-white/55 ${className}`}
       >
         {/* Dynamic Sheen/Glare Overlay */}
         <motion.div

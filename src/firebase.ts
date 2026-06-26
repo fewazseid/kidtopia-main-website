@@ -252,6 +252,50 @@ export const getAllBookings = async () => {
     throw err;
   }
 
+  // Pre-check authentication and roles before attempting to query private booking_details
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    return bookings.map(b => ({
+      ...b,
+      name: b.name || "Guest Access Only",
+      email: b.email || "Confidential",
+      phone: b.phone || "Confidential"
+    }));
+  }
+
+  const email = currentUser.email || '';
+  const isAdminEmail = email === 'admin@kidtopiaet.com' ||
+                       email === 'fewazseidahmed@gmail.com' ||
+                       email === 'system_worker@kidtopiaet.internal' ||
+                       email === 'system_worker_v2@kidtopiaet.internal' ||
+                       email === 'system_worker_v4@kidtopiaet.internal' ||
+                       email.endsWith('@kidtopiaet.internal');
+
+  let hasPermission = isAdminEmail;
+
+  if (!hasPermission) {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        const role = userDoc.data()?.role;
+        if (role === 'admin' || role === 'staff') {
+          hasPermission = true;
+        }
+      }
+    } catch (e) {
+      // Ignore user doc fetch errors
+    }
+  }
+
+  if (!hasPermission) {
+    return bookings.map(b => ({
+      ...b,
+      name: b.name || "Guest Access Only",
+      email: b.email || "Confidential",
+      phone: b.phone || "Confidential"
+    }));
+  }
+
   try {
     // Fetch details for each booking
     const detailsSnapshot = await getDocs(collection(db, 'booking_details'));

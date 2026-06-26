@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { LogOut, Calendar, Clock, MessageSquare, User } from 'lucide-react';
+import { LogOut, Calendar, Clock, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { auth, logout } from '../firebase';
+import { GlassCard } from '../components/GlassCard';
 
 export const StaffDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -31,27 +32,27 @@ export const StaffDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass-panel p-6 rounded-2xl">
+          <GlassCard className="p-6" delay={0.05}>
             <div className="w-12 h-12 bg-brand-green/10 rounded-xl flex items-center justify-center text-brand-green mb-4">
               <Calendar size={24} />
             </div>
             <h3 className="text-lg font-bold text-stone-900 mb-2">Schedule</h3>
             <p className="text-stone-500 text-sm">View your daily classes and activities.</p>
-          </div>
-          <div className="glass-panel p-6 rounded-2xl">
+          </GlassCard>
+          <GlassCard className="p-6" delay={0.1}>
             <div className="w-12 h-12 bg-brand-orange/10 rounded-xl flex items-center justify-center text-brand-orange mb-4">
               <Clock size={24} />
             </div>
             <h3 className="text-lg font-bold text-stone-900 mb-2">Attendance</h3>
             <p className="text-stone-500 text-sm">Mark and track student attendance.</p>
-          </div>
-          <div className="glass-panel p-6 rounded-2xl">
+          </GlassCard>
+          <GlassCard className="p-6" delay={0.15}>
             <div className="w-12 h-12 bg-brand-teal/10 rounded-xl flex items-center justify-center text-brand-teal mb-4">
               <MessageSquare size={24} />
             </div>
             <h3 className="text-lg font-bold text-stone-900 mb-2">Messages</h3>
             <p className="text-stone-500 text-sm">Communicate with parents and admin.</p>
-          </div>
+          </GlassCard>
         </div>
       </div>
     </div>

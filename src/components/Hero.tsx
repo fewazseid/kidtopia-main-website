@@ -5,6 +5,7 @@ import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import ReactPlayer from 'react-player';
 import { Shield, Users, LayoutGrid } from 'lucide-react';
+import { GlassCard } from './GlassCard';
 
 interface HeroProps {
   lang: Language;
@@ -90,14 +91,9 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
         </div>
 
         {/* Highlights Bar */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2.4, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {t.highlights.map((item: any, idx: number) => (
-            <div key={idx} className="card-rounded p-8 flex items-start space-x-4 border border-stone-100 hover:shadow-md transition-shadow">
+            <GlassCard key={idx} delay={idx * 0.15} className="p-8 flex items-start space-x-4">
               {item.image ? (
                 <div className="flex-shrink-0 w-12 h-12 rounded-2xl overflow-hidden">
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -110,12 +106,12 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
                 </div>
               )}
               <div>
-                <h3 className="font-serif font-bold text-xl mb-1">{item.title}</h3>
-                <p className="text-stone-500 text-sm">{item.desc}</p>
+                <h3 className="font-serif font-bold text-xl mb-1 text-stone-850">{item.title}</h3>
+                <p className="text-stone-650 text-sm">{item.desc}</p>
               </div>
-            </div>
+            </GlassCard>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
