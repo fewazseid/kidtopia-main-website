@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Globe } from 'lucide-react';
 import { Language } from '../translations';
-import { motion } from 'motion/react';
 
 interface MinimalHeaderProps {
   lang: Language;
@@ -26,27 +25,17 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
           
           <div 
             onClick={() => navigate('/')} 
-            className="cursor-pointer flex flex-col justify-center group"
+            className="cursor-pointer flex flex-col justify-center"
           >
             <div className="font-sans font-bold text-2xl tracking-tighter flex">
-              {['K','I','D','T','O','P','I','A'].map((letter, i) => {
-                const colors = ['text-brand-orange', 'text-brand-yellow', 'text-brand-green', 'text-brand-teal', 'text-brand-tan', 'text-brand-orange', 'text-brand-yellow', 'text-brand-green'];
-                return (
-                  <motion.span 
-                    key={i}
-                    className={colors[i]}
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      delay: i * 0.1,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    {letter}
-                  </motion.span>
-                );
-              })}
+              <span className="text-brand-orange">K</span>
+              <span className="text-brand-yellow">I</span>
+              <span className="text-brand-green">D</span>
+              <span className="text-brand-teal">T</span>
+              <span className="text-brand-tan">O</span>
+              <span className="text-brand-orange">P</span>
+              <span className="text-brand-yellow">I</span>
+              <span className="text-brand-green">A</span>
             </div>
             <span className="text-[8px] font-sans text-brand-green font-medium tracking-wide mt-[-4px] hidden sm:block">
               International Daycare and Preschool
@@ -61,4 +50,3 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
     </header>
   );
 };
-

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Music2 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface FooterProps {
   lang: Language;
@@ -108,16 +109,26 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
         </div>
 
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <div className="flex flex-col justify-center mb-4 md:mb-0">
+          <div className="flex flex-col justify-center mb-4 md:mb-0 group">
             <div className="font-sans font-bold text-2xl tracking-tighter flex">
-              <span className="text-brand-orange">K</span>
-              <span className="text-brand-yellow">I</span>
-              <span className="text-brand-green">D</span>
-              <span className="text-brand-teal">T</span>
-              <span className="text-brand-tan">O</span>
-              <span className="text-brand-orange">P</span>
-              <span className="text-brand-yellow">I</span>
-              <span className="text-brand-green">A</span>
+              {['K','I','D','T','O','P','I','A'].map((letter, i) => {
+                const colors = ['text-brand-orange', 'text-brand-yellow', 'text-brand-green', 'text-brand-teal', 'text-brand-tan', 'text-brand-orange', 'text-brand-yellow', 'text-brand-green'];
+                return (
+                  <motion.span 
+                    key={i}
+                    className={colors[i]}
+                    animate={{ y: [0, -6, 0] }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: i * 0.1,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    {letter}
+                  </motion.span>
+                );
+              })}
             </div>
           </div>
           <div className="flex flex-col items-center md:items-end">

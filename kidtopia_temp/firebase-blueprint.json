@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "Content": {
+      "title": "Application Content",
+      "description": "Stores all the translated content for the application.",
+      "type": "object",
+      "properties": {
+        "nav": { "type": "object" },
+        "hero": { "type": "object" },
+        "safety": { "type": "object" },
+        "programs": { "type": "object" },
+        "whyChoose": { "type": "object" },
+        "virtualTour": { "type": "object" },
+        "dailyExperience": { "type": "object" },
+        "testimonials": { "type": "object" },
+        "cta": { "type": "object" },
+        "footer": { "type": "object" },
+        "resources": { "type": "object" },
+        "leadCapture": { "type": "object" },
+        "staff": { "type": "object" },
+        "login": { "type": "object" },
+        "enrollmentPage": { "type": "object" }
+      }
+    }
+  },
+  "firestore": {
+    "/content/{lang}": {
+      "schema": "Content",
+      "description": "Translated content for each language."
+    }
+  }
+}
