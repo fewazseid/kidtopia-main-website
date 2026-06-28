@@ -2,7 +2,7 @@ import React from 'react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
-import { BookOpen, Download, FileText, Video } from 'lucide-react';
+import { BookOpen, Download, FileText, Video, GraduationCap } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 
 interface ResourcesProps {
@@ -13,67 +13,101 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
   const t = useContent(lang).resources;
   
   const icons = [
-    <BookOpen className="w-8 h-8 text-brand-teal" />,
-    <FileText className="w-8 h-8 text-brand-orange" />,
-    <Video className="w-8 h-8 text-brand-yellow" />,
-    <Download className="w-8 h-8 text-brand-green" />
+    <BookOpen className="w-6 h-6 text-brand-teal" />,
+    <FileText className="w-6 h-6 text-brand-orange" />,
+    <Video className="w-6 h-6 text-brand-yellow" />,
+    <Download className="w-6 h-6 text-brand-green" />
   ];
 
   return (
-    <section id="resources" className="py-24 bg-transparent overflow-hidden">
+    <section id="resources" className="py-24 bg-transparent overflow-hidden relative">
+      {/* Decorative vector overlays */}
+      <div className="absolute top-1/2 left-[-10%] w-[350px] h-[350px] rounded-full bg-brand-green/5 blur-[100px] pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-1.5 bg-brand-teal/10 text-brand-teal text-xs font-black tracking-widest uppercase font-accent px-4.5 py-2 rounded-full mb-4"
+          >
+            <GraduationCap size={14} className="stroke-[2.5]" />
+            Parent Resources
+          </motion.div>
+          
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-6"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="text-3.5xl sm:text-5xl font-editorial font-bold text-stone-900 mb-4 tracking-tight leading-tight"
           >
             {t.title}
           </motion.h2>
+          <div className="w-16 h-1.5 bg-brand-teal mx-auto rounded-full mt-2 mb-6"></div>
+          
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-lg text-stone-600"
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="text-stone-550 font-medium leading-relaxed text-sm sm:text-base"
           >
             {t.desc}
           </motion.p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-8 items-stretch">
+        {/* Resources Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
           {t.items.map((resource: any, idx: number) => (
-            <div key={idx} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] flex h-full">
+            <motion.div 
+              key={idx} 
+              className="flex h-full"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+            >
               <GlassCard
-                delay={idx * 0.15}
-                className="rounded-3xl p-8 h-full flex flex-row items-center gap-5 group w-full text-left"
+                delay={0}
+                className="rounded-[28px] p-7 h-full flex flex-col justify-between group w-full text-left hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.06)] hover:scale-[1.03] hover:-translate-y-1 transition-all duration-350"
               >
-                {resource.image ? (
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0">
-                    <img src={resource.image} alt={resource.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+                <div>
+                  {/* Icon Frame */}
+                  <div className="mb-6">
+                    {resource.image ? (
+                      <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-sm border border-stone-200/20">
+                        <img src={resource.image} alt={resource.title} className="w-full h-full object-cover scale-102 group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
+                      </div>
+                    ) : (
+                      <div className="w-14 h-14 bg-white/80 border border-white/60 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_-4px_rgba(0,0,0,0.03)] group-hover:scale-110 transition-transform">
+                        {icons[idx % icons.length]}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform text-brand-green">
-                    {icons[idx % icons.length]}
-                  </div>
-                )}
-                <div className="flex flex-col h-full justify-between flex-1">
-                  <div>
-                    <h3 className="text-xl font-bold text-stone-900 mb-2 leading-tight">{resource.title}</h3>
-                    <p className="text-stone-600 text-sm mb-4 leading-relaxed">{resource.description}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs font-medium text-brand-green bg-brand-green/10 px-3 py-1.5 rounded-full inline-block">
-                      {resource.type}
-                    </span>
-                  </div>
+                  
+                  <h3 className="text-xl font-editorial font-bold text-stone-900 mb-2 leading-tight tracking-tight group-hover:text-brand-green transition-colors duration-300">
+                    {resource.title}
+                  </h3>
+                  <p className="text-stone-550 text-sm font-medium mb-6 leading-relaxed">
+                    {resource.description}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-black tracking-wider uppercase text-brand-green bg-brand-green/10 px-3.5 py-1.5 rounded-full inline-block font-accent border border-brand-green/5">
+                    {resource.type}
+                  </span>
                 </div>
               </GlassCard>
-            </div>
+            </motion.div>
           ))}
         </div>
+
       </div>
     </section>
   );
