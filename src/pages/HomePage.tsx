@@ -9,6 +9,7 @@ import { VirtualTour } from '../components/VirtualTour';
 import { DailyExperience } from '../components/DailyExperience';
 import { Resources } from '../components/Resources';
 import { Testimonials } from '../components/Testimonials';
+import { FAQSection } from '../components/FAQSection';
 import { CTASection } from '../components/CTASection';
 import { Language } from '../translations';
 import { motion } from 'motion/react';
@@ -50,6 +51,8 @@ export const HomePage: React.FC<HomePageProps> = ({ lang, onScrollTo }) => {
       <Resources lang={lang} />
       
       <Testimonials lang={lang} />
+      
+      <FAQSection lang={lang} />
       
       <CTASection lang={lang} />
     </main>

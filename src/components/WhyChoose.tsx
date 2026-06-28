@@ -21,7 +21,7 @@ export const WhyChoose: React.FC<WhyChooseProps> = ({ lang }) => {
         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
           
           {/* Left Column: Copy and Features */}
-          <div className="lg:w-1/2 text-left">
+          <div className={`${(t.image1 || t.image2) ? 'lg:w-1/2 text-left' : 'w-full max-w-4xl mx-auto text-center'}`}>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -43,7 +43,7 @@ export const WhyChoose: React.FC<WhyChooseProps> = ({ lang }) => {
               {t.title}
             </motion.h2>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${(t.image1 || t.image2) ? '' : 'md:grid-cols-3'} gap-4 text-left`}>
               {t.features.map((feature, idx) => (
                 <motion.div 
                   key={idx}
@@ -63,37 +63,39 @@ export const WhyChoose: React.FC<WhyChooseProps> = ({ lang }) => {
           </div>
           
           {/* Right Column: Visual Collage */}
-          <div className="lg:w-1/2 relative">
-            <div className="relative z-10 grid grid-cols-2 gap-6 items-start">
-              {t.image1 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                  className="overflow-hidden organic-border-1 border-8 border-white shadow-2xl hover:scale-[1.03] hover:rotate-[-2deg] transition-all duration-500 aspect-[3/4] bg-stone-100"
-                >
-                  <img src={t.image1} alt="Toddler program playing happily" className="w-full h-full object-cover scale-105" referrerPolicy="no-referrer" />
-                </motion.div>
-              )}
-              {t.image2 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 60 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="overflow-hidden organic-border-2 border-8 border-white shadow-2xl hover:scale-[1.03] hover:rotate-[2deg] transition-all duration-500 aspect-[3/4] mt-12 bg-stone-100"
-                >
-                  <img src={t.image2} alt="Preschool learning session" className="w-full h-full object-cover scale-105" referrerPolicy="no-referrer" />
-                </motion.div>
-              )}
-            </div>
+          {(t.image1 || t.image2) && (
+            <div className="lg:w-1/2 relative">
+              <div className="relative z-10 grid grid-cols-2 gap-6 items-start">
+                {t.image1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden organic-border-1 border-8 border-white shadow-2xl hover:scale-[1.03] hover:rotate-[-2deg] transition-all duration-500 aspect-[3/4] bg-stone-100"
+                  >
+                    <img src={t.image1} alt="Toddler program playing happily" className="w-full h-full object-cover scale-105" referrerPolicy="no-referrer" />
+                  </motion.div>
+                )}
+                {t.image2 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 60 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden organic-border-2 border-8 border-white shadow-2xl hover:scale-[1.03] hover:rotate-[2deg] transition-all duration-500 aspect-[3/4] mt-12 bg-stone-100"
+                  >
+                    <img src={t.image2} alt="Preschool learning session" className="w-full h-full object-cover scale-105" referrerPolicy="no-referrer" />
+                  </motion.div>
+                )}
+              </div>
 
-            {/* Premium geometric layout dots & rings */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] border border-dashed border-brand-green/10 rounded-full pointer-events-none -z-10" />
-            <div className="absolute -top-6 -right-6 w-48 h-48 bg-brand-yellow/25 rounded-full -z-10 blur-xl pointer-events-none" />
-            <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-brand-teal/20 rounded-full -z-10 blur-xl pointer-events-none" />
-          </div>
+              {/* Premium geometric layout dots & rings */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] border border-dashed border-brand-green/10 rounded-full pointer-events-none -z-10" />
+              <div className="absolute -top-6 -right-6 w-48 h-48 bg-brand-yellow/25 rounded-full -z-10 blur-xl pointer-events-none" />
+              <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-brand-teal/20 rounded-full -z-10 blur-xl pointer-events-none" />
+            </div>
+          )}
 
         </div>
       </div>

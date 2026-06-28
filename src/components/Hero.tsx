@@ -21,8 +21,32 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
-      {/* Background decoration */}
+      {/* Background decoration with optional image/video */}
       <div className="absolute inset-0 z-0 bg-brand-cream/20">
+        {t.backgroundType === 'video' && t.heroVideo ? (
+          <div className="absolute inset-0 overflow-hidden">
+            <video 
+              src={t.heroVideo} 
+              className="w-full h-full object-cover opacity-[0.18]"
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-brand-cream/10 via-brand-cream/35 to-brand-cream" />
+          </div>
+        ) : t.backgroundType === 'image' && t.heroImage ? (
+          <div className="absolute inset-0">
+            <img 
+              src={t.heroImage} 
+              alt="Kidtopia background" 
+              className="w-full h-full object-cover opacity-[0.18]"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-brand-cream/10 via-brand-cream/35 to-brand-cream" />
+          </div>
+        ) : null}
+
         <div className="absolute top-0 right-0 w-[50vw] h-[50vw] rounded-full bg-brand-yellow/5 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-1/4 left-0 w-[40vw] h-[40vw] rounded-full bg-brand-green/5 blur-[140px] pointer-events-none" />
       </div>

@@ -73,8 +73,8 @@ export const translations = {
     },
     whyChoose: {
       title: "Why Families Trust Kidtopia",
-      image1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
-      image2: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+      image1: "",
+      image2: "",
       features: [
         "Real-time parent communication",
         "Daily digital activity reports",
@@ -89,7 +89,9 @@ export const translations = {
       watchFull: "Watch Full Virtual Tour",
       schedule: "Schedule a Physical Visit",
       media: [
-        { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "Our beautiful and spacious play area." }
+        { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "Our beautiful and spacious play area." },
+        { url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop", type: "image", description: "Happy children learning and playing in a safe space." },
+        { url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop", type: "image", description: "Daycare active play and creative group learning." }
       ]
     },
     dailyExperience: {
@@ -101,6 +103,27 @@ export const translations = {
         { time: "Afternoon", activity: "Nap and quiet time", image: "" },
         { time: "Late afternoon", activity: "Play and creative activities", image: "" },
         { time: "Evening", activity: "Secure parent pickup", image: "" }
+      ]
+    },
+    faq: {
+      title: "Frequently Asked Questions",
+      items: [
+        {
+          question: "What are your health and immunization policies?",
+          answer: "We require all children to provide immunization, TB, HIV, and Hepatitis screening before enrollment. Children who are actively sick must stay home to ensure a healthy environment for everyone."
+        },
+        {
+          question: "How do you handle pick-up and drop-off security?",
+          answer: "We use a secure digital check-in and check-out system. Only pre-authorized individuals with verified identification can pick up your child. Any changes must be communicated in advance."
+        },
+        {
+          question: "How often are the toys and facilities cleaned?",
+          answer: "Our daycare materials, blankets, and toys are regularly cleaned and sanitized daily. We use a professional internal laundry system and eco-friendly, non-toxic sanitizing products."
+        },
+        {
+          question: "What is the child-to-teacher ratio?",
+          answer: "We maintain small class sizes to ensure high-quality personalized attention. Our ratios strictly align with or exceed safety standards, with dedicated nannies and educators present at all times."
+        }
       ]
     },
     testimonials: {
@@ -336,8 +359,8 @@ export const translations = {
     },
     whyChoose: {
       title: "ቤተሰቦች ለምን ኪድቶፒያን ያምናሉ",
-      image1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
-      image2: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+      image1: "",
+      image2: "",
       features: [
         "የእውነተኛ ጊዜ የወላጅ ግንኙነት",
         "ዕለታዊ ዲጂታል የእንቅስቃሴ ሪፖርቶች",
@@ -352,7 +375,9 @@ export const translations = {
       watchFull: "ሙሉ ቪርቹዋል ጉብኝቱን ይመልከቱ",
       schedule: "የአካል ጉብኝት ቀጠሮ ይያዙ",
       media: [
-        { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "ውብ እና ሰፊ የመጫወቻ ስፍራችን።" }
+        { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "ውብ እና ሰፊ የመጫወቻ ስፍራችን።" },
+        { url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop", type: "image", description: "ልጆች በደህና እና በፍቅር በሚማሩበት አካባቢ።" },
+        { url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop", type: "image", description: "በቅድመ ትምህርት ቤት የልጆች ንቁ ተሳትፎ እና የፈጠራ ስራ።" }
       ]
     },
     dailyExperience: {
@@ -364,6 +389,27 @@ export const translations = {
         { time: "ከሰዓት", activity: "የእንቅልፍ እና የጸጥታ ሰዓት", image: "" },
         { time: "ከሰዓት በኋላ", activity: "መጫወት እና የፈጠራ ስራዎች", image: "" },
         { time: "ምሽት", activity: "ደህንነቱ የተጠበቀ የወላጅ መረከቢያ", image: "" }
+      ]
+    },
+    faq: {
+      title: "ተደጋግመው የሚጠየቁ ጥያቄዎች",
+      items: [
+        {
+          question: "የጤና እና የክትባት ፖሊሲዎቻችሁ ምንድን ናቸው?",
+          answer: "ሁሉም ልጆች ከመመዝገባቸው በፊት የክትባት፣ የሳንባ ነቀርሳ (TB)፣ የኤችአይቪ (HIV) እና የሄፓታይተስ ምርመራ ማቅረብ አለባቸው። የታመሙ ልጆች ለሌሎች ጤናማ አካባቢ ለመፍጠር ቤት መቆየት አለባቸው።"
+        },
+        {
+          question: "የልጆች አወሳሰድ እና አምጣት ደህንነትን እንዴት ትቆጣጠራላችሁ?",
+          answer: "ደህንነቱ የተጠበቀ ዲጂታል መግቢያ እና መውጫ ስርዓት እንጠቀማለን። ማንነታቸው የተረጋገጠ እና አስቀድሞ ፈቃድ የተሰጣቸው ሰዎች ብቻ ልጆችን መውሰድ ይችላሉ። ማንኛውም ለውጥ አስቀድሞ መታወቅ አለበት።"
+        },
+        {
+          question: "የመጫወቻዎች እና የክፍሎች ንጽህና በስንት ጊዜ ልዩነት ይጸዳል?",
+          answer: "የመጫወቻ ቁሳቁሶች፣ ብርድ ልብሶች እና መጫወቻዎች በየቀኑ በንጽህና ይታጠባሉ እንዲሁም ይጸዳሉ። ለአካባቢ ተስማሚ የሆኑ የንጽህና ቁሳቁሶችን እንጠቀማለን።"
+        },
+        {
+          question: "የልጅ እና የአስተማሪ ጥምርታ ምን ያህል ነው?",
+          answer: "ለእያንዳንዱ ልጅ በቂ ትኩረት ለመስጠት አነስተኛ የክፍል መጠኖችን እንይዛለን። ለእያንዳንዱ ክፍል በቂ ቁጥር ያላቸው ሞግዚቶች እና አስተማሪዎች ይመደባሉ።"
+        }
       ]
     },
     testimonials: {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -299,7 +299,9 @@ export const AdminDashboard: React.FC = () => {
           ...enDocData,
           announcement: { ...defaultTranslations.en.announcement, ...(enDocData.announcement || {}) },
           virtualTour: { ...defaultTranslations.en.virtualTour, ...(enDocData.virtualTour || {}) },
-          enrollmentPage: { ...defaultTranslations.en.enrollmentPage, ...(enDocData.enrollmentPage || {}) }
+          enrollmentPage: { ...defaultTranslations.en.enrollmentPage, ...(enDocData.enrollmentPage || {}) },
+          whyChoose: { ...defaultTranslations.en.whyChoose, ...(enDocData.whyChoose || {}) },
+          faq: { ...defaultTranslations.en.faq, ...(enDocData.faq || {}) }
         };
         
         const amData = { 
@@ -307,7 +309,9 @@ export const AdminDashboard: React.FC = () => {
           ...amDocData,
           announcement: { ...defaultTranslations.am.announcement, ...(amDocData.announcement || {}) },
           virtualTour: { ...defaultTranslations.am.virtualTour, ...(amDocData.virtualTour || {}) },
-          enrollmentPage: { ...defaultTranslations.am.enrollmentPage, ...(amDocData.enrollmentPage || {}) }
+          enrollmentPage: { ...defaultTranslations.am.enrollmentPage, ...(amDocData.enrollmentPage || {}) },
+          whyChoose: { ...defaultTranslations.am.whyChoose, ...(amDocData.whyChoose || {}) },
+          faq: { ...defaultTranslations.am.faq, ...(amDocData.faq || {}) }
         };
 
         // Ensure media array exists in virtualTour
@@ -645,6 +649,7 @@ export const AdminDashboard: React.FC = () => {
     { id: 'programs', icon: <Settings size={18} />, label: 'Programs' },
     { id: 'staff', icon: <Users size={18} />, label: 'Staff' },
     { id: 'whyChoose', icon: <Shield size={18} />, label: 'Why Choose Us' },
+    { id: 'faq', icon: <HelpCircle size={18} />, label: 'FAQs' },
     { id: 'dailyExperience', icon: <Layout size={18} />, label: 'Daily Experience' },
     { id: 'testimonials', icon: <Users size={18} />, label: 'Testimonials' },
     { id: 'cta', icon: <Layout size={18} />, label: 'Call to Action' },
