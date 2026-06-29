@@ -15,6 +15,8 @@ export interface Hotspot {
   yaw: number;   // longitude equivalent (X-axis rotation lookAt) -180 to 180
   targetSceneId: string;
   text: string;
+  type?: 'link' | 'info';
+  description?: string;
 }
 
 export interface Scene {
@@ -168,6 +170,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [showAddHotspotModal, setShowAddHotspotModal] = useState(false);
   const [newHotspotText, setNewHotspotText] = useState('');
   const [newHotspotTarget, setNewHotspotTarget] = useState('');
+  const [newHotspotType, setNewHotspotType] = useState<'link' | 'info'>('link');
+  const [newHotspotDescription, setNewHotspotDescription] = useState('');
+  const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
+
+  // Camera target orientation refs (for smooth pan interpolation)
+  const targetLonRef = useRef(0);
+  const targetLatRef = useRef(0);
+  const targetFovRef = useRef(75);
 
   // Three.js References
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -389,8 +399,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       alert('Please enter a hotspot label');
       return;
     }
-    if (!newHotspotTarget) {
+    if (newHotspotType === 'link' && !newHotspotTarget) {
       alert('Please select a target room');
+      return;
+    }
+    if (newHotspotType === 'info' && !newHotspotDescription.trim()) {
+      alert('Please enter a description for the info area');
       return;
     }
 
@@ -399,8 +413,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       id: 'hs_' + Date.now(),
       pitch: Math.round(cameraLat),
       yaw: Math.round(cameraLon),
-      targetSceneId: newHotspotTarget,
-      text: newHotspotText
+      targetSceneId: newHotspotType === 'link' ? newHotspotTarget : '',
+      text: newHotspotText,
+      type: newHotspotType,
+      description: newHotspotType === 'info' ? newHotspotDescription : ''
     };
 
     const updated = scenes.map(s => {
@@ -418,6 +434,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Reset Form
     setNewHotspotText('');
     setNewHotspotTarget('');
+    setNewHotspotType('link');
+    setNewHotspotDescription('');
     setShowAddHotspotModal(false);
   };
 
@@ -505,11 +523,21 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     cameraLatRef.current = 0;
     cameraFovRef.current = 75;
 
+    targetLonRef.current = 0;
+    targetLatRef.current = 0;
+    targetFovRef.current = 75;
+
     // Animation / Rendering Loop
     let animationFrameId: number;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
+
+      // Butter-smooth lerp towards target orientation
+      const lerpFactor = 0.15;
+      cameraLonRef.current += (targetLonRef.current - cameraLonRef.current) * lerpFactor;
+      cameraLatRef.current += (targetLatRef.current - cameraLatRef.current) * lerpFactor;
+      cameraFovRef.current += (targetFovRef.current - cameraFovRef.current) * lerpFactor;
 
       // Keep angles within standard bounds
       const currentLat = Math.max(-85, Math.min(85, cameraLatRef.current));
@@ -621,8 +649,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     isUserInteractingRef.current = true;
     onPointerDownPointerXRef.current = e.clientX;
     onPointerDownPointerYRef.current = e.clientY;
-    onPointerDownLonRef.current = cameraLonRef.current;
-    onPointerDownLatRef.current = cameraLatRef.current;
+    onPointerDownLonRef.current = targetLonRef.current;
+    onPointerDownLatRef.current = targetLatRef.current;
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -637,8 +665,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const newLon = onPointerDownLonRef.current - deltaX * panSpeed;
     const newLat = onPointerDownLatRef.current + deltaY * panSpeed;
 
-    cameraLonRef.current = newLon;
-    cameraLatRef.current = newLat;
+    targetLonRef.current = newLon;
+    targetLatRef.current = Math.max(-85, Math.min(85, newLat));
   };
 
   const handlePointerUp = () => {
@@ -648,12 +676,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    const newFov = Math.max(30, Math.min(100, cameraFovRef.current + e.deltaY * 0.05));
-    cameraFovRef.current = newFov;
-    if (cameraRef.current) {
-      cameraRef.current.fov = newFov;
-      cameraRef.current.updateProjectionMatrix();
-    }
+    const newFov = Math.max(30, Math.min(100, targetFovRef.current + e.deltaY * 0.05));
+    targetFovRef.current = newFov;
     setCameraFov(newFov);
   };
 
@@ -663,8 +687,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       isUserInteractingRef.current = true;
       onPointerDownPointerXRef.current = e.touches[0].clientX;
       onPointerDownPointerYRef.current = e.touches[0].clientY;
-      onPointerDownLonRef.current = cameraLonRef.current;
-      onPointerDownLatRef.current = cameraLatRef.current;
+      onPointerDownLonRef.current = targetLonRef.current;
+      onPointerDownLatRef.current = targetLatRef.current;
     }
   };
 
@@ -677,31 +701,29 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       const newLon = onPointerDownLonRef.current - deltaX * panSpeed;
       const newLat = onPointerDownLatRef.current + deltaY * panSpeed;
 
-      cameraLonRef.current = newLon;
-      cameraLatRef.current = newLat;
+      targetLonRef.current = newLon;
+      targetLatRef.current = Math.max(-85, Math.min(85, newLat));
     }
   };
 
-  // Keyboard navigation
+  // Keyboard navigation / Console navigation
   const handleKeyDown = (direction: 'left' | 'right' | 'up' | 'down' | 'zoomIn' | 'zoomOut') => {
-    const step = 15;
-    if (direction === 'left') cameraLonRef.current -= step;
-    if (direction === 'right') cameraLonRef.current += step;
-    if (direction === 'up') cameraLatRef.current = Math.min(85, cameraLatRef.current + step);
-    if (direction === 'down') cameraLatRef.current = Math.max(-85, cameraLatRef.current - step);
+    const step = 20; // responsive step
+    if (direction === 'left') targetLonRef.current -= step;
+    if (direction === 'right') targetLonRef.current += step;
+    if (direction === 'up') targetLonRef.current = Math.min(85, targetLatRef.current + step);
+    if (direction === 'down') targetLatRef.current = Math.max(-85, targetLatRef.current - step);
     if (direction === 'zoomIn') {
-      const f = Math.max(30, cameraFovRef.current - 10);
-      cameraFovRef.current = f;
-      if (cameraRef.current) { cameraRef.current.fov = f; cameraRef.current.updateProjectionMatrix(); }
+      targetFovRef.current = Math.max(30, targetFovRef.current - 12);
     }
     if (direction === 'zoomOut') {
-      const f = Math.min(100, cameraFovRef.current + 10);
-      cameraFovRef.current = f;
-      if (cameraRef.current) { cameraRef.current.fov = f; cameraRef.current.updateProjectionMatrix(); }
+      targetFovRef.current = Math.min(100, targetFovRef.current + 12);
     }
-    setCameraLon(cameraLonRef.current);
-    setCameraLat(cameraLatRef.current);
-    setCameraFov(cameraFovRef.current);
+    
+    // Trigger immediate reactive feedback for state display
+    setCameraLon(targetLonRef.current);
+    setCameraLat(targetLatRef.current);
+    setCameraFov(targetFovRef.current);
   };
 
   const toggleFullscreen = () => {
@@ -760,34 +782,66 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           onTouchEnd={handlePointerUp}
         />
 
-        {/* 2D Projected Navigation Hotspots */}
+        {/* 2D Projected Navigation / Description Hotspots */}
         {projectedHotspots.map(({ hotspot, x, y, visible }) => {
           if (!visible) return null;
+          const isInfo = hotspot.type === 'info';
+
           return (
             <div
               key={hotspot.id}
-              className="absolute -translate-x-1/2 -translate-y-1/2 group z-20 flex flex-col items-center pointer-events-auto"
+              className="absolute -translate-x-1/2 -translate-y-1/2 group z-20 flex flex-col items-center pointer-events-auto select-none"
               style={{ left: `${x}px`, top: `${y}px` }}
             >
-              <button
-                onClick={() => handleSwitchRoom(hotspot.targetSceneId)}
-                className="flex flex-col items-center focus:outline-none"
-              >
-                {/* Pulsing visual core */}
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute w-12 h-12 rounded-full bg-brand-green/30 animate-ping" />
-                  <div className="absolute w-8 h-8 rounded-full bg-brand-green/40 blur-sm animate-pulse" />
-                  <div className="w-6 h-6 rounded-full bg-brand-green border-2 border-white flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-125">
-                    <ArrowRight className="w-3.5 h-3.5 text-white animate-pulse" />
+              {isInfo ? (
+                /* Information description area hotspot */
+                <button
+                  onClick={() => setActiveInfoHotspot(hotspot)}
+                  className="flex flex-col items-center focus:outline-none group/btn"
+                >
+                  {/* Glowing information beacon */}
+                  <div className="relative flex items-center justify-center w-8 h-8">
+                    <div className="absolute w-10 h-10 rounded-full bg-amber-500/30 animate-ping" />
+                    <div className="absolute w-7 h-7 rounded-full bg-amber-500/40 blur-xs animate-pulse" />
+                    <div className="w-6 h-6 rounded-full bg-amber-500 border border-white flex items-center justify-center shadow-lg transition-transform duration-200 group-hover/btn:scale-125">
+                      <span className="text-[11px] text-white font-serif font-black italic">i</span>
+                    </div>
                   </div>
-                </div>
+                  {/* Floating Description Label */}
+                  <div className="mt-1.5 px-3 py-1 bg-stone-900/90 backdrop-blur-md border border-amber-500/35 rounded-xl text-amber-200 text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 group-hover/btn:border-amber-400 group-hover/btn:bg-amber-950/90 transition-all duration-200">
+                    <HelpCircle className="w-3 h-3 text-amber-400 animate-bounce" />
+                    <span>{hotspot.text}</span>
+                  </div>
+                </button>
+              ) : (
+                /* Google Earth / Street View style perspective floor arrow link hotspot */
+                <button
+                  onClick={() => handleSwitchRoom(hotspot.targetSceneId)}
+                  className="flex flex-col items-center focus:outline-none group/btn"
+                >
+                  {/* Perspective ground chevron indicator */}
+                  <div className="relative w-16 h-12 flex items-center justify-center" style={{ perspective: '120px' }}>
+                    {/* Perspective flat circle */}
+                    <div 
+                      className="w-12 h-12 bg-brand-green/80 border-2 border-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover/btn:scale-110 group-hover/btn:bg-brand-green group-hover/btn:shadow-brand-green/40"
+                      style={{ transform: 'rotateX(55deg) scaleY(1.2)' }}
+                    >
+                      <ArrowRight className="w-5 h-5 text-white -rotate-90 animate-bounce" style={{ animationDuration: '2s' }} />
+                    </div>
+                    {/* Ping floor circle ripple */}
+                    <div 
+                      className="absolute w-16 h-16 rounded-full border border-brand-green/50 animate-ping pointer-events-none"
+                      style={{ transform: 'rotateX(55deg) scaleY(1.2)' }}
+                    />
+                  </div>
 
-                {/* Text label with custom backdrop blur */}
-                <div className="mt-2 px-3 py-1 bg-black/80 backdrop-blur-md border border-white/20 rounded-full text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-lg flex items-center gap-1 opacity-90 group-hover:opacity-100 group-hover:bg-brand-green transition-all duration-200">
-                  <span>{hotspot.text}</span>
-                  <ChevronRight className="w-3 h-3" />
-                </div>
-              </button>
+                  {/* Text label with custom backdrop blur */}
+                  <div className="mt-1 px-3.5 py-1 bg-black/85 backdrop-blur-md border border-white/20 rounded-full text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 group-hover/btn:bg-brand-green group-hover/btn:border-white/40 transition-all duration-200">
+                    <span>{hotspot.text}</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </div>
+                </button>
+              )}
 
               {/* Admin Hotspot Actions */}
               {editMode && (
@@ -796,7 +850,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     e.stopPropagation();
                     handleDeleteHotspot(hotspot.id);
                   }}
-                  className="mt-1 px-1.5 py-0.5 bg-red-600 hover:bg-red-700 text-[10px] text-white font-sans font-medium rounded shadow flex items-center gap-1 transition z-30"
+                  className="mt-2 px-2 py-0.5 bg-red-600 hover:bg-red-700 text-[10px] text-white font-sans font-medium rounded-full shadow flex items-center gap-1 transition z-30"
                 >
                   <Trash2 className="w-2.5 h-2.5" />
                   <span>Delete</span>
@@ -890,7 +944,30 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
         </div>
 
-        {/* Floating Bottom Navigation Console (Zoom, Reset, Fullscreen) */}
+        {/* Floating Info Hotspot Description Overlay */}
+        {activeInfoHotspot && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm px-4 pointer-events-auto">
+            <div className="bg-stone-950/95 backdrop-blur-md border border-amber-500/45 p-5 rounded-2xl shadow-2xl animate-in zoom-in duration-300">
+              <div className="flex justify-between items-start mb-2.5">
+                <h4 className="font-sans font-black text-amber-400 text-xs tracking-wider uppercase flex items-center gap-1.5">
+                  <HelpCircle className="w-4 h-4 text-amber-500 animate-pulse" />
+                  {activeInfoHotspot.text}
+                </h4>
+                <button 
+                  onClick={() => setActiveInfoHotspot(null)}
+                  className="p-1 hover:bg-white/10 rounded-full transition text-stone-400 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-stone-300 text-xs leading-relaxed font-sans">
+                {activeInfoHotspot.description || "Discover more details about this area of our modern nursery school."}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Floating Bottom Navigation Console (Room Selector & PlayStation D-pad Controller) */}
         <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex justify-between items-end z-30">
           
           {/* Room Selector Quick Links Menu */}
@@ -909,66 +986,89 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </button>
             ))}
           </div>
+ 
+          {/* PlayStation Controller Cross D-pad Console */}
+          <div className="flex flex-col items-center gap-2 pointer-events-auto">
+            {/* Circular D-pad body */}
+            <div className="relative w-24 h-24 bg-black/75 backdrop-blur-md rounded-full border border-white/10 shadow-2xl flex items-center justify-center select-none">
+              {/* UP button */}
+              <button
+                onClick={() => handleKeyDown('up')}
+                className="absolute top-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-t bg-stone-900 border-t border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                title="Look Up"
+              >
+                <Move className="w-3 h-3 -rotate-90" />
+              </button>
+              
+              {/* LEFT button */}
+              <button
+                onClick={() => handleKeyDown('left')}
+                className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-l bg-stone-900 border-l border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                title="Rotate Left"
+              >
+                <Move className="w-3 h-3 rotate-180" />
+              </button>
 
-          {/* Quick Viewing Controls Console */}
-          <div className="bg-black/60 backdrop-blur-md border border-white/10 p-1.5 rounded-xl shadow-lg pointer-events-auto flex items-center gap-1">
-            <button
-              onClick={() => handleKeyDown('left')}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition"
-              title="Rotate Left"
-            >
-              <Move className="w-4 h-4 rotate-180" />
-            </button>
-            <button
-              onClick={() => handleKeyDown('right')}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition"
-              title="Rotate Right"
-            >
-              <Move className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => handleKeyDown('up')}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition"
-              title="Look Up"
-            >
-              <Move className="w-4 h-4 -rotate-90" />
-            </button>
-            <button
-              onClick={() => handleKeyDown('down')}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition"
-              title="Look Down"
-            >
-              <Move className="w-4 h-4 rotate-90" />
-            </button>
-            <div className="w-[1px] h-4 bg-white/20 mx-1" />
-            <button
-              onClick={() => handleKeyDown('zoomIn')}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => handleKeyDown('zoomOut')}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => { setCameraLon(0); setCameraLat(0); setCameraFov(75); }}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition"
-              title="Reset View"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-            <button
-              onClick={toggleFullscreen}
-              className="p-1.5 hover:bg-white/15 text-white rounded-lg transition ml-1"
-              title="Toggle Fullscreen"
-            >
-              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            </button>
+              {/* RIGHT button */}
+              <button
+                onClick={() => handleKeyDown('right')}
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-r bg-stone-900 border-r border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                title="Rotate Right"
+              >
+                <Move className="w-3 h-3" />
+              </button>
+
+              {/* DOWN button */}
+              <button
+                onClick={() => handleKeyDown('down')}
+                className="absolute bottom-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-b bg-stone-900 border-b border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                title="Look Down"
+              >
+                <Move className="w-3 h-3 rotate-90" />
+              </button>
+
+              {/* Central CORE button (Reset View) */}
+              <button
+                onClick={() => {
+                  targetLonRef.current = 0;
+                  targetLatRef.current = 0;
+                  targetFovRef.current = 75;
+                  setCameraLon(0);
+                  setCameraLat(0);
+                  setCameraFov(75);
+                }}
+                className="w-7 h-7 rounded-full bg-stone-850 hover:bg-stone-800 active:bg-brand-green border border-stone-750 flex items-center justify-center shadow-inner transition-all text-stone-400 hover:text-brand-green"
+                title="Reset Camera Orientation"
+              >
+                <RotateCcw className="w-2.5 h-2.5" />
+              </button>
+            </div>
+
+            {/* PlayStation Action Bar: Zoom In, Zoom Out, Fullscreen */}
+            <div className="bg-black/75 backdrop-blur-md border border-white/10 px-1.5 py-0.5 rounded-xl shadow-lg flex items-center gap-1.5">
+              <button
+                onClick={() => handleKeyDown('zoomIn')}
+                className="p-1 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => handleKeyDown('zoomOut')}
+                className="p-1 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                title="Zoom Out"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+              <div className="w-[1px] h-3 bg-white/20" />
+              <button
+                onClick={toggleFullscreen}
+                className="p-1 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                title="Toggle Fullscreen"
+              >
+                {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              </button>
+            </div>
           </div>
 
         </div>
@@ -1208,7 +1308,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-sans font-bold text-stone-800 dark:text-white text-lg flex items-center gap-2">
                 <Plus className="w-5 h-5 text-amber-500 animate-pulse" />
-                Link a Room (Place Hotspot)
+                Add Interactive Hotspot
               </h4>
               <button 
                 onClick={() => setShowAddHotspotModal(false)}
@@ -1229,13 +1329,44 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 </span>
               </div>
 
+              {/* Hotspot Type Switcher Segmented Control */}
               <div>
                 <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                  Hotspot Button Label / Text
+                  Hotspot Purpose / Type
+                </label>
+                <div className="grid grid-cols-2 gap-2 bg-stone-100 dark:bg-stone-950 p-1 rounded-xl border border-stone-200 dark:border-stone-800">
+                  <button
+                    type="button"
+                    onClick={() => setNewHotspotType('link')}
+                    className={`py-2 rounded-lg text-xs font-semibold font-sans tracking-wide transition-all ${
+                      newHotspotType === 'link'
+                        ? 'bg-brand-green text-white shadow'
+                        : 'text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
+                    }`}
+                  >
+                    🔗 Room Transition Link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewHotspotType('info')}
+                    className={`py-2 rounded-lg text-xs font-semibold font-sans tracking-wide transition-all ${
+                      newHotspotType === 'info'
+                        ? 'bg-amber-500 text-white shadow'
+                        : 'text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
+                    }`}
+                  >
+                    ℹ️ Information Beacon
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                  Hotspot Label / Text Title
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Enter Preschool Room, Back to Main Entrance"
+                  placeholder={newHotspotType === 'link' ? "e.g. Enter Preschool Room, Back to Main Entrance" : "e.g. Reading Corner, Sleeping Area"}
                   value={newHotspotText}
                   onChange={(e) => setNewHotspotText(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
@@ -1243,26 +1374,42 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 />
               </div>
 
-              <div>
-                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                  Destination Room
-                </label>
-                <select
-                  value={newHotspotTarget}
-                  onChange={(e) => setNewHotspotTarget(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
-                  required
-                >
-                  <option value="">-- Select Destination Scene --</option>
-                  {scenes
-                    .filter(s => s.id !== currentScene.id)
-                    .map(s => (
-                      <option key={s.id} value={s.id}>
-                        {s.title}
-                      </option>
-                    ))}
-                </select>
-              </div>
+              {newHotspotType === 'link' ? (
+                <div>
+                  <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                    Destination Room
+                  </label>
+                  <select
+                    value={newHotspotTarget}
+                    onChange={(e) => setNewHotspotTarget(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                    required
+                  >
+                    <option value="">-- Select Destination Scene --</option>
+                    {scenes
+                      .filter(s => s.id !== currentScene.id)
+                      .map(s => (
+                        <option key={s.id} value={s.id}>
+                          {s.title}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                    Detailed Area Description
+                  </label>
+                  <textarea
+                    placeholder="Enter detailed description to show when visitors click this information beacon area..."
+                    value={newHotspotDescription}
+                    onChange={(e) => setNewHotspotDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+                    required
+                  />
+                </div>
+              )}
 
               <div className="pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-end gap-2">
                 <button
@@ -1274,10 +1421,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 </button>
                 <button
                   type="submit"
-                  disabled={!newHotspotText.trim() || !newHotspotTarget}
+                  disabled={
+                    !newHotspotText.trim() || 
+                    (newHotspotType === 'link' ? !newHotspotTarget : !newHotspotDescription.trim())
+                  }
                   className="px-4 py-2 bg-brand-green hover:bg-brand-green/90 disabled:bg-stone-200 disabled:dark:bg-stone-800 disabled:text-stone-400 text-white rounded-xl transition font-medium shadow"
                 >
-                  Link Room
+                  Create Hotspot
                 </button>
               </div>
             </form>
