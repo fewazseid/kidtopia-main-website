@@ -270,7 +270,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newHotspotDescription, setNewHotspotDescription] = useState('');
   const [newHotspotLinkedId, setNewHotspotLinkedId] = useState(''); // Selected Return Door ID
   const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
+  const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
   const [isRoomListExpanded, setIsRoomListExpanded] = useState(false);
+  const useGyroscopeRef = useRef(false);
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
 
   // Camera target orientation refs (for smooth pan interpolation)
@@ -296,6 +298,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const onPointerDownPointerYRef = useRef(0);
   const onPointerDownLonRef = useRef(0);
   const onPointerDownLatRef = useRef(0);
+  const lastMotionTimeRef = useRef<number>(0);
 
   const getCompassHeading = (lon: number) => {
     let deg = (-lon) % 360;
@@ -441,6 +444,83 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       alert('Error saving virtual tour: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       setSceneLoading(false);
+    }
+  };
+
+  // Manage Gyroscope / Device Motion Sensor (1:1 Movement Mapping)
+  useEffect(() => {
+    if (!useGyroscope) return;
+
+    const handleMotion = (e: DeviceMotionEvent) => {
+      if (!e.rotationRate) return;
+      
+      const { alpha, beta, gamma } = e.rotationRate;
+      if (alpha === null || beta === null || gamma === null) return;
+      
+      const orient = (typeof window !== 'undefined' && window.screen?.orientation)
+        ? (window.screen.orientation.angle) 
+        : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
+
+      let lonRate = 0;
+      let latRate = 0;
+
+      // Correct 1:1 Relative Mapping
+      // Portrait (0): Up/Down tilt (beta) -> Latitude, Left/Right turn (gamma) -> Longitude
+      if (orient === 0) {
+        lonRate = -gamma; 
+        latRate = -beta;  
+      } else if (orient === 90) {
+        lonRate = -beta;
+        latRate = gamma;
+      } else if (orient === -90) {
+        lonRate = beta;
+        latRate = -gamma;
+      } else {
+        lonRate = gamma;
+        latRate = beta;
+      }
+
+      // 1:1 Mapping: rotationRate is deg/s. dt is sec/frame
+      // Integrating this gives exact degrees turned.
+      const now = performance.now();
+      const dt = lastMotionTimeRef.current ? (now - lastMotionTimeRef.current) / 1000 : 0.016;
+      lastMotionTimeRef.current = now;
+      
+      targetLonRef.current += lonRate * dt; 
+      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (latRate * dt)));
+    };
+
+    window.addEventListener('devicemotion', handleMotion);
+    return () => window.removeEventListener('devicemotion', handleMotion);
+  }, [useGyroscope]);
+
+  // Request Device Orientation permission
+  const requestDeviceOrientationPermission = async () => {
+    if (useGyroscope) {
+      setUseGyroscope(false);
+      useGyroscopeRef.current = false;
+      return;
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      typeof (window as any).DeviceMotionEvent !== 'undefined' &&
+      typeof (window as any).DeviceMotionEvent.requestPermission === 'function'
+    ) {
+      try {
+        const permissionState = await (window as any).DeviceMotionEvent.requestPermission();
+        if (permissionState === 'granted') {
+          setUseGyroscope(true);
+          useGyroscopeRef.current = true;
+        } else {
+          alert('Motion sensor permission denied.');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      setUseGyroscope(true);
+      useGyroscopeRef.current = true;
     }
   };
 
@@ -1128,7 +1208,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Sync angle states local values to component states
     const angleUpdateInterval = setInterval(() => {
       // Update state for compass and UI readouts
-      if (isUserInteractingRef.current) {
+      if (isUserInteractingRef.current || useGyroscopeRef.current) {
         setCameraLon(cameraLonRef.current);
         setCameraLat(cameraLatRef.current);
         setCameraFov(cameraFovRef.current);
@@ -1743,24 +1823,24 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex justify-between items-end z-30">
           
           {/* Room Selector Quick Links Menu */}
-          <div className="flex flex-col items-start gap-2 pointer-events-auto max-w-[65%] sm:max-w-[75%] transition-all">
-            {/* Desktop View: Collapsible Row Selection */}
-            <div className="hidden lg:flex items-center gap-2">
+          <div className="flex flex-col items-start gap-2 pointer-events-auto max-w-[70%] sm:max-w-[80%] md:max-w-[85%] transition-all">
+            {/* Desktop / Tablet View: Collapsible Row Selection */}
+            <div className="hidden md:flex items-center gap-1.5 md:gap-2">
               <button
                 onClick={() => setIsRoomListExpanded(!isRoomListExpanded)}
-                className="bg-black/60 backdrop-blur-md border border-white/10 p-2.5 rounded-xl shadow-lg text-white hover:bg-black transition-all"
+                className="bg-black/60 backdrop-blur-md border border-white/10 p-2 md:p-2.5 rounded-xl shadow-lg text-white hover:bg-black transition-all"
                 title={isRoomListExpanded ? "Hide Rooms" : "Explore Rooms"}
               >
-                <ChevronRight className={`w-5 h-5 transition-transform duration-300 ${isRoomListExpanded ? 'rotate-180' : ''}`} />
+                <ChevronRight className={`w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 ${isRoomListExpanded ? 'rotate-180' : ''}`} />
               </button>
               
               {isRoomListExpanded && (
-                <div className="flex bg-black/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg gap-1.5 overflow-x-auto scrollbar-none animate-in slide-in-from-left duration-300">
+                <div className="flex bg-black/60 backdrop-blur-md border border-white/10 p-1.5 md:p-2 rounded-xl shadow-lg gap-1 md:gap-1.5 overflow-x-auto scrollbar-none animate-in slide-in-from-left duration-300">
                   {scenes.map(s => (
                     <button
                       key={s.id}
                       onClick={() => handleSwitchRoom(s.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide font-medium transition-all whitespace-nowrap ${
+                      className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-sans tracking-wide font-medium transition-all whitespace-nowrap ${
                         currentScene?.id === s.id
                           ? 'bg-brand-green text-white shadow'
                           : 'text-stone-300 hover:bg-white/10 hover:text-white'
@@ -1773,8 +1853,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               )}
             </div>
 
-            {/* Mobile / Tablet View: Collapsible Selector Button */}
-            <div className="relative lg:hidden">
+            {/* Mobile View: Collapsible Selector Button */}
+            <div className="relative md:hidden">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1885,29 +1965,44 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </button>
             </div>
 
-            {/* Action Bar: Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
-            <div className="bg-black/25 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-2.5">
+            {/* Action Bar: Gyroscope, Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
+            <div className="bg-black/25 backdrop-blur-md border border-white/20 px-2 md:px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 md:gap-2.5">
+              <button
+                type="button"
+                onClick={requestDeviceOrientationPermission}
+                className={`p-1.5 md:p-2 rounded-lg transition-all ${
+                  useGyroscope 
+                    ? 'bg-brand-green/30 text-brand-green border border-brand-green/30' 
+                    : 'text-stone-300 hover:text-white hover:bg-white/10 border border-transparent'
+                }`}
+                title="Use Device Gyroscope"
+              >
+                <Compass className={`w-4.5 h-4.5 md:w-5.5 md:h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
+              </button>
+
+              <div className="w-[1px] h-3 md:h-4 bg-white/20" />
+
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="hidden sm:block p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom In"
               >
-                <ZoomIn className="w-5.5 h-5.5" />
+                <ZoomIn className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="hidden sm:block p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom Out"
               >
-                <ZoomOut className="w-5.5 h-5.5" />
+                <ZoomOut className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
-              <div className="hidden sm:block w-[1px] h-4 bg-white/20" />
+              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-white/20" />
               <button
                 onClick={toggleFullscreen}
-                className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-1.5 md:p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Toggle Fullscreen"
               >
-                {isFullscreen ? <Minimize2 className="w-5.5 h-5.5" /> : <Maximize2 className="w-5.5 h-5.5" />}
+                {isFullscreen ? <Minimize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" /> : <Maximize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />}
               </button>
             </div>
           </div>
