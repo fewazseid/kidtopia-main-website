@@ -17,6 +17,7 @@ export interface Hotspot {
   text: string;
   type?: 'link' | 'info';
   description?: string;
+  color?: string; // Optional custom color of direction / link hotspot icon
 }
 
 export interface Scene {
@@ -192,6 +193,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newHotspotTarget, setNewHotspotTarget] = useState('');
   const [newHotspotType, setNewHotspotType] = useState<'link' | 'info'>('link');
   const [newHotspotDescription, setNewHotspotDescription] = useState('');
+  const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
+  const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
 
   // Camera target orientation refs (for smooth pan interpolation)
@@ -267,6 +270,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           return s;
         });
 
+        // Ensure there is exactly one scene set as start, defaulting to the very first scene if none is selected
+        const hasStart = loadedScenes.some(s => s.isStart);
+        if (!hasStart && loadedScenes.length > 0) {
+          loadedScenes[0].isStart = true;
+          mutated = true;
+        }
+
         setScenes(loadedScenes);
         const start = loadedScenes.find(s => s.isStart) || loadedScenes[0];
         setCurrentScene(start || null);
@@ -298,6 +308,75 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   useEffect(() => {
     fetchScenes();
   }, [isAdmin]);
+
+  // Request Device Orientation permission (especially iOS Safari compatible)
+  const requestDeviceOrientationPermission = async () => {
+    if (useGyroscope) {
+      setUseGyroscope(false);
+      return;
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      typeof (window as any).DeviceOrientationEvent !== 'undefined' &&
+      typeof (window as any).DeviceOrientationEvent.requestPermission === 'function'
+    ) {
+      try {
+        const permissionState = await (window as any).DeviceOrientationEvent.requestPermission();
+        if (permissionState === 'granted') {
+          setUseGyroscope(true);
+        } else {
+          alert('Gyroscope/motion sensor permission denied. Please allow motion sensors in your system or browser settings.');
+        }
+      } catch (error) {
+        console.error('Error requesting DeviceOrientation permission:', error);
+        alert('Could not request motion sensor permissions. Please ensure you are on HTTPS.');
+      }
+    } else {
+      // Standard android/desktop/older iOS or non-safari
+      setUseGyroscope(true);
+    }
+  };
+
+  // Manage Gyroscope / Device Orientation Sensor controls
+  useEffect(() => {
+    if (!useGyroscope) return;
+
+    let initialAlpha: number | null = null;
+    let initialBeta: number | null = null;
+    const startLon = targetLonRef.current;
+    const startLat = targetLatRef.current;
+
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      const alpha = e.alpha;
+      const beta = e.beta;
+      const gamma = e.gamma;
+
+      if (alpha === null || beta === null || gamma === null) return;
+
+      if (initialAlpha === null) {
+        initialAlpha = alpha;
+        initialBeta = beta;
+        return;
+      }
+
+      // Calculate relative change
+      let deltaAlpha = alpha - initialAlpha;
+      if (deltaAlpha > 180) deltaAlpha -= 360;
+      if (deltaAlpha < -180) deltaAlpha += 360;
+
+      const deltaBeta = beta - initialBeta;
+
+      // Update target angles smoothly
+      targetLonRef.current = startLon - deltaAlpha;
+      targetLatRef.current = Math.max(-85, Math.min(85, startLat - deltaBeta));
+    };
+
+    window.addEventListener('deviceorientation', handleOrientation);
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+    };
+  }, [useGyroscope]);
 
   // Save Config to Firestore
   const saveScenesConfig = async (updatedScenes: Scene[]) => {
@@ -500,7 +579,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       targetSceneId: newHotspotType === 'link' ? newHotspotTarget : '',
       text: newHotspotText,
       type: newHotspotType,
-      description: newHotspotType === 'info' ? newHotspotDescription : ''
+      description: newHotspotType === 'info' ? newHotspotDescription : '',
+      color: newHotspotColor // Save the custom direction color chosen by the user
     };
 
     const updated = scenes.map(s => {
@@ -520,6 +600,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     setNewHotspotTarget('');
     setNewHotspotType('link');
     setNewHotspotDescription('');
+    setNewHotspotColor('#10b981'); // Reset to default brand green
     setShowAddHotspotModal(false);
   };
 
@@ -789,9 +870,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           const hsTheta = THREE.MathUtils.degToRad(hs.yaw);
           
           const hsVector = new THREE.Vector3();
-          // Negate X to align perfectly with the x-inverted (geometry.scale(-1, 1, 1)) sphere
+          // Use positive x to match camera lookAt target coordinate system.
           // This keeps hotspots and directions perfectly stuck to the surface when the camera rotates.
-          hsVector.x = -500 * Math.sin(hsPhi) * Math.cos(hsTheta);
+          hsVector.x = 500 * Math.sin(hsPhi) * Math.cos(hsTheta);
           hsVector.y = 500 * Math.cos(hsPhi);
           hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
 
@@ -890,11 +971,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
 
-    // PC/Mouse dragging (isTouch = false) uses -1 for normal drag direction (dragging right looks left)
-    // Mobile/Tablet swiping (isTouch = true) uses 1 for natural swipe direction
-    const swipeMultiplierX = isTouch ? 1 : -1;
+    // PC/Mouse dragging (isTouch = false) uses 1 for normal drag direction
+    // Mobile/Tablet swiping (isTouch = true) uses -1 to reverse touch drag direction relative to PC
+    const swipeMultiplierX = isTouch ? -1 : 1;
 
-    // Use addition for both X and Y on desktop, but reverse X on touch as requested
     const newLon = onPointerDownLonRef.current + deltaX * panSpeedX * swipeMultiplierX;
     const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
 
@@ -1028,20 +1108,31 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   <div className="relative w-16 h-12 flex items-center justify-center" style={{ perspective: '120px' }}>
                     {/* Perspective flat circle */}
                     <div 
-                      className="w-12 h-12 bg-brand-green/80 border-2 border-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover/btn:scale-110 group-hover/btn:bg-brand-green group-hover/btn:shadow-brand-green/40"
-                      style={{ transform: 'rotateX(55deg) scaleY(1.2)' }}
+                      className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover/btn:scale-110"
+                      style={{ 
+                        transform: 'rotateX(55deg) scaleY(1.2)',
+                        backgroundColor: hotspot.color || '#10b981'
+                      }}
                     >
                       <ArrowRight className="w-5 h-5 text-white -rotate-90 animate-bounce" style={{ animationDuration: '2s' }} />
                     </div>
                     {/* Ping floor circle ripple */}
                     <div 
-                      className="absolute w-16 h-16 rounded-full border border-brand-green/50 animate-ping pointer-events-none"
-                      style={{ transform: 'rotateX(55deg) scaleY(1.2)' }}
+                      className="absolute w-16 h-16 rounded-full border animate-ping pointer-events-none"
+                      style={{ 
+                        transform: 'rotateX(55deg) scaleY(1.2)',
+                        borderColor: hotspot.color || '#10b981'
+                      }}
                     />
                   </div>
 
                   {/* Text label with custom backdrop blur */}
-                  <div className="mt-1 px-3.5 py-1 bg-black/85 backdrop-blur-md border border-white/20 rounded-full text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 group-hover/btn:bg-brand-green group-hover/btn:border-white/40 transition-all duration-200">
+                  <div 
+                    className="mt-1 px-3.5 py-1 bg-black/85 backdrop-blur-md border rounded-full text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 transition-all duration-200"
+                    style={{ 
+                      borderColor: hotspot.color ? `${hotspot.color}50` : 'rgba(255, 255, 255, 0.2)'
+                    }}
+                  >
                     <span>{hotspot.text}</span>
                     <ChevronRight className="w-3 h-3" />
                   </div>
@@ -1102,6 +1193,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 style={{ transform: `rotate(${-cameraLon}deg)` }} 
               />
               <span>Live 360° Tour • Heading: {getCompassHeading(cameraLon)}</span>
+              {useGyroscope && (
+                <span className="ml-2 px-1.5 py-0.5 bg-brand-green text-black font-black uppercase text-[8px] tracking-wider rounded animate-pulse">
+                  Gyro Active
+                </span>
+              )}
             </span>
             <h3 className="text-white font-sans text-base font-semibold tracking-wide flex items-center gap-2">
               {currentScene?.title}
@@ -1247,44 +1343,44 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
           </div>
  
-          {/* PlayStation Controller Cross D-pad Console */}
+          {/* PlayStation Controller Cross D-pad Console - Glassmorphic Transparent Overlay */}
           <div className="flex flex-col items-center gap-3 pointer-events-auto">
-            {/* Circular D-pad body - scaled up for better touch accuracy */}
-            <div className="relative w-40 h-40 bg-black/75 backdrop-blur-md rounded-full border border-white/10 shadow-2xl flex items-center justify-center select-none">
+            {/* Circular D-pad body - styled to be glassmorphic and transparent */}
+            <div className="relative w-40 h-40 bg-black/25 backdrop-blur-md rounded-full border border-white/20 shadow-2xl flex items-center justify-center select-none">
               {/* UP button */}
               <button
                 onClick={() => handleKeyDown('up')}
-                className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-t-lg bg-stone-900 border-t border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-t-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-t border-x border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
                 title="Look Up"
               >
-                <ArrowUp className="w-6 h-6 text-stone-300 group-hover:text-white" />
+                <ArrowUp className="w-6 h-6" />
               </button>
               
               {/* LEFT button */}
               <button
                 onClick={() => handleKeyDown('left')}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-l-lg bg-stone-900 border-l border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-l-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-l border-y border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
                 title="Rotate Left"
               >
-                <ArrowLeft className="w-6 h-6 text-stone-300 group-hover:text-white" />
+                <ArrowLeft className="w-6 h-6" />
               </button>
 
               {/* RIGHT button */}
               <button
                 onClick={() => handleKeyDown('right')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-r-lg bg-stone-900 border-r border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-r-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-r border-y border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
                 title="Rotate Right"
               >
-                <ArrowRight className="w-6 h-6 text-stone-300 group-hover:text-white" />
+                <ArrowRight className="w-6 h-6" />
               </button>
 
               {/* DOWN button */}
               <button
                 onClick={() => handleKeyDown('down')}
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-b-lg bg-stone-900 border-b border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-b-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-b border-x border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
                 title="Look Down"
               >
-                <ArrowDown className="w-6 h-6 text-stone-300 group-hover:text-white" />
+                <ArrowDown className="w-6 h-6" />
               </button>
 
               {/* Central CORE button (Reset View) */}
@@ -1297,15 +1393,31 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   setCameraLat(0);
                   setCameraFov(75);
                 }}
-                className="w-12 h-12 rounded-full bg-stone-850 hover:bg-stone-800 active:bg-brand-green border border-stone-750 flex items-center justify-center shadow-inner transition-all text-stone-400 hover:text-brand-green"
+                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 active:bg-brand-green/40 border border-white/20 flex items-center justify-center transition-all text-white/85 hover:text-brand-green"
                 title="Reset Camera Orientation"
               >
                 <RotateCcw className="w-5 h-5" />
               </button>
             </div>
 
-            {/* PlayStation Action Bar: Zoom In, Zoom Out, Fullscreen - scaled up */}
-            <div className="bg-black/75 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-2.5">
+            {/* PlayStation Action Bar: Gyroscope, Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
+            <div className="bg-black/25 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-2.5">
+              {/* Gyroscope/Magnetic sensor toggle */}
+              <button
+                type="button"
+                onClick={requestDeviceOrientationPermission}
+                className={`p-2 rounded-lg transition-all ${
+                  useGyroscope 
+                    ? 'bg-brand-green/30 text-brand-green border border-brand-green/30' 
+                    : 'text-stone-300 hover:text-white hover:bg-white/10 border border-transparent'
+                }`}
+                title="Use Device Gyroscope / Magnetic Sensor"
+              >
+                <Compass className={`w-5.5 h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
+              </button>
+
+              <div className="w-[1px] h-4 bg-white/20" />
+
               <button
                 onClick={() => handleKeyDown('zoomIn')}
                 className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
@@ -1402,11 +1514,18 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                         key={hs.id}
                         className="flex items-center justify-between p-3 bg-stone-50 dark:bg-stone-900 rounded-lg border border-stone-200/60 dark:border-stone-800 text-xs"
                       >
-                        <div className="space-y-0.5">
-                          <p className="font-semibold text-stone-700 dark:text-stone-200">{hs.text}</p>
-                          <p className="text-stone-500 font-mono text-[10px]">
-                            Links to: <span className="font-sans font-medium text-brand-green">{targetName}</span> (Lat: {hs.pitch}°, Lon: {hs.yaw}°)
-                          </p>
+                        <div className="space-y-0.5 flex items-start gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full mt-0.5 shrink-0 border border-white/40 shadow-xs" 
+                            style={{ backgroundColor: hs.color || '#10b981' }} 
+                            title="Custom Accent Color"
+                          />
+                          <div>
+                            <p className="font-semibold text-stone-700 dark:text-stone-200">{hs.text}</p>
+                            <p className="text-stone-500 font-mono text-[10px]">
+                              Links to: <span className="font-sans font-medium text-brand-green" style={{ color: hs.color || '#10b981' }}>{targetName}</span> (Lat: {hs.pitch}°, Lon: {hs.yaw}°)
+                            </p>
+                          </div>
                         </div>
                         <button
                           onClick={() => handleDeleteHotspot(hs.id)}
@@ -1655,6 +1774,49 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                   required
                 />
+              </div>
+
+              {/* Color Selector for direction/hotspot customization */}
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5 flex justify-between items-center">
+                  <span>Hotspot Custom Accent Color</span>
+                  <span className="text-[10px] text-stone-400">Used to express/highlight rooms</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap gap-1.5 flex-1 bg-stone-100 dark:bg-stone-950 p-1.5 rounded-xl border border-stone-200 dark:border-stone-800">
+                    {[
+                      { hex: '#10b981', label: 'Green' },
+                      { hex: '#f97316', label: 'Orange' },
+                      { hex: '#3b82f6', label: 'Blue' },
+                      { hex: '#ef4444', label: 'Red' },
+                      { hex: '#8b5cf6', label: 'Purple' },
+                      { hex: '#ec4899', label: 'Pink' },
+                      { hex: '#06b6d4', label: 'Cyan' }
+                    ].map(preset => (
+                      <button
+                        key={preset.hex}
+                        type="button"
+                        onClick={() => setNewHotspotColor(preset.hex)}
+                        className="w-6 h-6 rounded-full border border-white/20 relative transition flex items-center justify-center hover:scale-110 active:scale-95"
+                        style={{ backgroundColor: preset.hex }}
+                        title={preset.label}
+                      >
+                        {newHotspotColor === preset.hex && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-white shadow-sm" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Custom hex input */}
+                  <input
+                    type="text"
+                    value={newHotspotColor}
+                    onChange={(e) => setNewHotspotColor(e.target.value)}
+                    placeholder="#10b981"
+                    className="w-20 px-2 py-1.5 text-xs rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 font-mono text-center focus:outline-none focus:ring-1 focus:ring-brand-green"
+                  />
+                </div>
               </div>
 
               {newHotspotType === 'link' ? (
