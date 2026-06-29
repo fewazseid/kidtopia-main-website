@@ -789,7 +789,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           const hsTheta = THREE.MathUtils.degToRad(hs.yaw);
           
           const hsVector = new THREE.Vector3();
-          hsVector.x = 500 * Math.sin(hsPhi) * Math.cos(hsTheta);
+          // Negate X to align perfectly with the x-inverted (geometry.scale(-1, 1, 1)) sphere
+          // This keeps hotspots and directions perfectly stuck to the surface when the camera rotates.
+          hsVector.x = -500 * Math.sin(hsPhi) * Math.cos(hsTheta);
           hsVector.y = 500 * Math.cos(hsPhi);
           hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
 
@@ -876,17 +878,21 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const containerWidth = mountRef.current?.clientWidth || 1000;
     const containerHeight = mountRef.current?.clientHeight || 600;
     
+    // Detect touch / pen pointer type to reverse the left and right swipe only for mobile/tablet
+    const isTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
+    const speedFactor = isTouch ? 0.8 : 1.0; // decrease speed of movement on touch screens by 20%
+    
     // Map screen pixel translation exactly to degrees of Field of View.
     // Multiplying by 2.4 provides a perfectly responsive and snappier "grabbing" feel, matching Google Earth.
-    const panSpeedX = (cameraFovRef.current / containerWidth) * 2.4;
-    const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 2.4;
+    const panSpeedX = (cameraFovRef.current / containerWidth) * 2.4 * speedFactor;
+    const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 2.4 * speedFactor;
     
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
 
-    // Detect touch / pen pointer type to reverse the left and right swipe only for mobile/tablet
-    const isTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
-    const swipeMultiplierX = isTouch ? -1 : 1;
+    // PC/Mouse dragging (isTouch = false) uses -1 for normal drag direction (dragging right looks left)
+    // Mobile/Tablet swiping (isTouch = true) uses 1 for natural swipe direction
+    const swipeMultiplierX = isTouch ? 1 : -1;
 
     // Use addition for both X and Y on desktop, but reverse X on touch as requested
     const newLon = onPointerDownLonRef.current + deltaX * panSpeedX * swipeMultiplierX;
@@ -952,7 +958,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   if (loading) {
     return (
-      <div className="w-full h-[500px] flex flex-col items-center justify-center bg-stone-900 text-stone-200 rounded-2xl border border-stone-800">
+      <div className="w-full h-[320px] sm:h-[420px] md:h-[500px] flex flex-col items-center justify-center bg-stone-900 text-stone-200 rounded-2xl border border-stone-800">
         <RefreshCw className="w-10 h-10 animate-spin text-brand-green mb-4" />
         <p className="font-sans text-sm tracking-wide">Assembling 3D Virtual Tour Environment...</p>
       </div>
@@ -966,7 +972,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       <div 
         id="three-sixty-tour-container"
         className={`relative w-full rounded-2xl overflow-hidden shadow-2xl border bg-black transition-all duration-300 ${
-          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[600px] border-stone-200/80 dark:border-stone-800'
+          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[320px] sm:h-[420px] md:h-[600px] border-stone-200/80 dark:border-stone-800'
         }`}
       >
         
@@ -1522,12 +1528,26 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </div>
 
               <div>
-                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                  Or use a web image URL
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5 flex items-center justify-between">
+                  <span>Or use a web image URL</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const link = prompt(`Please paste your shared Google Drive 360 panorama link:\n(Make sure sharing in Drive is set to 'Anyone with the link can view')`);
+                      if (link) {
+                        const converted = convertGoogleDriveUrl(link);
+                        setNewRoomImageUrl(converted);
+                        alert('Google Drive panorama successfully imported & converted!');
+                      }
+                    }}
+                    className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <span>📥 Select from Drive</span>
+                  </button>
                 </label>
                 <input
                   type="url"
-                  placeholder="https://example.com/panorama.jpg"
+                  placeholder="https://example.com/panorama.jpg (Paste Google Drive link to auto-import!)"
                   value={newRoomImageUrl}
                   onChange={(e) => setNewRoomImageUrl(e.target.value)}
                   onBlur={() => {

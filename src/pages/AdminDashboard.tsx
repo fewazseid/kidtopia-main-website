@@ -11,6 +11,25 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
 import { ThreeSixtyViewer } from '../components/ThreeSixtyViewer';
 
+export function convertGoogleDriveUrl(url: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  
+  // Matches standard file/d/FILE_ID/view format
+  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileDMatch && fileDMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
+  }
+  
+  // Matches open?id=FILE_ID query parameter format
+  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch && idMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+  }
+  
+  return trimmed;
+}
+
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const refreshContent = useContentRefresh();
@@ -954,9 +973,9 @@ export const AdminDashboard: React.FC = () => {
             <div className="flex items-center gap-4">
               {value && (
                 isImage ? (
-                  <img src={value} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200" />
+                  <img src={value} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200 animate-in fade-in" />
                 ) : (
-                  <div className="w-16 h-16 bg-stone-100 rounded-lg border border-stone-200 flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 bg-stone-100 rounded-lg border border-stone-200 flex items-center justify-center overflow-hidden animate-in fade-in">
                     <video src={value} className="w-full h-full object-cover" />
                   </div>
                 )
@@ -966,23 +985,52 @@ export const AdminDashboard: React.FC = () => {
                   type="text"
                   value={value}
                   onChange={(e) => handleChange(path, e.target.value)}
+                  onBlur={(e) => {
+                    const converted = convertGoogleDriveUrl(e.target.value);
+                    if (converted !== e.target.value) {
+                      handleChange(path, converted);
+                    }
+                  }}
                   className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none mb-2"
-                  placeholder={isImage ? "Image URL" : "Video URL"}
+                  placeholder={isImage ? "Image URL (Paste Google Drive link to auto-import!)" : "Video URL (Paste Google Drive link to auto-import!)"}
                 />
-                <label className="cursor-pointer flex items-center gap-2 text-sm text-brand-green hover:text-brand-orange transition-colors">
-                  <ImageIcon size={16} />
-                  <span>Upload {isImage ? 'Image' : 'Video'}</span>
-                  <input
-                    type="file"
-                    accept={isImage ? "image/*" : "video/*"}
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        handleFileUpload(path, e.target.files[0], isImage ? 'image' : 'video');
+                
+                <div className="flex flex-wrap items-center gap-4">
+                  <label className="cursor-pointer flex items-center gap-1.5 text-xs text-brand-green font-semibold hover:text-brand-orange transition-colors">
+                    <ImageIcon size={14} />
+                    <span>Upload {isImage ? 'Image' : 'Video'}</span>
+                    <input
+                      type="file"
+                      accept={isImage ? "image/*" : "video/*"}
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(path, e.target.files[0], isImage ? 'image' : 'video');
+                        }
+                      }}
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const link = prompt(`Please paste your shared Google Drive ${isImage ? 'image' : 'video'} link:\n(Make sure sharing in Drive is set to 'Anyone with the link can view')`);
+                      if (link) {
+                        const converted = convertGoogleDriveUrl(link);
+                        handleChange(path, converted);
+                        alert('Google Drive file successfully imported & converted to direct high-speed link!');
                       }
                     }}
-                  />
-                </label>
+                    className="flex items-center gap-1.5 text-xs text-blue-600 font-semibold hover:text-blue-800 transition"
+                  >
+                    <Settings size={14} className="animate-spin text-blue-500" style={{ animationDuration: '6s' }} />
+                    <span>Select from Drive</span>
+                  </button>
+
+                  <span className="text-[10px] text-stone-400">
+                    (Drive file sharing must be enabled)
+                  </span>
+                </div>
               </div>
             </div>
           </div>
