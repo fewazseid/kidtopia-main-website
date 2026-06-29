@@ -141,6 +141,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [isAdmin, setIsAdmin] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isRoomsMenuOpen, setIsRoomsMenuOpen] = useState(false);
   
   // Camera angles (React states for coordinates indicator)
   const [cameraLon, setCameraLon] = useState(0);
@@ -855,14 +856,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const containerHeight = mountRef.current?.clientHeight || 600;
     
     // Map screen pixel translation exactly to degrees of Field of View.
-    // Multiplying by 1.1 provides a perfectly balanced, slightly more responsive "grabbing" feel.
-    const panSpeedX = (cameraFovRef.current / containerWidth) * 1.1;
-    const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 1.1;
+    // Multiplying by 2.4 provides a perfectly responsive and snappier "grabbing" feel, matching Google Earth.
+    const panSpeedX = (cameraFovRef.current / containerWidth) * 2.4;
+    const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 2.4;
     
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
 
-    const newLon = onPointerDownLonRef.current - deltaX * panSpeedX;
+    // Use addition for both X and Y so that content "grabs" and matches natural swipe direction perfectly
+    const newLon = onPointerDownLonRef.current + deltaX * panSpeedX;
     const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
 
     targetLonRef.current = newLon;
@@ -879,39 +881,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const newFov = Math.max(30, Math.min(100, targetFovRef.current + e.deltaY * 0.05));
     targetFovRef.current = newFov;
     setCameraFov(newFov);
-  };
-
-  // Touch Events for Mobile / Tablet Support
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 1) {
-      isUserInteractingRef.current = true;
-      onPointerDownPointerXRef.current = e.touches[0].clientX;
-      onPointerDownPointerYRef.current = e.touches[0].clientY;
-      onPointerDownLonRef.current = targetLonRef.current;
-      onPointerDownLatRef.current = targetLatRef.current;
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (isUserInteractingRef.current && e.touches.length === 1) {
-      // Calculate actual container dimensions dynamically
-      const containerWidth = mountRef.current?.clientWidth || 1000;
-      const containerHeight = mountRef.current?.clientHeight || 600;
-      
-      // Map touch pixel translation exactly to degrees of Field of View.
-      // Multiplying by 1.1 provides a perfectly balanced, slightly more responsive "grabbing" feel.
-      const panSpeedX = (cameraFovRef.current / containerWidth) * 1.1;
-      const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 1.1;
-      
-      const deltaX = e.touches[0].clientX - onPointerDownPointerXRef.current;
-      const deltaY = e.touches[0].clientY - onPointerDownPointerYRef.current;
-
-      const newLon = onPointerDownLonRef.current - deltaX * panSpeedX;
-      const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
-
-      targetLonRef.current = newLon;
-      targetLatRef.current = Math.max(-85, Math.min(85, newLat));
-    }
   };
 
   // Keyboard navigation / Console navigation
@@ -979,15 +948,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         {/* WebGL Mount Point */}
         <div 
           ref={mountRef}
-          className="w-full h-full cursor-grab active:cursor-grabbing"
+          className="w-full h-full cursor-grab active:cursor-grabbing touch-none"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerOut={handlePointerUp}
           onWheel={handleWheel}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handlePointerUp}
         />
 
         {/* 2D Projected Navigation / Description Hotspots */}
@@ -1182,20 +1148,72 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex justify-between items-end z-30">
           
           {/* Room Selector Quick Links Menu */}
-          <div className="bg-black/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg pointer-events-auto flex gap-1.5 overflow-x-auto max-w-[65%] sm:max-w-[75%] scrollbar-none">
-            {scenes.map(s => (
+          <div className="flex flex-col items-start gap-2 pointer-events-auto max-w-[65%] sm:max-w-[75%]">
+            {/* Desktop View: Wide Row Selection (Visible on Large Screens) */}
+            <div className="hidden lg:flex bg-black/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg gap-1.5 overflow-x-auto scrollbar-none">
+              {scenes.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => handleSwitchRoom(s.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide font-medium transition-all whitespace-nowrap ${
+                    currentScene?.id === s.id
+                      ? 'bg-brand-green text-white shadow'
+                      : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  {s.title}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile / Tablet View: Collapsible Selector Button */}
+            <div className="relative lg:hidden">
               <button
-                key={s.id}
-                onClick={() => handleSwitchRoom(s.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide font-medium transition-all whitespace-nowrap ${
-                  currentScene?.id === s.id
-                    ? 'bg-brand-green text-white shadow'
-                    : 'text-stone-300 hover:bg-white/10 hover:text-white'
-                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsRoomsMenuOpen(!isRoomsMenuOpen);
+                }}
+                className="bg-black/85 backdrop-blur-md border border-white/20 px-3.5 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
               >
-                {s.title}
+                <Compass className="w-4 h-4 text-brand-green animate-pulse" />
+                <span className="truncate max-w-[120px] xs:max-w-[180px]">{currentScene?.title || 'Select Classroom'}</span>
+                <ChevronRight className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90 text-white' : ''}`} />
               </button>
-            ))}
+              
+              {isRoomsMenuOpen && (
+                <>
+                  {/* Backdrop click guard to easily close the dropdown */}
+                  <div 
+                    className="fixed inset-0 z-40 bg-transparent" 
+                    onClick={() => setIsRoomsMenuOpen(false)}
+                  />
+                  
+                  {/* Floating Selection Options Panel */}
+                  <div className="absolute bottom-12 left-0 w-64 max-h-56 overflow-y-auto bg-stone-950/95 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
+                    <div className="px-2.5 py-1.5 text-[10px] font-mono tracking-widest text-stone-500 uppercase font-semibold border-b border-white/5 mb-1">
+                      Campus Classrooms
+                    </div>
+                    {scenes.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          handleSwitchRoom(s.id);
+                          setIsRoomsMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-sans transition-all flex items-center justify-between ${
+                          currentScene?.id === s.id
+                            ? 'bg-brand-green text-white font-semibold shadow'
+                            : 'text-stone-300 hover:bg-white/5 hover:text-white'
+                        }`}
+                      >
+                        <span className="truncate pr-2">{s.title}</span>
+                        {currentScene?.id === s.id && <Check className="w-3.5 h-3.5 text-white" />}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
  
           {/* PlayStation Controller Cross D-pad Console */}
