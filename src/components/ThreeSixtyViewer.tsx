@@ -5,6 +5,7 @@ import {
   RotateCcw, ZoomIn, ZoomOut, Maximize2, Minimize2, Edit2, Save, 
   Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -269,13 +270,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newHotspotDescription, setNewHotspotDescription] = useState('');
   const [newHotspotLinkedId, setNewHotspotLinkedId] = useState(''); // Selected Return Door ID
   const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
-  const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
-  const [showGyroSettings, setShowGyroSettings] = useState(false);
-  const [invertGyroLon, setInvertGyroLon] = useState(false);
-  const [invertGyroLat, setInvertGyroLat] = useState(false);
-  const [swapGyroAxes, setSwapGyroAxes] = useState(false);
   const [isRoomListExpanded, setIsRoomListExpanded] = useState(false);
-  const useGyroscopeRef = useRef(false);
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
 
   // Camera target orientation refs (for smooth pan interpolation)
@@ -427,105 +422,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     fetchScenes();
   }, [isAdmin]);
 
-  // Request Device Orientation permission (especially iOS Safari compatible)
-  const requestDeviceOrientationPermission = async () => {
-    if (useGyroscope) {
-      setUseGyroscope(false);
-      useGyroscopeRef.current = false;
-      return;
-    }
-
-    if (
-      typeof window !== 'undefined' &&
-      typeof (window as any).DeviceMotionEvent !== 'undefined' &&
-      typeof (window as any).DeviceMotionEvent.requestPermission === 'function'
-    ) {
-      try {
-        const permissionState = await (window as any).DeviceMotionEvent.requestPermission();
-        if (permissionState === 'granted') {
-          setUseGyroscope(true);
-          useGyroscopeRef.current = true;
-        } else {
-          alert('Gyroscope/motion sensor permission denied. Please allow motion sensors in your system or browser settings.');
-        }
-      } catch (error) {
-        console.error('Error requesting DeviceOrientation permission:', error);
-        alert('Could not request motion sensor permissions. Please ensure you are on HTTPS.');
-      }
-    } else {
-      // Standard android/desktop/older iOS or non-safari
-      setUseGyroscope(true);
-      useGyroscopeRef.current = true;
-    }
-  };
-
-  // Manage Gyroscope / Device Motion Sensor controls (rotation rates)
-  useEffect(() => {
-    if (!useGyroscope) return;
-
-    // We use DeviceMotionEvent's rotationRate (gyroscope) to avoid gimbal lock and compass flickering
-    const handleMotion = (e: DeviceMotionEvent) => {
-      if (!e.rotationRate) return;
-      
-      const { alpha, beta, gamma } = e.rotationRate;
-      if (alpha === null || beta === null || gamma === null) return;
-      
-      const orient = (typeof window !== 'undefined' && typeof window.screen !== 'undefined' && window.screen.orientation)
-        ? (window.screen.orientation.angle) 
-        : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
-
-      // Map rotation rates to Lon/Lat based on device orientation
-      let lonRate = 0;
-      let latRate = 0;
-
-      // Extract gravity to determine if device is flat or vertical
-      const gravY = e.accelerationIncludingGravity?.y || 0;
-      const gravZ = e.accelerationIncludingGravity?.z || 0;
-      const isVertical = Math.abs(gravY) > Math.abs(gravZ);
-
-      if (orient === 0) {
-        // Portrait - Fix: Swap axis based on user feedback (up/down was moving left/right)
-        // beta (tilting phone up/down) should move latitude, but user says it moves longitude.
-        // Therefore we swap them to correct the 90 degree rotation.
-        lonRate = beta;
-        latRate = isVertical ? -gamma : -alpha;
-      } else if (orient === 90) {
-        // Landscape Left
-        lonRate = -beta;
-        latRate = isVertical ? alpha : gamma;
-      } else if (orient === -90) {
-        // Landscape Right
-        lonRate = beta;
-        latRate = isVertical ? -alpha : -gamma;
-      } else {
-        // Upside down
-        lonRate = -gamma;
-        latRate = -beta;
-      }
-
-      if (swapGyroAxes) {
-        const tmp = lonRate;
-        lonRate = latRate;
-        latRate = tmp;
-      }
-
-      // Additive update for silky smooth tracking
-      // Sensitivity factor 0.04 seems balanced for 60fps
-      const sensitivity = 0.04;
-      const lonDir = invertGyroLon ? 1 : -1;
-      const latDir = invertGyroLat ? 1 : -1;
-      
-      targetLonRef.current += lonRate * sensitivity * lonDir; 
-      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (latRate * sensitivity * latDir)));
-    };
-
-    window.addEventListener('devicemotion', handleMotion);
-    return () => {
-      window.removeEventListener('devicemotion', handleMotion);
-    };
-  }, [useGyroscope, invertGyroLon, invertGyroLat, swapGyroAxes]);
-
-  // Save Config to Firestore
+  // Check Admin Role
   const saveScenesConfig = async (updatedScenes: Scene[]) => {
     try {
       setSceneLoading(true);
@@ -1231,7 +1128,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Sync angle states local values to component states
     const angleUpdateInterval = setInterval(() => {
       // Update state for compass and UI readouts
-      if (isUserInteractingRef.current || useGyroscopeRef.current) {
+      if (isUserInteractingRef.current) {
         setCameraLon(cameraLonRef.current);
         setCameraLat(cameraLatRef.current);
         setCameraFov(cameraFovRef.current);
@@ -1616,11 +1513,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 setGuideStep(0);
                 setShowGuide(true);
               }}
-              className="px-3 py-2 bg-white/70 dark:bg-black/60 backdrop-blur-md border border-white/25 dark:border-white/10 text-stone-700 dark:text-white rounded-xl hover:bg-white/95 dark:hover:bg-black/85 transition shadow flex items-center gap-1.5 text-xs font-semibold font-sans active:scale-95"
+              className="px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95"
               title="Open Navigation Tour Guide"
             >
-              <HelpCircle className="w-4 h-4 text-brand-green animate-bounce" />
-              <span className="hidden sm:inline">Tour Guide</span>
+              <HelpCircle className="w-4.5 h-4.5 text-brand-green animate-bounce" />
+              <span>Tour Guide</span>
             </button>
           </div>
         </div>
@@ -1658,37 +1555,117 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </div>
               
               {/* Visual Help Indicator */}
-              <div className="bg-black/20 p-3 rounded-xl border border-white/20 flex items-center justify-center backdrop-blur-md shadow-inner">
-                {guideStep === 0 && (
-                  <div className="flex items-center gap-2 text-[11px] text-brand-orange font-semibold animate-pulse">
-                    <Move className="w-5 h-5" />
-                    <span>Swipe / drag inside the photo screen!</span>
-                  </div>
-                )}
-                {guideStep === 1 && (
-                  <div className="flex items-center gap-2 text-[11px] text-white font-semibold animate-pulse">
-                    <ArrowRight className="w-5 h-5 -rotate-90 animate-bounce" />
-                    <span>Click on floor arrows to walk into rooms!</span>
-                  </div>
-                )}
-                {guideStep === 2 && (
-                  <div className="flex items-center gap-2 text-[11px] text-white font-semibold animate-pulse">
-                    <Compass className="w-5 h-5 animate-spin" style={{ animationDuration: '4s' }} />
-                    <span>Look up at the center compass dial!</span>
-                  </div>
-                )}
-                {guideStep === 3 && (
-                  <div className="flex items-center gap-2 text-[11px] text-brand-orange font-semibold animate-pulse">
-                    <RotateCcw className="w-5 h-5" />
-                    <span>Use the controller D-pad to rotate or zoom!</span>
-                  </div>
-                )}
-                {guideStep === 4 && (
-                  <div className="flex items-center gap-2 text-[11px] text-white font-semibold animate-pulse">
-                    <Eye className="w-5 h-5" />
-                    <span>Use bottom thumbnails for quick jump!</span>
-                  </div>
-                )}
+              <div className="bg-black/20 p-4 rounded-xl border border-white/20 flex items-center justify-center backdrop-blur-md shadow-inner overflow-hidden min-h-[80px]">
+                <AnimatePresence mode="wait">
+                  {guideStep === 0 && (
+                    <motion.div 
+                      key="step0"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <motion.div
+                        animate={{ 
+                          x: [-20, 20, -20],
+                          transition: { repeat: Infinity, duration: 2 }
+                        }}
+                        className="p-2 bg-white/10 rounded-full border border-white/20"
+                      >
+                        <Move className="w-6 h-6 text-brand-orange" />
+                      </motion.div>
+                      <span className="text-[10px] text-brand-orange font-bold uppercase tracking-wider">Drag to look around</span>
+                    </motion.div>
+                  )}
+                  {guideStep === 1 && (
+                    <motion.div 
+                      key="step1"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <motion.div
+                        animate={{ 
+                          y: [0, -10, 0],
+                          transition: { repeat: Infinity, duration: 1.5 }
+                        }}
+                      >
+                        <ArrowRight className="w-7 h-7 text-white -rotate-90" />
+                      </motion.div>
+                      <span className="text-[10px] text-white font-bold uppercase tracking-wider">Tap arrows to move</span>
+                    </motion.div>
+                  )}
+                  {guideStep === 2 && (
+                    <motion.div 
+                      key="step2"
+                      initial={{ opacity: 0, rotate: -45 }}
+                      animate={{ opacity: 1, rotate: 0 }}
+                      exit={{ opacity: 0, rotate: 45 }}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <motion.div
+                        animate={{ 
+                          rotate: 360,
+                          transition: { repeat: Infinity, duration: 8, ease: "linear" }
+                        }}
+                      >
+                        <Compass className="w-7 h-7 text-white" />
+                      </motion.div>
+                      <span className="text-[10px] text-white font-bold uppercase tracking-wider">Check your heading</span>
+                    </motion.div>
+                  )}
+                  {guideStep === 3 && (
+                    <motion.div 
+                      key="step3"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="grid grid-cols-2 gap-4 items-center"
+                    >
+                      <motion.div
+                        animate={{ 
+                          scale: [1, 1.1, 1],
+                          transition: { repeat: Infinity, duration: 2 }
+                        }}
+                        className="flex flex-col items-center gap-1"
+                      >
+                        <ZoomIn className="w-5 h-5 text-brand-orange" />
+                        <span className="text-[8px] font-bold">Zoom</span>
+                      </motion.div>
+                      <motion.div
+                        animate={{ 
+                          rotate: [0, 90, 180, 270, 360],
+                          transition: { repeat: Infinity, duration: 4 }
+                        }}
+                        className="flex flex-col items-center gap-1"
+                      >
+                        <RotateCcw className="w-5 h-5 text-brand-orange" />
+                        <span className="text-[8px] font-bold">Reset</span>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                  {guideStep === 4 && (
+                    <motion.div 
+                      key="step4"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="flex items-center gap-3 overflow-hidden px-4"
+                    >
+                      {[1, 2, 3].map(i => (
+                        <motion.div 
+                          key={i}
+                          animate={{ 
+                            x: [-10, 10, -10],
+                            transition: { repeat: Infinity, duration: 3, delay: i * 0.2 }
+                          }}
+                          className="w-8 h-8 rounded bg-white/10 shrink-0 border border-white/20"
+                        />
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               
               {/* Action controls */}
@@ -1908,89 +1885,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </button>
             </div>
 
-            {/* PlayStation Action Bar: Gyroscope, Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
+            {/* Action Bar: Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
             <div className="bg-black/25 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-2.5">
-              {/* Gyroscope/Magnetic sensor toggle */}
-              <button
-                type="button"
-                onClick={requestDeviceOrientationPermission}
-                className={`p-2 rounded-lg transition-all ${
-                  useGyroscope 
-                    ? 'bg-brand-green/30 text-brand-green border border-brand-green/30' 
-                    : 'text-stone-300 hover:text-white hover:bg-white/10 border border-transparent'
-                }`}
-                title="Use Device Gyroscope / Magnetic Sensor"
-              >
-                <Compass className={`w-5.5 h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
-              </button>
-
-              {useGyroscope && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowGyroSettings(!showGyroSettings)}
-                    className={`p-1.5 rounded-lg transition-all ${
-                      showGyroSettings 
-                        ? 'bg-white/20 text-white' 
-                        : 'text-stone-400 hover:text-white'
-                    }`}
-                    title="Gyroscope Settings / Calibration"
-                  >
-                    <Settings className="w-4 h-4" />
-                  </button>
-                  
-                  {showGyroSettings && (
-                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 bg-stone-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-3 flex flex-col gap-3 z-[60] animate-in slide-in-from-bottom-2 duration-200">
-                      <div className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-widest border-b border-white/5 pb-1">
-                        Sensor Mapping
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <label className="flex items-center justify-between cursor-pointer group">
-                          <span className="text-[11px] text-stone-300 group-hover:text-white transition">Swap X/Y Axes</span>
-                          <input 
-                            type="checkbox" 
-                            checked={swapGyroAxes} 
-                            onChange={e => setSwapGyroAxes(e.target.checked)}
-                            className="w-3.5 h-3.5 accent-brand-green"
-                          />
-                        </label>
-                        <label className="flex items-center justify-between cursor-pointer group">
-                          <span className="text-[11px] text-stone-300 group-hover:text-white transition">Invert Horizontal</span>
-                          <input 
-                            type="checkbox" 
-                            checked={invertGyroLon} 
-                            onChange={e => setInvertGyroLon(e.target.checked)}
-                            className="w-3.5 h-3.5 accent-brand-green"
-                          />
-                        </label>
-                        <label className="flex items-center justify-between cursor-pointer group">
-                          <span className="text-[11px] text-stone-300 group-hover:text-white transition">Invert Vertical</span>
-                          <input 
-                            type="checkbox" 
-                            checked={invertGyroLat} 
-                            onChange={e => setInvertGyroLat(e.target.checked)}
-                            className="w-3.5 h-3.5 accent-brand-green"
-                          />
-                        </label>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setSwapGyroAxes(false);
-                          setInvertGyroLon(false);
-                          setInvertGyroLat(false);
-                        }}
-                        className="w-full py-1.5 bg-white/5 hover:bg-white/10 text-[10px] text-stone-400 hover:text-white rounded-lg transition font-medium"
-                      >
-                        Reset to Defaults
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="w-[1px] h-4 bg-white/20" />
-
               <button
                 onClick={() => handleKeyDown('zoomIn')}
                 className="hidden sm:block p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
