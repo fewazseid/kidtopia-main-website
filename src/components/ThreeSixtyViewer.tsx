@@ -27,6 +27,25 @@ export interface Scene {
   hotspots: Hotspot[];
 }
 
+export function convertGoogleDriveUrl(url: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  
+  // Matches standard file/d/FILE_ID/view format
+  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileDMatch && fileDMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
+  }
+  
+  // Matches open?id=FILE_ID query parameter format
+  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch && idMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+  }
+  
+  return trimmed;
+}
+
 const DEFAULT_SCENES: Scene[] = [
   {
     id: 'lobby',
@@ -392,11 +411,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       return;
     }
 
+    const finalImageUrl = convertGoogleDriveUrl(newRoomImageUrl);
     const newId = newRoomTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
     const newScene: Scene = {
       id: newId,
       title: newRoomTitle,
-      imageUrl: newRoomImageUrl,
+      imageUrl: finalImageUrl,
       isStart: scenes.length === 0, // Make start if it's the first scene
       hotspots: []
     };
@@ -1510,8 +1530,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   placeholder="https://example.com/panorama.jpg"
                   value={newRoomImageUrl}
                   onChange={(e) => setNewRoomImageUrl(e.target.value)}
+                  onBlur={() => {
+                    const converted = convertGoogleDriveUrl(newRoomImageUrl);
+                    if (converted !== newRoomImageUrl) {
+                      setNewRoomImageUrl(converted);
+                    }
+                  }}
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
+                <p className="mt-1 text-[11px] text-stone-500 dark:text-stone-400 leading-normal">
+                  💡 <strong>Google Drive links supported!</strong> Simply copy & paste any shared Drive file link (e.g., <code>https://drive.google.com/file/d/.../view</code>) and it will automatically convert to a direct high-speed image.
+                </p>
               </div>
 
               <div className="pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-end gap-2">
