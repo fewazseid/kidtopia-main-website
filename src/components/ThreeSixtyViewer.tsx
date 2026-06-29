@@ -184,7 +184,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const sphereMeshRef = useRef<THREE.Mesh | null>(null);
+  const sphereMaterialRef = useRef<THREE.MeshBasicMaterial | null>(null);
   const textureLoaderRef = useRef<THREE.TextureLoader>(new THREE.TextureLoader());
+  const textureCacheRef = useRef<Map<string, THREE.Texture>>(new Map());
+  const currentSceneRef = useRef<Scene | null>(null);
 
   // Interaction refs
   const isUserInteractingRef = useRef(false);
@@ -192,6 +195,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const onPointerDownPointerYRef = useRef(0);
   const onPointerDownLonRef = useRef(0);
   const onPointerDownLatRef = useRef(0);
+
+  const getCompassHeading = (lon: number) => {
+    let deg = (-lon) % 360;
+    if (deg < 0) deg += 360;
+    const directions = ['N 🧭', 'NE 🧭', 'E 🧭', 'SE 🧭', 'S 🧭', 'SW 🧭', 'W 🧭', 'NW 🧭'];
+    const index = Math.round(deg / 45) % 8;
+    return directions[index];
+  };
 
   // Check Admin Role
   useEffect(() => {
@@ -302,10 +313,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       targetLatRef.current = hotspot.pitch;
     }
 
-    // After the zoom animation has progressed, show the smooth transitional cross-fade
-    setTimeout(() => {
-      setSceneLoading(true);
-      
+    const isPreloaded = textureCacheRef.current.has(sceneId);
+
+    if (isPreloaded) {
+      // Blazing fast continuous transition if texture is preloaded (no loader overlay needed!)
       setTimeout(() => {
         setCurrentScene(targetScene);
         // Reset view angles for the new scene, but start with an elegant cinematic wide-angle zoom back to 75
@@ -316,10 +327,26 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         
         cameraFovRef.current = 110; // Start extra wide
         targetFovRef.current = 75;  // Lerp smoothly to normal 75 fov
+      }, 200);
+    } else {
+      // Fallback transitional cross-fade if not preloaded
+      setTimeout(() => {
+        setSceneLoading(true);
         
-        setSceneLoading(false);
-      }, 350);
-    }, 250);
+        setTimeout(() => {
+          setCurrentScene(targetScene);
+          targetLonRef.current = 0;
+          targetLatRef.current = 0;
+          cameraLonRef.current = 0;
+          cameraLatRef.current = 0;
+          
+          cameraFovRef.current = 110;
+          targetFovRef.current = 75;
+          
+          setSceneLoading(false);
+        }, 200);
+      }, 200);
+    }
   };
 
   // Image Upload handler for creating rooms
@@ -495,9 +522,166 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     await saveScenesConfig(updated);
   };
 
-  // Initialize and run Three.js engine
+  // Helper to create beautiful low-resolution placeholder textures dynamically
+  const createLowResPlaceholderTexture = (title: string): THREE.CanvasTexture => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      // Elegant ambient gradient matching Kidtopia's theme
+      const gradient = ctx.createLinearGradient(0, 0, 0, 256);
+      gradient.addColorStop(0, '#0f172a'); // deep slate
+      gradient.addColorStop(0.5, '#334155'); // medium slate
+      gradient.addColorStop(1, '#0f172a');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 512, 256);
+
+      // Warm green radial glow for inviting visual cue
+      const radial = ctx.createRadialGradient(256, 128, 10, 256, 128, 150);
+      radial.addColorStop(0, 'rgba(16, 185, 129, 0.25)'); // soft green
+      radial.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = radial;
+      ctx.fillRect(0, 0, 512, 256);
+
+      // Cyber/architectural grid lines for 3D coordinate space feeling
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 512; i += 32) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 256);
+        ctx.stroke();
+      }
+      for (let j = 0; j <= 256; j += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, j);
+        ctx.lineTo(512, j);
+        ctx.stroke();
+      }
+
+      // Elegant typography
+      ctx.fillStyle = '#10b981'; // Brand Green accent
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('360° INTERACTIVE VIRTUAL TOUR', 256, 90);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.fillText(title, 256, 125);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.font = 'normal 10px sans-serif';
+      ctx.fillText('Loading ultra-high definition panorama...', 256, 160);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+  };
+
+  // 1. Preload all scenes as soon as the list is ready (opening / reload)
   useEffect(() => {
-    if (loading || !currentScene || !mountRef.current) return;
+    if (loading || !scenes || scenes.length === 0) return;
+
+    textureLoaderRef.current.setCrossOrigin('anonymous');
+
+    scenes.forEach(scene => {
+      if (!scene.imageUrl) return;
+
+      // Check if already in cache
+      if (textureCacheRef.current.has(scene.id)) return;
+
+      const loadUrl = scene.imageUrl.startsWith('http')
+        ? scene.imageUrl + (scene.imageUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
+        : scene.imageUrl;
+
+      textureLoaderRef.current.load(
+        loadUrl,
+        (texture) => {
+          texture.minFilter = THREE.LinearFilter;
+          texture.generateMipmaps = false;
+          textureCacheRef.current.set(scene.id, texture);
+          console.log(`Successfully preloaded high-res texture for: ${scene.id}`);
+          
+          // If the scene currently displayed is this one, update it immediately
+          if (currentSceneRef.current?.id === scene.id && sphereMaterialRef.current) {
+            sphereMaterialRef.current.map = texture;
+            sphereMaterialRef.current.needsUpdate = true;
+          }
+        },
+        undefined,
+        (err) => {
+          console.warn(`Failed preloading scene texture: ${scene.id}. Will fall back dynamically.`, err);
+        }
+      );
+    });
+  }, [loading, scenes]);
+
+  // 2. Manage currentScene changes & progressive texture enhancement
+  useEffect(() => {
+    if (loading || !currentScene) return;
+
+    // Sync ref
+    currentSceneRef.current = currentScene;
+
+    if (!sphereMaterialRef.current) return;
+
+    // Check texture cache
+    const cachedTexture = textureCacheRef.current.get(currentScene.id);
+
+    if (cachedTexture) {
+      // Instant transition! No loading screen or white flashes!
+      sphereMaterialRef.current.map = cachedTexture;
+      sphereMaterialRef.current.needsUpdate = true;
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
+    } else {
+      // Progressive Enhancement: Set low-resolution/grid placeholder first, then load high-res
+      const placeholder = createLowResPlaceholderTexture(currentScene.title);
+      sphereMaterialRef.current.map = placeholder;
+      sphereMaterialRef.current.needsUpdate = true;
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
+
+      const loadUrl = currentScene.imageUrl.startsWith('http')
+        ? currentScene.imageUrl + (currentScene.imageUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
+        : currentScene.imageUrl;
+
+      textureLoaderRef.current.setCrossOrigin('anonymous');
+      textureLoaderRef.current.load(
+        loadUrl,
+        (loadedTexture) => {
+          loadedTexture.minFilter = THREE.LinearFilter;
+          loadedTexture.generateMipmaps = false;
+          textureCacheRef.current.set(currentScene.id, loadedTexture);
+
+          // Swap to high-res if user is still looking at this scene
+          if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+            sphereMaterialRef.current.map = loadedTexture;
+            sphereMaterialRef.current.needsUpdate = true;
+          }
+        },
+        undefined,
+        (err) => {
+          console.error(`Error loading 360 photo texture for ${currentScene.id}:`, err);
+          if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+            try {
+              sphereMaterialRef.current.map = createFallbackPanoTexture();
+              sphereMaterialRef.current.needsUpdate = true;
+            } catch (fallbackErr) {
+              console.error('Fallback texture application failed:', fallbackErr);
+            }
+          }
+        }
+      );
+    }
+  }, [loading, currentScene]);
+
+  // 3. Initialize and run Three.js engine (Runs once on mount)
+  useEffect(() => {
+    if (loading || !mountRef.current) return;
 
     // Dimensions
     const width = mountRef.current.clientWidth;
@@ -508,7 +692,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     sceneRef.current = scene;
 
     // Camera
-    const camera = new THREE.PerspectiveCamera(cameraFov, width / height, 1, 1100);
+    const camera = new THREE.PerspectiveCamera(cameraFovRef.current, width / height, 1, 1100);
     cameraRef.current = camera;
 
     // WebGL Renderer
@@ -525,49 +709,20 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const geometry = new THREE.SphereGeometry(500, 60, 40);
     geometry.scale(-1, 1, 1); // invert the sphere geometry on the x-axis so inside is rendered
 
-    // Create Material
+    // Create Material & Mesh
     const sphereMaterial = new THREE.MeshBasicMaterial();
+    sphereMaterialRef.current = sphereMaterial;
+    
+    // Initialize material with a beautiful starting placeholder
+    if (currentSceneRef.current) {
+      sphereMaterial.map = createLowResPlaceholderTexture(currentSceneRef.current.title);
+    } else {
+      sphereMaterial.map = createFallbackPanoTexture();
+    }
+
     const sphereMesh = new THREE.Mesh(geometry, sphereMaterial);
     scene.add(sphereMesh);
     sphereMeshRef.current = sphereMesh;
-
-    // Load texture with anonymous crossOrigin
-    textureLoaderRef.current.setCrossOrigin('anonymous');
-    
-    // Add cache-busting parameter to prevent CORS cache-collision errors
-    const loadUrl = currentScene.imageUrl.startsWith('http')
-      ? currentScene.imageUrl + (currentScene.imageUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
-      : currentScene.imageUrl;
-
-    const texture = textureLoaderRef.current.load(
-      loadUrl,
-      (loadedTexture) => {
-        sphereMaterial.map = loadedTexture;
-        sphereMaterial.needsUpdate = true;
-        renderer.render(scene, camera);
-      },
-      undefined,
-      (err) => {
-        console.error('Error loading 360 photo texture, falling back:', err);
-        try {
-          const fallbackTex = createFallbackPanoTexture();
-          sphereMaterial.map = fallbackTex;
-          sphereMaterial.needsUpdate = true;
-          renderer.render(scene, camera);
-        } catch (fallbackErr) {
-          console.error('Fallback texture generation failed:', fallbackErr);
-        }
-      }
-    );
-
-    // Reset orientation refs for the new scene loading
-    cameraLonRef.current = 0;
-    cameraLatRef.current = 0;
-    cameraFovRef.current = 75;
-
-    targetLonRef.current = 0;
-    targetLatRef.current = 0;
-    targetFovRef.current = 75;
 
     // Animation / Rendering Loop
     let animationFrameId: number;
@@ -604,8 +759,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       renderer.render(scene, camera);
 
       // Project Hotspots coordinates to 2D HTML space
-      if (currentScene.hotspots && currentScene.hotspots.length > 0) {
-        const projections = currentScene.hotspots.map(hs => {
+      const activeScene = currentSceneRef.current;
+      if (activeScene && activeScene.hotspots && activeScene.hotspots.length > 0) {
+        const projections = activeScene.hotspots.map(hs => {
           // Convert hotspot's pitch/yaw back to 3D point
           const hsPhi = THREE.MathUtils.degToRad(90 - hs.pitch);
           const hsTheta = THREE.MathUtils.degToRad(hs.yaw);
@@ -673,18 +829,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       clearInterval(angleUpdateInterval);
       
       geometry.dispose();
-      if (sphereMaterial.map) {
-        sphereMaterial.map.dispose();
-      }
       sphereMaterial.dispose();
-      texture.dispose();
       renderer.dispose();
       
       if (mountRef.current) {
         mountRef.current.innerHTML = '';
       }
     };
-  }, [loading, currentScene]);
+  }, [loading]);
 
   // Handle Drag & Swipe Events
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -698,14 +850,20 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isUserInteractingRef.current) return;
     
-    // Control speed modifier - increased for highly responsive panning
-    const panSpeed = cameraFovRef.current / 75;
+    // Calculate actual container dimensions dynamically
+    const containerWidth = mountRef.current?.clientWidth || 1000;
+    const containerHeight = mountRef.current?.clientHeight || 600;
+    
+    // Map screen pixel translation exactly to degrees of Field of View.
+    // Multiplying by 1.1 provides a perfectly balanced, slightly more responsive "grabbing" feel.
+    const panSpeedX = (cameraFovRef.current / containerWidth) * 1.1;
+    const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 1.1;
     
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
 
-    const newLon = onPointerDownLonRef.current - deltaX * panSpeed;
-    const newLat = onPointerDownLatRef.current + deltaY * panSpeed;
+    const newLon = onPointerDownLonRef.current - deltaX * panSpeedX;
+    const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
 
     targetLonRef.current = newLon;
     targetLatRef.current = Math.max(-85, Math.min(85, newLat));
@@ -736,13 +894,20 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
     if (isUserInteractingRef.current && e.touches.length === 1) {
-      // Control speed modifier - significantly increased for fast, responsive touch sweeps on phone screens
-      const panSpeed = cameraFovRef.current / 25;
+      // Calculate actual container dimensions dynamically
+      const containerWidth = mountRef.current?.clientWidth || 1000;
+      const containerHeight = mountRef.current?.clientHeight || 600;
+      
+      // Map touch pixel translation exactly to degrees of Field of View.
+      // Multiplying by 1.1 provides a perfectly balanced, slightly more responsive "grabbing" feel.
+      const panSpeedX = (cameraFovRef.current / containerWidth) * 1.1;
+      const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 1.1;
+      
       const deltaX = e.touches[0].clientX - onPointerDownPointerXRef.current;
       const deltaY = e.touches[0].clientY - onPointerDownPointerYRef.current;
 
-      const newLon = onPointerDownLonRef.current - deltaX * panSpeed;
-      const newLat = onPointerDownLatRef.current + deltaY * panSpeed;
+      const newLon = onPointerDownLonRef.current - deltaX * panSpeedX;
+      const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
 
       targetLonRef.current = newLon;
       targetLatRef.current = Math.max(-85, Math.min(85, newLat));
@@ -934,9 +1099,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         {/* Floating Top Title Bar */}
         <div className="absolute top-4 left-4 right-4 pointer-events-none flex justify-between items-start z-30">
           <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-xl shadow-lg pointer-events-auto max-w-[70%]">
-            <span className="text-[10px] font-mono tracking-widest text-brand-green uppercase font-semibold flex items-center gap-1 mb-0.5">
-              <Compass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '6s' }} />
-              Live Interactive 360 Tour
+            <span className="text-[10px] font-mono tracking-widest text-brand-green uppercase font-semibold flex items-center gap-1.5 mb-0.5">
+              <Compass 
+                className="w-4 h-4 text-brand-green transition-transform duration-100 ease-out" 
+                style={{ transform: `rotate(${-cameraLon}deg)` }} 
+              />
+              <span>Live 360° Tour • Heading: {getCompassHeading(cameraLon)}</span>
             </span>
             <h3 className="text-white font-sans text-base font-semibold tracking-wide flex items-center gap-2">
               {currentScene?.title}
@@ -1033,41 +1201,41 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           {/* PlayStation Controller Cross D-pad Console */}
           <div className="flex flex-col items-center gap-3 pointer-events-auto">
             {/* Circular D-pad body - scaled up for better touch accuracy */}
-            <div className="relative w-32 h-32 bg-black/75 backdrop-blur-md rounded-full border border-white/10 shadow-2xl flex items-center justify-center select-none">
+            <div className="relative w-40 h-40 bg-black/75 backdrop-blur-md rounded-full border border-white/10 shadow-2xl flex items-center justify-center select-none">
               {/* UP button */}
               <button
                 onClick={() => handleKeyDown('up')}
-                className="absolute top-1.5 left-1/2 -translate-x-1/2 w-9 h-9 rounded-t-lg bg-stone-900 border-t border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-t-lg bg-stone-900 border-t border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Look Up"
               >
-                <ArrowUp className="w-5 h-5 text-stone-300 group-hover:text-white" />
+                <ArrowUp className="w-6 h-6 text-stone-300 group-hover:text-white" />
               </button>
               
               {/* LEFT button */}
               <button
                 onClick={() => handleKeyDown('left')}
-                className="absolute left-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-l-lg bg-stone-900 border-l border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-l-lg bg-stone-900 border-l border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Rotate Left"
               >
-                <ArrowLeft className="w-5 h-5 text-stone-300 group-hover:text-white" />
+                <ArrowLeft className="w-6 h-6 text-stone-300 group-hover:text-white" />
               </button>
 
               {/* RIGHT button */}
               <button
                 onClick={() => handleKeyDown('right')}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-r-lg bg-stone-900 border-r border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-r-lg bg-stone-900 border-r border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Rotate Right"
               >
-                <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-white" />
+                <ArrowRight className="w-6 h-6 text-stone-300 group-hover:text-white" />
               </button>
 
               {/* DOWN button */}
               <button
                 onClick={() => handleKeyDown('down')}
-                className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-9 h-9 rounded-b-lg bg-stone-900 border-b border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-b-lg bg-stone-900 border-b border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Look Down"
               >
-                <ArrowDown className="w-5 h-5 text-stone-300 group-hover:text-white" />
+                <ArrowDown className="w-6 h-6 text-stone-300 group-hover:text-white" />
               </button>
 
               {/* Central CORE button (Reset View) */}
@@ -1080,36 +1248,36 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   setCameraLat(0);
                   setCameraFov(75);
                 }}
-                className="w-9 h-9 rounded-full bg-stone-850 hover:bg-stone-800 active:bg-brand-green border border-stone-750 flex items-center justify-center shadow-inner transition-all text-stone-400 hover:text-brand-green"
+                className="w-12 h-12 rounded-full bg-stone-850 hover:bg-stone-800 active:bg-brand-green border border-stone-750 flex items-center justify-center shadow-inner transition-all text-stone-400 hover:text-brand-green"
                 title="Reset Camera Orientation"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-5 h-5" />
               </button>
             </div>
 
             {/* PlayStation Action Bar: Zoom In, Zoom Out, Fullscreen - scaled up */}
-            <div className="bg-black/75 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-xl shadow-lg flex items-center gap-2">
+            <div className="bg-black/75 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-2.5">
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="p-1.5 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom In"
               >
-                <ZoomIn className="w-4.5 h-4.5" />
+                <ZoomIn className="w-5.5 h-5.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="p-1.5 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom Out"
               >
-                <ZoomOut className="w-4.5 h-4.5" />
+                <ZoomOut className="w-5.5 h-5.5" />
               </button>
               <div className="w-[1px] h-4 bg-white/20" />
               <button
                 onClick={toggleFullscreen}
-                className="p-1.5 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Toggle Fullscreen"
               >
-                {isFullscreen ? <Minimize2 className="w-4.5 h-4.5" /> : <Maximize2 className="w-4.5 h-4.5" />}
+                {isFullscreen ? <Minimize2 className="w-5.5 h-5.5" /> : <Maximize2 className="w-5.5 h-5.5" />}
               </button>
             </div>
           </div>
