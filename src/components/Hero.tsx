@@ -27,23 +27,21 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
           <div className="absolute inset-0 overflow-hidden">
             <video 
               src={t.heroVideo} 
-              className="w-full h-full object-cover opacity-[0.18]"
+              className="w-full h-full object-cover"
               autoPlay 
               loop 
               muted 
               playsInline
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-brand-cream/10 via-brand-cream/35 to-brand-cream" />
           </div>
         ) : t.backgroundType === 'image' && t.heroImage ? (
           <div className="absolute inset-0">
             <img 
               src={t.heroImage} 
               alt="Kidtopia background" 
-              className="w-full h-full object-cover opacity-[0.18]"
+              className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-brand-cream/10 via-brand-cream/35 to-brand-cream" />
           </div>
         ) : null}
 
