@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { 
-  ArrowRight, Plus, Trash2, Camera, Move, Settings, Check, X, 
+  ArrowRight, ArrowUp, ArrowDown, ArrowLeft, Plus, Trash2, Camera, Move, Settings, Check, X, 
   RotateCcw, ZoomIn, ZoomOut, Maximize2, Minimize2, Edit2, Save, 
   Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle
 } from 'lucide-react';
@@ -698,8 +698,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isUserInteractingRef.current) return;
     
-    // Control speed modifier - significantly increased for responsive, fast panning
-    const panSpeed = cameraFovRef.current / 120;
+    // Control speed modifier - increased for highly responsive panning
+    const panSpeed = cameraFovRef.current / 75;
     
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
@@ -736,8 +736,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
     if (isUserInteractingRef.current && e.touches.length === 1) {
-      // Control speed modifier - significantly increased for responsive, fast touch gestures
-      const panSpeed = cameraFovRef.current / 100;
+      // Control speed modifier - significantly increased for fast, responsive touch sweeps on phone screens
+      const panSpeed = cameraFovRef.current / 25;
       const deltaX = e.touches[0].clientX - onPointerDownPointerXRef.current;
       const deltaY = e.touches[0].clientY - onPointerDownPointerYRef.current;
 
@@ -1031,43 +1031,43 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
  
           {/* PlayStation Controller Cross D-pad Console */}
-          <div className="flex flex-col items-center gap-2 pointer-events-auto">
-            {/* Circular D-pad body */}
-            <div className="relative w-24 h-24 bg-black/75 backdrop-blur-md rounded-full border border-white/10 shadow-2xl flex items-center justify-center select-none">
+          <div className="flex flex-col items-center gap-3 pointer-events-auto">
+            {/* Circular D-pad body - scaled up for better touch accuracy */}
+            <div className="relative w-32 h-32 bg-black/75 backdrop-blur-md rounded-full border border-white/10 shadow-2xl flex items-center justify-center select-none">
               {/* UP button */}
               <button
                 onClick={() => handleKeyDown('up')}
-                className="absolute top-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-t bg-stone-900 border-t border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute top-1.5 left-1/2 -translate-x-1/2 w-9 h-9 rounded-t-lg bg-stone-900 border-t border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Look Up"
               >
-                <Move className="w-3 h-3 -rotate-90" />
+                <ArrowUp className="w-5 h-5 text-stone-300 group-hover:text-white" />
               </button>
               
               {/* LEFT button */}
               <button
                 onClick={() => handleKeyDown('left')}
-                className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-l bg-stone-900 border-l border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute left-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-l-lg bg-stone-900 border-l border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Rotate Left"
               >
-                <Move className="w-3 h-3 rotate-180" />
+                <ArrowLeft className="w-5 h-5 text-stone-300 group-hover:text-white" />
               </button>
 
               {/* RIGHT button */}
               <button
                 onClick={() => handleKeyDown('right')}
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-r bg-stone-900 border-r border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-r-lg bg-stone-900 border-r border-y border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Rotate Right"
               >
-                <Move className="w-3 h-3" />
+                <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-white" />
               </button>
 
               {/* DOWN button */}
               <button
                 onClick={() => handleKeyDown('down')}
-                className="absolute bottom-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-b bg-stone-900 border-b border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
+                className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-9 h-9 rounded-b-lg bg-stone-900 border-b border-x border-white/10 active:bg-brand-green text-stone-300 hover:text-white hover:bg-stone-800 flex items-center justify-center shadow-md transition-all duration-100"
                 title="Look Down"
               >
-                <Move className="w-3 h-3 rotate-90" />
+                <ArrowDown className="w-5 h-5 text-stone-300 group-hover:text-white" />
               </button>
 
               {/* Central CORE button (Reset View) */}
@@ -1080,36 +1080,36 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   setCameraLat(0);
                   setCameraFov(75);
                 }}
-                className="w-7 h-7 rounded-full bg-stone-850 hover:bg-stone-800 active:bg-brand-green border border-stone-750 flex items-center justify-center shadow-inner transition-all text-stone-400 hover:text-brand-green"
+                className="w-9 h-9 rounded-full bg-stone-850 hover:bg-stone-800 active:bg-brand-green border border-stone-750 flex items-center justify-center shadow-inner transition-all text-stone-400 hover:text-brand-green"
                 title="Reset Camera Orientation"
               >
-                <RotateCcw className="w-2.5 h-2.5" />
+                <RotateCcw className="w-4 h-4" />
               </button>
             </div>
 
-            {/* PlayStation Action Bar: Zoom In, Zoom Out, Fullscreen */}
-            <div className="bg-black/75 backdrop-blur-md border border-white/10 px-1.5 py-0.5 rounded-xl shadow-lg flex items-center gap-1.5">
+            {/* PlayStation Action Bar: Zoom In, Zoom Out, Fullscreen - scaled up */}
+            <div className="bg-black/75 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-xl shadow-lg flex items-center gap-2">
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="p-1 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-1.5 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom In"
               >
-                <ZoomIn className="w-3.5 h-3.5" />
+                <ZoomIn className="w-4.5 h-4.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="p-1 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-1.5 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom Out"
               >
-                <ZoomOut className="w-3.5 h-3.5" />
+                <ZoomOut className="w-4.5 h-4.5" />
               </button>
-              <div className="w-[1px] h-3 bg-white/20" />
+              <div className="w-[1px] h-4 bg-white/20" />
               <button
                 onClick={toggleFullscreen}
-                className="p-1 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-1.5 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Toggle Fullscreen"
               >
-                {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                {isFullscreen ? <Minimize2 className="w-4.5 h-4.5" /> : <Maximize2 className="w-4.5 h-4.5" />}
               </button>
             </div>
           </div>
