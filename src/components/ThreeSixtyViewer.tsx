@@ -478,26 +478,33 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       if (deltaAlpha < -180) deltaAlpha += 360;
 
       // Smoothing factor (Lerp) to prevent "flickering" or noise
-      const smoothFactor = 0.85; // Higher = more smoothed but slightly more lag
+      const smoothFactor = 0.6; // Slightly more smoothing
+      const noiseThreshold = 0.05; // Ignore tiny movements that cause "flickering"
+
+      if (Math.abs(deltaAlpha) > noiseThreshold) {
+        targetLonRef.current -= deltaAlpha * smoothFactor;
+      }
 
       if (orient === 0) { // Portrait
-        targetLonRef.current -= deltaAlpha * smoothFactor;
-        // For Beta (Latitude), we can use absolute or relative. 
-        // Relative is often safer for sensor drift.
         const deltaBeta = beta - lastBeta;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaBeta * smoothFactor));
+        if (Math.abs(deltaBeta) > noiseThreshold) {
+          targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaBeta * smoothFactor));
+        }
       } else if (orient === 90) { // Landscape Left
-        targetLonRef.current -= deltaAlpha * smoothFactor;
         const deltaGamma = gamma - lastGamma;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaGamma * smoothFactor));
+        if (Math.abs(deltaGamma) > noiseThreshold) {
+          targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaGamma * smoothFactor));
+        }
       } else if (orient === -90) { // Landscape Right
-        targetLonRef.current -= deltaAlpha * smoothFactor;
         const deltaGamma = gamma - lastGamma;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaGamma * smoothFactor));
+        if (Math.abs(deltaGamma) > noiseThreshold) {
+          targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaGamma * smoothFactor));
+        }
       } else {
-        targetLonRef.current -= deltaAlpha * smoothFactor;
         const deltaBeta = beta - lastBeta;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaBeta * smoothFactor));
+        if (Math.abs(deltaBeta) > noiseThreshold) {
+          targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaBeta * smoothFactor));
+        }
       }
 
       lastAlpha = alpha;
@@ -1302,8 +1309,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       // It's a click on the canvas
       if (activeInfoHotspot) {
         setActiveInfoHotspot(null);
-      } else if (!editMode) {
-        // "expand first" - toggle fullscreen when clicking empty space
+      } else if (!editMode && !isFullscreen) {
+        // "expand first" - toggle fullscreen when clicking empty space, only IF NOT ALREADY FULLSCREEN
         toggleFullscreen();
       }
     }
@@ -1679,11 +1686,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 setGuideStep(0);
                 setShowGuide(true);
               }}
-              className="px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95"
+              className="px-2 sm:px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95"
               title="Open Navigation Tour Guide"
             >
               <HelpCircle className="w-4.5 h-4.5 text-brand-green animate-bounce" />
-              <span>Tour Guide</span>
+              <span className="hidden sm:inline">Tour Guide</span>
             </button>
           </div>
         </div>
