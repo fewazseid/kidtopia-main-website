@@ -274,6 +274,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [invertGyroLon, setInvertGyroLon] = useState(false);
   const [invertGyroLat, setInvertGyroLat] = useState(false);
   const [swapGyroAxes, setSwapGyroAxes] = useState(false);
+  const [isRoomListExpanded, setIsRoomListExpanded] = useState(false);
+  const useGyroscopeRef = useRef(false);
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
 
   // Camera target orientation refs (for smooth pan interpolation)
@@ -429,6 +431,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const requestDeviceOrientationPermission = async () => {
     if (useGyroscope) {
       setUseGyroscope(false);
+      useGyroscopeRef.current = false;
       return;
     }
 
@@ -441,6 +444,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const permissionState = await (window as any).DeviceMotionEvent.requestPermission();
         if (permissionState === 'granted') {
           setUseGyroscope(true);
+          useGyroscopeRef.current = true;
         } else {
           alert('Gyroscope/motion sensor permission denied. Please allow motion sensors in your system or browser settings.');
         }
@@ -451,6 +455,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     } else {
       // Standard android/desktop/older iOS or non-safari
       setUseGyroscope(true);
+      useGyroscopeRef.current = true;
     }
   };
 
@@ -474,16 +479,16 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       let latRate = 0;
 
       // Extract gravity to determine if device is flat or vertical
-      const gravX = e.accelerationIncludingGravity?.x || 0;
       const gravY = e.accelerationIncludingGravity?.y || 0;
       const gravZ = e.accelerationIncludingGravity?.z || 0;
-
       const isVertical = Math.abs(gravY) > Math.abs(gravZ);
 
       if (orient === 0) {
-        // Portrait
-        lonRate = isVertical ? gamma : alpha;
-        latRate = beta;
+        // Portrait - Fix: Swap axis based on user feedback (up/down was moving left/right)
+        // beta (tilting phone up/down) should move latitude, but user says it moves longitude.
+        // Therefore we swap them to correct the 90 degree rotation.
+        lonRate = beta;
+        latRate = isVertical ? -gamma : -alpha;
       } else if (orient === 90) {
         // Landscape Left
         lonRate = -beta;
@@ -512,24 +517,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       
       targetLonRef.current += lonRate * sensitivity * lonDir; 
       targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (latRate * sensitivity * latDir)));
-
-      // Optional: Accelerometer Horizon Correction
-      if (e.accelerationIncludingGravity) {
-        const { x, y, z } = e.accelerationIncludingGravity;
-        if (x !== null && y !== null && z !== null) {
-          // Calculate current gravity-based pitch (approximate)
-          // When device is vertical, y is ~9.8. When flat, z is ~9.8.
-          // This nudge helps prevent cumulative drift in the pitch axis.
-          const pitchFromGravity = THREE.MathUtils.radToDeg(Math.atan2(z, y)) - 90;
-          
-          // Only nudge if the device isn't being shaken/moved aggressively
-          const totalAccel = Math.sqrt(x*x + y*y + z*z);
-          if (totalAccel > 8 && totalAccel < 12) {
-            // Slowly nudge towards gravity pitch (0.005 lerp factor for stability)
-            targetLatRef.current += (pitchFromGravity - targetLatRef.current) * 0.005;
-          }
-        }
-      }
     };
 
     window.addEventListener('devicemotion', handleMotion);
@@ -1015,106 +1002,61 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     return () => clearTimeout(delayPreload);
   }, [loading, scenes, currentScene?.id]);
 
-  // 2. Manage currentScene changes & progressive texture enhancement
-  useEffect(() => {
-    if (loading || !currentScene || !isThreeReady) return;
+    // 2. Manage currentScene changes & progressive texture enhancement
+    const initTextureLoad = () => {
+      if (loading || !currentScene || !isThreeReady) return;
 
-    // Sync ref
-    currentSceneRef.current = currentScene;
+      // Sync ref
+      currentSceneRef.current = currentScene;
 
-    if (!sphereMaterialRef.current) return;
+      if (!sphereMaterialRef.current) return;
 
-    // Check texture cache
-    const cachedTexture = textureCacheRef.current.get(currentScene.id);
+      // Check texture cache
+      const cachedTexture = textureCacheRef.current.get(currentScene.id);
 
-    const urls = getLowResAndHighResUrls(currentScene.imageUrl);
+      const urls = getLowResAndHighResUrls(currentScene.imageUrl);
 
-    if (cachedTexture) {
-      // Instant transition! No loading screen or white flashes!
-      sphereMaterialRef.current.map = cachedTexture;
-      sphereMaterialRef.current.needsUpdate = true;
-      if (rendererRef.current && sceneRef.current && cameraRef.current) {
-        rendererRef.current.render(sceneRef.current, cameraRef.current);
-      }
-    } else {
-      // Progressive Enhancement Step 1: Set beautiful ambient grid/placeholder texture first
-      const placeholder = createLowResPlaceholderTexture(currentScene.title);
-      sphereMaterialRef.current.map = placeholder;
-      sphereMaterialRef.current.needsUpdate = true;
-      if (rendererRef.current && sceneRef.current && cameraRef.current) {
-        rendererRef.current.render(sceneRef.current, cameraRef.current);
-      }
-
-      textureLoaderRef.current.setCrossOrigin('anonymous');
-      
-      // Progressive Enhancement Step 2: Load highly-compressed low-res version extremely fast
-      textureLoaderRef.current.load(
-        urls.low,
-        (lowResTexture) => {
-          lowResTexture.minFilter = THREE.LinearFilter;
-          lowResTexture.generateMipmaps = false;
-          
-          if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current && !textureCacheRef.current.has(currentScene.id)) {
-            sphereMaterialRef.current.map = lowResTexture;
-            sphereMaterialRef.current.needsUpdate = true;
-            if (rendererRef.current && sceneRef.current && cameraRef.current) {
-              rendererRef.current.render(sceneRef.current, cameraRef.current);
-            }
-          }
-          
-          // Progressive Enhancement Step 3: Fetch full high-res photo over time, swap seamlessly when completed
-          textureLoaderRef.current.load(
-            urls.high,
-            (highResTexture) => {
-              highResTexture.minFilter = THREE.LinearMipmapLinearFilter;
-              highResTexture.generateMipmaps = true;
-              highResTexture.anisotropy = rendererRef.current?.capabilities.getMaxAnisotropy() || 1;
-              textureCacheRef.current.set(currentScene.id, highResTexture);
-              
-              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
-                sphereMaterialRef.current.map = highResTexture;
-                sphereMaterialRef.current.needsUpdate = true;
-                if (rendererRef.current && sceneRef.current && cameraRef.current) {
-                  rendererRef.current.render(sceneRef.current, cameraRef.current);
-                }
-              }
-            },
-            undefined,
-            (err) => {
-              console.warn(`Could not load high-res panorama texture for ${currentScene.id}. Keeping low-res version.`, err);
-            }
-          );
-        },
-        undefined,
-        (err) => {
-          console.warn(`Could not load low-res texture for ${currentScene.id}. Trying to load high-res directly.`, err);
-          
-          // Fallback to directly loading high-res URL
-          textureLoaderRef.current.load(
-            urls.high,
-            (highResTexture) => {
-              highResTexture.minFilter = THREE.LinearMipmapLinearFilter;
-              highResTexture.generateMipmaps = true;
-              highResTexture.anisotropy = rendererRef.current?.capabilities.getMaxAnisotropy() || 1;
-              textureCacheRef.current.set(currentScene.id, highResTexture);
-              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
-                sphereMaterialRef.current.map = highResTexture;
-                sphereMaterialRef.current.needsUpdate = true;
-              }
-            },
-            undefined,
-            (fallbackErr) => {
-              console.error('All texture loading attempts failed, falling back to procedural default canvas texture:', fallbackErr);
-              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
-                sphereMaterialRef.current.map = createFallbackPanoTexture();
-                sphereMaterialRef.current.needsUpdate = true;
-              }
-            }
-          );
+      if (cachedTexture) {
+        // Instant transition!
+        sphereMaterialRef.current.map = cachedTexture;
+        sphereMaterialRef.current.needsUpdate = true;
+        if (rendererRef.current && sceneRef.current && cameraRef.current) {
+          rendererRef.current.render(sceneRef.current, cameraRef.current);
         }
-      );
-    }
-  }, [loading, currentScene, isThreeReady]);
+      } else {
+        // Progressive Enhancement
+        const placeholder = createLowResPlaceholderTexture(currentScene.title);
+        sphereMaterialRef.current.map = placeholder;
+        sphereMaterialRef.current.needsUpdate = true;
+        if (rendererRef.current && sceneRef.current && cameraRef.current) {
+          rendererRef.current.render(sceneRef.current, cameraRef.current);
+        }
+
+        textureLoaderRef.current.setCrossOrigin('anonymous');
+        
+        textureLoaderRef.current.load(
+          urls.low,
+          (lowResTexture) => {
+            if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current && !textureCacheRef.current.has(currentScene.id)) {
+              sphereMaterialRef.current.map = lowResTexture;
+              sphereMaterialRef.current.needsUpdate = true;
+            }
+            
+            textureLoaderRef.current.load(urls.high, (highResTexture) => {
+              textureCacheRef.current.set(currentScene.id, highResTexture);
+              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                sphereMaterialRef.current.map = highResTexture;
+                sphereMaterialRef.current.needsUpdate = true;
+              }
+            });
+          }
+        );
+      }
+    };
+
+    useEffect(() => {
+      initTextureLoad();
+    }, [loading, currentScene, isThreeReady]);
 
   // 3. Initialize and run Three.js engine (Runs once on mount)
   useEffect(() => {
@@ -1128,8 +1070,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
+    // Start with a high FOV for "zoomed out" entry effect
+    const initialFov = 100;
+    cameraFovRef.current = initialFov;
+    targetFovRef.current = 75; // Lerp smoothly to 75
+
     // Camera
-    const camera = new THREE.PerspectiveCamera(cameraFovRef.current, width / height, 1, 1100);
+    const camera = new THREE.PerspectiveCamera(initialFov, mountRef.current.clientWidth / mountRef.current.clientHeight, 1, 1100);
     cameraRef.current = camera;
 
     // WebGL Renderer
@@ -1284,7 +1231,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Sync angle states local values to component states
     const angleUpdateInterval = setInterval(() => {
       // Update state for compass and UI readouts
-      if (isUserInteractingRef.current || useGyroscope) {
+      if (isUserInteractingRef.current || useGyroscopeRef.current) {
         setCameraLon(cameraLonRef.current);
         setCameraLat(cameraLatRef.current);
         setCameraFov(cameraFovRef.current);
@@ -1819,22 +1766,34 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex justify-between items-end z-30">
           
           {/* Room Selector Quick Links Menu */}
-          <div className="flex flex-col items-start gap-2 pointer-events-auto max-w-[65%] sm:max-w-[75%]">
-            {/* Desktop View: Wide Row Selection (Visible on Large Screens) */}
-            <div className="hidden lg:flex bg-black/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg gap-1.5 overflow-x-auto scrollbar-none">
-              {scenes.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => handleSwitchRoom(s.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide font-medium transition-all whitespace-nowrap ${
-                    currentScene?.id === s.id
-                      ? 'bg-brand-green text-white shadow'
-                      : 'text-stone-300 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  {s.title}
-                </button>
-              ))}
+          <div className="flex flex-col items-start gap-2 pointer-events-auto max-w-[65%] sm:max-w-[75%] transition-all">
+            {/* Desktop View: Collapsible Row Selection */}
+            <div className="hidden lg:flex items-center gap-2">
+              <button
+                onClick={() => setIsRoomListExpanded(!isRoomListExpanded)}
+                className="bg-black/60 backdrop-blur-md border border-white/10 p-2.5 rounded-xl shadow-lg text-white hover:bg-black transition-all"
+                title={isRoomListExpanded ? "Hide Rooms" : "Explore Rooms"}
+              >
+                <ChevronRight className={`w-5 h-5 transition-transform duration-300 ${isRoomListExpanded ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isRoomListExpanded && (
+                <div className="flex bg-black/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg gap-1.5 overflow-x-auto scrollbar-none animate-in slide-in-from-left duration-300">
+                  {scenes.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => handleSwitchRoom(s.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide font-medium transition-all whitespace-nowrap ${
+                        currentScene?.id === s.id
+                          ? 'bg-brand-green text-white shadow'
+                          : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      {s.title}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Mobile / Tablet View: Collapsible Selector Button */}
@@ -1844,11 +1803,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   e.stopPropagation();
                   setIsRoomsMenuOpen(!isRoomsMenuOpen);
                 }}
-                className="bg-black/85 backdrop-blur-md border border-white/20 px-3.5 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
+                className="bg-black/85 backdrop-blur-md border border-white/20 px-3 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
               >
-                <Compass className="w-4 h-4 text-brand-green animate-pulse" />
-                <span className="truncate max-w-[120px] xs:max-w-[180px]">{currentScene?.title || 'Select Classroom'}</span>
-                <ChevronRight className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90 text-white' : ''}`} />
+                <ChevronRight className={`w-4 h-4 text-white transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
+                {isRoomsMenuOpen && (
+                  <span className="truncate max-w-[120px] xs:max-w-[180px] animate-in fade-in duration-200">
+                    {currentScene?.title || 'Select Classroom'}
+                  </span>
+                )}
               </button>
               
               {isRoomsMenuOpen && (
@@ -2031,19 +1993,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="hidden sm:block p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom In"
               >
                 <ZoomIn className="w-5.5 h-5.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="hidden sm:block p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-5.5 h-5.5" />
               </button>
-              <div className="w-[1px] h-4 bg-white/20" />
+              <div className="hidden sm:block w-[1px] h-4 bg-white/20" />
               <button
                 onClick={toggleFullscreen}
                 className="p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
