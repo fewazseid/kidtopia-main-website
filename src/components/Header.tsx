@@ -89,13 +89,13 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           <nav 
             className="hidden lg:flex items-center"
             style={{ 
-              fontSize: '14px', 
-              fontWeight: '600', 
+              fontSize: '12px', 
+              fontWeight: '700', 
               paddingLeft: '0px', 
               paddingRight: '0px',
-              marginLeft: '-4px',
-              marginRight: '-8px',
-              height: '40px' 
+              marginLeft: '-2px',
+              marginRight: '-4px',
+              height: '34px' 
             }}
           >
             {navItems.map((item, idx) => {
@@ -108,25 +108,25 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   {item.subItems ? (
                     <button 
                       onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
-                      className="font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1.5 xl:py-1 xl:px-2 rounded-lg hover:bg-white/50"
+                      className="font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1 xl:py-1 xl:px-1.5 rounded-lg hover:bg-white/50"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
-                      <svg className={`w-3 h-3 xl:w-3.5 xl:h-3.5 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className={`w-2.5 h-2.5 xl:w-3 xl:h-3 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                   ) : (
                     <Link 
                       to={item.path} 
-                      className="font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1 xl:px-2 rounded-lg hover:bg-white/50 relative"
+                      className="font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1 xl:py-1 xl:px-1.5 rounded-lg hover:bg-white/50 relative"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
                       {isActive && (
                         <motion.span 
                           layoutId="activeNavBubble" 
-                          className="absolute -bottom-1 left-2 right-2 xl:left-4 xl:right-4 h-0.5 rounded-full"
+                          className="absolute -bottom-1 left-1 right-1 xl:left-2 xl:right-2 h-0.5 rounded-full"
                           style={{ backgroundColor: t.activeColor || '#3a5b32' }}
                           transition={{ type: "spring", stiffness: 380, damping: 30 }}
                         />
@@ -135,12 +135,12 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   )}
 
                   {item.subItems && activeDropdown === idx && (
-                    <div className="absolute top-full left-0 mt-2.5 w-56 bg-white/90 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/60 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white/90 backdrop-blur-xl rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] border border-white/60 overflow-hidden py-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
                       {item.subItems.map((sub, sIdx) => (
                         <Link
                           key={sIdx}
                           to={sub.path}
-                          className="block px-5 py-2.5 text-sm font-semibold transition-all hover:bg-brand-cream/80"
+                          className="block px-4 py-2 text-[13px] font-semibold transition-all hover:bg-brand-cream/80"
                           style={{ color: t.textColor || '#44403c' }}
                           onClick={() => {
                             setActiveDropdown(null);

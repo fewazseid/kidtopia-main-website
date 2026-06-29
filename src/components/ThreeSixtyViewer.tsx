@@ -466,9 +466,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       let { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
 
-      // Low-pass filter for raw values to eliminate sensor jitter
-      // Using a stronger alpha (lower factor) for orientation stability
-      const filterFactor = 0.15;
+      // Even more aggressive low-pass filter for raw values to eliminate sensor jitter
+      const filterFactor = 0.05;
       
       if (lastAlpha === null) {
         lastAlpha = alpha;
@@ -497,14 +496,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       const deltaBeta = beta - lastBeta;
       const deltaGamma = gamma - lastGamma;
 
-      // Velocity smoothing
-      const velocityFilter = 0.1; 
+      // Heavy velocity smoothing
+      const velocityFilter = 0.05; 
       smoothedDA = smoothedDA + (deltaAlpha - smoothedDA) * velocityFilter;
       smoothedDB = smoothedDB + (deltaBeta - smoothedDB) * velocityFilter;
       smoothedDG = smoothedDG + (deltaGamma - smoothedDG) * velocityFilter;
 
-      // Deadzone to eliminate micro-jitter
-      const deadzone = 0.01;
+      // Larger deadzone to eliminate micro-jitter
+      const deadzone = 0.03;
 
       const applyDelta = (da: number, db: number, dg: number) => {
         if (Math.abs(da) > deadzone) {
@@ -1668,7 +1667,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center / Left on Mobile) */}
-          <div id="tour-compass" className="absolute sm:left-1/2 sm:-translate-x-1/2 left-4 sm:left-auto top-0 pointer-events-none flex flex-col items-center gap-1.5 w-40 sm:w-80">
+          <div id="tour-compass" className="absolute sm:left-1/2 sm:-translate-x-1/2 left-4 sm:left-auto top-12 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-40 sm:w-80">
             {/* Horizontal sliding ruler */}
             <div className="w-full h-6 sm:h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
               <div 
@@ -1716,21 +1715,21 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </h3>
             </div>
           </div>
+        </div>
 
-          <div className="flex gap-2 pointer-events-auto">
-            {/* Interactive Guide Walkthrough Toggler */}
-            <button 
-              onClick={() => {
-                setGuideStep(0);
-                setShowGuide(true);
-              }}
-              className="px-2.5 sm:px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95"
-              title="Open Navigation Tour Guide"
-            >
-              <HelpCircle className="w-4.5 h-4.5 text-brand-green animate-bounce" />
-              <span className="hidden sm:inline">Tour Guide</span>
-            </button>
-          </div>
+        {/* Floating Guide Button - Moved to separate container for better positioning */}
+        <div className="absolute sm:top-4 bottom-6 sm:bottom-auto right-4 sm:right-4 z-40 pointer-events-auto">
+          <button 
+            onClick={() => {
+              setGuideStep(0);
+              setShowGuide(true);
+            }}
+            className="px-2.5 sm:px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95"
+            title="Open Navigation Tour Guide"
+          >
+            <HelpCircle className="w-4.5 h-4.5 text-brand-green animate-bounce" />
+            <span className="hidden sm:inline">Tour Guide</span>
+          </button>
         </div>
 
         {/* ONBOARDING CUSTOMER WALKTHROUGH GUIDE DIALOG OVERLAY */}
