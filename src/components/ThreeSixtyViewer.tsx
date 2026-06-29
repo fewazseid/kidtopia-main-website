@@ -445,34 +445,55 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   useEffect(() => {
     if (!useGyroscope) return;
 
-    let initialAlpha: number | null = null;
-    let initialBeta: number | null = null;
+    let initialLon: number | null = null;
+    let initialLat: number | null = null;
     const startLon = targetLonRef.current;
     const startLat = targetLatRef.current;
 
+    const euler = new THREE.Euler();
+    const quaternion = new THREE.Quaternion();
+    const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    const zee = new THREE.Vector3(0, 0, 1);
+    const q0 = new THREE.Quaternion();
+    const forward = new THREE.Vector3(0, 0, -1);
+
     const handleOrientation = (e: DeviceOrientationEvent) => {
-      const alpha = e.alpha;
-      const beta = e.beta;
-      const gamma = e.gamma;
+      // e.alpha, beta, gamma are provided by sensor fusion (gyro + accelerometer)
+      const alpha = e.alpha ? THREE.MathUtils.degToRad(e.alpha) : 0;
+      const beta = e.beta ? THREE.MathUtils.degToRad(e.beta) : 0;
+      const gamma = e.gamma ? THREE.MathUtils.degToRad(e.gamma) : 0;
+      
+      const orient = typeof window !== 'undefined' && typeof window.orientation !== 'undefined' 
+        ? THREE.MathUtils.degToRad(window.orientation as number) 
+        : 0;
 
-      if (alpha === null || beta === null || gamma === null) return;
+      euler.set(beta, alpha, -gamma, 'YXZ');
+      quaternion.setFromEuler(euler);
+      quaternion.multiply(q1);
+      quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
 
-      if (initialAlpha === null) {
-        initialAlpha = alpha;
-        initialBeta = beta;
+      forward.set(0, 0, -1);
+      forward.applyQuaternion(quaternion);
+
+      // Convert forward vector back to lon/lat expected by our camera system
+      const currentLon = THREE.MathUtils.radToDeg(Math.atan2(forward.z, forward.x));
+      const currentLat = THREE.MathUtils.radToDeg(Math.asin(Math.max(-1, Math.min(1, forward.y))));
+
+      if (initialLon === null) {
+        initialLon = currentLon;
+        initialLat = currentLat;
         return;
       }
 
-      // Calculate relative change
-      let deltaAlpha = alpha - initialAlpha;
-      if (deltaAlpha > 180) deltaAlpha -= 360;
-      if (deltaAlpha < -180) deltaAlpha += 360;
+      // Calculate shortest path delta
+      let deltaLon = currentLon - initialLon;
+      if (deltaLon > 180) deltaLon -= 360;
+      if (deltaLon < -180) deltaLon += 360;
 
-      const deltaBeta = beta - initialBeta;
+      let deltaLat = currentLat - initialLat!;
 
-      // Update target angles smoothly (invert deltaBeta as up/down reading was reversed)
-      targetLonRef.current = startLon - deltaAlpha;
-      targetLatRef.current = Math.max(-85, Math.min(85, startLat + deltaBeta));
+      targetLonRef.current = startLon + deltaLon;
+      targetLatRef.current = Math.max(-85, Math.min(85, startLat + deltaLat));
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
