@@ -17,7 +17,10 @@ export const translations = {
       login: "Login",
       language: "Language",
       socialMedia: "Social Media",
-      parentResources: "Parent Resources"
+      parentResources: "Parent Resources",
+      backgroundColor: "#ffffff",
+      textColor: "#44403c",
+      activeColor: "#3a5b32"
     },
     announcement: {
       title: "",
@@ -27,7 +30,9 @@ export const translations = {
       buttonLink: ""
     },
     hero: {
-      headline: "A Safe, Caring, and Inspiring Place for Your Child to Grow",
+      badgeText: "Now Enrolling for 2026",
+      title: "A Safe, Caring, and Inspiring Space for Your Child.",
+      titleHighlight: "Safe, Caring",
       subheadline: "Welcome to Kidtopia International Daycare and Preschool — where children learn, play, and thrive in a secure and nurturing environment.",
       enroll: "Enroll Your Child",
       bookTour: "Book a Tour",
@@ -35,6 +40,8 @@ export const translations = {
       backgroundType: "image",
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       heroVideo: "",
+      textColor: "#ffffff",
+      highlightSectionTitle: "What makes us special",
       highlights: [
         { title: "Safe Environment", desc: "Strict health and security protocols", image: "" },
         { title: "Qualified Staff", desc: "Trained and carefully selected nannies", image: "" },
@@ -88,6 +95,12 @@ export const translations = {
       title: "Explore Our Daycare",
       watchFull: "Watch Full Virtual Tour",
       schedule: "Schedule a Physical Visit",
+      collageImage1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop",
+      collageImage2: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+      ratingText: "★ 4.9",
+      ratingSubtext: "Parent Rating in Addis Ababa",
+      trustText: "100% Secure",
+      trustSubtext: "Doctor Approved",
       media: [
         { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "Our beautiful and spacious play area." },
         { url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop", type: "image", description: "Happy children learning and playing in a safe space." },
@@ -303,7 +316,10 @@ export const translations = {
       login: "ግባ",
       language: "ቋንቋ",
       socialMedia: "ማህበራዊ ሚዲያ",
-      parentResources: "የወላጆች መርጃ"
+      parentResources: "የወላጆች መርጃ",
+      backgroundColor: "#ffffff",
+      textColor: "#44403c",
+      activeColor: "#3a5b32"
     },
     announcement: {
       title: "",
@@ -313,7 +329,9 @@ export const translations = {
       buttonLink: ""
     },
     hero: {
-      headline: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
+      badgeText: "ለ2026 ምዝገባ ላይ ነን",
+      title: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
+      titleHighlight: "ደህንነቱ የተጠበቀ፣ አሳቢ",
       subheadline: "ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ — ህፃናት ደህንነቱ በተጠበቀ እና በሚንከባከብ አካባቢ የሚማሩበት፣ የሚጫወቱበት እና የሚበለጽጉበት።",
       enroll: "ልጅዎን ያስመዝግቡ",
       bookTour: "ጉብኝት ያስይዙ",
@@ -321,6 +339,8 @@ export const translations = {
       backgroundType: "image",
       heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
       heroVideo: "",
+      textColor: "#ffffff",
+      highlightSectionTitle: "ምን የተለየ ያደርገናል",
       highlights: [
         { title: "ደህንነቱ የተጠበቀ አካባቢ", desc: "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች", image: "" },
         { title: "ብቁ ሰራተኞች", desc: "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች", image: "" },
@@ -374,6 +394,12 @@ export const translations = {
       title: "የህፃናት ማቆያችንን ይጎብኙ",
       watchFull: "ሙሉ ቪርቹዋል ጉብኝቱን ይመልከቱ",
       schedule: "የአካል ጉብኝት ቀጠሮ ይያዙ",
+      collageImage1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop",
+      collageImage2: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+      ratingText: "★ 4.9",
+      ratingSubtext: "በወላጆች የተሰጠ ደረጃ",
+      trustText: "100% ደህንነቱ የተጠበቀ",
+      trustSubtext: "በሀኪም የተረጋገጠ",
       media: [
         { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop", type: "image", description: "ውብ እና ሰፊ የመጫወቻ ስፍራችን።" },
         { url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop", type: "image", description: "ልጆች በደህና እና በፍቅር በሚማሩበት አካባቢ።" },

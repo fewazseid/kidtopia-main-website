@@ -301,7 +301,9 @@ export const AdminDashboard: React.FC = () => {
           virtualTour: { ...defaultTranslations.en.virtualTour, ...(enDocData.virtualTour || {}) },
           enrollmentPage: { ...defaultTranslations.en.enrollmentPage, ...(enDocData.enrollmentPage || {}) },
           whyChoose: { ...defaultTranslations.en.whyChoose, ...(enDocData.whyChoose || {}) },
-          faq: { ...defaultTranslations.en.faq, ...(enDocData.faq || {}) }
+          faq: { ...defaultTranslations.en.faq, ...(enDocData.faq || {}) },
+          hero: { ...defaultTranslations.en.hero, ...(enDocData.hero || {}) },
+          nav: { ...defaultTranslations.en.nav, ...(enDocData.nav || {}) }
         };
         
         const amData = { 
@@ -311,7 +313,9 @@ export const AdminDashboard: React.FC = () => {
           virtualTour: { ...defaultTranslations.am.virtualTour, ...(amDocData.virtualTour || {}) },
           enrollmentPage: { ...defaultTranslations.am.enrollmentPage, ...(amDocData.enrollmentPage || {}) },
           whyChoose: { ...defaultTranslations.am.whyChoose, ...(amDocData.whyChoose || {}) },
-          faq: { ...defaultTranslations.am.faq, ...(amDocData.faq || {}) }
+          faq: { ...defaultTranslations.am.faq, ...(amDocData.faq || {}) },
+          hero: { ...defaultTranslations.am.hero, ...(amDocData.hero || {}) },
+          nav: { ...defaultTranslations.am.nav, ...(amDocData.nav || {}) }
         };
 
         // Ensure media array exists in virtualTour
@@ -897,6 +901,32 @@ export const AdminDashboard: React.FC = () => {
       const isDescription = key === 'description' || key === 'desc';
       const isAnnouncementText = (key === 'text' && path[0] === 'announcement') || (key === 'text' && path[0] === 'leadCapture');
       const isEmailBody = key === 'body' && path[0] === 'emailTemplates';
+
+      const isColor = key.toLowerCase().includes('color');
+
+      if (isColor) {
+        return (
+          <div key={path.join('.')} className="mb-4">
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
+              {key.replace(/([A-Z])/g, ' $1').trim()}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={value}
+                onChange={(e) => handleChange(path, e.target.value)}
+                className="w-10 h-10 border-0 rounded cursor-pointer"
+              />
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => handleChange(path, e.target.value)}
+                className="flex-1 px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
+              />
+            </div>
+          </div>
+        );
+      }
 
       if (isAnnouncementText) {
         return (

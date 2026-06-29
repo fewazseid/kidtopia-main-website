@@ -20,6 +20,15 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let enLoaded = false;
+    let amLoaded = false;
+
+    const checkLoaded = () => {
+      if (enLoaded && amLoaded) {
+        setLoading(false);
+      }
+    };
+
     const unsubEn = onSnapshot(doc(db, 'content', 'en'), (snapshot) => {
       if (snapshot.exists()) {
         setContent((prev: any) => ({
@@ -27,8 +36,12 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           en: { ...defaultTranslations.en, ...snapshot.data() }
         }));
       }
+      enLoaded = true;
+      checkLoaded();
     }, (err) => {
       console.error('Firestore EN snapshot error:', err);
+      enLoaded = true;
+      checkLoaded();
     });
 
     const unsubAm = onSnapshot(doc(db, 'content', 'am'), (snapshot) => {
@@ -38,17 +51,27 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           am: { ...defaultTranslations.am, ...snapshot.data() }
         }));
       }
+      amLoaded = true;
+      checkLoaded();
     }, (err) => {
       console.error('Firestore AM snapshot error:', err);
+      amLoaded = true;
+      checkLoaded();
     });
-
-    setLoading(false);
 
     return () => {
       unsubEn();
       unsubAm();
     };
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-cream/40">
+        <div className="w-12 h-12 rounded-full border-4 border-brand-green/20 border-t-brand-green animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <ContentContext.Provider value={{ content, loading, refresh: async () => {} }}>

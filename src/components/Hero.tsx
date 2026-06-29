@@ -50,10 +50,10 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <div className="flex flex-col items-center justify-center text-center">
           
-          {/* Left Content Column */}
-          <div className="lg:col-span-7 text-left">
+          {/* Content */}
+          <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
@@ -64,23 +64,42 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-orange"></span>
               </span>
-              <span className="text-xs font-black tracking-widest uppercase font-accent">Now Enrolling for 2026</span>
+              <span className="text-xs font-black tracking-widest uppercase font-accent" style={{ color: t.textColor }}>{t.badgeText}</span>
             </motion.div>
 
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-4.5xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 text-stone-900 tracking-tight"
+              className="text-4.5xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 tracking-tight"
+              style={{ color: t.textColor }}
             >
-              A <span className="text-brand-green underline decoration-brand-yellow decoration-wavy decoration-3 underline-offset-8">Safe, Caring</span>, and Inspiring Space for Your Child.
+              {(() => {
+                const heroTitle = t.title || t.headline || '';
+                const titleHighlight = t.titleHighlight || '';
+                
+                if (titleHighlight && heroTitle.includes(titleHighlight)) {
+                  return heroTitle.split(titleHighlight).map((part: string, i: number, arr: string[]) => (
+                    <React.Fragment key={i}>
+                      {part}
+                      {i < arr.length - 1 && (
+                        <span className="underline decoration-brand-yellow decoration-wavy decoration-3 underline-offset-8" style={{ color: t.textColor || '#ffffff' }}>
+                          {titleHighlight}
+                        </span>
+                      )}
+                    </React.Fragment>
+                  ));
+                }
+                return heroTitle;
+              })()}
             </motion.h1>
             
             <motion.p 
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-lg sm:text-xl text-stone-650 mb-10 leading-relaxed max-w-2xl font-medium"
+              className="text-lg sm:text-xl mb-10 leading-relaxed font-medium mx-auto max-w-2xl"
+              style={{ color: t.textColor }}
             >
               {t.subheadline}
             </motion.p>
@@ -89,7 +108,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-wrap items-center gap-4.5 mb-12"
+              className="flex flex-wrap justify-center items-center gap-4.5 mb-12"
             >
               <Link to="/enroll" className="btn-secondary text-base font-bold shadow-[0_10px_25px_rgba(200,106,61,0.25)] hover:scale-105 active:scale-95 transition-all">
                 {t.enroll}
@@ -100,69 +119,17 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
             </motion.div>
           </div>
 
-          {/* Right Visual Collage Column */}
-          <div className="lg:col-span-5 relative">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] flex items-center justify-center"
-            >
-              {/* Decorative blobs behind images */}
-              <div className="absolute -top-12 -right-12 w-64 h-64 bg-brand-yellow/25 rounded-full blur-2xl -z-10" />
-              <div className="absolute -bottom-12 -left-12 w-72 h-72 bg-brand-teal/25 rounded-full blur-3xl -z-10" />
-              
-              {/* Organic Frame 1 */}
-              <div className="absolute top-0 left-6 w-[70%] aspect-[4/5] rounded-[48px] overflow-hidden border-8 border-white shadow-2xl rotate-[-3deg] hover:rotate-0 transition-transform duration-500 group z-10">
-                <img 
-                  src={t.heroImage || "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop"} 
-                  alt="Happy children learning and playing" 
-                  className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent opacity-60"></div>
-              </div>
-
-              {/* Organic Frame 2 */}
-              <div className="absolute bottom-4 right-2 w-[55%] aspect-[1/1] rounded-[40px] overflow-hidden border-6 border-white shadow-xl rotate-[6deg] hover:rotate-0 transition-transform duration-500 group z-20">
-                <img 
-                  src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" 
-                  alt="Daycare active play" 
-                  className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-
-              {/* Decorative scribble badge */}
-              <div className="absolute top-1/3 -right-6 bg-brand-orange text-white p-4.5 rounded-[24px] shadow-xl z-30 rotate-[12deg] max-w-[160px] border border-white/20">
-                <span className="text-2xl font-black block mb-0.5 leading-none">★ 4.9</span>
-                <span className="text-[11px] font-bold uppercase tracking-wider block opacity-90">Parent Rating in Addis Ababa</span>
-              </div>
-
-              {/* Floating trust badge */}
-              <div className="absolute bottom-1/3 -left-8 bg-white text-stone-800 py-3.5 px-5 rounded-[24px] shadow-xl z-30 rotate-[-8deg] flex items-center gap-3 border border-stone-100">
-                <div className="w-9 h-9 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green">
-                  <Shield size={18} className="stroke-[2.5]" />
-                </div>
-                <div className="text-left">
-                  <span className="font-extrabold text-stone-900 text-sm block leading-tight">100% Secure</span>
-                  <span className="text-[10px] font-bold text-stone-400 block uppercase tracking-wide">Doctor Approved</span>
-                </div>
-              </div>
-
-            </motion.div>
-          </div>
-
         </div>
 
         {/* Highlights Bar */}
         <div className="mt-20 lg:mt-28">
           <div className="text-center mb-10">
-            <span className="text-xs font-black uppercase tracking-widest text-stone-400 font-accent">What makes us special</span>
+            <span className="text-xs font-black uppercase tracking-widest font-accent" style={{ color: t.textColor, opacity: 0.8 }}>{t.highlightSectionTitle}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {t.highlights.map((item: any, idx: number) => (
               <GlassCard 
+
                 key={idx}
                 delay={idx * 0.15} 
                 className="p-8 h-full flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5"

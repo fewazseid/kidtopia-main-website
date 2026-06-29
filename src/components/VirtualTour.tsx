@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
-import { Play, Video, Calendar } from 'lucide-react';
+import { Play, Video, Calendar, Shield } from 'lucide-react';
 
 interface VirtualTourProps {
   lang: Language;
@@ -50,6 +50,59 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             {t.title}
           </motion.h2>
           <div className="w-16 h-1.5 bg-brand-yellow mx-auto rounded-full mt-2"></div>
+        </div>
+
+        {/* Visual Collage */}
+        <div className="relative max-w-4xl mx-auto mb-32 h-[500px]">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full h-full flex items-center justify-center"
+          >
+            {/* Decorative blobs behind images */}
+            <div className="absolute -top-12 -right-12 w-64 h-64 bg-brand-yellow/20 rounded-full blur-2xl -z-10" />
+            <div className="absolute -bottom-12 -left-12 w-72 h-72 bg-brand-green/20 rounded-full blur-3xl -z-10" />
+            
+            {/* Organic Frame 1 */}
+            <div className="absolute top-0 left-0 sm:left-12 w-[65%] sm:w-[55%] aspect-[4/5] rounded-[48px] overflow-hidden border-8 border-white shadow-2xl rotate-[-3deg] hover:rotate-0 transition-transform duration-500 group z-10">
+              <img 
+                src={t.collageImage1 || "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop"} 
+                alt="Happy children learning and playing" 
+                className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent opacity-60"></div>
+            </div>
+
+            {/* Organic Frame 2 */}
+            <div className="absolute bottom-4 right-0 sm:right-12 w-[55%] sm:w-[45%] aspect-[1/1] rounded-[40px] overflow-hidden border-6 border-white shadow-xl rotate-[6deg] hover:rotate-0 transition-transform duration-500 group z-20">
+              <img 
+                src={t.collageImage2 || "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"} 
+                alt="Daycare active play" 
+                className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Decorative scribble badge */}
+            <div className="absolute top-1/4 -right-2 sm:-right-8 bg-brand-orange text-white p-4.5 rounded-[24px] shadow-xl z-30 rotate-[12deg] max-w-[160px] border border-white/20">
+              <span className="text-2xl font-black block mb-0.5 leading-none">{t.ratingText}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider block opacity-90">{t.ratingSubtext}</span>
+            </div>
+
+            {/* Floating trust badge */}
+            <div className="absolute bottom-1/4 -left-4 sm:-left-12 bg-white text-stone-800 py-3.5 px-5 rounded-[24px] shadow-xl z-30 rotate-[-8deg] flex items-center gap-3 border border-stone-100">
+              <div className="w-9 h-9 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green">
+                <Shield size={18} className="stroke-[2.5]" />
+              </div>
+              <div className="text-left">
+                <span className="font-extrabold text-stone-900 text-sm block leading-tight">{t.trustText}</span>
+                <span className="text-[10px] font-bold text-stone-400 block uppercase tracking-wide">{t.trustSubtext}</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         <div className="relative max-w-6xl mx-auto">
