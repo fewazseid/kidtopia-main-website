@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -9,6 +9,7 @@ import { captureFingerprint, isSecuGenAvailable } from '../services/fingerprintS
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
+import { ThreeSixtyViewer } from '../components/ThreeSixtyViewer';
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -1723,6 +1724,18 @@ export const AdminDashboard: React.FC = () => {
                       <li><strong>{`{time}`}</strong> - The requested tour time</li>
                       <li><strong>{`{dayName}`}</strong> - The day of the week (e.g., Monday, Tuesday)</li>
                     </ul>
+                  </div>
+                )}
+                {activeSection === 'virtualTour' && (
+                  <div className="mb-10 p-6 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm">
+                    <h3 className="font-bold text-stone-800 dark:text-stone-100 text-base mb-2 flex items-center gap-2 font-sans">
+                      <Compass size={20} className="text-brand-green animate-spin" style={{ animationDuration: '12s' }} />
+                      Interactive 360° Virtual Tour Layout Builder
+                    </h3>
+                    <p className="text-sm text-stone-600 dark:text-stone-400 mb-6 font-sans">
+                      Drag to look around the virtual room, and use the "🛠️ Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
+                    </p>
+                    <ThreeSixtyViewer isAdminMode={true} />
                   </div>
                 )}
                 {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 

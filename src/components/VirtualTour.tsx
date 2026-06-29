@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
-import { Play, Video, Calendar, Shield } from 'lucide-react';
+import { Play, Video, Calendar, Shield, Compass } from 'lucide-react';
+import { ThreeSixtyViewer } from './ThreeSixtyViewer';
 
 interface VirtualTourProps {
   lang: Language;
@@ -28,7 +29,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-20">
+        <div className="text-center max-w-2xl mx-auto mb-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -36,8 +37,8 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             transition={{ duration: 0.6 }}
             className="inline-flex items-center gap-1.5 bg-white/10 text-brand-yellow text-xs font-black tracking-widest uppercase font-accent px-4.5 py-2 rounded-full mb-4"
           >
-            <Video size={14} className="stroke-[2.5]" />
-            Take a Look Inside
+            <Compass size={14} className="stroke-[2.5] animate-spin" style={{ animationDuration: '10s' }} />
+            Interactive 360° Experience
           </motion.div>
           
           <motion.h2 
@@ -50,6 +51,28 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             {t.title}
           </motion.h2>
           <div className="w-16 h-1.5 bg-brand-yellow mx-auto rounded-full mt-2"></div>
+        </div>
+
+        {/* Interactive 360° Virtual Tour Area */}
+        <div className="max-w-5xl mx-auto mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <ThreeSixtyViewer />
+          </motion.div>
+        </div>
+
+        {/* Traditional Media Gallery Divider Header */}
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h3 className="text-xl sm:text-2xl font-sans font-bold text-stone-200 mb-2">
+            Photo Gallery & Highlights
+          </h3>
+          <p className="text-stone-400 text-sm font-sans">
+            Take a look at some of our daycare spaces and happy moments
+          </p>
         </div>
 
         {/* Visual Collage */}
