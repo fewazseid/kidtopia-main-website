@@ -243,7 +243,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   // Camera angles high-performance refs (to avoid recreating Three.js scene during drag)
   const cameraLonRef = useRef(0);
   const cameraLatRef = useRef(0);
-  const cameraFovRef = useRef(75);
+  const cameraFovRef = useRef(100);
+  const targetFovRef = useRef(100);
 
   // Hotspots render positioning
   const [projectedHotspots, setProjectedHotspots] = useState<Array<{
@@ -279,7 +280,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   // Camera target orientation refs (for smooth pan interpolation)
   const targetLonRef = useRef(0);
   const targetLatRef = useRef(0);
-  const targetFovRef = useRef(75);
 
   // Three.js References
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -452,47 +452,57 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   useEffect(() => {
     if (!useGyroscope) return;
 
-    let initialAlpha: number | null = null;
-    let initialLon = targetLonRef.current;
+    let lastAlpha: number | null = null;
+    let lastBeta: number | null = null;
+    let lastGamma: number | null = null;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
       const { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
 
-      // Handle initial offset for longitude so it doesn't jump on start
-      if (initialAlpha === null) {
-        initialAlpha = alpha;
-        initialLon = targetLonRef.current;
+      // Handle initial state
+      if (lastAlpha === null || lastBeta === null || lastGamma === null) {
+        lastAlpha = alpha;
+        lastBeta = beta;
+        lastGamma = gamma;
+        return;
       }
 
       const orient = (typeof window !== 'undefined' && window.screen?.orientation)
         ? (window.screen.orientation.angle) 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
 
-      let lon = initialLon;
-      let lat = 0;
+      // Shortest path delta for Alpha (Yaw/Longitude)
+      let deltaAlpha = alpha - lastAlpha;
+      if (deltaAlpha > 180) deltaAlpha -= 360;
+      if (deltaAlpha < -180) deltaAlpha += 360;
 
-      // Absolute 1:1 Mapping logic
-      // beta: -180 to 180 (tilt front-to-back)
-      // gamma: -90 to 90 (tilt left-to-right)
-      // alpha: 0 to 360 (compass rotation)
+      // Smoothing factor (Lerp) to prevent "flickering" or noise
+      const smoothFactor = 0.85; // Higher = more smoothed but slightly more lag
 
       if (orient === 0) { // Portrait
-        lon = initialLon + (initialAlpha - alpha);
-        lat = beta - 75; // Adjust 75 degrees for a comfortable viewing angle when holding phone
+        targetLonRef.current -= deltaAlpha * smoothFactor;
+        // For Beta (Latitude), we can use absolute or relative. 
+        // Relative is often safer for sensor drift.
+        const deltaBeta = beta - lastBeta;
+        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaBeta * smoothFactor));
       } else if (orient === 90) { // Landscape Left
-        lon = initialLon + (initialAlpha - alpha);
-        lat = -gamma;
+        targetLonRef.current -= deltaAlpha * smoothFactor;
+        const deltaGamma = gamma - lastGamma;
+        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaGamma * smoothFactor));
       } else if (orient === -90) { // Landscape Right
-        lon = initialLon + (initialAlpha - alpha);
-        lat = gamma;
+        targetLonRef.current -= deltaAlpha * smoothFactor;
+        const deltaGamma = gamma - lastGamma;
+        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaGamma * smoothFactor));
       } else {
-        lon = initialLon + (initialAlpha - alpha);
-        lat = -beta + 75;
+        targetLonRef.current -= deltaAlpha * smoothFactor;
+        const deltaBeta = beta - lastBeta;
+        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaBeta * smoothFactor));
       }
 
-      targetLonRef.current = lon;
-      targetLatRef.current = Math.max(-85, Math.min(85, lat));
+      lastAlpha = alpha;
+      lastBeta = beta;
+      lastGamma = gamma;
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -574,7 +584,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         cameraLatRef.current = landingLat;
         
         cameraFovRef.current = 110; // Start extra wide
-        targetFovRef.current = 75;  // Lerp smoothly to normal 75 fov
+        targetFovRef.current = 100;  // Lerp smoothly to zoomed out state
       }, 400);
     } else {
       // Fallback transitional cross-fade if not preloaded
@@ -590,7 +600,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           cameraLatRef.current = landingLat;
           
           cameraFovRef.current = 110;
-          targetFovRef.current = 75;
+          targetFovRef.current = 100;
           
           setSceneLoading(false);
         }, 300);
@@ -881,6 +891,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       return s;
     });
 
+    setScenes(updated); // Immediate UI update
     await saveScenesConfig(updated);
   };
 
@@ -1052,7 +1063,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Start with a high FOV for "zoomed out" entry effect
     const initialFov = 100;
     cameraFovRef.current = initialFov;
-    targetFovRef.current = 75; // Lerp smoothly to 75
+    targetFovRef.current = initialFov; // Start zoomed out
 
     // Camera
     const camera = new THREE.PerspectiveCamera(initialFov, mountRef.current.clientWidth / mountRef.current.clientHeight, 1, 1100);
@@ -1283,6 +1294,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     isUserInteractingRef.current = false;
     setCameraLon(cameraLonRef.current);
     setCameraLat(cameraLatRef.current);
+
+    // Check for click (minimal movement)
+    const deltaX = Math.abs(e.clientX - onPointerDownPointerXRef.current);
+    const deltaY = Math.abs(e.clientY - onPointerDownPointerYRef.current);
+    if (deltaX < 5 && deltaY < 5) {
+      // It's a click on the canvas
+      if (activeInfoHotspot) {
+        setActiveInfoHotspot(null);
+      } else if (!editMode) {
+        // "expand first" - toggle fullscreen when clicking empty space
+        toggleFullscreen();
+      }
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -1410,14 +1434,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   {/* Glowing information beacon */}
                   <div className="relative flex items-center justify-center w-8 h-8">
                     <div className="absolute w-12 h-12 rounded-full bg-amber-400/20 animate-ping" />
-                    <div className="absolute w-8 h-8 rounded-full bg-white/40 backdrop-blur-md border border-white/40 shadow-lg" />
+                    <div className="absolute w-9 h-9 rounded-full bg-white/50 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(255,255,255,0.2)]" />
                     <div className="w-6 h-6 rounded-full bg-amber-500 border border-white flex items-center justify-center shadow-lg transition-transform duration-200 group-hover/btn:scale-125 z-10">
                       <span className="text-[11px] text-white font-serif font-black italic">i</span>
                     </div>
                   </div>
                   {/* Floating Description Label - glassy transparent */}
-                  <div className="mt-1.5 px-3 py-1 bg-white/40 backdrop-blur-xl border border-white/50 rounded-xl text-stone-800 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 transition-all duration-200">
-                    <HelpCircle className="w-3 h-3 text-amber-600 animate-bounce" />
+                  <div className="mt-2 px-3 py-1.5 bg-white/40 backdrop-blur-[24px] border border-white/50 rounded-xl text-stone-900 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-2xl flex items-center gap-1.5 opacity-90 group-hover/btn:opacity-100 transition-all duration-200">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                     <span>{hotspot.text}</span>
                   </div>
                 </button>
@@ -1434,8 +1458,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       className="w-12 h-12 border-2 border-white/80 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover/btn:scale-110"
                       style={{ 
                         transform: 'rotateX(55deg) scaleY(1.2)',
-                        backgroundColor: 'rgba(255,255,255,0.4)',
-                        backdropFilter: 'blur(4px)'
+                        backgroundColor: 'rgba(255,255,255,0.5)',
+                        backdropFilter: 'blur(12px)'
                       }}
                     >
                       <ArrowRight className="w-5 h-5 text-white -rotate-90 animate-bounce" style={{ animationDuration: '2s' }} />
@@ -1445,17 +1469,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       className="absolute w-16 h-16 rounded-full border animate-ping pointer-events-none"
                       style={{ 
                         transform: 'rotateX(55deg) scaleY(1.2)',
-                        borderColor: 'rgba(255,255,255,0.6)'
+                        borderColor: 'rgba(255,255,255,0.7)'
                       }}
                     />
                   </div>
 
                   {/* Text label with glassy transparent backdrop blur */}
                   <div 
-                    className="mt-1 px-3.5 py-1 bg-white/40 backdrop-blur-xl border border-white/50 rounded-full text-stone-800 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 transition-all duration-200"
+                    className="mt-1 px-4 py-1.5 bg-white/40 backdrop-blur-[24px] border border-white/50 rounded-full text-stone-900 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-2xl flex items-center gap-1.5 opacity-90 group-hover/btn:opacity-100 transition-all duration-200"
                   >
                     <span>{hotspot.text}</span>
-                    <ChevronRight className="w-3 h-3 text-stone-600" />
+                    <ChevronRight className="w-3.5 h-3.5 text-stone-700" />
                   </div>
                 </button>
               )}
@@ -1540,15 +1564,39 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
         )}
 
+        {/* YouTube-style Top Loading Progress Bar */}
+        <AnimatePresence>
+          {sceneLoading && (
+            <motion.div 
+              initial={{ width: "0%", opacity: 1 }}
+              animate={{ width: "95%", opacity: 1 }}
+              exit={{ width: "100%", opacity: 0 }}
+              transition={{ 
+                width: { duration: 2, ease: "easeOut" },
+                opacity: { duration: 0.3 }
+              }}
+              className="absolute top-0 left-0 h-1 bg-brand-orange z-[60] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            />
+          )}
+        </AnimatePresence>
+
         {/* Interactive Smooth Fade Transition Overlay */}
-        {sceneLoading && (
-          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-md z-50 flex items-center justify-center transition-all duration-300">
-            <div className="flex flex-col items-center">
-              <RefreshCw className="w-8 h-8 animate-spin text-brand-green mb-3" />
-              <p className="text-white text-xs font-sans tracking-widest uppercase">Stepping into room...</p>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {sceneLoading && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-stone-950/20 backdrop-blur-sm z-50 flex items-center justify-center pointer-events-none"
+            >
+              <div className="flex flex-col items-center">
+                <div className="px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
+                  <p className="text-white text-[10px] font-black tracking-[0.2em] uppercase opacity-80">Loading View</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Floating Top Title Bar - Replaced with Middle Compass & Onboarding guidelines */}
         <div className="absolute top-4 left-4 right-4 pointer-events-none flex justify-between items-start z-30">
@@ -1837,28 +1885,22 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         {/* Floating Info Hotspot Description Overlay */}
         {activeInfoHotspot && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm px-4 pointer-events-auto">
-            <div className="bg-white/80 backdrop-blur-2xl border border-white/50 p-6 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] animate-in zoom-in-95 duration-300">
+            <div className="bg-white/30 backdrop-blur-[40px] border border-white/60 p-6 rounded-[32px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] animate-in zoom-in-95 duration-300">
               <div className="flex justify-between items-start mb-4">
-                <h4 className="font-sans font-black text-stone-800 text-[11px] tracking-widest uppercase flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <h4 className="font-sans font-black text-stone-900 text-[11px] tracking-widest uppercase flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
                   {activeInfoHotspot.text}
                 </h4>
                 <button 
                   onClick={() => setActiveInfoHotspot(null)}
-                  className="p-1.5 hover:bg-black/5 rounded-full transition text-stone-400 hover:text-stone-800"
+                  className="p-1.5 bg-black/5 hover:bg-black/10 rounded-full transition text-stone-500 hover:text-stone-900"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-stone-600 text-xs leading-relaxed font-medium font-sans">
+              <p className="text-stone-700 text-xs leading-relaxed font-semibold font-sans">
                 {activeInfoHotspot.description || "Discover more details about this area of our modern nursery school."}
               </p>
-              <button
-                onClick={() => setActiveInfoHotspot(null)}
-                className="mt-6 w-full py-2.5 bg-stone-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-lg active:scale-95"
-              >
-                Close Details
-              </button>
             </div>
           </div>
         )}

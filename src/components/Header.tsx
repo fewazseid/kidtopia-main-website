@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
               <span className="ml-1.5 w-2 h-2 rounded-full bg-brand-orange animate-bounce"></span>
             </div>
             <span 
-              className="text-[10px] font-display font-bold tracking-widest uppercase mt-[-3px] hidden md:block opacity-80 group-hover:opacity-100 transition-opacity"
+              className="text-[10px] font-display font-bold tracking-widest uppercase mt-[-3px] hidden xl:block opacity-80 group-hover:opacity-100 transition-opacity"
               style={{ color: t.activeColor || '#3a5b32' }}
             >
               International Daycare & Preschool
@@ -86,7 +86,19 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-[clamp(0.5rem,1.2vw,1.75rem)]">
+          <nav 
+            className="hidden lg:flex items-center"
+            style={{ 
+              fontSize: '36px', 
+              fontWeight: 'bold', 
+              paddingLeft: '0px', 
+              paddingRight: '0px',
+              marginLeft: '-8px',
+              marginRight: '-12px',
+              width: '641.703px', 
+              height: '48.5px' 
+            }}
+          >
             {navItems.map((item, idx) => {
               const isActive = location.pathname === item.path;
               return (
@@ -97,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   {item.subItems ? (
                     <button 
                       onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
-                      className="text-[10px] xl:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50"
+                      className="font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
@@ -108,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   ) : (
                     <Link 
                       to={item.path} 
-                      className="text-[10px] xl:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50 relative"
+                      className="font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50 relative"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
