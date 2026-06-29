@@ -57,16 +57,16 @@ export function getLowResAndHighResUrls(url: string): { low: string; high: strin
   if (converted.includes('lh3.googleusercontent.com/d/')) {
     const cleanUrl = converted.split('=')[0];
     return {
-      low: `${cleanUrl}=w400`,
-      high: `${cleanUrl}=w2048`
+      low: `${cleanUrl}=w800`,
+      high: `${cleanUrl}=w4096`
     };
   }
   
   if (converted.includes('unsplash.com')) {
     const cleanUrl = converted.split('?')[0];
     return {
-      low: `${cleanUrl}?q=30&w=400`,
-      high: `${cleanUrl}?q=85&w=2048`
+      low: `${cleanUrl}?q=30&w=800`,
+      high: `${cleanUrl}?q=85&w=4096`
     };
   }
   
