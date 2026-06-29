@@ -842,8 +842,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         textureLoaderRef.current.load(
           loadUrl,
           (texture) => {
-            texture.minFilter = THREE.LinearFilter;
-            texture.generateMipmaps = false;
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.generateMipmaps = true;
+            texture.anisotropy = rendererRef.current?.capabilities.getMaxAnisotropy() || 1;
             textureCacheRef.current.set(scene.id, texture);
             console.log(`Successfully preloaded high-res background texture for: ${scene.id}`);
           },
@@ -909,8 +910,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           textureLoaderRef.current.load(
             urls.high,
             (highResTexture) => {
-              highResTexture.minFilter = THREE.LinearFilter;
-              highResTexture.generateMipmaps = false;
+              highResTexture.minFilter = THREE.LinearMipmapLinearFilter;
+              highResTexture.generateMipmaps = true;
+              highResTexture.anisotropy = rendererRef.current?.capabilities.getMaxAnisotropy() || 1;
               textureCacheRef.current.set(currentScene.id, highResTexture);
               
               if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
@@ -935,8 +937,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           textureLoaderRef.current.load(
             urls.high,
             (highResTexture) => {
-              highResTexture.minFilter = THREE.LinearFilter;
-              highResTexture.generateMipmaps = false;
+              highResTexture.minFilter = THREE.LinearMipmapLinearFilter;
+              highResTexture.generateMipmaps = true;
+              highResTexture.anisotropy = rendererRef.current?.capabilities.getMaxAnisotropy() || 1;
               textureCacheRef.current.set(currentScene.id, highResTexture);
               if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
                 sphereMaterialRef.current.map = highResTexture;
@@ -1122,8 +1125,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     };
   }, [loading]);
 
+  const touchPinchDistRef = useRef<number>(0);
+
   // Handle Drag & Swipe Events
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!e.isPrimary) return; // Only pan with the primary pointer
     isUserInteractingRef.current = true;
     onPointerDownPointerXRef.current = e.clientX;
     onPointerDownPointerYRef.current = e.clientY;
@@ -1132,7 +1138,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isUserInteractingRef.current) return;
+    if (!e.isPrimary || !isUserInteractingRef.current) return;
     
     // Calculate actual container dimensions dynamically
     const containerWidth = mountRef.current?.clientWidth || 1000;
@@ -1160,10 +1166,35 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     targetLatRef.current = Math.max(-85, Math.min(85, newLat));
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!e.isPrimary) return;
     isUserInteractingRef.current = false;
     setCameraLon(cameraLonRef.current);
     setCameraLat(cameraLatRef.current);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2) {
+      isUserInteractingRef.current = false; // Disable panning while zooming
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      touchPinchDistRef.current = Math.sqrt(dx * dx + dy * dy);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      const delta = touchPinchDistRef.current - dist;
+      touchPinchDistRef.current = dist;
+      
+      const newFov = Math.max(30, Math.min(100, targetFovRef.current + delta * 0.15));
+      targetFovRef.current = newFov;
+      setCameraFov(newFov);
+    }
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
@@ -1242,6 +1273,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerOut={handlePointerUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onWheel={handleWheel}
         />
 
@@ -1270,9 +1303,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       <span className="text-[11px] text-white font-serif font-black italic">i</span>
                     </div>
                   </div>
-                  {/* Floating Description Label - light glassmorphic */}
-                  <div className="mt-1.5 px-3 py-1 bg-white/75 dark:bg-stone-900/75 backdrop-blur-md border border-amber-500/50 rounded-xl text-amber-900 dark:text-amber-200 text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 group-hover/btn:border-amber-400 group-hover/btn:bg-white/95 dark:group-hover/btn:bg-stone-900/90 transition-all duration-200">
-                    <HelpCircle className="w-3 h-3 text-amber-500 animate-bounce" />
+                  {/* Floating Description Label - glassy transparent */}
+                  <div className="mt-1.5 px-3 py-1 bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 rounded-xl text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 transition-all duration-200">
+                    <HelpCircle className="w-3 h-3 text-white/90 animate-bounce" />
                     <span>{hotspot.text}</span>
                   </div>
                 </button>
@@ -1286,10 +1319,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   <div className="relative w-16 h-12 flex items-center justify-center" style={{ perspective: '120px' }}>
                     {/* Perspective flat circle */}
                     <div 
-                      className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover/btn:scale-110"
+                      className="w-12 h-12 border-2 border-white/80 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover/btn:scale-110"
                       style={{ 
                         transform: 'rotateX(55deg) scaleY(1.2)',
-                        backgroundColor: hotspot.color || '#10b981'
+                        backgroundColor: 'rgba(255,255,255,0.2)'
                       }}
                     >
                       <ArrowRight className="w-5 h-5 text-white -rotate-90 animate-bounce" style={{ animationDuration: '2s' }} />
@@ -1299,20 +1332,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       className="absolute w-16 h-16 rounded-full border animate-ping pointer-events-none"
                       style={{ 
                         transform: 'rotateX(55deg) scaleY(1.2)',
-                        borderColor: hotspot.color || '#10b981'
+                        borderColor: 'rgba(255,255,255,0.5)'
                       }}
                     />
                   </div>
 
-                  {/* Text label with custom light glassmorphic backdrop blur */}
+                  {/* Text label with glassy transparent backdrop blur */}
                   <div 
-                    className="mt-1 px-3.5 py-1 bg-white/75 dark:bg-stone-900/75 backdrop-blur-md border rounded-full text-stone-900 dark:text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 transition-all duration-200"
-                    style={{ 
-                      borderColor: hotspot.color ? `${hotspot.color}75` : 'rgba(255, 255, 255, 0.4)'
-                    }}
+                    className="mt-1 px-3.5 py-1 bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 rounded-full text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 transition-all duration-200"
                   >
                     <span>{hotspot.text}</span>
-                    <ChevronRight className="w-3 h-3 text-stone-500 dark:text-stone-400" />
+                    <ChevronRight className="w-3 h-3 text-white/70" />
                   </div>
                 </button>
               )}
@@ -1368,54 +1398,53 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           {/* Left space reserved (removed original informative section as requested) */}
           <div />
 
-          {/* CUSTOM ROTATING MIDDLE COMPASS (Top Center) */}
-          <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-0 pointer-events-none flex flex-col items-center gap-1.5">
-            {/* Compass Disk */}
-            <div className="bg-white/75 dark:bg-black/45 backdrop-blur-md border border-white/40 dark:border-white/10 p-2 rounded-full shadow-lg flex items-center justify-center pointer-events-auto relative w-16 h-16 sm:w-20 sm:h-20">
-              {/* Rotating compass dial */}
+          {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
+          <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-0 pointer-events-none flex flex-col items-center gap-1.5 w-64 sm:w-80">
+            {/* Horizontal sliding ruler */}
+            <div className="w-full h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
               <div 
-                className="absolute w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-transform duration-100 ease-out text-stone-800 dark:text-stone-200"
-                style={{ transform: `rotate(${-cameraLon}deg)` }}
+                className="absolute top-0 bottom-0 flex items-center transition-transform duration-100 ease-out"
+                style={{ 
+                  transform: `translateX(calc(50% - ${cameraLon * 2}px))`
+                }}
               >
-                {/* Outer compass ring */}
-                <div className="absolute inset-0 border border-stone-400/20 dark:border-white/10 rounded-full" />
-                
-                {/* Compass Direction Labels */}
-                <span className="absolute top-0.5 text-[8px] sm:text-[10px] font-bold text-red-600 dark:text-red-500">N</span>
-                <span className="absolute right-1 text-[8px] sm:text-[10px] font-bold">E</span>
-                <span className="absolute bottom-0.5 text-[8px] sm:text-[10px] font-bold">S</span>
-                <span className="absolute left-1 text-[8px] sm:text-[10px] font-bold">W</span>
-                
-                {/* Subtle Tick marks */}
-                <div className="absolute w-[1px] h-1 bg-stone-500/40 dark:bg-white/30 top-0 left-1/2 -translate-x-1/2" />
-                <div className="absolute w-[1px] h-1 bg-stone-500/40 dark:bg-white/30 bottom-0 left-1/2 -translate-x-1/2" />
-                <div className="absolute h-[1px] w-1 bg-stone-500/40 dark:bg-white/30 left-0 top-1/2 -translate-y-1/2" />
-                <div className="absolute h-[1px] w-1 bg-stone-500/40 dark:bg-white/30 right-0 top-1/2 -translate-y-1/2" />
+                {/* Render repeating ruler segments to cover all rotation overflow */}
+                {[-3, -2, -1, 0, 1, 2, 3].map((k) => (
+                  <div key={k} className="absolute top-0 bottom-0 flex items-center" style={{ left: `${k * 720}px`, width: '720px' }}>
+                    <div className="absolute left-[0px] top-[2px] text-[10px] text-brand-orange font-bold -translate-x-1/2 z-10">N</div>
+                    <div className="absolute left-[180px] top-[2px] text-[10px] text-white font-bold -translate-x-1/2 z-10">E</div>
+                    <div className="absolute left-[360px] top-[2px] text-[10px] text-white font-bold -translate-x-1/2 z-10">S</div>
+                    <div className="absolute left-[540px] top-[2px] text-[10px] text-white font-bold -translate-x-1/2 z-10">W</div>
+                    
+                    {/* Ticks every 15 degrees (30px) */}
+                    {Array.from({length: 24}).map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="absolute bottom-0 w-[1.5px] bg-white/40" 
+                        style={{ 
+                          left: `${i * 30}px`, 
+                          height: i % 6 === 0 ? '12px' : '6px', 
+                          transform: 'translateX(-50%)' 
+                        }} 
+                      />
+                    ))}
+                  </div>
+                ))}
               </div>
-              
-              {/* Fixed Central Needle pointing straight UP */}
-              <div className="w-1.5 h-6 sm:h-8 relative flex flex-col items-center justify-between pointer-events-none z-10">
-                <div className="w-0 h-0 border-l-[2.5px] border-l-transparent border-r-[2.5px] border-r-transparent border-b-[12px] sm:border-b-[16px] border-b-red-600" />
-                <div className="w-0 h-0 border-l-[2.5px] border-l-transparent border-r-[2.5px] border-r-transparent border-t-[12px] sm:border-t-[16px] border-t-stone-400 dark:border-t-stone-300" />
-              </div>
-              
-              {/* Center core core dot */}
-              <div className="absolute w-2 h-2 rounded-full bg-stone-950 dark:bg-white border border-white dark:border-stone-900 z-20" />
+              {/* Center Needle */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-brand-orange shadow-[0_0_8px_rgba(218,141,30,0.8)] -translate-x-1/2 z-20" />
             </div>
             
             {/* Room Title Tag - glassmorphic and elegant */}
-            <div className="bg-white/80 dark:bg-stone-950/70 backdrop-blur-md border border-white/40 dark:border-white/10 px-3.5 py-1 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
-              <h3 className="text-stone-900 dark:text-white font-sans text-[10px] sm:text-xs font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
+            <div className="bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 px-4 py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-white font-sans text-xs sm:text-sm font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap drop-shadow-md">
                 <span>{currentScene?.title}</span>
                 {currentScene?.isStart && (
-                  <span className="px-1.5 py-0.25 bg-brand-green/30 text-brand-green text-[7px] sm:text-[8px] uppercase tracking-wider rounded font-mono font-bold">
+                  <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[8px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
                     Entrance
                   </span>
                 )}
               </h3>
-              <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-stone-500 dark:text-stone-400 uppercase">
-                {getCompassHeading(cameraLon)}
-              </span>
             </div>
           </div>
 
@@ -1455,11 +1484,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
         {/* ONBOARDING CUSTOMER WALKTHROUGH GUIDE DIALOG OVERLAY */}
         {showGuide && (
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-2xl max-w-sm w-full animate-in zoom-in-95 duration-200 flex flex-col gap-3 pointer-events-auto">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white/20 dark:bg-black/30 backdrop-blur-2xl border border-white/30 rounded-2xl p-5 shadow-2xl max-w-sm w-full animate-in zoom-in-95 duration-200 flex flex-col gap-3 pointer-events-auto text-white">
               {/* Header */}
-              <div className="flex justify-between items-center pb-2 border-b border-stone-100 dark:border-stone-800">
-                <span className="px-2 py-0.5 bg-brand-green/10 text-brand-green text-[10px] font-sans font-bold uppercase tracking-wider rounded-md">
+              <div className="flex justify-between items-center pb-2 border-b border-white/20">
+                <span className="px-2 py-0.5 bg-brand-orange/80 text-white text-[10px] font-sans font-bold uppercase tracking-wider rounded-md">
                   Step {guideStep + 1} of {GUIDE_STEPS.length}
                 </span>
                 <button
@@ -1469,50 +1498,50 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       localStorage.setItem('kidtopia_tour_guide_shown', 'true');
                     } catch (e) {}
                   }}
-                  className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition"
+                  className="text-white/60 hover:text-white transition"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
               
               {/* Step info */}
-              <div className="flex flex-col gap-1.5">
-                <h4 className="font-sans font-black text-stone-900 dark:text-stone-100 text-sm tracking-wide">
+              <div className="flex flex-col gap-1.5 drop-shadow-md">
+                <h4 className="font-sans font-black text-white text-sm tracking-wide">
                   {GUIDE_STEPS[guideStep].title}
                 </h4>
-                <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed font-sans">
+                <p className="text-xs text-white/90 leading-relaxed font-sans">
                   {GUIDE_STEPS[guideStep].description}
                 </p>
               </div>
               
               {/* Visual Help Indicator */}
-              <div className="bg-stone-50 dark:bg-stone-950 p-3 rounded-xl border border-stone-100 dark:border-stone-800/80 flex items-center justify-center">
+              <div className="bg-black/20 p-3 rounded-xl border border-white/20 flex items-center justify-center backdrop-blur-md shadow-inner">
                 {guideStep === 0 && (
-                  <div className="flex items-center gap-2 text-[11px] text-brand-green font-semibold animate-pulse">
+                  <div className="flex items-center gap-2 text-[11px] text-brand-orange font-semibold animate-pulse">
                     <Move className="w-5 h-5" />
                     <span>Swipe / drag inside the photo screen!</span>
                   </div>
                 )}
                 {guideStep === 1 && (
-                  <div className="flex items-center gap-2 text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold animate-pulse">
+                  <div className="flex items-center gap-2 text-[11px] text-white font-semibold animate-pulse">
                     <ArrowRight className="w-5 h-5 -rotate-90 animate-bounce" />
                     <span>Click on floor arrows to walk into rooms!</span>
                   </div>
                 )}
                 {guideStep === 2 && (
-                  <div className="flex items-center gap-2 text-[11px] text-rose-500 font-semibold animate-pulse">
+                  <div className="flex items-center gap-2 text-[11px] text-white font-semibold animate-pulse">
                     <Compass className="w-5 h-5 animate-spin" style={{ animationDuration: '4s' }} />
                     <span>Look up at the center compass dial!</span>
                   </div>
                 )}
                 {guideStep === 3 && (
-                  <div className="flex items-center gap-2 text-[11px] text-amber-500 font-semibold animate-pulse">
+                  <div className="flex items-center gap-2 text-[11px] text-brand-orange font-semibold animate-pulse">
                     <RotateCcw className="w-5 h-5" />
                     <span>Use the controller D-pad to rotate or zoom!</span>
                   </div>
                 )}
                 {guideStep === 4 && (
-                  <div className="flex items-center gap-2 text-[11px] text-emerald-500 font-semibold animate-pulse">
+                  <div className="flex items-center gap-2 text-[11px] text-white font-semibold animate-pulse">
                     <Eye className="w-5 h-5" />
                     <span>Use bottom thumbnails for quick jump!</span>
                   </div>
@@ -1520,7 +1549,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </div>
               
               {/* Action controls */}
-              <div className="flex justify-between items-center mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+              <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/20">
                 <button
                   type="button"
                   onClick={() => {
@@ -1529,7 +1558,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       localStorage.setItem('kidtopia_tour_guide_shown', 'true');
                     } catch (e) {}
                   }}
-                  className="px-3 py-1.5 text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition font-sans font-semibold"
+                  className="px-3 py-1.5 text-xs text-white/70 hover:text-white transition font-sans font-semibold"
                 >
                   Skip Guide
                 </button>
@@ -1539,7 +1568,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     <button
                       type="button"
                       onClick={() => setGuideStep(prev => prev - 1)}
-                      className="px-3 py-1.5 border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg text-xs font-sans font-semibold transition"
+                      className="px-3 py-1.5 border border-white/30 hover:bg-white/10 text-white rounded-lg text-xs font-sans font-semibold transition"
                     >
                       Back
                     </button>
@@ -1557,7 +1586,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                         } catch (e) {}
                       }
                     }}
-                    className="px-4 py-1.5 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg text-xs font-sans font-bold shadow-md transition"
+                    className="px-4 py-1.5 bg-brand-orange hover:bg-brand-orange/90 text-white rounded-lg text-xs font-sans font-bold shadow-md transition border border-white/20"
                   >
                     {guideStep === GUIDE_STEPS.length - 1 ? "Start Exploring!" : "Next"}
                   </button>
@@ -1663,9 +1692,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
  
           {/* PlayStation Controller Cross D-pad Console - Glassmorphic Transparent Overlay */}
-          <div className="flex flex-col items-center gap-3 pointer-events-auto">
+          <div className="flex flex-col items-center gap-3 pointer-events-auto z-30">
             {/* Circular D-pad body - styled to be glassmorphic and transparent */}
-            <div className="relative w-40 h-40 bg-black/25 backdrop-blur-md rounded-full border border-white/20 shadow-2xl flex items-center justify-center select-none">
+            <div className="hidden sm:flex relative w-40 h-40 bg-black/25 backdrop-blur-md rounded-full border border-white/20 shadow-2xl items-center justify-center select-none">
               {/* UP button */}
               <button
                 onClick={() => handleKeyDown('up')}
@@ -1705,11 +1734,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {/* Central CORE button (Reset View) */}
               <button
                 onClick={() => {
-                  targetLonRef.current = 0;
-                  targetLatRef.current = 0;
+                  const sLon = currentScene?.startLon ?? 0;
+                  const sLat = currentScene?.startLat ?? 0;
+                  targetLonRef.current = sLon;
+                  targetLatRef.current = sLat;
                   targetFovRef.current = 75;
-                  setCameraLon(0);
-                  setCameraLat(0);
+                  setCameraLon(sLon);
+                  setCameraLat(sLat);
                   setCameraFov(75);
                 }}
                 className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 active:bg-brand-green/40 border border-white/20 flex items-center justify-center transition-all text-white/85 hover:text-brand-green"
