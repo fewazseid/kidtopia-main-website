@@ -53,7 +53,7 @@ const DEFAULT_SCENES: Scene[] = [
   {
     id: 'classroom',
     title: 'Toddler Playroom & Learning Area',
-    imageUrl: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?q=80&w=2000&auto=format&fit=crop', // Note: high-quality image that can be warped or used as panoramic placeholder
+    imageUrl: 'https://pannellum.org/images/cerebra.jpg',
     isStart: false,
     hotspots: [
       {
@@ -221,10 +221,31 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     try {
       const configDoc = await getDoc(doc(db, 'settings', 'virtual_tour_360'));
       if (configDoc.exists() && configDoc.data()?.scenes) {
-        const loadedScenes = configDoc.data().scenes as Scene[];
+        let loadedScenes = configDoc.data().scenes as Scene[];
+        let mutated = false;
+        
+        // Auto-migrate flat Unsplash images to proper equirectangular room panorama with CORS support
+        loadedScenes = loadedScenes.map(s => {
+          if (s.imageUrl && s.imageUrl.includes('unsplash.com')) {
+            mutated = true;
+            return {
+              ...s,
+              imageUrl: 'https://pannellum.org/images/cerebra.jpg'
+            };
+          }
+          return s;
+        });
+
         setScenes(loadedScenes);
         const start = loadedScenes.find(s => s.isStart) || loadedScenes[0];
         setCurrentScene(start || null);
+
+        // Save migrated configuration back to firestore silently if changed
+        if (mutated) {
+          setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: loadedScenes }).catch(e => {
+            console.warn('Silently failed to save auto-migrated 360 scene config:', e);
+          });
+        }
       } else {
         // Fallback to default
         setScenes(DEFAULT_SCENES);
@@ -270,20 +291,35 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   };
 
   // Switch Room with transition
-  const handleSwitchRoom = (sceneId: string) => {
+  const handleSwitchRoom = (sceneId: string, hotspot?: Hotspot) => {
     const targetScene = scenes.find(s => s.id === sceneId);
     if (!targetScene) return;
 
-    setSceneLoading(true);
-    // Smooth transition: fade to black for 300ms, then switch
+    // Stage 1: Fast fly-forward/zoom transition in 3D Space
+    targetFovRef.current = 20; // Zoom in extremely close to look like flying forward
+    if (hotspot) {
+      targetLonRef.current = hotspot.yaw;
+      targetLatRef.current = hotspot.pitch;
+    }
+
+    // After the zoom animation has progressed, show the smooth transitional cross-fade
     setTimeout(() => {
-      setCurrentScene(targetScene);
-      // Reset viewing angles to start orientation
-      setCameraLon(0);
-      setCameraLat(0);
-      setCameraFov(75);
-      setSceneLoading(false);
-    }, 400);
+      setSceneLoading(true);
+      
+      setTimeout(() => {
+        setCurrentScene(targetScene);
+        // Reset view angles for the new scene, but start with an elegant cinematic wide-angle zoom back to 75
+        targetLonRef.current = 0;
+        targetLatRef.current = 0;
+        cameraLonRef.current = 0;
+        cameraLatRef.current = 0;
+        
+        cameraFovRef.current = 110; // Start extra wide
+        targetFovRef.current = 75;  // Lerp smoothly to normal 75 fov
+        
+        setSceneLoading(false);
+      }, 350);
+    }, 250);
   };
 
   // Image Upload handler for creating rooms
@@ -497,8 +533,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     // Load texture with anonymous crossOrigin
     textureLoaderRef.current.setCrossOrigin('anonymous');
+    
+    // Add cache-busting parameter to prevent CORS cache-collision errors
+    const loadUrl = currentScene.imageUrl.startsWith('http')
+      ? currentScene.imageUrl + (currentScene.imageUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
+      : currentScene.imageUrl;
+
     const texture = textureLoaderRef.current.load(
-      currentScene.imageUrl,
+      loadUrl,
       (loadedTexture) => {
         sphereMaterial.map = loadedTexture;
         sphereMaterial.needsUpdate = true;
@@ -656,8 +698,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isUserInteractingRef.current) return;
     
-    // Control speed modifier
-    const panSpeed = cameraFovRef.current / 350;
+    // Control speed modifier - significantly increased for responsive, fast panning
+    const panSpeed = cameraFovRef.current / 120;
     
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
@@ -694,7 +736,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
     if (isUserInteractingRef.current && e.touches.length === 1) {
-      const panSpeed = cameraFovRef.current / 300;
+      // Control speed modifier - significantly increased for responsive, fast touch gestures
+      const panSpeed = cameraFovRef.current / 100;
       const deltaX = e.touches[0].clientX - onPointerDownPointerXRef.current;
       const deltaY = e.touches[0].clientY - onPointerDownPointerYRef.current;
 
@@ -711,7 +754,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const step = 20; // responsive step
     if (direction === 'left') targetLonRef.current -= step;
     if (direction === 'right') targetLonRef.current += step;
-    if (direction === 'up') targetLonRef.current = Math.min(85, targetLatRef.current + step);
+    if (direction === 'up') targetLatRef.current = Math.min(85, targetLatRef.current + step);
     if (direction === 'down') targetLatRef.current = Math.max(-85, targetLatRef.current - step);
     if (direction === 'zoomIn') {
       targetFovRef.current = Math.max(30, targetFovRef.current - 12);
@@ -816,7 +859,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               ) : (
                 /* Google Earth / Street View style perspective floor arrow link hotspot */
                 <button
-                  onClick={() => handleSwitchRoom(hotspot.targetSceneId)}
+                  onClick={() => handleSwitchRoom(hotspot.targetSceneId, hotspot)}
                   className="flex flex-col items-center focus:outline-none group/btn"
                 >
                   {/* Perspective ground chevron indicator */}
