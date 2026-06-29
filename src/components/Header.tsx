@@ -91,74 +91,65 @@ export const Header = ({ onScrollTo, lang, setLang }: HeaderProps) => {
           </Link>
 
           {/* Desktop Nav */}
-          <nav 
-            className="hidden lg:flex items-center justify-center flex-1 px-4"
-            style={{ fontWeight: 'bold' }}
-          >
-            <div className="flex items-center gap-0.5 xl:gap-[clamp(0.5rem,1.2vw,1.75rem)]">
-              {navItems.map((item, idx) => {
-                const isActive = location.pathname === item.path;
-                return (
-                  <div key={idx} className="relative group dropdown-container">
-                    {item.subItems ? (
-                      <div className="relative">
-                        <button 
-                          onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
-                          className="text-[12px] xl:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1.5 px-2 xl:px-3 rounded-xl hover:bg-white/50"
-                          style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
-                        >
-                          {item.label}
-                          <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        {activeDropdown === idx && (
-                          <div className="absolute top-full left-0 mt-2.5 w-56 bg-white/90 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/60 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                            {item.subItems.map((sub, sIdx) => (
-                              <Link
-                                key={sIdx}
-                                to={sub.path}
-                                className="block px-5 py-2.5 text-sm font-semibold transition-all hover:bg-brand-cream/80"
-                                style={{ color: t.textColor || '#44403c' }}
-                                onClick={() => {
-                                  setActiveDropdown(null);
-                                  if (sub.path.includes('#')) {
-                                    const id = sub.path.split('#')[1];
-                                    onScrollTo(id);
-                                  }
-                                }}
-                              >
-                                {sub.label}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <Link 
-                        to={item.path} 
-                        className="text-[12px] xl:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all whitespace-nowrap py-1.5 px-2 xl:px-3 rounded-xl hover:bg-white/50 relative"
+          <nav className="hidden md:flex items-center gap-0.5 xl:gap-2 px-1">
+            {navItems.map((item, idx) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <div key={idx} className="relative group dropdown-container">
+                  {item.subItems ? (
+                    <div className="relative">
+                      <button 
+                        onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
+                        className="text-[10px] xl:text-[13px] font-bold tracking-tight font-display transition-all flex items-center gap-0.5 whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50"
                         style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                       >
                         {item.label}
-                        {isActive && (
-                          <motion.span 
-                            layoutId="activeNavBubble" 
-                            className="absolute -bottom-1 left-4 right-4 h-0.5 rounded-full"
-                            style={{ backgroundColor: t.activeColor || '#3a5b32' }}
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                          />
-                        )}
-                      </Link>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                        <svg className={`w-2.5 h-2.5 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {activeDropdown === idx && (
+                        <div className="absolute top-full left-0 mt-2 w-44 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/60 overflow-hidden py-1.5">
+                          {item.subItems.map((sub, sIdx) => (
+                            <Link
+                              key={sIdx}
+                              to={sub.path}
+                              className="block px-4 py-2 text-[11px] font-semibold transition-all hover:bg-brand-cream/80"
+                              style={{ color: t.textColor || '#44403c' }}
+                              onClick={() => {
+                                setActiveDropdown(null);
+                                if (sub.path.includes('#')) onScrollTo(sub.path.split('#')[1]);
+                              }}
+                            >
+                              {sub.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Link 
+                      to={item.path} 
+                      className="text-[10px] xl:text-[13px] font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50 relative"
+                      style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
+                    >
+                      {item.label}
+                      {isActive && (
+                        <motion.span 
+                          layoutId="activeNavBubble" 
+                          className="absolute -bottom-1 left-2 right-2 h-0.5 rounded-full"
+                          style={{ backgroundColor: t.activeColor || '#3a5b32' }}
+                        />
+                      )}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
           </nav>
 
           {/* Right Actions */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-4 shrink-0">
+          <div className="hidden md:flex items-center gap-1.5 xl:gap-4 shrink-0">
             <button 
               onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
               className="text-[10px] xl:text-xs font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2 xl:px-3.5 py-1.5 xl:py-2 rounded-xl shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5"
@@ -178,7 +169,7 @@ export const Header = ({ onScrollTo, lang, setLang }: HeaderProps) => {
 
           {/* Mobile Menu Toggle */}
           <button 
-            className="lg:hidden p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors" 
+            className="md:hidden p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors" 
             style={{ color: t.textColor || '#44403c' }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
@@ -194,7 +185,7 @@ export const Header = ({ onScrollTo, lang, setLang }: HeaderProps) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:hidden mt-3 mx-auto max-w-7xl bg-white/95 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden"
+              className="md:hidden mt-3 mx-auto max-w-7xl bg-white/95 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden"
               style={{ backgroundColor: t.backgroundColor || '#ffffff' }}
             >
               <div className="px-6 py-6 flex flex-col max-h-[85vh]">

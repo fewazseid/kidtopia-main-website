@@ -478,8 +478,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       if (deltaAlpha < -180) deltaAlpha += 360;
 
       // Smoothing factor (Lerp) to prevent "flickering" or noise
-      const smoothFactor = 0.6; // Slightly more smoothing
-      const noiseThreshold = 0.05; // Ignore tiny movements that cause "flickering"
+      const smoothFactor = 0.4; // More aggressive smoothing
+      const noiseThreshold = 0.2; // Higher threshold to ignore tiny movements causing "flickering"
 
       if (Math.abs(deltaAlpha) > noiseThreshold) {
         targetLonRef.current -= deltaAlpha * smoothFactor;
