@@ -223,6 +223,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [editMode, setEditMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isRoomsMenuOpen, setIsRoomsMenuOpen] = useState(false);
+  const [deletingHotspotId, setDeletingHotspotId] = useState<string | null>(null);
   
   // Onboarding walkthrough guide states
   const [showGuide, setShowGuide] = useState(() => {
@@ -447,51 +448,55 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     }
   };
 
-  // Manage Gyroscope / Device Motion Sensor (1:1 Movement Mapping)
+  // Manage Gyroscope / Device Orientation (1:1 Movement Mapping)
   useEffect(() => {
     if (!useGyroscope) return;
 
-    const handleMotion = (e: DeviceMotionEvent) => {
-      if (!e.rotationRate) return;
-      
-      const { alpha, beta, gamma } = e.rotationRate;
+    let initialAlpha: number | null = null;
+    let initialLon = targetLonRef.current;
+
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      const { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
-      
+
+      // Handle initial offset for longitude so it doesn't jump on start
+      if (initialAlpha === null) {
+        initialAlpha = alpha;
+        initialLon = targetLonRef.current;
+      }
+
       const orient = (typeof window !== 'undefined' && window.screen?.orientation)
         ? (window.screen.orientation.angle) 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
 
-      let lonRate = 0;
-      let latRate = 0;
+      let lon = initialLon;
+      let lat = 0;
 
-      // Correct 1:1 Relative Mapping
-      // Portrait (0): Up/Down tilt (beta) -> Latitude, Left/Right turn (gamma) -> Longitude
-      if (orient === 0) {
-        lonRate = -gamma; 
-        latRate = -beta;  
-      } else if (orient === 90) {
-        lonRate = -beta;
-        latRate = gamma;
-      } else if (orient === -90) {
-        lonRate = beta;
-        latRate = -gamma;
+      // Absolute 1:1 Mapping logic
+      // beta: -180 to 180 (tilt front-to-back)
+      // gamma: -90 to 90 (tilt left-to-right)
+      // alpha: 0 to 360 (compass rotation)
+
+      if (orient === 0) { // Portrait
+        lon = initialLon + (initialAlpha - alpha);
+        lat = beta - 75; // Adjust 75 degrees for a comfortable viewing angle when holding phone
+      } else if (orient === 90) { // Landscape Left
+        lon = initialLon + (initialAlpha - alpha);
+        lat = -gamma;
+      } else if (orient === -90) { // Landscape Right
+        lon = initialLon + (initialAlpha - alpha);
+        lat = gamma;
       } else {
-        lonRate = gamma;
-        latRate = beta;
+        lon = initialLon + (initialAlpha - alpha);
+        lat = -beta + 75;
       }
 
-      // 1:1 Mapping: rotationRate is deg/s. dt is sec/frame
-      // Integrating this gives exact degrees turned.
-      const now = performance.now();
-      const dt = lastMotionTimeRef.current ? (now - lastMotionTimeRef.current) / 1000 : 0.016;
-      lastMotionTimeRef.current = now;
-      
-      targetLonRef.current += lonRate * dt; 
-      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (latRate * dt)));
+      targetLonRef.current = lon;
+      targetLatRef.current = Math.max(-85, Math.min(85, lat));
     };
 
-    window.addEventListener('devicemotion', handleMotion);
-    return () => window.removeEventListener('devicemotion', handleMotion);
+    window.addEventListener('deviceorientation', handleOrientation);
+    return () => window.removeEventListener('deviceorientation', handleOrientation);
   }, [useGyroscope]);
 
   // Request Device Orientation permission
@@ -504,11 +509,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     if (
       typeof window !== 'undefined' &&
-      typeof (window as any).DeviceMotionEvent !== 'undefined' &&
-      typeof (window as any).DeviceMotionEvent.requestPermission === 'function'
+      typeof (window as any).DeviceOrientationEvent !== 'undefined' &&
+      typeof (window as any).DeviceOrientationEvent.requestPermission === 'function'
     ) {
       try {
-        const permissionState = await (window as any).DeviceMotionEvent.requestPermission();
+        const permissionState = await (window as any).DeviceOrientationEvent.requestPermission();
         if (permissionState === 'granted') {
           setUseGyroscope(true);
           useGyroscopeRef.current = true;
@@ -865,9 +870,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   // Delete Hotspot
   const handleDeleteHotspot = async (hotspotId: string) => {
     if (!currentScene) return;
-    if (!confirm('Are you sure you want to delete this navigation hotspot?')) {
-      return;
-    }
 
     const updated = scenes.map(s => {
       if (s.id === currentScene.id) {
@@ -1105,7 +1107,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         sphereMaterial.needsUpdate = true;
         
         // Force a render
-        renderer.render(scene, camera);
+        if (sceneRef.current) {
+          renderer.render(sceneRef.current, camera);
+        }
       }, undefined, (err) => {
         console.warn(`Failed to load initial high-res texture for ${scene.id}:`, err);
       });
@@ -1394,26 +1398,26 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           return (
             <div
               key={hotspot.id}
-              className="absolute -translate-x-1/2 -translate-y-1/2 group z-20 flex flex-col items-center pointer-events-auto select-none"
+              className="absolute -translate-x-1/2 -translate-y-1/2 group z-40 flex flex-col items-center pointer-events-auto select-none"
               style={{ left: `${x}px`, top: `${y}px` }}
             >
               {isInfo ? (
-                /* Information description area hotspot - styled to be light glassmorphic */
+                /* Information description area hotspot - styled to be premium glassmorphic */
                 <button
                   onClick={() => setActiveInfoHotspot(hotspot)}
                   className="flex flex-col items-center focus:outline-none group/btn"
                 >
                   {/* Glowing information beacon */}
                   <div className="relative flex items-center justify-center w-8 h-8">
-                    <div className="absolute w-10 h-10 rounded-full bg-amber-500/30 animate-ping" />
-                    <div className="absolute w-7 h-7 rounded-full bg-amber-500/40 blur-xs animate-pulse" />
-                    <div className="w-6 h-6 rounded-full bg-amber-500 border border-white flex items-center justify-center shadow-lg transition-transform duration-200 group-hover/btn:scale-125">
+                    <div className="absolute w-12 h-12 rounded-full bg-amber-400/20 animate-ping" />
+                    <div className="absolute w-8 h-8 rounded-full bg-white/40 backdrop-blur-md border border-white/40 shadow-lg" />
+                    <div className="w-6 h-6 rounded-full bg-amber-500 border border-white flex items-center justify-center shadow-lg transition-transform duration-200 group-hover/btn:scale-125 z-10">
                       <span className="text-[11px] text-white font-serif font-black italic">i</span>
                     </div>
                   </div>
                   {/* Floating Description Label - glassy transparent */}
-                  <div className="mt-1.5 px-3 py-1 bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 rounded-xl text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 transition-all duration-200">
-                    <HelpCircle className="w-3 h-3 text-white/90 animate-bounce" />
+                  <div className="mt-1.5 px-3 py-1 bg-white/40 backdrop-blur-xl border border-white/50 rounded-xl text-stone-800 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 transition-all duration-200">
+                    <HelpCircle className="w-3 h-3 text-amber-600 animate-bounce" />
                     <span>{hotspot.text}</span>
                   </div>
                 </button>
@@ -1430,7 +1434,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       className="w-12 h-12 border-2 border-white/80 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover/btn:scale-110"
                       style={{ 
                         transform: 'rotateX(55deg) scaleY(1.2)',
-                        backgroundColor: 'rgba(255,255,255,0.2)'
+                        backgroundColor: 'rgba(255,255,255,0.4)',
+                        backdropFilter: 'blur(4px)'
                       }}
                     >
                       <ArrowRight className="w-5 h-5 text-white -rotate-90 animate-bounce" style={{ animationDuration: '2s' }} />
@@ -1440,44 +1445,77 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       className="absolute w-16 h-16 rounded-full border animate-ping pointer-events-none"
                       style={{ 
                         transform: 'rotateX(55deg) scaleY(1.2)',
-                        borderColor: 'rgba(255,255,255,0.5)'
+                        borderColor: 'rgba(255,255,255,0.6)'
                       }}
                     />
                   </div>
 
                   {/* Text label with glassy transparent backdrop blur */}
                   <div 
-                    className="mt-1 px-3.5 py-1 bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 rounded-full text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 transition-all duration-200"
+                    className="mt-1 px-3.5 py-1 bg-white/40 backdrop-blur-xl border border-white/50 rounded-full text-stone-800 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 transition-all duration-200"
                   >
                     <span>{hotspot.text}</span>
-                    <ChevronRight className="w-3 h-3 text-white/70" />
+                    <ChevronRight className="w-3 h-3 text-stone-600" />
                   </div>
                 </button>
               )}
 
               {/* Admin Hotspot Actions */}
               {editMode && (
-                <div className="mt-2 flex gap-1 z-30">
+                <div className="mt-2 flex gap-1 z-50">
                   <button
+                    type="button"
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       openEditHotspotModal(hotspot);
                     }}
-                    className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-[10px] text-white font-sans font-medium rounded-full shadow flex items-center gap-1 transition"
+                    className="px-2.5 py-1 bg-stone-800/90 backdrop-blur-md hover:bg-black text-[9px] text-white font-sans font-bold rounded-lg shadow-lg flex items-center gap-1 transition-all active:scale-95 border border-white/10"
                   >
                     <Settings className="w-2.5 h-2.5" />
                     <span>Edit</span>
                   </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteHotspot(hotspot.id);
-                    }}
-                    className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-[10px] text-white font-sans font-medium rounded-full shadow flex items-center gap-1 transition"
-                  >
-                    <Trash2 className="w-2.5 h-2.5" />
-                    <span>Delete</span>
-                  </button>
+                  
+                  {deletingHotspotId === hotspot.id ? (
+                    <div className="flex gap-1 animate-in slide-in-from-right-2 duration-200">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteHotspot(hotspot.id);
+                          setDeletingHotspotId(null);
+                        }}
+                        className="px-2.5 py-1 bg-red-600 text-[9px] text-white font-sans font-bold rounded-lg shadow-lg flex items-center gap-1 transition-all active:scale-95 border border-white/10"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setDeletingHotspotId(null);
+                        }}
+                        className="px-2.5 py-1 bg-stone-500 text-[9px] text-white font-sans font-bold rounded-lg shadow-lg transition-all active:scale-95 border border-white/10"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDeletingHotspotId(hotspot.id);
+                      }}
+                      className="px-2.5 py-1 bg-red-600/90 backdrop-blur-md hover:bg-red-700 text-[9px] text-white font-sans font-bold rounded-lg shadow-lg flex items-center gap-1 transition-all active:scale-95 border border-white/10"
+                    >
+                      <Trash2 className="w-2.5 h-2.5" />
+                      <span>Delete</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -1799,22 +1837,28 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         {/* Floating Info Hotspot Description Overlay */}
         {activeInfoHotspot && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm px-4 pointer-events-auto">
-            <div className="bg-stone-950/95 backdrop-blur-md border border-amber-500/45 p-5 rounded-2xl shadow-2xl animate-in zoom-in duration-300">
-              <div className="flex justify-between items-start mb-2.5">
-                <h4 className="font-sans font-black text-amber-400 text-xs tracking-wider uppercase flex items-center gap-1.5">
-                  <HelpCircle className="w-4 h-4 text-amber-500 animate-pulse" />
+            <div className="bg-white/80 backdrop-blur-2xl border border-white/50 p-6 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] animate-in zoom-in-95 duration-300">
+              <div className="flex justify-between items-start mb-4">
+                <h4 className="font-sans font-black text-stone-800 text-[11px] tracking-widest uppercase flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                   {activeInfoHotspot.text}
                 </h4>
                 <button 
                   onClick={() => setActiveInfoHotspot(null)}
-                  className="p-1 hover:bg-white/10 rounded-full transition text-stone-400 hover:text-white"
+                  className="p-1.5 hover:bg-black/5 rounded-full transition text-stone-400 hover:text-stone-800"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-stone-300 text-xs leading-relaxed font-sans">
+              <p className="text-stone-600 text-xs leading-relaxed font-medium font-sans">
                 {activeInfoHotspot.description || "Discover more details about this area of our modern nursery school."}
               </p>
+              <button
+                onClick={() => setActiveInfoHotspot(null)}
+                className="mt-6 w-full py-2.5 bg-stone-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-lg active:scale-95"
+              >
+                Close Details
+              </button>
             </div>
           </div>
         )}

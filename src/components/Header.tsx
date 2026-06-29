@@ -86,7 +86,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-[clamp(0.5rem,1.2vw,1.75rem)]">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-[clamp(0.5rem,1.2vw,1.75rem)]">
             {navItems.map((item, idx) => {
               const isActive = location.pathname === item.path;
               return (
@@ -97,25 +97,25 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   {item.subItems ? (
                     <button 
                       onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
-                      className="text-[11px] lg:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1.5 px-2 lg:px-3 rounded-xl hover:bg-white/50"
+                      className="text-[10px] xl:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
-                      <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className={`w-3 h-3 xl:w-3.5 xl:h-3.5 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                   ) : (
                     <Link 
                       to={item.path} 
-                      className="text-[11px] lg:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all whitespace-nowrap py-1.5 px-2 lg:px-3 rounded-xl hover:bg-white/50 relative"
+                      className="text-[10px] xl:text-[clamp(12px,1.1vw,14px)] font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50 relative"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
                       {isActive && (
                         <motion.span 
                           layoutId="activeNavBubble" 
-                          className="absolute -bottom-1 left-4 right-4 h-0.5 rounded-full"
+                          className="absolute -bottom-1 left-2 right-2 xl:left-4 xl:right-4 h-0.5 rounded-full"
                           style={{ backgroundColor: t.activeColor || '#3a5b32' }}
                           transition={{ type: "spring", stiffness: 380, damping: 30 }}
                         />
@@ -150,19 +150,18 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           </nav>
 
           {/* Right Actions */}
-          <div className="hidden md:flex items-center gap-2 lg:gap-4">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-4">
             <button 
               onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
-              className="text-[10px] lg:text-xs font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2 lg:px-3.5 py-1.5 lg:py-2 rounded-xl shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5"
+              className="text-[10px] xl:text-xs font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2 xl:px-3.5 py-1.5 xl:py-2 rounded-xl shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5"
               style={{ color: t.textColor || '#44403c' }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-ping"></span>
-              <span className="hidden lg:inline">{lang === 'en' ? 'አማርኛ' : 'English'}</span>
-              <span className="lg:hidden">{lang === 'en' ? 'AM' : 'EN'}</span>
+              <span>{lang === 'en' ? 'አማርኛ' : 'English'}</span>
             </button>
             <Link 
               to="/login" 
-              className="text-white font-bold font-display rounded-full px-4 lg:px-6 py-1.5 lg:py-2.5 text-[10px] lg:text-xs shadow-[0_4px_15px_rgba(58,91,50,0.2)] hover:shadow-[0_8px_25px_rgba(58,91,50,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
+              className="text-white font-bold font-display rounded-full px-4 xl:px-6 py-1.5 xl:py-2.5 text-[10px] xl:text-xs shadow-[0_4px_15px_rgba(58,91,50,0.2)] hover:shadow-[0_8px_25px_rgba(58,91,50,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
               style={{ backgroundColor: t.activeColor || '#3a5b32' }}
             >
               {t.login}
@@ -171,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
 
           {/* Mobile Menu Toggle */}
           <button 
-            className="md:hidden p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors" 
+            className="lg:hidden p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors" 
             style={{ color: t.textColor || '#44403c' }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
@@ -188,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden mt-3 mx-auto max-w-7xl bg-white/95 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden"
+            className="lg:hidden mt-3 mx-auto max-w-7xl bg-white/95 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden"
             style={{ backgroundColor: t.backgroundColor || '#ffffff' }}
           >
             <div className="px-6 py-6 flex flex-col max-h-[85vh]">
