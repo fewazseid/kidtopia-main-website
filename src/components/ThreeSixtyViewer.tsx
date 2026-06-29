@@ -26,6 +26,8 @@ export interface Scene {
   imageUrl: string;
   isStart: boolean;
   hotspots: Hotspot[];
+  startLon?: number;  // Optional custom starting camera longitude angle
+  startLat?: number;  // Optional custom starting camera latitude angle
 }
 
 export function convertGoogleDriveUrl(url: string): string {
@@ -46,6 +48,62 @@ export function convertGoogleDriveUrl(url: string): string {
   
   return trimmed;
 }
+
+// Extract low and high resolution URLs for progressive texture loading
+export function getLowResAndHighResUrls(url: string): { low: string; high: string } {
+  const converted = convertGoogleDriveUrl(url);
+  if (!converted) return { low: '', high: '' };
+  
+  if (converted.includes('lh3.googleusercontent.com/d/')) {
+    const cleanUrl = converted.split('=')[0];
+    return {
+      low: `${cleanUrl}=w400`,
+      high: `${cleanUrl}=w2048`
+    };
+  }
+  
+  if (converted.includes('unsplash.com')) {
+    const cleanUrl = converted.split('?')[0];
+    return {
+      low: `${cleanUrl}?q=30&w=400`,
+      high: `${cleanUrl}?q=85&w=2048`
+    };
+  }
+  
+  return {
+    low: converted,
+    high: converted
+  };
+}
+
+// Onboarding Walkthrough Steps for customers
+const GUIDE_STEPS = [
+  {
+    title: "Welcome to Kidtopia 360° Virtual Tour! 🎒",
+    description: "Step inside our modern nursery school! Click and drag your mouse, or swipe on your screen in any direction to explore this room in 360 degrees.",
+    highlight: "three-sixty-tour-container"
+  },
+  {
+    title: "Navigation & Floor Portals 🚪",
+    description: "Look around for floating direction indicators. Clicking or tapping on them will instantly transition you into another playroom or classroom!",
+    highlight: "hotspots"
+  },
+  {
+    title: "Interactive Compass 🧭",
+    description: "The middle compass at the top rotates dynamically as you look around. Use it to keep track of North and see your exact heading direction!",
+    highlight: "compass"
+  },
+  {
+    title: "D-pad & Zoom Controls 🎮",
+    description: "Use the glassmorphic control console in the bottom corner to look around, reset your view, zoom in/out, or toggle immersive Fullscreen mode.",
+    highlight: "dpad"
+  },
+  {
+    title: "Horizontal Room Selector 🏫",
+    description: "Quickly browse and jump to any classroom or campus space by clicking on the thumbnails in this horizontal side-scrolling room selector!",
+    highlight: "side-scroll"
+  }
+];
 
 const DEFAULT_SCENES: Scene[] = [
   {
@@ -162,6 +220,16 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [editMode, setEditMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isRoomsMenuOpen, setIsRoomsMenuOpen] = useState(false);
+  
+  // Onboarding walkthrough guide states
+  const [showGuide, setShowGuide] = useState(() => {
+    try {
+      return localStorage.getItem('kidtopia_tour_guide_shown') !== 'true';
+    } catch {
+      return true;
+    }
+  });
+  const [guideStep, setGuideStep] = useState(0);
   
   // Camera angles (React states for coordinates indicator)
   const [cameraLon, setCameraLon] = useState(0);
@@ -280,6 +348,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         setScenes(loadedScenes);
         const start = loadedScenes.find(s => s.isStart) || loadedScenes[0];
         setCurrentScene(start || null);
+        
+        if (start) {
+          const initLon = start.startLon !== undefined ? start.startLon : 0;
+          const initLat = start.startLat !== undefined ? start.startLat : 0;
+          targetLonRef.current = initLon;
+          targetLatRef.current = initLat;
+          cameraLonRef.current = initLon;
+          cameraLatRef.current = initLat;
+          setCameraLon(initLon);
+          setCameraLat(initLat);
+        }
 
         // Save migrated configuration back to firestore silently if changed
         if (mutated) {
@@ -289,8 +368,21 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         }
       } else {
         // Fallback to default
+        const start = DEFAULT_SCENES[0];
         setScenes(DEFAULT_SCENES);
-        setCurrentScene(DEFAULT_SCENES[0]);
+        setCurrentScene(start);
+        
+        if (start) {
+          const initLon = start.startLon !== undefined ? start.startLon : 0;
+          const initLat = start.startLat !== undefined ? start.startLat : 0;
+          targetLonRef.current = initLon;
+          targetLatRef.current = initLat;
+          cameraLonRef.current = initLon;
+          cameraLatRef.current = initLat;
+          setCameraLon(initLon);
+          setCameraLat(initLat);
+        }
+        
         // Auto-save defaults if admin
         if (isAdmin) {
           await setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: DEFAULT_SCENES });
@@ -298,8 +390,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       }
     } catch (err) {
       console.error('Failed to load virtual tour configuration from Firestore, using defaults:', err);
+      const start = DEFAULT_SCENES[0];
       setScenes(DEFAULT_SCENES);
-      setCurrentScene(DEFAULT_SCENES[0]);
+      setCurrentScene(start);
+      if (start) {
+        const initLon = start.startLon !== undefined ? start.startLon : 0;
+        const initLat = start.startLat !== undefined ? start.startLat : 0;
+        targetLonRef.current = initLon;
+        targetLatRef.current = initLat;
+        cameraLonRef.current = initLon;
+        cameraLatRef.current = initLat;
+        setCameraLon(initLon);
+        setCameraLat(initLat);
+      }
     } finally {
       setLoading(false);
     }
@@ -367,9 +470,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
       const deltaBeta = beta - initialBeta;
 
-      // Update target angles smoothly
+      // Update target angles smoothly (invert deltaBeta as up/down reading was reversed)
       targetLonRef.current = startLon - deltaAlpha;
-      targetLatRef.current = Math.max(-85, Math.min(85, startLat - deltaBeta));
+      targetLatRef.current = Math.max(-85, Math.min(85, startLat + deltaBeta));
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -414,15 +517,18 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     const isPreloaded = textureCacheRef.current.has(sceneId);
 
+    const initialLon = targetScene.startLon !== undefined ? targetScene.startLon : 0;
+    const initialLat = targetScene.startLat !== undefined ? targetScene.startLat : 0;
+
     if (isPreloaded) {
       // Blazing fast continuous transition if texture is preloaded (no loader overlay needed!)
       setTimeout(() => {
         setCurrentScene(targetScene);
-        // Reset view angles for the new scene, but start with an elegant cinematic wide-angle zoom back to 75
-        targetLonRef.current = 0;
-        targetLatRef.current = 0;
-        cameraLonRef.current = 0;
-        cameraLatRef.current = 0;
+        // Apply starting camera directions for this classroom to avoid facing backwards
+        targetLonRef.current = initialLon;
+        targetLatRef.current = initialLat;
+        cameraLonRef.current = initialLon;
+        cameraLatRef.current = initialLat;
         
         cameraFovRef.current = 110; // Start extra wide
         targetFovRef.current = 75;  // Lerp smoothly to normal 75 fov
@@ -434,10 +540,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         
         setTimeout(() => {
           setCurrentScene(targetScene);
-          targetLonRef.current = 0;
-          targetLatRef.current = 0;
-          cameraLonRef.current = 0;
-          cameraLatRef.current = 0;
+          // Apply starting camera directions for this classroom to avoid facing backwards
+          targetLonRef.current = initialLon;
+          targetLatRef.current = initialLat;
+          cameraLonRef.current = initialLon;
+          cameraLatRef.current = initialLat;
           
           cameraFovRef.current = 110;
           targetFovRef.current = 75;
@@ -552,6 +659,37 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       isStart: s.id === currentScene.id
     }));
     await saveScenesConfig(updated);
+  };
+
+  // Save current camera view angle as the starting viewpoint for the room
+  const handleSaveStartingDirection = async () => {
+    if (!currentScene) return;
+    
+    // Grab current camera angles from refs (to get absolute precision)
+    const currentLon = cameraLonRef.current;
+    const currentLat = cameraLatRef.current;
+    
+    const updated = scenes.map(s => {
+      if (s.id === currentScene.id) {
+        return {
+          ...s,
+          startLon: currentLon,
+          startLat: currentLat
+        };
+      }
+      return s;
+    });
+    
+    await saveScenesConfig(updated);
+    
+    // Update local state
+    setCurrentScene({
+      ...currentScene,
+      startLon: currentLon,
+      startLat: currentLat
+    });
+    
+    alert(`Success: The entrance direction for "${currentScene.title}" is saved successfully! (Yaw: ${currentLon.toFixed(1)}°, Pitch: ${currentLat.toFixed(1)}°)`);
   };
 
   // Create Hotspot at Center of Screen
@@ -732,6 +870,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Check texture cache
     const cachedTexture = textureCacheRef.current.get(currentScene.id);
 
+    const urls = getLowResAndHighResUrls(currentScene.imageUrl);
+
     if (cachedTexture) {
       // Instant transition! No loading screen or white flashes!
       sphereMaterialRef.current.map = cachedTexture;
@@ -740,7 +880,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
     } else {
-      // Progressive Enhancement: Set low-resolution/grid placeholder first, then load high-res
+      // Progressive Enhancement Step 1: Set beautiful ambient grid/placeholder texture first
       const placeholder = createLowResPlaceholderTexture(currentScene.title);
       sphereMaterialRef.current.map = placeholder;
       sphereMaterialRef.current.needsUpdate = true;
@@ -748,35 +888,70 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
 
-      const loadUrl = currentScene.imageUrl.startsWith('http')
-        ? currentScene.imageUrl + (currentScene.imageUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
-        : currentScene.imageUrl;
-
       textureLoaderRef.current.setCrossOrigin('anonymous');
+      
+      // Progressive Enhancement Step 2: Load highly-compressed low-res version extremely fast
       textureLoaderRef.current.load(
-        loadUrl,
-        (loadedTexture) => {
-          loadedTexture.minFilter = THREE.LinearFilter;
-          loadedTexture.generateMipmaps = false;
-          textureCacheRef.current.set(currentScene.id, loadedTexture);
-
-          // Swap to high-res if user is still looking at this scene
-          if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
-            sphereMaterialRef.current.map = loadedTexture;
+        urls.low,
+        (lowResTexture) => {
+          lowResTexture.minFilter = THREE.LinearFilter;
+          lowResTexture.generateMipmaps = false;
+          
+          if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current && !textureCacheRef.current.has(currentScene.id)) {
+            sphereMaterialRef.current.map = lowResTexture;
             sphereMaterialRef.current.needsUpdate = true;
+            if (rendererRef.current && sceneRef.current && cameraRef.current) {
+              rendererRef.current.render(sceneRef.current, cameraRef.current);
+            }
           }
+          
+          // Progressive Enhancement Step 3: Fetch full high-res photo over time, swap seamlessly when completed
+          textureLoaderRef.current.load(
+            urls.high,
+            (highResTexture) => {
+              highResTexture.minFilter = THREE.LinearFilter;
+              highResTexture.generateMipmaps = false;
+              textureCacheRef.current.set(currentScene.id, highResTexture);
+              
+              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                sphereMaterialRef.current.map = highResTexture;
+                sphereMaterialRef.current.needsUpdate = true;
+                if (rendererRef.current && sceneRef.current && cameraRef.current) {
+                  rendererRef.current.render(sceneRef.current, cameraRef.current);
+                }
+              }
+            },
+            undefined,
+            (err) => {
+              console.warn(`Could not load high-res panorama texture for ${currentScene.id}. Keeping low-res version.`, err);
+            }
+          );
         },
         undefined,
         (err) => {
-          console.error(`Error loading 360 photo texture for ${currentScene.id}:`, err);
-          if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
-            try {
-              sphereMaterialRef.current.map = createFallbackPanoTexture();
-              sphereMaterialRef.current.needsUpdate = true;
-            } catch (fallbackErr) {
-              console.error('Fallback texture application failed:', fallbackErr);
+          console.warn(`Could not load low-res texture for ${currentScene.id}. Trying to load high-res directly.`, err);
+          
+          // Fallback to directly loading high-res URL
+          textureLoaderRef.current.load(
+            urls.high,
+            (highResTexture) => {
+              highResTexture.minFilter = THREE.LinearFilter;
+              highResTexture.generateMipmaps = false;
+              textureCacheRef.current.set(currentScene.id, highResTexture);
+              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                sphereMaterialRef.current.map = highResTexture;
+                sphereMaterialRef.current.needsUpdate = true;
+              }
+            },
+            undefined,
+            (fallbackErr) => {
+              console.error('All texture loading attempts failed, falling back to procedural default canvas texture:', fallbackErr);
+              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                sphereMaterialRef.current.map = createFallbackPanoTexture();
+                sphereMaterialRef.current.needsUpdate = true;
+              }
             }
-          }
+          );
         }
       );
     }
@@ -863,7 +1038,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
       // Project Hotspots coordinates to 2D HTML space
       const activeScene = currentSceneRef.current;
-      if (activeScene && activeScene.hotspots && activeScene.hotspots.length > 0) {
+      if (activeScene && activeScene.hotspots && activeScene.hotspots.length > 0 && mountRef.current) {
+        // Calculate container dimensions dynamically to solve shifting on mobile/tablet viewports
+        const currentWidth = mountRef.current.clientWidth;
+        const currentHeight = mountRef.current.clientHeight;
+        
         const projections = activeScene.hotspots.map(hs => {
           // Convert hotspot's pitch/yaw back to 3D point
           const hsPhi = THREE.MathUtils.degToRad(90 - hs.pitch);
@@ -885,14 +1064,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           camera.getWorldDirection(cameraDirection);
           const isBehind = hsVector.dot(cameraDirection) < 0;
 
-          const screenX = (vector.x * .5 + .5) * width;
-          const screenY = (-(vector.y * .5) + .5) * height;
+          const screenX = (vector.x * .5 + .5) * currentWidth;
+          const screenY = (-(vector.y * .5) + .5) * currentHeight;
 
           return {
             hotspot: hs,
             x: screenX,
             y: screenY,
-            visible: !isBehind && screenX >= 0 && screenX <= width && screenY >= 0 && screenY <= height
+            visible: !isBehind && screenX >= 0 && screenX <= currentWidth && screenY >= 0 && screenY <= currentHeight
           };
         });
 
@@ -971,9 +1150,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
 
-    // PC/Mouse dragging (isTouch = false) uses 1 for normal drag direction
-    // Mobile/Tablet swiping (isTouch = true) uses -1 to reverse touch drag direction relative to PC
-    const swipeMultiplierX = isTouch ? -1 : 1;
+    // Both PC/Mouse and Mobile/Tablet screens now use -1 for intuitive, natural, and consistent dragging direction
+    const swipeMultiplierX = -1;
 
     const newLon = onPointerDownLonRef.current + deltaX * panSpeedX * swipeMultiplierX;
     const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
@@ -1079,7 +1257,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               style={{ left: `${x}px`, top: `${y}px` }}
             >
               {isInfo ? (
-                /* Information description area hotspot */
+                /* Information description area hotspot - styled to be light glassmorphic */
                 <button
                   onClick={() => setActiveInfoHotspot(hotspot)}
                   className="flex flex-col items-center focus:outline-none group/btn"
@@ -1092,14 +1270,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       <span className="text-[11px] text-white font-serif font-black italic">i</span>
                     </div>
                   </div>
-                  {/* Floating Description Label */}
-                  <div className="mt-1.5 px-3 py-1 bg-stone-900/90 backdrop-blur-md border border-amber-500/35 rounded-xl text-amber-200 text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 group-hover/btn:border-amber-400 group-hover/btn:bg-amber-950/90 transition-all duration-200">
-                    <HelpCircle className="w-3 h-3 text-amber-400 animate-bounce" />
+                  {/* Floating Description Label - light glassmorphic */}
+                  <div className="mt-1.5 px-3 py-1 bg-white/75 dark:bg-stone-900/75 backdrop-blur-md border border-amber-500/50 rounded-xl text-amber-900 dark:text-amber-200 text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 group-hover/btn:border-amber-400 group-hover/btn:bg-white/95 dark:group-hover/btn:bg-stone-900/90 transition-all duration-200">
+                    <HelpCircle className="w-3 h-3 text-amber-500 animate-bounce" />
                     <span>{hotspot.text}</span>
                   </div>
                 </button>
               ) : (
-                /* Google Earth / Street View style perspective floor arrow link hotspot */
+                /* Google Earth / Street View style perspective floor arrow link hotspot - styled to be light glassmorphic */
                 <button
                   onClick={() => handleSwitchRoom(hotspot.targetSceneId, hotspot)}
                   className="flex flex-col items-center focus:outline-none group/btn"
@@ -1126,15 +1304,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     />
                   </div>
 
-                  {/* Text label with custom backdrop blur */}
+                  {/* Text label with custom light glassmorphic backdrop blur */}
                   <div 
-                    className="mt-1 px-3.5 py-1 bg-black/85 backdrop-blur-md border rounded-full text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-90 group-hover/btn:opacity-100 transition-all duration-200"
+                    className="mt-1 px-3.5 py-1 bg-white/75 dark:bg-stone-900/75 backdrop-blur-md border rounded-full text-stone-900 dark:text-white text-xs font-sans tracking-wide whitespace-nowrap shadow-xl flex items-center gap-1 opacity-95 group-hover/btn:opacity-100 transition-all duration-200"
                     style={{ 
-                      borderColor: hotspot.color ? `${hotspot.color}50` : 'rgba(255, 255, 255, 0.2)'
+                      borderColor: hotspot.color ? `${hotspot.color}75` : 'rgba(255, 255, 255, 0.4)'
                     }}
                   >
                     <span>{hotspot.text}</span>
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-3 h-3 text-stone-500 dark:text-stone-400" />
                   </div>
                 </button>
               )}
@@ -1184,29 +1362,61 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
         )}
 
-        {/* Floating Top Title Bar */}
+        {/* Floating Top Title Bar - Replaced with Middle Compass & Onboarding guidelines */}
         <div className="absolute top-4 left-4 right-4 pointer-events-none flex justify-between items-start z-30">
-          <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-xl shadow-lg pointer-events-auto max-w-[70%]">
-            <span className="text-[10px] font-mono tracking-widest text-brand-green uppercase font-semibold flex items-center gap-1.5 mb-0.5">
-              <Compass 
-                className="w-4 h-4 text-brand-green transition-transform duration-100 ease-out" 
-                style={{ transform: `rotate(${-cameraLon}deg)` }} 
-              />
-              <span>Live 360° Tour • Heading: {getCompassHeading(cameraLon)}</span>
-              {useGyroscope && (
-                <span className="ml-2 px-1.5 py-0.5 bg-brand-green text-black font-black uppercase text-[8px] tracking-wider rounded animate-pulse">
-                  Gyro Active
-                </span>
-              )}
-            </span>
-            <h3 className="text-white font-sans text-base font-semibold tracking-wide flex items-center gap-2">
-              {currentScene?.title}
-              {currentScene?.isStart && (
-                <span className="px-1.5 py-0.5 bg-brand-green/30 text-brand-green text-[9px] uppercase tracking-wider rounded font-mono font-semibold border border-brand-green/30">
-                  Starting Room
-                </span>
-              )}
-            </h3>
+          
+          {/* Left space reserved (removed original informative section as requested) */}
+          <div />
+
+          {/* CUSTOM ROTATING MIDDLE COMPASS (Top Center) */}
+          <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-0 pointer-events-none flex flex-col items-center gap-1.5">
+            {/* Compass Disk */}
+            <div className="bg-white/75 dark:bg-black/45 backdrop-blur-md border border-white/40 dark:border-white/10 p-2 rounded-full shadow-lg flex items-center justify-center pointer-events-auto relative w-16 h-16 sm:w-20 sm:h-20">
+              {/* Rotating compass dial */}
+              <div 
+                className="absolute w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-transform duration-100 ease-out text-stone-800 dark:text-stone-200"
+                style={{ transform: `rotate(${-cameraLon}deg)` }}
+              >
+                {/* Outer compass ring */}
+                <div className="absolute inset-0 border border-stone-400/20 dark:border-white/10 rounded-full" />
+                
+                {/* Compass Direction Labels */}
+                <span className="absolute top-0.5 text-[8px] sm:text-[10px] font-bold text-red-600 dark:text-red-500">N</span>
+                <span className="absolute right-1 text-[8px] sm:text-[10px] font-bold">E</span>
+                <span className="absolute bottom-0.5 text-[8px] sm:text-[10px] font-bold">S</span>
+                <span className="absolute left-1 text-[8px] sm:text-[10px] font-bold">W</span>
+                
+                {/* Subtle Tick marks */}
+                <div className="absolute w-[1px] h-1 bg-stone-500/40 dark:bg-white/30 top-0 left-1/2 -translate-x-1/2" />
+                <div className="absolute w-[1px] h-1 bg-stone-500/40 dark:bg-white/30 bottom-0 left-1/2 -translate-x-1/2" />
+                <div className="absolute h-[1px] w-1 bg-stone-500/40 dark:bg-white/30 left-0 top-1/2 -translate-y-1/2" />
+                <div className="absolute h-[1px] w-1 bg-stone-500/40 dark:bg-white/30 right-0 top-1/2 -translate-y-1/2" />
+              </div>
+              
+              {/* Fixed Central Needle pointing straight UP */}
+              <div className="w-1.5 h-6 sm:h-8 relative flex flex-col items-center justify-between pointer-events-none z-10">
+                <div className="w-0 h-0 border-l-[2.5px] border-l-transparent border-r-[2.5px] border-r-transparent border-b-[12px] sm:border-b-[16px] border-b-red-600" />
+                <div className="w-0 h-0 border-l-[2.5px] border-l-transparent border-r-[2.5px] border-r-transparent border-t-[12px] sm:border-t-[16px] border-t-stone-400 dark:border-t-stone-300" />
+              </div>
+              
+              {/* Center core core dot */}
+              <div className="absolute w-2 h-2 rounded-full bg-stone-950 dark:bg-white border border-white dark:border-stone-900 z-20" />
+            </div>
+            
+            {/* Room Title Tag - glassmorphic and elegant */}
+            <div className="bg-white/80 dark:bg-stone-950/70 backdrop-blur-md border border-white/40 dark:border-white/10 px-3.5 py-1 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-stone-900 dark:text-white font-sans text-[10px] sm:text-xs font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
+                <span>{currentScene?.title}</span>
+                {currentScene?.isStart && (
+                  <span className="px-1.5 py-0.25 bg-brand-green/30 text-brand-green text-[7px] sm:text-[8px] uppercase tracking-wider rounded font-mono font-bold">
+                    Entrance
+                  </span>
+                )}
+              </h3>
+              <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-stone-500 dark:text-stone-400 uppercase">
+                {getCompassHeading(cameraLon)}
+              </span>
+            </div>
           </div>
 
           <div className="flex gap-2 pointer-events-auto">
@@ -1228,25 +1438,134 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </button>
             )}
 
-            {/* Help guidelines popup toggler */}
-            <div className="relative group">
-              <button className="p-2 bg-black/60 backdrop-blur-md border border-white/10 text-white rounded-xl hover:bg-black/80 transition shadow">
-                <HelpCircle className="w-4 h-4" />
-              </button>
-              <div className="absolute right-0 top-12 w-64 p-4 bg-stone-900/95 backdrop-blur-md border border-stone-800 text-stone-300 text-xs rounded-xl shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
-                <p className="font-semibold text-white mb-2 font-sans flex items-center gap-1.5">
-                  <Compass className="w-4 h-4 text-brand-green" />
-                  How to Navigate:
+            {/* Interactive Guide Walkthrough Toggler */}
+            <button 
+              onClick={() => {
+                setGuideStep(0);
+                setShowGuide(true);
+              }}
+              className="px-3 py-2 bg-white/70 dark:bg-black/60 backdrop-blur-md border border-white/25 dark:border-white/10 text-stone-700 dark:text-white rounded-xl hover:bg-white/95 dark:hover:bg-black/85 transition shadow flex items-center gap-1.5 text-xs font-semibold font-sans active:scale-95"
+              title="Open Navigation Tour Guide"
+            >
+              <HelpCircle className="w-4 h-4 text-brand-green animate-bounce" />
+              <span className="hidden sm:inline">Tour Guide</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ONBOARDING CUSTOMER WALKTHROUGH GUIDE DIALOG OVERLAY */}
+        {showGuide && (
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-2xl max-w-sm w-full animate-in zoom-in-95 duration-200 flex flex-col gap-3 pointer-events-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center pb-2 border-b border-stone-100 dark:border-stone-800">
+                <span className="px-2 py-0.5 bg-brand-green/10 text-brand-green text-[10px] font-sans font-bold uppercase tracking-wider rounded-md">
+                  Step {guideStep + 1} of {GUIDE_STEPS.length}
+                </span>
+                <button
+                  onClick={() => {
+                    setShowGuide(false);
+                    try {
+                      localStorage.setItem('kidtopia_tour_guide_shown', 'true');
+                    } catch (e) {}
+                  }}
+                  className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              
+              {/* Step info */}
+              <div className="flex flex-col gap-1.5">
+                <h4 className="font-sans font-black text-stone-900 dark:text-stone-100 text-sm tracking-wide">
+                  {GUIDE_STEPS[guideStep].title}
+                </h4>
+                <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed font-sans">
+                  {GUIDE_STEPS[guideStep].description}
                 </p>
-                <ul className="space-y-1.5 list-disc list-inside font-sans">
-                  <li><strong>Drag / Swipe</strong> on the photo to rotate your camera view in 360°.</li>
-                  <li><strong>Click / Tap</strong> the floating arrows to move between rooms.</li>
-                  <li><strong>Scroll</strong> to zoom in and out.</li>
-                </ul>
+              </div>
+              
+              {/* Visual Help Indicator */}
+              <div className="bg-stone-50 dark:bg-stone-950 p-3 rounded-xl border border-stone-100 dark:border-stone-800/80 flex items-center justify-center">
+                {guideStep === 0 && (
+                  <div className="flex items-center gap-2 text-[11px] text-brand-green font-semibold animate-pulse">
+                    <Move className="w-5 h-5" />
+                    <span>Swipe / drag inside the photo screen!</span>
+                  </div>
+                )}
+                {guideStep === 1 && (
+                  <div className="flex items-center gap-2 text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold animate-pulse">
+                    <ArrowRight className="w-5 h-5 -rotate-90 animate-bounce" />
+                    <span>Click on floor arrows to walk into rooms!</span>
+                  </div>
+                )}
+                {guideStep === 2 && (
+                  <div className="flex items-center gap-2 text-[11px] text-rose-500 font-semibold animate-pulse">
+                    <Compass className="w-5 h-5 animate-spin" style={{ animationDuration: '4s' }} />
+                    <span>Look up at the center compass dial!</span>
+                  </div>
+                )}
+                {guideStep === 3 && (
+                  <div className="flex items-center gap-2 text-[11px] text-amber-500 font-semibold animate-pulse">
+                    <RotateCcw className="w-5 h-5" />
+                    <span>Use the controller D-pad to rotate or zoom!</span>
+                  </div>
+                )}
+                {guideStep === 4 && (
+                  <div className="flex items-center gap-2 text-[11px] text-emerald-500 font-semibold animate-pulse">
+                    <Eye className="w-5 h-5" />
+                    <span>Use bottom thumbnails for quick jump!</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Action controls */}
+              <div className="flex justify-between items-center mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowGuide(false);
+                    try {
+                      localStorage.setItem('kidtopia_tour_guide_shown', 'true');
+                    } catch (e) {}
+                  }}
+                  className="px-3 py-1.5 text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition font-sans font-semibold"
+                >
+                  Skip Guide
+                </button>
+                
+                <div className="flex gap-1.5">
+                  {guideStep > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setGuideStep(prev => prev - 1)}
+                      className="px-3 py-1.5 border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg text-xs font-sans font-semibold transition"
+                    >
+                      Back
+                    </button>
+                  )}
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (guideStep < GUIDE_STEPS.length - 1) {
+                        setGuideStep(prev => prev + 1);
+                      } else {
+                        setShowGuide(false);
+                        try {
+                          localStorage.setItem('kidtopia_tour_guide_shown', 'true');
+                        } catch (e) {}
+                      }
+                    }}
+                    className="px-4 py-1.5 bg-brand-green hover:bg-brand-green/90 text-white rounded-lg text-xs font-sans font-bold shadow-md transition"
+                  >
+                    {guideStep === GUIDE_STEPS.length - 1 ? "Start Exploring!" : "Next"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Floating Info Hotspot Description Overlay */}
         {activeInfoHotspot && (
@@ -1447,6 +1766,76 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
       </div>
 
+      {/* HORIZONTAL SIDE-SCROLLABLE SCENE QUICK-NAVIGATOR CAROUSEL */}
+      <div id="side-scrollable-navigator" className="mt-4 bg-white dark:bg-stone-900/60 backdrop-blur-sm border border-stone-200/80 dark:border-stone-800 rounded-2xl p-4 shadow-md pointer-events-auto transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Compass className="w-4 h-4 text-brand-green" />
+            <h4 className="font-sans font-bold text-[10px] sm:text-xs tracking-wider text-stone-800 dark:text-stone-200 uppercase">
+              Explore Kidtopia Campus Rooms
+            </h4>
+          </div>
+          <span className="text-[9px] font-sans text-stone-400 font-medium">
+            Swipe left/right to view rooms ({scenes.length})
+          </span>
+        </div>
+        
+        {/* Horizontal flex scroll container */}
+        <div className="flex gap-3 overflow-x-auto pb-1.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-stone-200 dark:scrollbar-thumb-stone-800 snap-x">
+          {scenes.map(s => {
+            const isActive = currentScene?.id === s.id;
+            const urls = getLowResAndHighResUrls(s.imageUrl);
+            
+            return (
+              <button
+                key={s.id}
+                onClick={() => handleSwitchRoom(s.id)}
+                className={`snap-start shrink-0 flex flex-col items-start gap-1.5 p-1.5 rounded-xl border text-left transition-all relative group ${
+                  isActive
+                    ? 'bg-brand-green/10 border-brand-green shadow-md ring-1 ring-brand-green/30'
+                    : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 hover:bg-stone-100/50 dark:hover:bg-stone-900/50'
+                }`}
+                style={{ width: '135px' }}
+              >
+                {/* Miniature Thumbnail */}
+                <div className="w-full h-20 rounded-lg overflow-hidden relative bg-stone-900 select-none pointer-events-none">
+                  <img
+                    src={urls.low}
+                    alt={s.title}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  
+                  {s.isStart && (
+                    <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-brand-green text-white font-mono font-black text-[7px] uppercase tracking-wider rounded-md shadow-xs">
+                      Start
+                    </span>
+                  )}
+                  
+                  {isActive && (
+                    <div className="absolute inset-0 bg-brand-green/20 flex items-center justify-center backdrop-blur-[0.5px]">
+                      <span className="px-2 py-0.5 bg-brand-green text-white font-sans font-bold text-[8px] uppercase tracking-wider rounded-full shadow-md animate-pulse">
+                        Viewing
+                      </span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Title */}
+                <div className="px-1 w-full">
+                  <p className={`text-[10px] font-sans font-bold leading-tight line-clamp-2 ${
+                    isActive ? 'text-brand-green' : 'text-stone-700 dark:text-stone-300'
+                  }`}>
+                    {s.title}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Admin Blueprint & Customization Panels (Locked Behind Auth) */}
       {editMode && currentScene && (
         <div className="bg-amber-50 dark:bg-stone-900 border border-amber-200 dark:border-stone-800 rounded-2xl p-6 shadow-md transition-all">
@@ -1484,6 +1873,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               >
                 <Check className="w-4 h-4" />
                 <span>Set Current as Start Room</span>
+              </button>
+
+              <button
+                onClick={handleSaveStartingDirection}
+                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition shadow"
+                title="Save the current camera angle/direction as the starting viewpoint for this classroom"
+              >
+                <Compass className="w-4 h-4 animate-pulse" />
+                <span>Set Entrance View Angle</span>
               </button>
 
               <button
