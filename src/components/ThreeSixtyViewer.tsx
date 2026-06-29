@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { 
   ArrowRight, ArrowUp, ArrowDown, ArrowLeft, Plus, Trash2, Camera, Move, Settings, Check, X, 
   RotateCcw, ZoomIn, ZoomOut, Maximize2, Minimize2, Edit2, Save, 
-  Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle
+  Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle, MapPin, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -223,6 +223,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [editMode, setEditMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isRoomsMenuOpen, setIsRoomsMenuOpen] = useState(false);
+  const [isHotspotsMenuOpen, setIsHotspotsMenuOpen] = useState(false);
   const [deletingHotspotId, setDeletingHotspotId] = useState<string | null>(null);
   
   // Onboarding walkthrough guide states
@@ -477,32 +478,44 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       if (deltaAlpha > 180) deltaAlpha -= 360;
       if (deltaAlpha < -180) deltaAlpha += 360;
 
-      // Smoothing factor (Lerp) to prevent "flickering" or noise
-      const smoothFactor = 0.85; // Higher = more smoothed but slightly more lag
+      // Threshold to eliminate sensor jitter/flickering in the "middle area"
+      const jitterThreshold = 0.08; 
+      const smoothFactor = 1.0; // Use 1:1 mapping but with threshold and lerp
 
-      if (orient === 0) { // Portrait
-        targetLonRef.current -= deltaAlpha * smoothFactor;
-        // For Beta (Latitude), we can use absolute or relative. 
-        // Relative is often safer for sensor drift.
-        const deltaBeta = beta - lastBeta;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaBeta * smoothFactor));
-      } else if (orient === 90) { // Landscape Left
-        targetLonRef.current -= deltaAlpha * smoothFactor;
-        const deltaGamma = gamma - lastGamma;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaGamma * smoothFactor));
-      } else if (orient === -90) { // Landscape Right
-        targetLonRef.current -= deltaAlpha * smoothFactor;
-        const deltaGamma = gamma - lastGamma;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaGamma * smoothFactor));
-      } else {
-        targetLonRef.current -= deltaAlpha * smoothFactor;
-        const deltaBeta = beta - lastBeta;
-        targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - deltaBeta * smoothFactor));
-      }
+      const applyDelta = (da: number, db: number, dg: number) => {
+        if (Math.abs(da) > jitterThreshold) {
+          targetLonRef.current -= da * smoothFactor;
+          lastAlpha = alpha;
+        }
+        
+        if (orient === 0) { // Portrait
+          if (Math.abs(db) > jitterThreshold) {
+            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + db * smoothFactor));
+            lastBeta = beta;
+          }
+          lastGamma = gamma;
+        } else if (orient === 90) { // Landscape Left
+          if (Math.abs(dg) > jitterThreshold) {
+            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - dg * smoothFactor));
+            lastGamma = gamma;
+          }
+          lastBeta = beta;
+        } else if (orient === -90) { // Landscape Right
+          if (Math.abs(dg) > jitterThreshold) {
+            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + dg * smoothFactor));
+            lastGamma = gamma;
+          }
+          lastBeta = beta;
+        } else {
+          if (Math.abs(db) > jitterThreshold) {
+            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - db * smoothFactor));
+            lastBeta = beta;
+          }
+          lastGamma = gamma;
+        }
+      };
 
-      lastAlpha = alpha;
-      lastBeta = beta;
-      lastGamma = gamma;
+      applyDelta(deltaAlpha, beta - lastBeta, gamma - lastGamma);
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -1302,8 +1315,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       // It's a click on the canvas
       if (activeInfoHotspot) {
         setActiveInfoHotspot(null);
-      } else if (!editMode) {
-        // "expand first" - toggle fullscreen when clicking empty space
+      } else if (!editMode && !document.fullscreenElement) {
+        // "expand first" - only enter fullscreen when clicking empty space
         toggleFullscreen();
       }
     }
@@ -1937,38 +1950,67 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   ))}
                 </div>
               )}
+
+              {/* Hotspots Dropdown for Desktop/Tablet */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsHotspotsMenuOpen(!isHotspotsMenuOpen)}
+                  className="bg-black/60 backdrop-blur-md border border-white/10 px-3 py-2 md:py-2.5 rounded-xl shadow-lg text-white hover:bg-black transition-all flex items-center gap-2 text-[10px] md:text-xs font-sans font-bold"
+                >
+                  <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-brand-orange" />
+                  <span>Hotspots</span>
+                  <ChevronRight className={`w-3 h-3 transition-transform ${isHotspotsMenuOpen ? 'rotate-90' : ''}`} />
+                </button>
+
+                {isHotspotsMenuOpen && (
+                  <div className="absolute bottom-full left-0 mb-2 w-48 bg-stone-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-1.5 animate-in slide-in-from-bottom-2 duration-200 z-50">
+                    <div className="px-2 py-1 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">Current Scene Actions</div>
+                    {currentScene?.hotspots.map(h => (
+                      <button
+                        key={h.id}
+                        onClick={() => {
+                          if (h.type === 'link' && h.targetSceneId) {
+                            handleSwitchRoom(h.targetSceneId, h);
+                          } else if (h.type === 'info') {
+                            setActiveInfoHotspot(h);
+                          }
+                          setIsHotspotsMenuOpen(false);
+                        }}
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] text-stone-300 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
+                      >
+                        {h.type === 'link' ? <ArrowRight className="w-3 h-3 text-brand-green" /> : <Info className="w-3 h-3 text-brand-orange" />}
+                        <span className="truncate">{h.text}</span>
+                      </button>
+                    ))}
+                    {(!currentScene?.hotspots || currentScene.hotspots.length === 0) && (
+                      <div className="px-2.5 py-2 text-[10px] text-stone-500 italic">No hotspots in this scene.</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Mobile View: Collapsible Selector Button */}
-            <div className="relative md:hidden">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsRoomsMenuOpen(!isRoomsMenuOpen);
-                }}
-                className="bg-black/85 backdrop-blur-md border border-white/20 px-3 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
-              >
-                <ChevronRight className={`w-4 h-4 text-white transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
+            <div className="flex items-center gap-2 md:hidden">
+              <div className="relative">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsRoomsMenuOpen(!isRoomsMenuOpen);
+                    setIsHotspotsMenuOpen(false);
+                  }}
+                  className="bg-black/85 backdrop-blur-md border border-white/20 px-3 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
+                >
+                  <ChevronRight className={`w-4 h-4 text-white transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
+                  {isRoomsMenuOpen && (
+                    <span className="truncate max-w-[100px] animate-in fade-in duration-200">
+                      {currentScene?.title || 'Rooms'}
+                    </span>
+                  )}
+                </button>
+                
                 {isRoomsMenuOpen && (
-                  <span className="truncate max-w-[120px] xs:max-w-[180px] animate-in fade-in duration-200">
-                    {currentScene?.title || 'Select Classroom'}
-                  </span>
-                )}
-              </button>
-              
-              {isRoomsMenuOpen && (
-                <>
-                  {/* Backdrop click guard to easily close the dropdown */}
-                  <div 
-                    className="fixed inset-0 z-40 bg-transparent" 
-                    onClick={() => setIsRoomsMenuOpen(false)}
-                  />
-                  
-                  {/* Floating Selection Options Panel */}
-                  <div className="absolute bottom-12 left-0 w-64 max-h-56 overflow-y-auto bg-stone-950/95 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
-                    <div className="px-2.5 py-1.5 text-[10px] font-mono tracking-widest text-stone-500 uppercase font-semibold border-b border-white/5 mb-1">
-                      Campus Classrooms
-                    </div>
+                  <div className="absolute bottom-12 left-0 w-56 max-h-56 overflow-y-auto bg-stone-950/95 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
                     {scenes.map(s => (
                       <button
                         key={s.id}
@@ -1977,18 +2019,52 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           setIsRoomsMenuOpen(false);
                         }}
                         className={`w-full text-left px-3 py-2 rounded-xl text-xs font-sans transition-all flex items-center justify-between ${
-                          currentScene?.id === s.id
-                            ? 'bg-brand-green text-white font-semibold shadow'
-                            : 'text-stone-300 hover:bg-white/5 hover:text-white'
+                          currentScene?.id === s.id ? 'bg-brand-green text-white' : 'text-stone-300'
                         }`}
                       >
-                        <span className="truncate pr-2">{s.title}</span>
-                        {currentScene?.id === s.id && <Check className="w-3.5 h-3.5 text-white" />}
+                        <span className="truncate">{s.title}</span>
                       </button>
                     ))}
                   </div>
-                </>
-              )}
+                )}
+              </div>
+
+              {/* Mobile Hotspots Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsHotspotsMenuOpen(!isHotspotsMenuOpen);
+                    setIsRoomsMenuOpen(false);
+                  }}
+                  className="bg-black/85 backdrop-blur-md border border-white/20 px-3 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
+                >
+                  <MapPin className="w-4 h-4 text-brand-orange" />
+                  {isHotspotsMenuOpen && <span className="animate-in fade-in">Points</span>}
+                </button>
+                
+                {isHotspotsMenuOpen && (
+                  <div className="absolute bottom-12 left-0 w-48 max-h-56 overflow-y-auto bg-stone-950/95 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
+                    {currentScene?.hotspots.map(h => (
+                      <button
+                        key={h.id}
+                        onClick={() => {
+                          if (h.type === 'link' && h.targetSceneId) {
+                            handleSwitchRoom(h.targetSceneId, h);
+                          } else if (h.type === 'info') {
+                            setActiveInfoHotspot(h);
+                          }
+                          setIsHotspotsMenuOpen(false);
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-sans text-stone-300 hover:bg-white/5 flex items-center gap-2"
+                      >
+                        {h.type === 'link' ? <ArrowRight className="w-3 h-3 text-brand-green" /> : <Info className="w-3 h-3 text-brand-orange" />}
+                        <span className="truncate">{h.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
  
