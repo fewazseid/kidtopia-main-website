@@ -252,12 +252,16 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   // Modals / Creators
   const [showAddRoomModal, setShowAddRoomModal] = useState(false);
+  const [showEditRoomModal, setShowEditRoomModal] = useState(false);
   const [newRoomTitle, setNewRoomTitle] = useState('');
+  const [editRoomTitle, setEditRoomTitle] = useState('');
   const [newRoomImageFile, setNewRoomImageFile] = useState<File | null>(null);
   const [newRoomImageUrl, setNewRoomImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const [showAddHotspotModal, setShowAddHotspotModal] = useState(false);
+  const [showEditHotspotModal, setShowEditHotspotModal] = useState(false);
+  const [editingHotspotId, setEditingHotspotId] = useState<string | null>(null);
   const [newHotspotText, setNewHotspotText] = useState('');
   const [newHotspotTarget, setNewHotspotTarget] = useState('');
   const [newHotspotType, setNewHotspotType] = useState<'link' | 'info'>('link');
@@ -423,11 +427,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     if (
       typeof window !== 'undefined' &&
-      typeof (window as any).DeviceOrientationEvent !== 'undefined' &&
-      typeof (window as any).DeviceOrientationEvent.requestPermission === 'function'
+      typeof (window as any).DeviceMotionEvent !== 'undefined' &&
+      typeof (window as any).DeviceMotionEvent.requestPermission === 'function'
     ) {
       try {
-        const permissionState = await (window as any).DeviceOrientationEvent.requestPermission();
+        const permissionState = await (window as any).DeviceMotionEvent.requestPermission();
         if (permissionState === 'granted') {
           setUseGyroscope(true);
         } else {
@@ -443,66 +447,31 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     }
   };
 
-  // Manage Gyroscope / Device Orientation Sensor controls
+  // Manage Gyroscope / Device Motion Sensor controls (rotation rates)
   useEffect(() => {
     if (!useGyroscope) return;
 
-    let lastLon: number | null = null;
-    let lastLat: number | null = null;
-
-    const euler = new THREE.Euler();
-    const quaternion = new THREE.Quaternion();
-    const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-    const zee = new THREE.Vector3(0, 0, 1);
-    const q0 = new THREE.Quaternion();
-    const forward = new THREE.Vector3(0, 0, -1);
-
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      // e.alpha, beta, gamma are provided by sensor fusion (gyro + accelerometer)
-      const alpha = e.alpha ? THREE.MathUtils.degToRad(e.alpha) : 0;
-      const beta = e.beta ? THREE.MathUtils.degToRad(e.beta) : 0;
-      const gamma = e.gamma ? THREE.MathUtils.degToRad(e.gamma) : 0;
+    // We use DeviceMotionEvent's rotationRate (gyroscope) to avoid gimbal lock and compass flickering
+    const handleMotion = (e: DeviceMotionEvent) => {
+      if (!e.rotationRate || e.rotationRate.alpha === null || e.rotationRate.beta === null) return;
       
-      const orient = typeof window !== 'undefined' && typeof window.orientation !== 'undefined' 
-        ? THREE.MathUtils.degToRad(window.orientation as number) 
-        : 0;
+      // rotationRate is usually in degrees per second
+      // We apply a small multiplier to translate rotation rate to angular displacement per frame
+      const rateY = e.rotationRate.beta; // Tilt up/down
+      const rateX = e.rotationRate.alpha; // Rotate left/right
+      const rateZ = e.rotationRate.gamma; // Roll (ignored for now)
 
-      euler.set(beta, alpha, -gamma, 'YXZ');
-      quaternion.setFromEuler(euler);
-      quaternion.multiply(q1);
-      quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
-
-      forward.set(0, 0, -1);
-      forward.applyQuaternion(quaternion);
-
-      // Convert forward vector back to lon/lat expected by our camera system
-      const currentLon = THREE.MathUtils.radToDeg(Math.atan2(forward.x, -forward.z));
-      const currentLat = THREE.MathUtils.radToDeg(Math.asin(Math.max(-1, Math.min(1, forward.y))));
-
-      if (lastLon === null) {
-        lastLon = currentLon;
-        lastLat = currentLat;
-        return;
-      }
-
-      // Calculate shortest path delta from last frame
-      let deltaLon = currentLon - lastLon;
-      if (deltaLon > 180) deltaLon -= 360;
-      if (deltaLon < -180) deltaLon += 360;
-
-      let deltaLat = currentLat - lastLat!;
-
-      // Additive update avoids fighting with touch controls
-      targetLonRef.current += deltaLon;
-      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaLat));
-
-      lastLon = currentLon;
-      lastLat = currentLat;
+      // Depending on screen orientation, the axes might swap. Assuming portrait mode:
+      // A positive alpha rate means turning left, positive beta means tilting forward.
+      
+      // Additive update for silky smooth tracking
+      targetLonRef.current += rateX * -0.025; 
+      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (rateY * -0.025)));
     };
 
-    window.addEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('devicemotion', handleMotion);
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener('devicemotion', handleMotion);
     };
   }, [useGyroscope]);
 
@@ -536,7 +505,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Stage 1: Fast fly-forward/zoom transition in 3D Space
     targetFovRef.current = 20; // Zoom in extremely close to look like flying forward
     if (hotspot) {
-      targetLonRef.current = hotspot.yaw;
+      // Use shortest path to prevent 360 spin
+      let deltaLon = hotspot.yaw - (cameraLonRef.current % 360);
+      if (deltaLon > 180) deltaLon -= 360;
+      if (deltaLon < -180) deltaLon += 360;
+      
+      targetLonRef.current = cameraLonRef.current + deltaLon;
       targetLatRef.current = hotspot.pitch;
     }
 
@@ -657,6 +631,30 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     setShowAddRoomModal(false);
   };
 
+  // Edit Scene Room Name
+  const handleEditRoomName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentScene) return;
+    if (!editRoomTitle.trim()) {
+      alert('Please enter a room title');
+      return;
+    }
+
+    const updated = scenes.map(s => {
+      if (s.id === currentScene.id) {
+        return { ...s, title: editRoomTitle };
+      }
+      return s;
+    });
+
+    await saveScenesConfig(updated);
+    
+    // Update local state immediately
+    setCurrentScene({ ...currentScene, title: editRoomTitle });
+    
+    setShowEditRoomModal(false);
+  };
+
   // Delete Scene Room
   const handleDeleteRoom = async (sceneId: string) => {
     if (scenes.length <= 1) {
@@ -729,6 +727,28 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     alert(`Success: The entrance direction for "${currentScene.title}" is saved successfully! (Yaw: ${currentLon.toFixed(1)}°, Pitch: ${currentLat.toFixed(1)}°)`);
   };
 
+  const openEditHotspotModal = (hs: Hotspot) => {
+    setEditingHotspotId(hs.id);
+    setNewHotspotType(hs.type);
+    setNewHotspotText(hs.text);
+    setNewHotspotTarget(hs.targetSceneId || '');
+    setNewHotspotLinkedId(hs.linkedHotspotId || '');
+    setNewHotspotDescription(hs.description || '');
+    setNewHotspotColor(hs.color || '#10b981');
+    setShowAddHotspotModal(true);
+  };
+
+  const resetHotspotForm = () => {
+    setEditingHotspotId(null);
+    setNewHotspotText('');
+    setNewHotspotTarget('');
+    setNewHotspotLinkedId('');
+    setNewHotspotType('link');
+    setNewHotspotDescription('');
+    setNewHotspotColor('#10b981'); // Reset to default brand green
+    setShowAddHotspotModal(false);
+  };
+
   // Create Hotspot at Center of Screen
   const handleCreateHotspot = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -743,6 +763,34 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     }
     if (newHotspotType === 'info' && !newHotspotDescription.trim()) {
       alert('Please enter a description for the info area');
+      return;
+    }
+
+    if (editingHotspotId) {
+      const updated = scenes.map(s => {
+        if (s.id === currentScene.id) {
+          return {
+            ...s,
+            hotspots: s.hotspots.map(h => {
+              if (h.id === editingHotspotId) {
+                return {
+                  ...h,
+                  text: newHotspotText,
+                  targetSceneId: newHotspotType === 'link' ? newHotspotTarget : '',
+                  type: newHotspotType,
+                  description: newHotspotType === 'info' ? newHotspotDescription : '',
+                  color: newHotspotColor,
+                  linkedHotspotId: (newHotspotType === 'link' && newHotspotLinkedId) ? newHotspotLinkedId : undefined
+                };
+              }
+              return h;
+            })
+          };
+        }
+        return s;
+      });
+      await saveScenesConfig(updated);
+      resetHotspotForm();
       return;
     }
 
@@ -784,14 +832,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     await saveScenesConfig(updated);
 
-    // Reset Form
-    setNewHotspotText('');
-    setNewHotspotTarget('');
-    setNewHotspotLinkedId('');
-    setNewHotspotType('link');
-    setNewHotspotDescription('');
-    setNewHotspotColor('#10b981'); // Reset to default brand green
-    setShowAddHotspotModal(false);
+    resetHotspotForm();
   };
 
   // Delete Hotspot
@@ -1153,8 +1194,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     // Sync angle states local values to component states
     const angleUpdateInterval = setInterval(() => {
-      // Only write to React state if user is panning to avoid infinite updates
-      if (isUserInteractingRef.current) {
+      // Update state for compass and UI readouts
+      if (isUserInteractingRef.current || useGyroscope) {
         setCameraLon(cameraLonRef.current);
         setCameraLat(cameraLatRef.current);
         setCameraFov(cameraFovRef.current);
@@ -1401,16 +1442,28 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
               {/* Admin Hotspot Actions */}
               {editMode && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteHotspot(hotspot.id);
-                  }}
-                  className="mt-2 px-2 py-0.5 bg-red-600 hover:bg-red-700 text-[10px] text-white font-sans font-medium rounded-full shadow flex items-center gap-1 transition z-30"
-                >
-                  <Trash2 className="w-2.5 h-2.5" />
-                  <span>Delete</span>
-                </button>
+                <div className="mt-2 flex gap-1 z-30">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEditHotspotModal(hotspot);
+                    }}
+                    className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-[10px] text-white font-sans font-medium rounded-full shadow flex items-center gap-1 transition"
+                  >
+                    <Settings className="w-2.5 h-2.5" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteHotspot(hotspot.id);
+                    }}
+                    className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-[10px] text-white font-sans font-medium rounded-full shadow flex items-center gap-1 transition"
+                  >
+                    <Trash2 className="w-2.5 h-2.5" />
+                    <span>Delete</span>
+                  </button>
+                </div>
               )}
             </div>
           );
@@ -1447,8 +1500,26 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         {/* Floating Top Title Bar - Replaced with Middle Compass & Onboarding guidelines */}
         <div className="absolute top-4 left-4 right-4 pointer-events-none flex justify-between items-start z-30">
           
-          {/* Left space reserved (removed original informative section as requested) */}
-          <div />
+          {/* Top Left: Admin Controls */}
+          <div className="flex gap-2 pointer-events-auto">
+            {/* Admin control panel toggler */}
+            {isAdminMode && isAdmin && (
+              <button
+                onClick={() => {
+                  setEditMode(!editMode);
+                  if (!editMode) setShowAddHotspotModal(false);
+                }}
+                className={`px-3 py-2 rounded-xl text-xs font-medium font-sans flex items-center gap-1.5 shadow transition-all ${
+                  editMode 
+                    ? 'bg-amber-600 hover:bg-amber-700 text-white border border-amber-500' 
+                    : 'bg-stone-900/90 hover:bg-stone-800 text-stone-200 border border-stone-800'
+                }`}
+              >
+                <Settings className={`w-4 h-4 ${editMode ? 'animate-spin' : ''}`} />
+                <span>{editMode ? 'Exit Layout Editor' : '🛠️ Edit 360 Tour'}</span>
+              </button>
+            )}
+          </div>
 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
           <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-0 pointer-events-none flex flex-col items-center gap-1.5 w-64 sm:w-80">
@@ -1501,24 +1572,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
 
           <div className="flex gap-2 pointer-events-auto">
-            {/* Admin control panel toggler */}
-            {isAdminMode && isAdmin && (
-              <button
-                onClick={() => {
-                  setEditMode(!editMode);
-                  if (!editMode) setShowAddHotspotModal(false);
-                }}
-                className={`px-3 py-2 rounded-xl text-xs font-medium font-sans flex items-center gap-1.5 shadow transition-all ${
-                  editMode 
-                    ? 'bg-amber-600 hover:bg-amber-700 text-white border border-amber-500' 
-                    : 'bg-stone-900/90 hover:bg-stone-800 text-stone-200 border border-stone-800'
-                }`}
-              >
-                <Settings className={`w-4 h-4 ${editMode ? 'animate-spin' : ''}`} />
-                <span>{editMode ? 'Exit Layout Editor' : '🛠️ Edit 360 Tour'}</span>
-              </button>
-            )}
-
             {/* Interactive Guide Walkthrough Toggler */}
             <button 
               onClick={() => {
@@ -1959,6 +2012,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </button>
 
               <button
+                onClick={() => {
+                  setEditRoomTitle(currentScene.title);
+                  setShowEditRoomModal(true);
+                }}
+                className="px-3.5 py-2 bg-stone-700 hover:bg-stone-800 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition shadow"
+              >
+                <Settings className="w-4 h-4" />
+                <span>Rename Current Room</span>
+              </button>
+
+              <button
                 onClick={handleSaveStartingDirection}
                 className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition shadow"
                 title="Save the current camera angle/direction as the starting viewpoint for this classroom"
@@ -2008,13 +2072,22 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                             </p>
                           </div>
                         </div>
-                        <button
-                          onClick={() => handleDeleteHotspot(hs.id)}
-                          className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/20 dark:hover:bg-red-950/40 rounded-lg transition"
-                          title="Delete Hotspot"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => openEditHotspotModal(hs)}
+                            className="p-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 dark:bg-stone-800 dark:hover:bg-stone-700 dark:text-stone-300 rounded-lg transition"
+                            title="Edit Hotspot"
+                          >
+                            <Settings className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteHotspot(hs.id)}
+                            className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/20 dark:hover:bg-red-950/40 rounded-lg transition"
+                            title="Delete Hotspot"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -2177,6 +2250,58 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   className="px-4 py-2 bg-brand-green hover:bg-brand-green/90 disabled:bg-stone-200 disabled:dark:bg-stone-800 disabled:text-stone-400 text-white rounded-xl transition font-medium shadow"
                 >
                   Create Room
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1B: Edit Room */}
+      {showEditRoomModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-lg shadow-2xl p-6 animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="font-sans font-bold text-stone-800 dark:text-white text-lg flex items-center gap-2">
+                <Settings className="w-5 h-5 text-stone-700 dark:text-stone-300" />
+                Rename 360 Scene Room
+              </h4>
+              <button 
+                onClick={() => setShowEditRoomModal(false)}
+                className="p-1 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-500 dark:text-stone-400 rounded-full transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditRoomName} className="space-y-4 font-sans text-sm">
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                  Room Title / Label
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Creative Playroom, Toddler Sandbox"
+                  value={editRoomTitle}
+                  onChange={(e) => setEditRoomTitle(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  required
+                />
+              </div>
+
+              <div className="pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditRoomModal(false)}
+                  className="px-4 py-2 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-700 transition font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-brand-green hover:bg-emerald-600 text-white rounded-xl font-medium transition shadow flex items-center gap-2"
+                >
+                  Save Name
                 </button>
               </div>
             </form>
