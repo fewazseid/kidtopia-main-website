@@ -288,6 +288,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   // Interaction refs
   const isUserInteractingRef = useRef(false);
+  const lastPointerXRef = useRef(0);
+  const lastPointerYRef = useRef(0);
   const onPointerDownPointerXRef = useRef(0);
   const onPointerDownPointerYRef = useRef(0);
   const onPointerDownLonRef = useRef(0);
@@ -453,20 +455,60 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     // We use DeviceMotionEvent's rotationRate (gyroscope) to avoid gimbal lock and compass flickering
     const handleMotion = (e: DeviceMotionEvent) => {
-      if (!e.rotationRate || e.rotationRate.alpha === null || e.rotationRate.beta === null) return;
+      if (!e.rotationRate) return;
       
-      // rotationRate is usually in degrees per second
-      // We apply a small multiplier to translate rotation rate to angular displacement per frame
-      const rateY = e.rotationRate.beta; // Tilt up/down
-      const rateX = e.rotationRate.alpha; // Rotate left/right
-      const rateZ = e.rotationRate.gamma; // Roll (ignored for now)
+      const { alpha, beta, gamma } = e.rotationRate;
+      if (alpha === null || beta === null || gamma === null) return;
+      
+      const orient = (typeof window !== 'undefined' && typeof window.screen !== 'undefined' && window.screen.orientation)
+        ? (window.screen.orientation.angle) 
+        : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
 
-      // Depending on screen orientation, the axes might swap. Assuming portrait mode:
-      // A positive alpha rate means turning left, positive beta means tilting forward.
-      
+      // Map rotation rates to Lon/Lat based on device orientation
+      let lonRate = 0;
+      let latRate = 0;
+
+      if (orient === 0) {
+        // Portrait
+        lonRate = gamma; // Rotation around Y
+        latRate = beta;  // Rotation around X
+      } else if (orient === 90) {
+        // Landscape Left
+        lonRate = -beta;
+        latRate = gamma;
+      } else if (orient === -90) {
+        // Landscape Right
+        lonRate = beta;
+        latRate = -gamma;
+      } else {
+        // Upside down
+        lonRate = -gamma;
+        latRate = -beta;
+      }
+
       // Additive update for silky smooth tracking
-      targetLonRef.current += rateX * -0.025; 
-      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (rateY * -0.025)));
+      // Sensitivity factor 0.04 seems balanced for 60fps
+      const sensitivity = 0.04;
+      targetLonRef.current += lonRate * -sensitivity; 
+      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (latRate * -sensitivity)));
+
+      // Optional: Accelerometer Horizon Correction
+      if (e.accelerationIncludingGravity) {
+        const { x, y, z } = e.accelerationIncludingGravity;
+        if (x !== null && y !== null && z !== null) {
+          // Calculate current gravity-based pitch (approximate)
+          // When device is vertical, y is ~9.8. When flat, z is ~9.8.
+          // This nudge helps prevent cumulative drift in the pitch axis.
+          const pitchFromGravity = THREE.MathUtils.radToDeg(Math.atan2(z, y)) - 90;
+          
+          // Only nudge if the device isn't being shaken/moved aggressively
+          const totalAccel = Math.sqrt(x*x + y*y + z*z);
+          if (totalAccel > 8 && totalAccel < 12) {
+            // Slowly nudge towards gravity pitch (0.005 lerp factor for stability)
+            targetLatRef.current += (pitchFromGravity - targetLatRef.current) * 0.005;
+          }
+        }
+      }
     };
 
     window.addEventListener('devicemotion', handleMotion);
@@ -1098,6 +1140,26 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     scene.add(sphereMesh);
     sphereMeshRef.current = sphereMesh;
 
+    // FIX: Trigger high-res texture load for the initial scene if it's already set
+    if (currentSceneRef.current) {
+      const scene = currentSceneRef.current;
+      const urls = getLowResAndHighResUrls(scene.imageUrl);
+      
+      textureLoaderRef.current.setCrossOrigin('anonymous');
+      textureLoaderRef.current.load(urls.high, (texture) => {
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.generateMipmaps = true;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy() || 1;
+        textureCacheRef.current.set(scene.id, texture);
+        
+        if (sphereMaterialRef.current && currentSceneRef.current?.id === scene.id) {
+          sphereMaterialRef.current.map = texture;
+          sphereMaterialRef.current.needsUpdate = true;
+          renderer.render(sceneRef.current!, cameraRef.current!);
+        }
+      });
+    }
+
     // Animation / Rendering Loop
     let animationFrameId: number;
 
@@ -1200,7 +1262,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         setCameraLat(cameraLatRef.current);
         setCameraFov(cameraFovRef.current);
       }
-    }, 100);
+    }, 32); // ~30fps update for UI elements
 
     // Cleanups
     return () => {
@@ -1226,6 +1288,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     isUserInteractingRef.current = true;
     onPointerDownPointerXRef.current = e.clientX;
     onPointerDownPointerYRef.current = e.clientY;
+    lastPointerXRef.current = e.clientX;
+    lastPointerYRef.current = e.clientY;
     onPointerDownLonRef.current = targetLonRef.current;
     onPointerDownLatRef.current = targetLatRef.current;
   };
@@ -1246,17 +1310,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const panSpeedX = (cameraFovRef.current / containerWidth) * 2.4 * speedFactor;
     const panSpeedY = ((cameraFovRef.current * (containerHeight / containerWidth)) / containerHeight) * 2.4 * speedFactor;
     
-    const deltaX = e.clientX - onPointerDownPointerXRef.current;
-    const deltaY = e.clientY - onPointerDownPointerYRef.current;
+    const deltaX = e.clientX - lastPointerXRef.current;
+    const deltaY = e.clientY - lastPointerYRef.current;
+    
+    lastPointerXRef.current = e.clientX;
+    lastPointerYRef.current = e.clientY;
 
     // Both PC/Mouse and Mobile/Tablet screens now use -1 for intuitive, natural, and consistent dragging direction
     const swipeMultiplierX = -1;
 
-    const newLon = onPointerDownLonRef.current + deltaX * panSpeedX * swipeMultiplierX;
-    const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
-
-    targetLonRef.current = newLon;
-    targetLatRef.current = Math.max(-85, Math.min(85, newLat));
+    targetLonRef.current += deltaX * panSpeedX * swipeMultiplierX;
+    targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaY * panSpeedY));
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
