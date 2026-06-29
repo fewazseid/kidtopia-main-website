@@ -456,17 +456,33 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     let lastAlpha: number | null = null;
     let lastBeta: number | null = null;
     let lastGamma: number | null = null;
+    
+    // EMA Smoothing state for the deltas
+    let smoothedDA = 0;
+    let smoothedDB = 0;
+    let smoothedDG = 0;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
-      const { alpha, beta, gamma } = e;
+      let { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
 
-      // Handle initial state
-      if (lastAlpha === null || lastBeta === null || lastGamma === null) {
+      // Low-pass filter for raw values to eliminate sensor jitter
+      // Using a stronger alpha (lower factor) for orientation stability
+      const filterFactor = 0.15;
+      
+      if (lastAlpha === null) {
         lastAlpha = alpha;
         lastBeta = beta;
         lastGamma = gamma;
-        return;
+      } else {
+        // Handle alpha wrap-around in low-pass filter
+        let diffA = alpha - lastAlpha;
+        if (diffA > 180) diffA -= 360;
+        if (diffA < -180) diffA += 360;
+        alpha = lastAlpha + diffA * filterFactor;
+        
+        beta = lastBeta + (beta - lastBeta) * filterFactor;
+        gamma = lastGamma + (gamma - lastGamma) * filterFactor;
       }
 
       const orient = (typeof window !== 'undefined' && window.screen?.orientation)
@@ -477,45 +493,45 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       let deltaAlpha = alpha - lastAlpha;
       if (deltaAlpha > 180) deltaAlpha -= 360;
       if (deltaAlpha < -180) deltaAlpha += 360;
+      
+      const deltaBeta = beta - lastBeta;
+      const deltaGamma = gamma - lastGamma;
 
-      // Threshold to eliminate sensor jitter/flickering in the "middle area"
-      const jitterThreshold = 0.08; 
-      const smoothFactor = 1.0; // Use 1:1 mapping but with threshold and lerp
+      // Velocity smoothing
+      const velocityFilter = 0.1; 
+      smoothedDA = smoothedDA + (deltaAlpha - smoothedDA) * velocityFilter;
+      smoothedDB = smoothedDB + (deltaBeta - smoothedDB) * velocityFilter;
+      smoothedDG = smoothedDG + (deltaGamma - smoothedDG) * velocityFilter;
+
+      // Deadzone to eliminate micro-jitter
+      const deadzone = 0.01;
 
       const applyDelta = (da: number, db: number, dg: number) => {
-        if (Math.abs(da) > jitterThreshold) {
-          targetLonRef.current -= da * smoothFactor;
-          lastAlpha = alpha;
+        if (Math.abs(da) > deadzone) {
+          targetLonRef.current -= da;
         }
         
         if (orient === 0) { // Portrait
-          if (Math.abs(db) > jitterThreshold) {
-            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + db * smoothFactor));
-            lastBeta = beta;
+          if (Math.abs(db) > deadzone) {
+            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + db));
           }
-          lastGamma = gamma;
-        } else if (orient === 90) { // Landscape Left
-          if (Math.abs(dg) > jitterThreshold) {
-            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - dg * smoothFactor));
-            lastGamma = gamma;
+        } else if (orient === 90 || orient === 270) { // Landscape
+          const isLeft = orient === 90;
+          if (Math.abs(dg) > deadzone) {
+            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (isLeft ? -dg : dg)));
           }
-          lastBeta = beta;
-        } else if (orient === -90) { // Landscape Right
-          if (Math.abs(dg) > jitterThreshold) {
-            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + dg * smoothFactor));
-            lastGamma = gamma;
-          }
-          lastBeta = beta;
         } else {
-          if (Math.abs(db) > jitterThreshold) {
-            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - db * smoothFactor));
-            lastBeta = beta;
+          if (Math.abs(db) > deadzone) {
+            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - db));
           }
-          lastGamma = gamma;
         }
       };
 
-      applyDelta(deltaAlpha, beta - lastBeta, gamma - lastGamma);
+      applyDelta(smoothedDA, smoothedDB, smoothedDG);
+
+      lastAlpha = alpha;
+      lastBeta = beta;
+      lastGamma = gamma;
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -1046,6 +1062,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             }
             
             textureLoaderRef.current.load(urls.high, (highResTexture) => {
+              highResTexture.minFilter = THREE.LinearMipmapLinearFilter;
+              highResTexture.generateMipmaps = true;
+              highResTexture.colorSpace = THREE.SRGBColorSpace;
+              if (rendererRef.current) {
+                highResTexture.anisotropy = rendererRef.current.capabilities.getMaxAnisotropy() || 1;
+              }
               textureCacheRef.current.set(currentScene.id, highResTexture);
               if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
                 sphereMaterialRef.current.map = highResTexture;
@@ -1083,9 +1105,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     cameraRef.current = camera;
 
     // WebGL Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: false,
+      powerPreference: "high-performance",
+      precision: "highp"
+    });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
     
     // Clear previous canvases if any
     mountRef.current.innerHTML = '';
@@ -1123,6 +1153,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       textureLoaderRef.current.load(urls.high, (texture) => {
         texture.minFilter = THREE.LinearMipmapLinearFilter;
         texture.generateMipmaps = true;
+        texture.colorSpace = THREE.SRGBColorSpace;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy() || 1;
         textureCacheRef.current.set(scene.id, texture);
         
@@ -1317,6 +1348,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         setActiveInfoHotspot(null);
       } else if (!editMode && !document.fullscreenElement) {
         // "expand first" - only enter fullscreen when clicking empty space
+        // and NOT already in fullscreen (user said "this law doesnt have to impl to collapse")
         toggleFullscreen();
       }
     }
@@ -1635,10 +1667,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             )}
           </div>
 
-          {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
-          <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-0 pointer-events-none flex flex-col items-center gap-1.5 w-64 sm:w-80">
+          {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center / Left on Mobile) */}
+          <div id="tour-compass" className="absolute sm:left-1/2 sm:-translate-x-1/2 left-4 sm:left-auto top-0 pointer-events-none flex flex-col items-center gap-1.5 w-40 sm:w-80">
             {/* Horizontal sliding ruler */}
-            <div className="w-full h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
+            <div className="w-full h-6 sm:h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
               <div 
                 className="absolute top-0 bottom-0 flex items-center transition-transform duration-100 ease-out"
                 style={{ 
@@ -1673,8 +1705,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
             
             {/* Room Title Tag - glassmorphic and elegant */}
-            <div className="bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 px-4 py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
-              <h3 className="text-white font-sans text-xs sm:text-sm font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap drop-shadow-md">
+            <div className="bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-white font-sans text-[10px] sm:text-sm font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap drop-shadow-md">
                 <span>{currentScene?.title}</span>
                 {currentScene?.isStart && (
                   <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[8px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
@@ -1692,11 +1724,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 setGuideStep(0);
                 setShowGuide(true);
               }}
-              className="px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95"
+              className="px-2.5 sm:px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95"
               title="Open Navigation Tour Guide"
             >
               <HelpCircle className="w-4.5 h-4.5 text-brand-green animate-bounce" />
-              <span>Tour Guide</span>
+              <span className="hidden sm:inline">Tour Guide</span>
             </button>
           </div>
         </div>
@@ -1963,8 +1995,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 </button>
 
                 {isHotspotsMenuOpen && (
-                  <div className="absolute bottom-full left-0 mb-2 w-48 bg-stone-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-1.5 animate-in slide-in-from-bottom-2 duration-200 z-50">
-                    <div className="px-2 py-1 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">Current Scene Actions</div>
+                  <div className="absolute bottom-full left-0 mb-2 w-56 bg-stone-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-1.5 animate-in slide-in-from-bottom-2 duration-200 z-50 max-h-[60vh] overflow-y-auto scrollbar-none">
+                    <div className="px-2 py-1 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">Current Scene Hotspots</div>
                     {currentScene?.hotspots.map(h => (
                       <button
                         key={h.id}
@@ -1985,6 +2017,32 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     {(!currentScene?.hotspots || currentScene.hotspots.length === 0) && (
                       <div className="px-2.5 py-2 text-[10px] text-stone-500 italic">No hotspots in this scene.</div>
                     )}
+
+                    {/* Section for hotspots in other rooms */}
+                    <div className="px-2 py-1 mt-3 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">Hotspots in Other Rooms</div>
+                    {scenes.filter(s => s.id !== currentScene?.id).map(scene => (
+                      <div key={scene.id} className="mt-1">
+                        <div className="px-2 py-0.5 text-[7px] text-stone-600 font-bold uppercase">{scene.title}</div>
+                        {scene.hotspots.map(h => (
+                          <button
+                            key={h.id}
+                            onClick={() => {
+                              handleSwitchRoom(scene.id);
+                              // After switching, if it's info, we can't easily trigger it immediately because scene hasn't loaded
+                              // but we navigate to the room at least.
+                              if (h.type === 'info') {
+                                // Optional: set a pending hotspot to open once scene loads
+                              }
+                              setIsHotspotsMenuOpen(false);
+                            }}
+                            className="w-full text-left px-2.5 py-1 rounded-lg text-[9px] text-stone-400 hover:bg-white/5 hover:text-white transition-all flex items-center gap-2"
+                          >
+                            {h.type === 'link' ? <ArrowRight className="w-2.5 h-2.5 opacity-50" /> : <Info className="w-2.5 h-2.5 opacity-50" />}
+                            <span className="truncate">{h.text}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

@@ -89,14 +89,13 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           <nav 
             className="hidden lg:flex items-center"
             style={{ 
-              fontSize: '36px', 
-              fontWeight: 'bold', 
+              fontSize: '14px', 
+              fontWeight: '600', 
               paddingLeft: '0px', 
               paddingRight: '0px',
-              marginLeft: '-8px',
-              marginRight: '-12px',
-              width: '641.703px', 
-              height: '48.5px' 
+              marginLeft: '-4px',
+              marginRight: '-8px',
+              height: '40px' 
             }}
           >
             {navItems.map((item, idx) => {
@@ -109,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   {item.subItems ? (
                     <button 
                       onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
-                      className="font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50"
+                      className="font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1.5 xl:py-1 xl:px-2 rounded-lg hover:bg-white/50"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
@@ -120,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   ) : (
                     <Link 
                       to={item.path} 
-                      className="font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-3 rounded-xl hover:bg-white/50 relative"
+                      className="font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1 xl:px-2 rounded-lg hover:bg-white/50 relative"
                       style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                     >
                       {item.label}
@@ -165,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           <div className="hidden lg:flex items-center gap-2 xl:gap-4">
             <button 
               onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
-              className="text-[10px] xl:text-xs font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2 xl:px-3.5 py-1.5 xl:py-2 rounded-xl shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5"
+              className="text-[9px] xl:text-[10px] font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2 xl:px-3 py-1 xl:py-1.5 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5"
               style={{ color: t.textColor || '#44403c' }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-ping"></span>
@@ -173,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
             </button>
             <Link 
               to="/login" 
-              className="text-white font-bold font-display rounded-full px-4 xl:px-6 py-1.5 xl:py-2.5 text-[10px] xl:text-xs shadow-[0_4px_15px_rgba(58,91,50,0.2)] hover:shadow-[0_8px_25px_rgba(58,91,50,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
+              className="text-white font-bold font-display rounded-full px-3 xl:px-5 py-1 xl:py-2 text-[9px] xl:text-[10px] shadow-[0_4px_15px_rgba(58,91,50,0.15)] hover:shadow-[0_8px_25px_rgba(58,91,50,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
               style={{ backgroundColor: t.activeColor || '#3a5b32' }}
             >
               {t.login}
