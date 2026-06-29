@@ -580,43 +580,44 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     return texture;
   };
 
-  // 1. Preload all scenes as soon as the list is ready (opening / reload)
+  // 1. Preload other scenes in the background with a delay to give absolute bandwidth priority to the active starting scene first
   useEffect(() => {
-    if (loading || !scenes || scenes.length === 0) return;
+    if (loading || !scenes || scenes.length === 0 || !currentScene) return;
 
     textureLoaderRef.current.setCrossOrigin('anonymous');
 
-    scenes.forEach(scene => {
-      if (!scene.imageUrl) return;
+    // Preload the background rooms with a 1.5s delay to let the primary/starting room load first
+    const delayPreload = setTimeout(() => {
+      scenes.forEach(scene => {
+        // Skip current scene because it is loaded instantly and with high priority in effect #2
+        if (scene.id === currentScene.id) return;
+        if (!scene.imageUrl) return;
 
-      // Check if already in cache
-      if (textureCacheRef.current.has(scene.id)) return;
+        // Check if already in cache
+        if (textureCacheRef.current.has(scene.id)) return;
 
-      const loadUrl = scene.imageUrl.startsWith('http')
-        ? scene.imageUrl + (scene.imageUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
-        : scene.imageUrl;
+        const loadUrl = scene.imageUrl.startsWith('http')
+          ? scene.imageUrl + (scene.imageUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
+          : scene.imageUrl;
 
-      textureLoaderRef.current.load(
-        loadUrl,
-        (texture) => {
-          texture.minFilter = THREE.LinearFilter;
-          texture.generateMipmaps = false;
-          textureCacheRef.current.set(scene.id, texture);
-          console.log(`Successfully preloaded high-res texture for: ${scene.id}`);
-          
-          // If the scene currently displayed is this one, update it immediately
-          if (currentSceneRef.current?.id === scene.id && sphereMaterialRef.current) {
-            sphereMaterialRef.current.map = texture;
-            sphereMaterialRef.current.needsUpdate = true;
+        textureLoaderRef.current.load(
+          loadUrl,
+          (texture) => {
+            texture.minFilter = THREE.LinearFilter;
+            texture.generateMipmaps = false;
+            textureCacheRef.current.set(scene.id, texture);
+            console.log(`Successfully preloaded high-res background texture for: ${scene.id}`);
+          },
+          undefined,
+          (err) => {
+            console.warn(`Failed background preloading scene texture: ${scene.id}. Will fall back dynamically.`, err);
           }
-        },
-        undefined,
-        (err) => {
-          console.warn(`Failed preloading scene texture: ${scene.id}. Will fall back dynamically.`, err);
-        }
-      );
-    });
-  }, [loading, scenes]);
+        );
+      });
+    }, 1500);
+
+    return () => clearTimeout(delayPreload);
+  }, [loading, scenes, currentScene?.id]);
 
   // 2. Manage currentScene changes & progressive texture enhancement
   useEffect(() => {
@@ -863,8 +864,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const deltaX = e.clientX - onPointerDownPointerXRef.current;
     const deltaY = e.clientY - onPointerDownPointerYRef.current;
 
-    // Use addition for both X and Y so that content "grabs" and matches natural swipe direction perfectly
-    const newLon = onPointerDownLonRef.current + deltaX * panSpeedX;
+    // Detect touch / pen pointer type to reverse the left and right swipe only for mobile/tablet
+    const isTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
+    const swipeMultiplierX = isTouch ? -1 : 1;
+
+    // Use addition for both X and Y on desktop, but reverse X on touch as requested
+    const newLon = onPointerDownLonRef.current + deltaX * panSpeedX * swipeMultiplierX;
     const newLat = onPointerDownLatRef.current + deltaY * panSpeedY;
 
     targetLonRef.current = newLon;
