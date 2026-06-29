@@ -213,6 +213,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const mountRef = useRef<HTMLDivElement>(null);
   
   // State
+  const [isThreeReady, setIsThreeReady] = useState(false);
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [currentScene, setCurrentScene] = useState<Scene | null>(null);
   const [loading, setLoading] = useState(true);
@@ -269,6 +270,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newHotspotLinkedId, setNewHotspotLinkedId] = useState(''); // Selected Return Door ID
   const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
   const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
+  const [showGyroSettings, setShowGyroSettings] = useState(false);
+  const [invertGyroLon, setInvertGyroLon] = useState(false);
+  const [invertGyroLat, setInvertGyroLat] = useState(false);
+  const [swapGyroAxes, setSwapGyroAxes] = useState(false);
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
 
   // Camera target orientation refs (for smooth pan interpolation)
@@ -468,29 +473,45 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       let lonRate = 0;
       let latRate = 0;
 
+      // Extract gravity to determine if device is flat or vertical
+      const gravX = e.accelerationIncludingGravity?.x || 0;
+      const gravY = e.accelerationIncludingGravity?.y || 0;
+      const gravZ = e.accelerationIncludingGravity?.z || 0;
+
+      const isVertical = Math.abs(gravY) > Math.abs(gravZ);
+
       if (orient === 0) {
         // Portrait
-        lonRate = gamma; // Rotation around Y
-        latRate = beta;  // Rotation around X
+        lonRate = isVertical ? gamma : alpha;
+        latRate = beta;
       } else if (orient === 90) {
         // Landscape Left
         lonRate = -beta;
-        latRate = gamma;
+        latRate = isVertical ? alpha : gamma;
       } else if (orient === -90) {
         // Landscape Right
         lonRate = beta;
-        latRate = -gamma;
+        latRate = isVertical ? -alpha : -gamma;
       } else {
         // Upside down
         lonRate = -gamma;
         latRate = -beta;
       }
 
+      if (swapGyroAxes) {
+        const tmp = lonRate;
+        lonRate = latRate;
+        latRate = tmp;
+      }
+
       // Additive update for silky smooth tracking
       // Sensitivity factor 0.04 seems balanced for 60fps
       const sensitivity = 0.04;
-      targetLonRef.current += lonRate * -sensitivity; 
-      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (latRate * -sensitivity)));
+      const lonDir = invertGyroLon ? 1 : -1;
+      const latDir = invertGyroLat ? 1 : -1;
+      
+      targetLonRef.current += lonRate * sensitivity * lonDir; 
+      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (latRate * sensitivity * latDir)));
 
       // Optional: Accelerometer Horizon Correction
       if (e.accelerationIncludingGravity) {
@@ -515,7 +536,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     return () => {
       window.removeEventListener('devicemotion', handleMotion);
     };
-  }, [useGyroscope]);
+  }, [useGyroscope, invertGyroLon, invertGyroLat, swapGyroAxes]);
 
   // Save Config to Firestore
   const saveScenesConfig = async (updatedScenes: Scene[]) => {
@@ -996,7 +1017,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   // 2. Manage currentScene changes & progressive texture enhancement
   useEffect(() => {
-    if (loading || !currentScene) return;
+    if (loading || !currentScene || !isThreeReady) return;
 
     // Sync ref
     currentSceneRef.current = currentScene;
@@ -1093,7 +1114,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         }
       );
     }
-  }, [loading, currentScene]);
+  }, [loading, currentScene, isThreeReady]);
 
   // 3. Initialize and run Three.js engine (Runs once on mount)
   useEffect(() => {
@@ -1140,7 +1161,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     scene.add(sphereMesh);
     sphereMeshRef.current = sphereMesh;
 
-    // FIX: Trigger high-res texture load for the initial scene if it's already set
+    // Set Three.js as ready
+    setIsThreeReady(true);
+
+    // FIX: Trigger high-res texture load for the initial scene immediately
     if (currentSceneRef.current) {
       const scene = currentSceneRef.current;
       const urls = getLowResAndHighResUrls(scene.imageUrl);
@@ -1152,11 +1176,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy() || 1;
         textureCacheRef.current.set(scene.id, texture);
         
-        if (sphereMaterialRef.current && currentSceneRef.current?.id === scene.id) {
-          sphereMaterialRef.current.map = texture;
-          sphereMaterialRef.current.needsUpdate = true;
-          renderer.render(sceneRef.current!, cameraRef.current!);
-        }
+        // Use the local sphereMaterial variable directly to avoid ref timing issues
+        sphereMaterial.map = texture;
+        sphereMaterial.needsUpdate = true;
+        
+        // Force a render
+        renderer.render(scene, camera);
+      }, undefined, (err) => {
+        console.warn(`Failed to load initial high-res texture for ${scene.id}:`, err);
       });
     }
 
@@ -1934,6 +1961,71 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               >
                 <Compass className={`w-5.5 h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
               </button>
+
+              {useGyroscope && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowGyroSettings(!showGyroSettings)}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      showGyroSettings 
+                        ? 'bg-white/20 text-white' 
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                    title="Gyroscope Settings / Calibration"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
+                  
+                  {showGyroSettings && (
+                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 bg-stone-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-3 flex flex-col gap-3 z-[60] animate-in slide-in-from-bottom-2 duration-200">
+                      <div className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-widest border-b border-white/5 pb-1">
+                        Sensor Mapping
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="flex items-center justify-between cursor-pointer group">
+                          <span className="text-[11px] text-stone-300 group-hover:text-white transition">Swap X/Y Axes</span>
+                          <input 
+                            type="checkbox" 
+                            checked={swapGyroAxes} 
+                            onChange={e => setSwapGyroAxes(e.target.checked)}
+                            className="w-3.5 h-3.5 accent-brand-green"
+                          />
+                        </label>
+                        <label className="flex items-center justify-between cursor-pointer group">
+                          <span className="text-[11px] text-stone-300 group-hover:text-white transition">Invert Horizontal</span>
+                          <input 
+                            type="checkbox" 
+                            checked={invertGyroLon} 
+                            onChange={e => setInvertGyroLon(e.target.checked)}
+                            className="w-3.5 h-3.5 accent-brand-green"
+                          />
+                        </label>
+                        <label className="flex items-center justify-between cursor-pointer group">
+                          <span className="text-[11px] text-stone-300 group-hover:text-white transition">Invert Vertical</span>
+                          <input 
+                            type="checkbox" 
+                            checked={invertGyroLat} 
+                            onChange={e => setInvertGyroLat(e.target.checked)}
+                            className="w-3.5 h-3.5 accent-brand-green"
+                          />
+                        </label>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setSwapGyroAxes(false);
+                          setInvertGyroLon(false);
+                          setInvertGyroLat(false);
+                        }}
+                        className="w-full py-1.5 bg-white/5 hover:bg-white/10 text-[10px] text-stone-400 hover:text-white rounded-lg transition font-medium"
+                      >
+                        Reset to Defaults
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="w-[1px] h-4 bg-white/20" />
 
