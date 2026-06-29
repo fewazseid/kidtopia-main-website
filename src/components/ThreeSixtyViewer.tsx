@@ -18,6 +18,7 @@ export interface Hotspot {
   type?: 'link' | 'info';
   description?: string;
   color?: string; // Optional custom color of direction / link hotspot icon
+  linkedHotspotId?: string; // ID of the reciprocal return door in targetScene
 }
 
 export interface Scene {
@@ -261,6 +262,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newHotspotTarget, setNewHotspotTarget] = useState('');
   const [newHotspotType, setNewHotspotType] = useState<'link' | 'info'>('link');
   const [newHotspotDescription, setNewHotspotDescription] = useState('');
+  const [newHotspotLinkedId, setNewHotspotLinkedId] = useState(''); // Selected Return Door ID
   const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
   const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
@@ -445,10 +447,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   useEffect(() => {
     if (!useGyroscope) return;
 
-    let initialLon: number | null = null;
-    let initialLat: number | null = null;
-    const startLon = targetLonRef.current;
-    const startLat = targetLatRef.current;
+    let lastLon: number | null = null;
+    let lastLat: number | null = null;
 
     const euler = new THREE.Euler();
     const quaternion = new THREE.Quaternion();
@@ -476,24 +476,28 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       forward.applyQuaternion(quaternion);
 
       // Convert forward vector back to lon/lat expected by our camera system
-      const currentLon = THREE.MathUtils.radToDeg(Math.atan2(forward.z, forward.x));
+      const currentLon = THREE.MathUtils.radToDeg(Math.atan2(forward.x, -forward.z));
       const currentLat = THREE.MathUtils.radToDeg(Math.asin(Math.max(-1, Math.min(1, forward.y))));
 
-      if (initialLon === null) {
-        initialLon = currentLon;
-        initialLat = currentLat;
+      if (lastLon === null) {
+        lastLon = currentLon;
+        lastLat = currentLat;
         return;
       }
 
-      // Calculate shortest path delta
-      let deltaLon = currentLon - initialLon;
+      // Calculate shortest path delta from last frame
+      let deltaLon = currentLon - lastLon;
       if (deltaLon > 180) deltaLon -= 360;
       if (deltaLon < -180) deltaLon += 360;
 
-      let deltaLat = currentLat - initialLat!;
+      let deltaLat = currentLat - lastLat!;
 
-      targetLonRef.current = startLon + deltaLon;
-      targetLatRef.current = Math.max(-85, Math.min(85, startLat + deltaLat));
+      // Additive update avoids fighting with touch controls
+      targetLonRef.current += deltaLon;
+      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaLat));
+
+      lastLon = currentLon;
+      lastLat = currentLat;
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -538,22 +542,34 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     const isPreloaded = textureCacheRef.current.has(sceneId);
 
-    const initialLon = targetScene.startLon !== undefined ? targetScene.startLon : 0;
-    const initialLat = targetScene.startLat !== undefined ? targetScene.startLat : 0;
+    // Stage 2: Calculate landing angles based on reciprocal return door
+    let landingLon = targetScene.startLon !== undefined ? targetScene.startLon : 0;
+    let landingLat = targetScene.startLat !== undefined ? targetScene.startLat : 0;
+
+    if (hotspot?.linkedHotspotId) {
+      const linkedDoor = targetScene.hotspots.find(h => h.id === hotspot.linkedHotspotId);
+      if (linkedDoor) {
+        // Look away from the return door to simulate walking forward into the room
+        landingLon = linkedDoor.yaw + 180;
+        if (landingLon > 180) landingLon -= 360;
+        // Pitch should stay level or look slightly down/up based on the door, but usually 0 is safer
+        landingLat = 0; 
+      }
+    }
 
     if (isPreloaded) {
-      // Blazing fast continuous transition if texture is preloaded (no loader overlay needed!)
+      // Give the zoom effect 400ms to play out before instantly swapping textures
       setTimeout(() => {
         setCurrentScene(targetScene);
         // Apply starting camera directions for this classroom to avoid facing backwards
-        targetLonRef.current = initialLon;
-        targetLatRef.current = initialLat;
-        cameraLonRef.current = initialLon;
-        cameraLatRef.current = initialLat;
+        targetLonRef.current = landingLon;
+        targetLatRef.current = landingLat;
+        cameraLonRef.current = landingLon;
+        cameraLatRef.current = landingLat;
         
         cameraFovRef.current = 110; // Start extra wide
         targetFovRef.current = 75;  // Lerp smoothly to normal 75 fov
-      }, 200);
+      }, 400);
     } else {
       // Fallback transitional cross-fade if not preloaded
       setTimeout(() => {
@@ -562,17 +578,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         setTimeout(() => {
           setCurrentScene(targetScene);
           // Apply starting camera directions for this classroom to avoid facing backwards
-          targetLonRef.current = initialLon;
-          targetLatRef.current = initialLat;
-          cameraLonRef.current = initialLon;
-          cameraLatRef.current = initialLat;
+          targetLonRef.current = landingLon;
+          targetLatRef.current = landingLat;
+          cameraLonRef.current = landingLon;
+          cameraLatRef.current = landingLat;
           
           cameraFovRef.current = 110;
           targetFovRef.current = 75;
           
           setSceneLoading(false);
-        }, 200);
-      }, 200);
+        }, 300);
+      }, 300);
     }
   };
 
@@ -739,14 +755,28 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       text: newHotspotText,
       type: newHotspotType,
       description: newHotspotType === 'info' ? newHotspotDescription : '',
-      color: newHotspotColor // Save the custom direction color chosen by the user
+      color: newHotspotColor, // Save the custom direction color chosen by the user
+      linkedHotspotId: (newHotspotType === 'link' && newHotspotLinkedId) ? newHotspotLinkedId : undefined
     };
 
     const updated = scenes.map(s => {
+      // 1. Add hotspot to current scene
       if (s.id === currentScene.id) {
         return {
           ...s,
           hotspots: [...s.hotspots, newHotspot]
+        };
+      }
+      // 2. If a return door is selected, update it in the target scene to point back!
+      if (newHotspotType === 'link' && newHotspotTarget === s.id && newHotspotLinkedId) {
+        return {
+          ...s,
+          hotspots: s.hotspots.map(h => {
+            if (h.id === newHotspotLinkedId) {
+              return { ...h, linkedHotspotId: newHotspot.id, targetSceneId: currentScene.id };
+            }
+            return h;
+          })
         };
       }
       return s;
@@ -757,6 +787,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Reset Form
     setNewHotspotText('');
     setNewHotspotTarget('');
+    setNewHotspotLinkedId('');
     setNewHotspotType('link');
     setNewHotspotDescription('');
     setNewHotspotColor('#10b981'); // Reset to default brand green
@@ -2270,25 +2301,56 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </div>
 
               {newHotspotType === 'link' ? (
-                <div>
-                  <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                    Destination Room
-                  </label>
-                  <select
-                    value={newHotspotTarget}
-                    onChange={(e) => setNewHotspotTarget(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
-                    required
-                  >
-                    <option value="">-- Select Destination Scene --</option>
-                    {scenes
-                      .filter(s => s.id !== currentScene.id)
-                      .map(s => (
-                        <option key={s.id} value={s.id}>
-                          {s.title}
-                        </option>
-                      ))}
-                  </select>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                      Destination Room
+                    </label>
+                    <select
+                      value={newHotspotTarget}
+                      onChange={(e) => {
+                        setNewHotspotTarget(e.target.value);
+                        setNewHotspotLinkedId(''); // Reset linked door when target changes
+                      }}
+                      className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                      required
+                    >
+                      <option value="">-- Select Destination Scene --</option>
+                      {scenes
+                        .filter(s => s.id !== currentScene.id)
+                        .map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.title}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  
+                  {newHotspotTarget && (
+                    <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-xl">
+                      <label className="block text-indigo-900 dark:text-indigo-200 font-medium mb-1.5 flex justify-between items-center">
+                        <span>Return Door Link (Optional)</span>
+                      </label>
+                      <p className="text-xs text-indigo-700/70 dark:text-indigo-300/70 mb-2">
+                        Select a door in the destination room to act as the return path. 
+                        Your camera will automatically land facing away from this return door when you enter the room.
+                      </p>
+                      <select
+                        value={newHotspotLinkedId}
+                        onChange={(e) => setNewHotspotLinkedId(e.target.value)}
+                        className="w-full px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                      >
+                        <option value="">-- No Return Door Link --</option>
+                        {scenes.find(s => s.id === newHotspotTarget)?.hotspots
+                          .filter(h => h.type !== 'info')
+                          .map(h => (
+                            <option key={h.id} value={h.id}>
+                              {h.text} (Yaw: {h.yaw}°)
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div>
