@@ -252,6 +252,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     hotspot: Hotspot;
     x: number;
     y: number;
+    roll?: number;
     visible: boolean;
   }>>([]);
 
@@ -275,6 +276,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
   const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
   const [isRoomListExpanded, setIsRoomListExpanded] = useState(false);
+  const [nextScene, setNextScene] = useState<Scene | null>(null);
+  const cameraRollRef = useRef(0);
   const useGyroscopeRef = useRef(false);
   const rawGyroQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
   const gyroOffsetQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
@@ -585,11 +588,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       
       cameraFovRef.current = 110; // Start extra wide for "arrival" feel
       targetFovRef.current = 100;  // Lerp smoothly to standard view
+      setNextScene(null);
     };
 
+    setNextScene(targetScene);
     if (isPreloaded) {
+      setSceneLoading(true);
       // Give the zoom effect 400ms to play out before instantly swapping textures
-      setTimeout(finalizeTransition, 400);
+      setTimeout(() => {
+        finalizeTransition();
+        setSceneLoading(false);
+      }, 400);
     } else {
       // Fallback transitional cross-fade if not preloaded
       setTimeout(() => {
@@ -1204,6 +1213,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         camera.lookAt(target);
       }
 
+      // Extract camera roll (Z-axis rotation) to keep hotspots upright (level)
+      const cameraEuler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+      cameraRollRef.current = cameraEuler.z;
+
       renderer.render(scene, camera);
 
       // Project Hotspots coordinates to 2D HTML space
@@ -1241,6 +1254,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             hotspot: hs,
             x: screenX,
             y: screenY,
+            roll: cameraRollRef.current,
             visible: !isBehind && screenX >= 0 && screenX <= currentWidth && screenY >= 0 && screenY <= currentHeight
           };
         });
@@ -1484,10 +1498,50 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   }, [isFullscreen]);
 
   if (loading) {
+    const startScene = scenes?.find(s => s.isStart) || scenes?.[0] || DEFAULT_SCENES[0];
     return (
-      <div className="w-full h-[320px] sm:h-[420px] md:h-[500px] flex flex-col items-center justify-center bg-stone-900 text-stone-200 rounded-2xl border border-stone-800">
-        <RefreshCw className="w-10 h-10 animate-spin text-brand-green mb-4" />
-        <p className="font-sans text-sm tracking-wide">Assembling 3D Virtual Tour Environment...</p>
+      <div className="w-full h-[320px] sm:h-[420px] md:h-[600px] flex flex-col items-center justify-center bg-stone-950 text-stone-200 rounded-2xl border border-stone-800 relative overflow-hidden p-6 shadow-2xl">
+        {/* Ambient blurred background */}
+        <div className="absolute inset-0 opacity-20 filter blur-2xl scale-125 select-none pointer-events-none">
+          <img 
+            src={startScene.imageUrl} 
+            alt="Kidtopia Backdrop" 
+            className="w-full h-full object-cover" 
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        
+        {/* Sleek glassmorphic card */}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-sm w-full flex flex-col items-center text-center gap-4 z-10">
+          <div className="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative border border-white/5 bg-stone-900 shadow-inner">
+            <img 
+              src={startScene.imageUrl} 
+              alt={startScene.title} 
+              className="w-full h-full object-cover opacity-60"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-3 text-left">
+              <span className="text-[8px] uppercase tracking-[0.2em] text-brand-orange font-black">Starting Room</span>
+              <h4 className="text-white text-xs sm:text-sm font-bold truncate leading-tight">{startScene.title}</h4>
+            </div>
+          </div>
+          
+          <div className="w-full flex flex-col gap-1">
+            <h3 className="font-sans font-black text-white text-sm sm:text-base tracking-wide">360° Kidtopia Campus Tour</h3>
+            <p className="text-[10px] text-stone-400 font-medium">Assembling interactive Virtual Environment...</p>
+          </div>
+          
+          {/* YouTube-like Linear Loading Bar */}
+          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-2 relative">
+            <motion.div 
+              initial={{ left: "-100%" }}
+              animate={{ left: "100%" }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+              className="absolute top-0 bottom-0 w-1/2 bg-brand-green shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -1517,15 +1571,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         />
 
         {/* 2D Projected Navigation / Description Hotspots */}
-        {projectedHotspots.map(({ hotspot, x, y, visible }) => {
+        {projectedHotspots.map(({ hotspot, x, y, roll, visible }) => {
           if (!visible) return null;
           const isInfo = hotspot.type === 'info';
 
           return (
             <div
               key={hotspot.id}
-              className="absolute -translate-x-1/2 -translate-y-1/2 group z-40 flex flex-col items-center pointer-events-auto select-none"
-              style={{ left: `${x}px`, top: `${y}px` }}
+              className="absolute group z-40 flex flex-col items-center pointer-events-auto select-none transition-transform duration-75"
+              style={{ 
+                left: `${x}px`, 
+                top: `${y}px`,
+                transform: `translate(-50%, -50%) rotate(${-roll || 0}rad)`
+              }}
             >
               {isInfo ? (
                 /* Information description area hotspot - styled to be premium glassmorphic */
@@ -1689,13 +1747,48 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-stone-950/20 backdrop-blur-sm z-50 flex items-center justify-center pointer-events-none"
+              className="absolute inset-0 bg-stone-950/80 backdrop-blur-md z-50 flex items-center justify-center pointer-events-none p-4"
             >
-              <div className="flex flex-col items-center">
-                <div className="px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
-                  <p className="text-white text-[10px] font-black tracking-[0.2em] uppercase opacity-80">Loading View</p>
+              <motion.div
+                initial={{ scale: 0.95, y: 15 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 15 }}
+                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl max-w-sm w-full flex flex-col items-center text-center gap-4"
+              >
+                {nextScene ? (
+                  <div className="w-full h-32 rounded-2xl overflow-hidden relative border border-white/5 bg-stone-900 shadow-inner">
+                    <img 
+                      src={nextScene.imageUrl} 
+                      alt={nextScene.title} 
+                      className="w-full h-full object-cover opacity-60 filter blur-[0.5px]"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-stone-950/30" />
+                    <div className="absolute bottom-3 left-3 right-3 text-left">
+                      <span className="text-[8px] uppercase tracking-[0.2em] text-brand-orange font-black">Transporting To</span>
+                      <h4 className="text-white text-xs sm:text-sm font-bold truncate leading-tight">{nextScene.title}</h4>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-32 rounded-2xl bg-stone-900/50 flex items-center justify-center border border-white/5">
+                    <Compass className="w-8 h-8 text-brand-green animate-spin" style={{ animationDuration: '3s' }} />
+                  </div>
+                )}
+
+                <div className="w-full flex flex-col gap-1">
+                  <h4 className="text-white font-sans text-xs tracking-wider font-semibold uppercase">Entering Space...</h4>
                 </div>
-              </div>
+
+                {/* Sleek linear progress bar */}
+                <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-1 relative">
+                  <motion.div 
+                    initial={{ left: "-100%" }}
+                    animate={{ left: "100%" }}
+                    transition={{ repeat: Infinity, duration: 1.25, ease: "linear" }}
+                    className="absolute top-0 bottom-0 w-1/2 bg-brand-green shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+                  />
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1727,7 +1820,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
           <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
             {/* Horizontal sliding ruler */}
-            <div className="w-full h-5 sm:h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
+            <div className="w-full h-5 sm:h-8 bg-white/75 backdrop-blur-xl border border-white/50 rounded-full overflow-hidden relative shadow-lg">
               <div 
                 className="absolute top-0 bottom-0 flex items-center transition-transform duration-100 ease-out"
                 style={{ 
@@ -1737,16 +1830,16 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 {/* Render repeating ruler segments to cover all rotation overflow */}
                 {[-3, -2, -1, 0, 1, 2, 3].map((k) => (
                   <div key={k} className="absolute top-0 bottom-0 flex items-center" style={{ left: `${k * 720}px`, width: '720px' }}>
-                    <div className="absolute left-[0px] top-[2px] text-[10px] text-brand-orange font-bold -translate-x-1/2 z-10">N</div>
-                    <div className="absolute left-[180px] top-[2px] text-[10px] text-white font-bold -translate-x-1/2 z-10">E</div>
-                    <div className="absolute left-[360px] top-[2px] text-[10px] text-white font-bold -translate-x-1/2 z-10">S</div>
-                    <div className="absolute left-[540px] top-[2px] text-[10px] text-white font-bold -translate-x-1/2 z-10">W</div>
+                    <div className="absolute left-[0px] top-[2px] text-[10px] text-brand-orange font-black -translate-x-1/2 z-10">N</div>
+                    <div className="absolute left-[180px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">E</div>
+                    <div className="absolute left-[360px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">S</div>
+                    <div className="absolute left-[540px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">W</div>
                     
                     {/* Ticks every 15 degrees (30px) */}
                     {Array.from({length: 24}).map((_, i) => (
                       <div 
                         key={i} 
-                        className="absolute bottom-0 w-[1.5px] bg-white/40" 
+                        className="absolute bottom-0 w-[1.5px] bg-stone-900/30" 
                         style={{ 
                           left: `${i * 30}px`, 
                           height: i % 6 === 0 ? '12px' : '6px', 
@@ -1758,12 +1851,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 ))}
               </div>
               {/* Center Needle */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-brand-orange shadow-[0_0_8px_rgba(218,141,30,0.8)] -translate-x-1/2 z-20" />
+              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-brand-orange shadow-[0_0_6px_rgba(218,141,30,0.6)] -translate-x-1/2 z-20" />
             </div>
             
             {/* Room Title Tag - glassmorphic and elegant */}
-            <div className="bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
-              <h3 className="text-white font-sans text-[9px] sm:text-sm font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap drop-shadow-md">
+            <div className="bg-white/75 backdrop-blur-xl border border-white/50 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-stone-900 font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
                 <span>{currentScene?.title}</span>
                 {currentScene?.isStart && (
                   <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[7px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
@@ -1833,16 +1926,46 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       exit={{ opacity: 0, scale: 0.8 }}
                       className="flex flex-col items-center gap-2"
                     >
+                      {/* TikTok-style finger swipe animation */}
                       <motion.div
                         animate={{ 
-                          x: [-20, 20, -20],
-                          transition: { repeat: Infinity, duration: 2 }
+                          x: [-40, 40, -40],
+                          rotate: [12, -12, 12]
                         }}
-                        className="p-2 bg-white/10 rounded-full border border-white/20"
+                        transition={{ 
+                          repeat: Infinity, 
+                          duration: 2.5, 
+                          ease: "easeInOut" 
+                        }}
+                        className="relative"
                       >
-                        <Move className="w-6 h-6 text-brand-orange" />
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2.5" 
+                          className="w-10 h-10 text-brand-orange drop-shadow-lg"
+                        >
+                          <path d="M9 13V3a1.5 1.5 0 0 1 3 0v10" fill="rgba(249,115,22,0.15)" />
+                          <path d="M6 13a3 3 0 0 1-3-3v-1a1.5 1.5 0 0 1 3 0v4" />
+                          <path d="M12 10.5V6a1.5 1.5 0 0 1 3 0v4.5" />
+                          <path d="M18 11V8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-3a6 6 0 0 1-6-6v-2" />
+                        </svg>
+                        {/* Touch press ripple */}
+                        <motion.div
+                          animate={{ 
+                            scale: [0.7, 1.6, 0.7],
+                            opacity: [0.7, 0, 0.7] 
+                          }}
+                          transition={{ 
+                            repeat: Infinity, 
+                            duration: 1.25 
+                          }}
+                          className="absolute top-0 left-2.5 w-5 h-5 bg-brand-orange/30 rounded-full border border-brand-orange/60 -z-10"
+                        />
                       </motion.div>
-                      <span className="text-[10px] text-brand-orange font-bold uppercase tracking-wider">Drag to look around</span>
+                      <span className="text-[10px] text-brand-orange font-bold uppercase tracking-wider">Drag/Swipe to look around</span>
                     </motion.div>
                   )}
                   {guideStep === 1 && (
@@ -1853,15 +1976,46 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                       exit={{ opacity: 0, y: -10 }}
                       className="flex flex-col items-center gap-2"
                     >
+                      {/* Tap hotspot finger animation */}
                       <motion.div
                         animate={{ 
-                          y: [0, -10, 0],
-                          transition: { repeat: Infinity, duration: 1.5 }
+                          scale: [1, 0.9, 1],
+                          y: [0, 6, 0]
                         }}
+                        transition={{ 
+                          repeat: Infinity, 
+                          duration: 1.4, 
+                          ease: "easeInOut" 
+                        }}
+                        className="relative flex flex-col items-center"
                       >
-                        <ArrowRight className="w-7 h-7 text-white -rotate-90" />
+                        <MapPin className="w-8 h-8 text-brand-orange animate-bounce" />
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2.5" 
+                          className="w-8 h-8 text-white drop-shadow-md mt-1 translate-y-2 translate-x-1 rotate-[-15deg]"
+                        >
+                          <path d="M9 13V3a1.5 1.5 0 0 1 3 0v10" fill="rgba(255,255,255,0.2)" />
+                          <path d="M6 13a3 3 0 0 1-3-3v-1a1.5 1.5 0 0 1 3 0v4" />
+                          <path d="M12 10.5V6a1.5 1.5 0 0 1 3 0v4.5" />
+                          <path d="M18 11V8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-3a6 6 0 0 1-6-6v-2" />
+                        </svg>
+                        <motion.div
+                          animate={{ 
+                            scale: [0.5, 1.8, 0.5],
+                            opacity: [0.8, 0, 0.8] 
+                          }}
+                          transition={{ 
+                            repeat: Infinity, 
+                            duration: 1.45 
+                          }}
+                          className="absolute bottom-2 right-1 w-6 h-6 bg-white/30 rounded-full border border-white/50 -z-10"
+                        />
                       </motion.div>
-                      <span className="text-[10px] text-white font-bold uppercase tracking-wider">Tap arrows to move</span>
+                      <span className="text-[10px] text-white font-bold uppercase tracking-wider">Tap pointers to teleport</span>
                     </motion.div>
                   )}
                   {guideStep === 2 && (
@@ -2114,9 +2268,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     setIsRoomsMenuOpen(!isRoomsMenuOpen);
                     setIsHotspotsMenuOpen(false);
                   }}
-                  className="bg-black/85 backdrop-blur-md border border-white/20 px-3 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
+                  className="bg-white/80 backdrop-blur-xl border border-white/50 px-3 py-2.5 rounded-xl shadow-2xl text-stone-900 text-xs font-sans font-bold flex items-center gap-2 hover:bg-white transition active:scale-95"
                 >
-                  <ChevronRight className={`w-4 h-4 text-white transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
+                  <ChevronRight className={`w-4 h-4 text-stone-900 transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
                   {isRoomsMenuOpen && (
                     <span className="truncate max-w-[100px] animate-in fade-in duration-200">
                       {currentScene?.title || 'Rooms'}
@@ -2125,7 +2279,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 </button>
                 
                 {isRoomsMenuOpen && (
-                  <div className="absolute bottom-12 left-0 w-56 max-h-56 overflow-y-auto bg-stone-950/95 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
+                  <div className="absolute bottom-12 left-0 w-56 max-h-56 overflow-y-auto bg-white/95 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
                     {scenes.map(s => (
                       <button
                         key={s.id}
@@ -2134,7 +2288,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           setIsRoomsMenuOpen(false);
                         }}
                         className={`w-full text-left px-3 py-2 rounded-xl text-xs font-sans transition-all flex items-center justify-between ${
-                          currentScene?.id === s.id ? 'bg-brand-green text-white' : 'text-stone-300'
+                          currentScene?.id === s.id ? 'bg-brand-green text-white font-semibold' : 'text-stone-800 hover:bg-stone-100/60'
                         }`}
                       >
                         <span className="truncate">{s.title}</span>
@@ -2152,14 +2306,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     setIsHotspotsMenuOpen(!isHotspotsMenuOpen);
                     setIsRoomsMenuOpen(false);
                   }}
-                  className="bg-black/85 backdrop-blur-md border border-white/20 px-3 py-2.5 rounded-xl shadow-2xl text-white text-xs font-sans font-semibold flex items-center gap-2 hover:bg-black transition active:scale-95"
+                  className="bg-white/80 backdrop-blur-xl border border-white/50 px-3 py-2.5 rounded-xl shadow-2xl text-stone-900 text-xs font-sans font-bold flex items-center gap-2 hover:bg-white transition active:scale-95"
                 >
                   <MapPin className="w-4 h-4 text-brand-orange" />
                   {isHotspotsMenuOpen && <span className="animate-in fade-in">Points</span>}
                 </button>
                 
                 {isHotspotsMenuOpen && (
-                  <div className="absolute bottom-12 left-0 w-48 max-h-56 overflow-y-auto bg-stone-950/95 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
+                  <div className="absolute bottom-12 left-0 w-48 max-h-56 overflow-y-auto bg-white/95 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
                     {currentScene?.hotspots.map(h => (
                       <button
                         key={h.id}
@@ -2171,7 +2325,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           }
                           setIsHotspotsMenuOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-sans text-stone-300 hover:bg-white/5 flex items-center gap-2"
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-sans text-stone-800 hover:bg-stone-100/60 font-medium flex items-center gap-2"
                       >
                         {h.type === 'link' ? <ArrowRight className="w-3 h-3 text-brand-green" /> : <Info className="w-3 h-3 text-brand-orange" />}
                         <span className="truncate">{h.text}</span>
@@ -2186,11 +2340,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           {/* PlayStation Controller Cross D-pad Console - Glassmorphic Transparent Overlay */}
           <div className="flex flex-col items-center gap-3 pointer-events-auto z-30">
             {/* Circular D-pad body - styled to be glassmorphic and transparent */}
-            <div className="hidden sm:flex relative w-40 h-40 bg-black/25 backdrop-blur-md rounded-full border border-white/20 shadow-2xl items-center justify-center select-none">
+            <div className="hidden sm:flex relative w-40 h-40 bg-white/70 backdrop-blur-xl rounded-full border border-white/50 shadow-2xl items-center justify-center select-none">
               {/* UP button */}
               <button
                 onClick={() => handleKeyDown('up')}
-                className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-t-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-t border-x border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
+                className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-t-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-t border-x border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Look Up"
               >
                 <ArrowUp className="w-6 h-6" />
@@ -2199,7 +2353,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {/* LEFT button */}
               <button
                 onClick={() => handleKeyDown('left')}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-l-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-l border-y border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-l-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-l border-y border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Rotate Left"
               >
                 <ArrowLeft className="w-6 h-6" />
@@ -2208,7 +2362,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {/* RIGHT button */}
               <button
                 onClick={() => handleKeyDown('right')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-r-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-r border-y border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-r-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-r border-y border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Rotate Right"
               >
                 <ArrowRight className="w-6 h-6" />
@@ -2217,7 +2371,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {/* DOWN button */}
               <button
                 onClick={() => handleKeyDown('down')}
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-b-lg bg-white/5 hover:bg-white/15 active:bg-brand-green/40 border-b border-x border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-all duration-100"
+                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-b-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-b border-x border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Look Down"
               >
                 <ArrowDown className="w-6 h-6" />
@@ -2235,7 +2389,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   setCameraLat(sLat);
                   setCameraFov(75);
                 }}
-                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 active:bg-brand-green/40 border border-white/20 flex items-center justify-center transition-all text-white/85 hover:text-brand-green"
+                className="w-12 h-12 rounded-full bg-white hover:bg-stone-50 active:bg-brand-green/20 border border-white shadow flex items-center justify-center transition-all text-stone-900 hover:text-brand-green"
                 title="Reset Camera Orientation"
               >
                 <RotateCcw className="w-5 h-5" />
@@ -2243,40 +2397,40 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
 
             {/* Action Bar: Gyroscope, Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
-            <div className="bg-black/25 backdrop-blur-md border border-white/20 px-2 md:px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 md:gap-2.5">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/50 px-2 md:px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 md:gap-2.5">
               <button
                 type="button"
                 onClick={requestDeviceOrientationPermission}
                 className={`p-1.5 md:p-2 rounded-lg transition-all ${
                   useGyroscope 
-                    ? 'bg-brand-green/30 text-brand-green border border-brand-green/30' 
-                    : 'text-stone-300 hover:text-white hover:bg-white/10 border border-transparent'
+                    ? 'bg-brand-green/20 text-brand-green border border-brand-green/40' 
+                    : 'text-stone-800 hover:text-black hover:bg-stone-100/30 border border-transparent'
                 }`}
                 title="Use Device Gyroscope"
               >
                 <Compass className={`w-4.5 h-4.5 md:w-5.5 md:h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
               </button>
 
-              <div className="w-[1px] h-3 md:h-4 bg-white/20" />
+              <div className="w-[1px] h-3 md:h-4 bg-stone-300" />
 
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
                 title="Zoom In"
               >
                 <ZoomIn className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
-              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-white/20" />
+              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-stone-300" />
               <button
                 onClick={toggleFullscreen}
-                className="p-1.5 md:p-2 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg transition"
+                className="p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
                 title="Toggle Fullscreen"
               >
                 {isFullscreen ? <Minimize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" /> : <Maximize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />}

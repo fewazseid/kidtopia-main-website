@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
@@ -11,8 +11,19 @@ interface StaffSectionProps {
 export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
   const t = useContent(lang).staff;
   const [showAll, setShowAll] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const displayedMembers = showAll ? t.members : t.members.slice(0, 4);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const limit = isMobile ? 3 : 4;
+  const displayedMembers = showAll ? t.members : t.members.slice(0, limit);
 
   const handleToggle = () => {
     if (showAll) {
@@ -98,7 +109,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
           </AnimatePresence>
         </div>
 
-        {t.members.length > 4 && (
+        {t.members.length > limit && (
           <div className="mt-16 text-center">
             <button 
               onClick={handleToggle}
@@ -109,6 +120,26 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
             </button>
           </div>
         )}
+
+        {/* Sticky/Floating collapse button when list is expanded */}
+        <AnimatePresence>
+          {showAll && (
+            <motion.div 
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="fixed bottom-6 right-6 z-40"
+            >
+              <button
+                onClick={handleToggle}
+                className="flex items-center gap-1.5 px-4 py-3 bg-white/80 backdrop-blur-md border border-stone-200/80 rounded-full text-xs font-black tracking-widest uppercase text-stone-900 shadow-xl hover:bg-stone-100 transition-all duration-300 active:scale-95 cursor-pointer"
+              >
+                <ChevronUp size={14} className="stroke-[2.5] text-brand-green" />
+                {t.showLess}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
 import { BookOpen, Download, FileText, Video, GraduationCap } from 'lucide-react';
 import { GlassCard } from './GlassCard';
+import { ParentalResourceDetails } from './ParentalResourceDetails';
 
 interface ResourcesProps {
   lang: Language;
@@ -11,6 +12,7 @@ interface ResourcesProps {
 
 export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
   const t = useContent(lang).resources;
+  const [activeActionType, setActiveActionType] = useState<string | null>(null);
   
   const icons = [
     <BookOpen className="w-6 h-6 text-brand-teal" />,
@@ -74,7 +76,16 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
             >
               <GlassCard
                 delay={0}
-                className="rounded-[28px] p-7 h-full flex flex-col justify-between group w-full text-left hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.06)] hover:scale-[1.03] hover:-translate-y-1 transition-all duration-350"
+                className="rounded-[28px] p-7 h-full flex flex-col justify-between group w-full text-left hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.06)] hover:scale-[1.03] hover:-translate-y-1 transition-all duration-350 cursor-pointer"
+                onClick={() => {
+                  if (resource.actionType) {
+                    if (resource.actionType === 'url' && resource.link) {
+                      window.open(resource.link, '_blank');
+                    } else {
+                      setActiveActionType(resource.actionType);
+                    }
+                  }
+                }}
               >
                 <div>
                   {/* Icon Frame */}
@@ -107,6 +118,14 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
             </motion.div>
           ))}
         </div>
+
+        {activeActionType && (
+          <ParentalResourceDetails 
+            actionType={activeActionType} 
+            onClose={() => setActiveActionType(null)} 
+            lang={lang === 'en' || lang === 'am' ? lang : 'en'} 
+          />
+        )}
 
       </div>
     </section>

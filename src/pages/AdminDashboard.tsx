@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -323,6 +323,7 @@ export const AdminDashboard: React.FC = () => {
           whyChoose: { ...defaultTranslations.en.whyChoose, ...(enDocData.whyChoose || {}) },
           faq: { ...defaultTranslations.en.faq, ...(enDocData.faq || {}) },
           hero: { ...defaultTranslations.en.hero, ...(enDocData.hero || {}) },
+          resources: { ...defaultTranslations.en.resources, ...(enDocData.resources || {}) },
           nav: { ...defaultTranslations.en.nav, ...(enDocData.nav || {}) }
         };
         
@@ -335,6 +336,7 @@ export const AdminDashboard: React.FC = () => {
           whyChoose: { ...defaultTranslations.am.whyChoose, ...(amDocData.whyChoose || {}) },
           faq: { ...defaultTranslations.am.faq, ...(amDocData.faq || {}) },
           hero: { ...defaultTranslations.am.hero, ...(amDocData.hero || {}) },
+          resources: { ...defaultTranslations.am.resources, ...(amDocData.resources || {}) },
           nav: { ...defaultTranslations.am.nav, ...(amDocData.nav || {}) }
         };
 
@@ -374,10 +376,24 @@ export const AdminDashboard: React.FC = () => {
 
         arraysToNormalize.forEach(([section, arrayName]) => {
           if (enData[section] && enData[section][arrayName]) {
-            enData[section][arrayName] = enData[section][arrayName].map((item: any) => ({ image: '', ...item }));
+            enData[section][arrayName] = enData[section][arrayName].map((item: any, idx: number) => {
+              const base: any = { image: '', ...item };
+              if (section === 'resources') {
+                if (typeof base.actionType === 'undefined') base.actionType = 'handbook';
+                if (typeof base.link === 'undefined') base.link = '';
+              }
+              return base;
+            });
           }
           if (amData[section] && amData[section][arrayName]) {
-            amData[section][arrayName] = amData[section][arrayName].map((item: any) => ({ image: '', ...item }));
+            amData[section][arrayName] = amData[section][arrayName].map((item: any, idx: number) => {
+              const base: any = { image: '', ...item };
+              if (section === 'resources') {
+                if (typeof base.actionType === 'undefined') base.actionType = 'handbook';
+                if (typeof base.link === 'undefined') base.link = '';
+              }
+              return base;
+            });
           }
         });
 
@@ -652,6 +668,36 @@ export const AdminDashboard: React.FC = () => {
         });
         setConfirmModal(null);
       }
+    });
+  };
+
+  const moveItem = (path: string[], index: number, direction: 'up' | 'down') => {
+    setContent((prevContent: any) => {
+      if (!prevContent) return prevContent;
+      const newContent = JSON.parse(JSON.stringify(prevContent));
+      
+      const moveForLang = (lang: 'en' | 'am') => {
+        let current = newContent[lang];
+        for (let i = 0; i < path.length - 1; i++) {
+          if (!current[path[i]]) return;
+          current = current[path[i]];
+        }
+        const array = current[path[path.length - 1]];
+        if (Array.isArray(array)) {
+          const targetIndex = direction === 'up' ? index - 1 : index + 1;
+          if (targetIndex >= 0 && targetIndex < array.length) {
+            const temp = array[index];
+            array[index] = array[targetIndex];
+            array[targetIndex] = temp;
+          }
+        }
+      };
+      
+      moveForLang('en');
+      moveForLang('am');
+      
+      setFeedback({ type: 'success', message: `Item moved ${direction}` });
+      return newContent;
     });
   };
 
@@ -1048,7 +1094,19 @@ export const AdminDashboard: React.FC = () => {
           <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
             {isEmailBody ? 'Email Content (Line breaks are preserved)' : key.replace(/([A-Z])/g, ' $1').trim()}
           </label>
-          {value.length > 100 || isMoreInfo || isDescription || isEmailBody ? (
+          {key === 'actionType' ? (
+            <select
+              value={value}
+              onChange={(e) => handleChange(path, e.target.value)}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white font-medium"
+            >
+              <option value="handbook">handbook (Interactive Handbook Reader)</option>
+              <option value="forms">forms (Enrollment Forms & Uploads)</option>
+              <option value="ar_activities">ar_activities (Educational AR Activities)</option>
+              <option value="nutrition">nutrition (Nutrition & Meal Guide)</option>
+              <option value="url">url (Custom External URL Link)</option>
+            </select>
+          ) : value.length > 100 || isMoreInfo || isDescription || isEmailBody ? (
             <textarea
               value={value}
               onChange={(e) => handleChange(path, e.target.value)}
@@ -1079,13 +1137,33 @@ export const AdminDashboard: React.FC = () => {
           </div>
           {value.map((item, index) => (
             <div key={index} className="mb-4 p-4 bg-white rounded-lg border border-stone-200 relative group">
-              <button 
-                onClick={() => removeItem(path, index)}
-                className="absolute top-2 right-2 text-red-500 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded-lg z-10"
-                title="Remove Item"
-              >
-                <Trash2 size={16} />
-              </button>
+              <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+                {index > 0 && (
+                  <button
+                    onClick={() => moveItem(path, index, 'up')}
+                    className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
+                    title="Move Up"
+                  >
+                    <ChevronUp size={16} />
+                  </button>
+                )}
+                {index < value.length - 1 && (
+                  <button
+                    onClick={() => moveItem(path, index, 'down')}
+                    className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
+                    title="Move Down"
+                  >
+                    <ChevronDown size={16} />
+                  </button>
+                )}
+                <button 
+                  onClick={() => removeItem(path, index)}
+                  className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg"
+                  title="Remove Item"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
               <div className="text-xs font-bold text-stone-400 mb-2 uppercase tracking-wider">Item {index + 1}</div>
               {isPrimitiveArray ? (
                 <input
