@@ -1656,8 +1656,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             )}
           </div>
 
-          {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center / Left on Mobile) */}
-          <div id="tour-compass" className="absolute sm:left-1/2 sm:-translate-x-1/2 left-4 sm:left-auto top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
+          {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
+          <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
             {/* Horizontal sliding ruler */}
             <div className="w-full h-5 sm:h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
               <div 
@@ -1707,8 +1707,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
         </div>
 
-        {/* Floating Guide Button - Moved to separate container for better positioning */}
-        <div className="absolute sm:top-4 bottom-6 sm:bottom-auto right-4 sm:right-4 z-40 pointer-events-auto">
+        {/* Floating Guide Button - Top Left */}
+        <div className="absolute top-4 left-4 z-40 pointer-events-auto">
           <button 
             onClick={() => {
               setGuideStep(0);

@@ -64,14 +64,14 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-orange"></span>
               </span>
-              <span className="text-xs font-black tracking-widest uppercase font-accent" style={{ color: t.textColor }}>{t.badgeText}</span>
+              <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase font-accent" style={{ color: t.textColor }}>{t.badgeText}</span>
             </motion.div>
 
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-4.5xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 tracking-tight"
+              className="text-5xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 tracking-tight"
               style={{ color: t.textColor }}
             >
               {(() => {
