@@ -53,18 +53,6 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
           <div className="w-16 h-1.5 bg-brand-yellow mx-auto rounded-full mt-2"></div>
         </div>
 
-        {/* Interactive 360° Virtual Tour Area */}
-        <div className="max-w-5xl mx-auto mb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <ThreeSixtyViewer />
-          </motion.div>
-        </div>
-
         {/* Traditional Media Gallery Divider Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h3 className="text-xl sm:text-2xl font-sans font-bold text-stone-200 mb-2">
@@ -125,6 +113,18 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                 <span className="text-[10px] font-bold text-stone-400 block uppercase tracking-wide">{t.trustSubtext}</span>
               </div>
             </div>
+          </motion.div>
+        </div>
+
+        {/* Interactive 360° Virtual Tour Area */}
+        <div className="max-w-5xl mx-auto mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <ThreeSixtyViewer />
           </motion.div>
         </div>
 

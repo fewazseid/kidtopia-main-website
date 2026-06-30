@@ -89,13 +89,13 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           <nav 
             className="hidden lg:flex items-center"
             style={{ 
-              fontSize: '12px', 
+              fontSize: '13.5px', 
               fontWeight: '700', 
               paddingLeft: '0px', 
               paddingRight: '0px',
               marginLeft: '-4px',
-              marginRight: '-8px',
-              height: '34px' 
+              marginRight: '-10px',
+              height: '38px' 
             }}
           >
             {navItems.map((item, idx) => {
@@ -108,25 +108,25 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
                   {item.subItems ? (
                       <button 
                         onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
-                        className="font-bold tracking-tight font-display transition-all flex items-center gap-1 whitespace-nowrap py-1 px-1.5 xl:py-1 xl:px-2 rounded-lg hover:bg-white/50"
+                        className="font-bold tracking-tight font-display transition-all flex items-center gap-1.5 whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-2.5 rounded-lg hover:bg-white/50"
                         style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                       >
                         {item.label}
-                        <svg className={`w-2.5 h-2.5 xl:w-3 xl:h-3 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-3 h-3 xl:w-3.5 xl:h-3.5 transition-transform duration-300 ${activeDropdown === idx ? 'rotate-180' : 'opacity-70 group-hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                         </svg>
                       </button>
                   ) : (
                       <Link 
                         to={item.path} 
-                        className="font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1 xl:px-2 rounded-lg hover:bg-white/50 relative"
+                        className="font-bold tracking-tight font-display transition-all whitespace-nowrap py-1 px-1.5 xl:py-1.5 xl:px-2.5 rounded-lg hover:bg-white/50 relative"
                         style={{ color: isActive ? (t.activeColor || '#3a5b32') : (t.textColor || '#44403c') }}
                       >
                         {item.label}
                         {isActive && (
                           <motion.span 
                             layoutId="activeNavBubble" 
-                            className="absolute -bottom-1 left-2 right-2 xl:left-3 xl:right-3 h-0.5 rounded-full"
+                            className="absolute -bottom-1.5 left-2 right-2 xl:left-3 xl:right-3 h-0.5 rounded-full"
                             style={{ backgroundColor: t.activeColor || '#3a5b32' }}
                             transition={{ type: "spring", stiffness: 380, damping: 30 }}
                           />
@@ -161,18 +161,18 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           </nav>
 
           {/* Right Actions */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-3.5">
+          <div className="hidden lg:flex items-center gap-2.5 xl:gap-4.5">
             <button 
               onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
-              className="text-[9px] xl:text-[10px] font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2 xl:px-3 py-1 xl:py-1.5 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5"
+              className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-2"
               style={{ color: t.textColor || '#44403c' }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
               <span>{lang === 'en' ? 'አማርኛ' : 'English'}</span>
             </button>
             <Link 
               to="/login" 
-              className="text-white font-bold font-display rounded-full px-3.5 xl:px-5.5 py-1 xl:py-2 text-[9px] xl:text-[10px] shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
+              className="text-white font-bold font-display rounded-full px-4 xl:px-6 py-1.5 xl:py-2.5 text-[10px] xl:text-[11px] shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
               style={{ backgroundColor: t.activeColor || '#3a5b32' }}
             >
               {t.login}

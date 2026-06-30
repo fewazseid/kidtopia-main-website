@@ -461,14 +461,23 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     let smoothedDA = 0;
     let smoothedDB = 0;
     
-    let prevQ = new THREE.Quaternion();
-    let hasInitialQ = false;
+    // ABSOLUTE SENSORY MAPPING for Butter-Smooth Gyroscope
+    // We use quaternions directly to avoid Euler singularities (flickering at horizon)
+    const deviceQ = new THREE.Quaternion();
+    const smoothedQ = new THREE.Quaternion();
+    const worldQ = new THREE.Quaternion();
+    const lastValidDeviceQ = new THREE.Quaternion();
+    
+    // Euler objects for extraction
+    const extractedEuler = new THREE.Euler();
+    
+    let isFirstOrientation = true;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
       let { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
 
-      // Convert to radians for Three.js
+      // Convert to radians
       const ra = THREE.MathUtils.degToRad(alpha);
       const rb = THREE.MathUtils.degToRad(beta);
       const rg = THREE.MathUtils.degToRad(gamma);
@@ -479,48 +488,44 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
       const orientRad = THREE.MathUtils.degToRad(orient);
 
-      // Create a stable rotation representation using a Quaternion
-      // This avoids gimbal lock / flickering in the "middle area"
-      // We use the standard ZXY order for device orientation
-      const euler = new THREE.Euler(rb, ra, -rg, 'YXZ');
-      const currentQ = new THREE.Quaternion().setFromEuler(euler);
+      // The standard device orientation to Three.js mapping (ZXY order is most stable for mobile)
+      // alpha = rotation around z (0-360)
+      // beta = rotation around x (-180-180)
+      // gamma = rotation around y (-90-90)
+      // We use 'YXZ' mapping which is standard for device orientation controls
+      extractedEuler.set(rb, ra, -rg, 'YXZ');
+      deviceQ.setFromEuler(extractedEuler);
 
-      // Adjust for screen orientation
+      // Adjust for screen orientation (Portrait vs Landscape)
       const screenAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
-      currentQ.multiply(screenAdjQ);
+      deviceQ.multiply(screenAdjQ);
+      
+      // Additional world adjustment to make it feel natural (y-up)
+      const worldAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
+      worldQ.copy(deviceQ).premultiply(worldAdjQ);
 
-      if (hasInitialQ) {
-        // Calculate the delta rotation from the previous state
-        const deltaQ = prevQ.clone().invert().multiply(currentQ);
-        
-        // Convert delta rotation to Euler to extract movement on our axes
-        const deltaEuler = new THREE.Euler().setFromQuaternion(deltaQ, 'YXZ');
-        
-        let dLon = deltaEuler.y * THREE.MathUtils.RAD2DEG;
-        let dLat = deltaEuler.x * THREE.MathUtils.RAD2DEG;
-
-        // Apply heavy smoothing to the deltas (EMA)
-        // This eliminates sensor noise while keeping movement fluid
-        const smoothingFactor = 0.15;
-        smoothedDA = smoothedDA + (dLon - smoothedDA) * smoothingFactor;
-        smoothedDB = smoothedDB + (dLat - smoothedDB) * smoothingFactor;
-
-        // Deadzone to prevent "drifting" or micro-flicker when stationary
-        const deadzone = 0.01;
-        
-        if (Math.abs(smoothedDA) > deadzone) {
-          targetLonRef.current -= smoothedDA;
-        }
-        
-        if (Math.abs(smoothedDB) > deadzone) {
-          // Invert lat based on orientation if necessary (Portrait vs Landscape)
-          // The YXZ mapping above is generally stable, but we might need minor adjustments
-          targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + smoothedDB));
-        }
+      if (isFirstOrientation) {
+        smoothedQ.copy(worldQ);
+        isFirstOrientation = false;
+        return;
       }
 
-      prevQ.copy(currentQ);
-      hasInitialQ = true;
+      // Butter-Smooth Slerp (Spherical Linear Interpolation)
+      // This is the absolute best way to eliminate sensor jitter and flickering
+      // 0.1 is very smooth, 0.2 is more responsive
+      smoothedQ.slerp(worldQ, 0.12);
+
+      // Convert the smoothed world orientation back to our standard Lon/Lat
+      // We use 'YXZ' extraction to match our panorama projection
+      extractedEuler.setFromQuaternion(smoothedQ, 'YXZ');
+      
+      const gyroLon = extractedEuler.y * THREE.MathUtils.RAD2DEG;
+      const gyroLat = extractedEuler.x * THREE.MathUtils.RAD2DEG;
+
+      // Update the targets directly from the absolute sensor data
+      // This ensures 1:1 mapping with no drift
+      targetLonRef.current = -gyroLon;
+      targetLatRef.current = gyroLat;
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
