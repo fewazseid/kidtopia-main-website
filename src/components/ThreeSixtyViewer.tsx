@@ -225,59 +225,58 @@ const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing }) => {
     >
       {/* Tap Ripple effect directly at the index fingertip */}
       {pressing && (
-        <div className="absolute top-[18%] left-[46%] -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/20 rounded-full border border-white/40 animate-ping duration-1000 z-0" />
+        <div className="absolute top-[18%] left-[46%] -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-amber-400/30 rounded-full border border-amber-300/50 animate-ping duration-1000 z-0" />
       )}
       
-      {/* Frosted Glass hand container wrapper */}
-      <div className="relative p-2.5 rounded-2xl bg-white/10 dark:bg-black/20 backdrop-blur-[10px] border border-white/25 shadow-[0_25px_60px_rgba(0,0,0,0.35)] ring-1 ring-white/10">
-        <svg 
-          width="75" 
-          height="75" 
-          viewBox="0 0 100 100" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]"
-        >
-          <defs>
-            <linearGradient id="handGlass" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.48)" />
-              <stop offset="50%" stopColor="rgba(255, 255, 255, 0.18)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.05)" />
-            </linearGradient>
-            <linearGradient id="handStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.85)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.20)" />
-            </linearGradient>
-          </defs>
-          <g transform="rotate(-12 50 50)">
-            {/* Soft backdrop shadow layer (skeuomorphic depth) */}
-            <path 
-              d="M40,60 L40,16 C40,10 52,10 52,16 L52,48 C52,45 57,43 61,46 C65,49 65,54 61,57 C64,55 68,55 70,59 C72,63 69,67 65,68 C67,67 71,69 72,73 C73,77 69,81 63,81 C58,81 48,83 42,83 C32,83 24,76 23,65 C22,58 25,53 31,50 C36,48 40,52 40,56 C40,59 36,63 34,65"
-              fill="rgba(0,0,0,0.22)" 
-              filter="blur(3px)"
-              transform="translate(2.5, 4.5)"
-            />
-            {/* Highly realistic contoured pointing hand path */}
-            <path 
-              d="M40,60 L40,16 C40,10 52,10 52,16 L52,48 C52,45 57,43 61,46 C65,49 65,54 61,57 C64,55 68,55 70,59 C72,63 69,67 65,68 C67,67 71,69 72,73 C73,77 69,81 63,81 C58,81 48,83 42,83 C32,83 24,76 23,65 C22,58 25,53 31,50 C36,48 40,52 40,56 C40,59 36,63 34,65" 
-              fill="url(#handGlass)" 
-              stroke="url(#handStroke)" 
-              strokeWidth="1.5" 
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {/* Highly detailed fingernail / specular reflection on pointing index finger */}
-            <ellipse cx="46" cy="18" rx="3.5" ry="4.5" fill="rgba(255,255,255,0.3)" />
-            <ellipse cx="45" cy="16.5" rx="1.5" ry="2" fill="white" opacity="0.8" />
-            
-            {/* Elegant internal glass contoured reflection lines */}
-            <path d="M40,30 L40,48" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
-            <path d="M52,32 L52,46" stroke="rgba(255,255,255,0.15)" strokeWidth="0.8" />
-            <path d="M31,50 Q36,54 40,56" stroke="rgba(255,255,255,0.2)" strokeWidth="1" fill="none" />
-            <path d="M42,83 C48,83 52,80 58,81" stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none" />
-          </g>
-        </svg>
-      </div>
+      {/* Realistic natural skin-tone hand, floating with a beautiful soft shadow */}
+      <svg 
+        width="85" 
+        height="85" 
+        viewBox="0 0 100 100" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        className="drop-shadow-[0_16px_32px_rgba(0,0,0,0.65)]"
+      >
+        <defs>
+          <linearGradient id="normalHandSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffeedd" />
+            <stop offset="30%" stopColor="#fca5a5" />
+            <stop offset="70%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#b45309" />
+          </linearGradient>
+          <linearGradient id="fingernailGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#fee2e2" />
+            <stop offset="100%" stopColor="#fca5a5" />
+          </linearGradient>
+        </defs>
+        <g transform="rotate(-12 50 50)">
+          {/* Soft skeuomorphic shadow contour */}
+          <path 
+            d="M40,60 L40,16 C40,10 52,10 52,16 L52,48 C52,45 57,43 61,46 C65,49 65,54 61,57 C64,55 68,55 70,59 C72,63 69,67 65,68 C67,67 71,69 72,73 C73,77 69,81 63,81 C58,81 48,83 42,83 C32,83 24,76 23,65 C22,58 25,53 31,50 C36,48 40,52 40,56 C40,59 36,63 34,65"
+            fill="rgba(0,0,0,0.3)" 
+            filter="blur(3px)"
+            transform="translate(2, 6)"
+          />
+          {/* Natural contoured skin-tone human hand */}
+          <path 
+            d="M40,60 L40,16 C40,10 52,10 52,16 L52,48 C52,45 57,43 61,46 C65,49 65,54 61,57 C64,55 68,55 70,59 C72,63 69,67 65,68 C67,67 71,69 72,73 C73,77 69,81 63,81 C58,81 48,83 42,83 C32,83 24,76 23,65 C22,58 25,53 31,50 C36,48 40,52 40,56 C40,59 36,63 34,65" 
+            fill="url(#normalHandSkin)" 
+            stroke="#78350f" 
+            strokeWidth="1.8" 
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Fingernail detailing */}
+          <ellipse cx="46" cy="18" rx="3.5" ry="4.5" fill="url(#fingernailGrad)" stroke="#78350f" strokeWidth="1" />
+          <path d="M42.5,18 C43,14 49,14 49.5,18" stroke="rgba(255,255,255,0.7)" strokeWidth="0.8" fill="none" />
+          
+          {/* Realistic skin fold lines */}
+          <path d="M40,30 Q44,32 40,48" stroke="#78350f" strokeWidth="1" opacity="0.3" fill="none" />
+          <path d="M52,32 Q56,34 52,46" stroke="#78350f" strokeWidth="0.8" opacity="0.25" fill="none" />
+          <path d="M31,52 Q36,55 40,56" stroke="#78350f" strokeWidth="1.2" opacity="0.4" fill="none" />
+          <path d="M42,83 C48,83 52,80 58,81" stroke="#78350f" strokeWidth="1.2" opacity="0.35" fill="none" />
+        </g>
+      </svg>
     </div>
   );
 };
@@ -594,9 +593,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
       const orientRad = THREE.MathUtils.degToRad(orient);
 
-      // Standard DeviceOrientation to Three.js mapping
-      // 'YXZ' order is standard for device orientation controls in Three.js
-      const deviceEuler = new THREE.Euler(betaRad, alphaRad, -gammaRad, 'YXZ');
+      // Inverted DeviceOrientation controls to rotate camera in the opposite direction matching user preferences
+      const deviceEuler = new THREE.Euler(-betaRad, -alphaRad, gammaRad, 'YXZ');
       const deviceQ = new THREE.Quaternion().setFromEuler(deviceEuler);
 
       // World transform: adjust from device space to Three.js world space (-PI/2 around X)
@@ -1913,7 +1911,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
           <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
             {/* Horizontal sliding ruler */}
-            <div className="w-full h-5 sm:h-8 bg-white/75 backdrop-blur-xl border border-white/50 rounded-full overflow-hidden relative shadow-lg">
+            <div className="w-full h-5 sm:h-8 bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-full overflow-hidden relative shadow-lg">
               <div 
                 className="absolute top-0 bottom-0 flex items-center transition-transform duration-100 ease-out"
                 style={{ 
@@ -1924,15 +1922,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 {[-3, -2, -1, 0, 1, 2, 3].map((k) => (
                   <div key={k} className="absolute top-0 bottom-0 flex items-center" style={{ left: `${k * 720}px`, width: '720px' }}>
                     <div className="absolute left-[0px] top-[2px] text-[10px] text-brand-orange font-black -translate-x-1/2 z-10">N</div>
-                    <div className="absolute left-[180px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">E</div>
-                    <div className="absolute left-[360px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">S</div>
-                    <div className="absolute left-[540px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">W</div>
+                    <div className="absolute left-[180px] top-[2px] text-[10px] text-stone-950 dark:text-stone-100 font-black -translate-x-1/2 z-10">E</div>
+                    <div className="absolute left-[360px] top-[2px] text-[10px] text-stone-950 dark:text-stone-100 font-black -translate-x-1/2 z-10">S</div>
+                    <div className="absolute left-[540px] top-[2px] text-[10px] text-stone-950 dark:text-stone-100 font-black -translate-x-1/2 z-10">W</div>
                     
                     {/* Ticks every 15 degrees (30px) */}
                     {Array.from({length: 24}).map((_, i) => (
                       <div 
                         key={i} 
-                        className="absolute bottom-0 w-[1.5px] bg-stone-900/30" 
+                        className="absolute bottom-0 w-[1.5px] bg-stone-900/30 dark:bg-white/30" 
                         style={{ 
                           left: `${i * 30}px`, 
                           height: i % 6 === 0 ? '12px' : '6px', 
@@ -1948,8 +1946,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
             
             {/* Room Title Tag - glassmorphic and elegant */}
-            <div className="bg-white/75 backdrop-blur-xl border border-white/50 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
-              <h3 className="text-stone-900 font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
+            <div className="bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-stone-900 dark:text-stone-100 font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
                 <span>{currentScene?.title}</span>
                 {currentScene?.isStart && (
                   <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[7px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
@@ -2096,9 +2094,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     setIsRoomsMenuOpen(!isRoomsMenuOpen);
                     setIsHotspotsMenuOpen(false);
                   }}
-                  className="bg-white/80 backdrop-blur-xl border border-white/50 px-3 py-2.5 rounded-xl shadow-2xl text-stone-900 text-xs font-sans font-bold flex items-center gap-2 hover:bg-white transition active:scale-95"
+                  className="bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 px-3 py-2.5 rounded-xl shadow-2xl text-stone-900 dark:text-stone-100 text-xs font-sans font-bold flex items-center gap-2 hover:bg-white/40 transition active:scale-95"
                 >
-                  <ChevronRight className={`w-4 h-4 text-stone-900 transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
+                  <ChevronRight className={`w-4 h-4 text-stone-900 dark:text-stone-100 transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
                   {isRoomsMenuOpen && (
                     <span className="truncate max-w-[100px] animate-in fade-in duration-200">
                       {currentScene?.title || 'Rooms'}
@@ -2107,7 +2105,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 </button>
                 
                 {isRoomsMenuOpen && (
-                  <div className="absolute bottom-12 left-0 w-56 max-h-56 overflow-y-auto bg-white/95 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
+                  <div className="absolute bottom-12 left-0 w-56 max-h-56 overflow-y-auto bg-white/40 dark:bg-black/55 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
                     {scenes.map(s => (
                       <button
                         key={s.id}
@@ -2116,7 +2114,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           setIsRoomsMenuOpen(false);
                         }}
                         className={`w-full text-left px-3 py-2 rounded-xl text-xs font-sans transition-all flex items-center justify-between ${
-                          currentScene?.id === s.id ? 'bg-brand-green text-white font-semibold' : 'text-stone-800 hover:bg-stone-100/60'
+                          currentScene?.id === s.id ? 'bg-brand-green text-white font-semibold' : 'text-stone-800 dark:text-stone-200 hover:bg-white/20'
                         }`}
                       >
                         <span className="truncate">{s.title}</span>
@@ -2134,14 +2132,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     setIsHotspotsMenuOpen(!isHotspotsMenuOpen);
                     setIsRoomsMenuOpen(false);
                   }}
-                  className="bg-white/80 backdrop-blur-xl border border-white/50 px-3 py-2.5 rounded-xl shadow-2xl text-stone-900 text-xs font-sans font-bold flex items-center gap-2 hover:bg-white transition active:scale-95"
+                  className="bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 px-3 py-2.5 rounded-xl shadow-2xl text-stone-900 dark:text-stone-100 text-xs font-sans font-bold flex items-center gap-2 hover:bg-white/40 transition active:scale-95"
                 >
                   <MapPin className="w-4 h-4 text-brand-orange" />
                   {isHotspotsMenuOpen && <span className="animate-in fade-in">Points</span>}
                 </button>
                 
                 {isHotspotsMenuOpen && (
-                  <div className="absolute bottom-12 left-0 w-48 max-h-56 overflow-y-auto bg-white/95 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
+                  <div className="absolute bottom-12 left-0 w-48 max-h-56 overflow-y-auto bg-white/40 dark:bg-black/55 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-in slide-in-from-bottom duration-150">
                     {currentScene?.hotspots.map(h => (
                       <button
                         key={h.id}
@@ -2153,7 +2151,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           }
                           setIsHotspotsMenuOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-sans text-stone-800 hover:bg-stone-100/60 font-medium flex items-center gap-2"
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-sans text-stone-800 dark:text-stone-200 hover:bg-white/20 font-medium flex items-center gap-2"
                       >
                         {h.type === 'link' ? <ArrowRight className="w-3 h-3 text-brand-green" /> : <Info className="w-3 h-3 text-brand-orange" />}
                         <span className="truncate">{h.text}</span>
@@ -2168,11 +2166,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           {/* PlayStation Controller Cross D-pad Console - Glassmorphic Transparent Overlay */}
           <div className="flex flex-col items-center gap-3 pointer-events-auto z-30">
             {/* Circular D-pad body - styled to be glassmorphic and transparent */}
-            <div className="hidden sm:flex relative w-40 h-40 bg-white/70 backdrop-blur-xl rounded-full border border-white/50 shadow-2xl items-center justify-center select-none">
+            <div className="hidden sm:flex relative w-40 h-40 bg-white/30 dark:bg-black/35 backdrop-blur-md rounded-full border border-white/40 dark:border-white/10 shadow-2xl items-center justify-center select-none">
               {/* UP button */}
               <button
                 onClick={() => handleKeyDown('up')}
-                className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-t-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-t border-x border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
+                className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-t-lg bg-white/10 dark:bg-black/20 hover:bg-white/25 dark:hover:bg-black/40 active:bg-brand-green/20 border-t border-x border-white/20 dark:border-white/5 text-stone-800 dark:text-stone-100 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Look Up"
               >
                 <ArrowUp className="w-6 h-6" />
@@ -2181,7 +2179,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {/* LEFT button */}
               <button
                 onClick={() => handleKeyDown('left')}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-l-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-l border-y border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-l-lg bg-white/10 dark:bg-black/20 hover:bg-white/25 dark:hover:bg-black/40 active:bg-brand-green/20 border-l border-y border-white/20 dark:border-white/5 text-stone-800 dark:text-stone-100 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Rotate Left"
               >
                 <ArrowLeft className="w-6 h-6" />
@@ -2190,7 +2188,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {/* RIGHT button */}
               <button
                 onClick={() => handleKeyDown('right')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-r-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-r border-y border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-r-lg bg-white/10 dark:bg-black/20 hover:bg-white/25 dark:hover:bg-black/40 active:bg-brand-green/20 border-r border-y border-white/20 dark:border-white/5 text-stone-800 dark:text-stone-100 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Rotate Right"
               >
                 <ArrowRight className="w-6 h-6" />
@@ -2199,7 +2197,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {/* DOWN button */}
               <button
                 onClick={() => handleKeyDown('down')}
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-b-lg bg-stone-100/30 hover:bg-stone-200/40 active:bg-brand-green/20 border-b border-x border-white/30 text-stone-900 hover:text-black flex items-center justify-center transition-all duration-100"
+                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-b-lg bg-white/10 dark:bg-black/20 hover:bg-white/25 dark:hover:bg-black/40 active:bg-brand-green/20 border-b border-x border-white/20 dark:border-white/5 text-stone-800 dark:text-stone-100 hover:text-black flex items-center justify-center transition-all duration-100"
                 title="Look Down"
               >
                 <ArrowDown className="w-6 h-6" />
@@ -2217,7 +2215,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   setCameraLat(sLat);
                   setCameraFov(75);
                 }}
-                className="w-12 h-12 rounded-full bg-white hover:bg-stone-50 active:bg-brand-green/20 border border-white shadow flex items-center justify-center transition-all text-stone-900 hover:text-brand-green"
+                className="w-12 h-12 rounded-full bg-white/40 dark:bg-black/35 backdrop-blur-md hover:bg-white/60 dark:hover:bg-black/50 active:bg-brand-green/20 border border-white/45 dark:border-white/10 shadow flex items-center justify-center transition-all text-stone-800 dark:text-stone-200 hover:text-brand-green"
                 title="Reset Camera Orientation"
               >
                 <RotateCcw className="w-5 h-5" />
@@ -2225,40 +2223,40 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
 
             {/* Action Bar: Gyroscope, Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 px-2 md:px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 md:gap-2.5">
+            <div className="bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 px-2 md:px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 md:gap-2.5">
               <button
                 type="button"
                 onClick={requestDeviceOrientationPermission}
                 className={`p-1.5 md:p-2 rounded-lg transition-all ${
                   useGyroscope 
                     ? 'bg-brand-green/20 text-brand-green border border-brand-green/40' 
-                    : 'text-stone-800 hover:text-black hover:bg-stone-100/30 border border-transparent'
+                    : 'text-stone-800 dark:text-stone-200 hover:text-black dark:hover:text-white hover:bg-white/20 border border-transparent'
                 }`}
                 title="Use Device Gyroscope"
               >
                 <Compass className={`w-4.5 h-4.5 md:w-5.5 md:h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
               </button>
 
-              <div className="w-[1px] h-3 md:h-4 bg-stone-300" />
+              <div className="w-[1px] h-3 md:h-4 bg-stone-300/40" />
 
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-white/20 text-stone-800 dark:text-stone-200 hover:text-black dark:hover:text-white rounded-lg transition"
                 title="Zoom In"
               >
                 <ZoomIn className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-white/20 text-stone-800 dark:text-stone-200 hover:text-black dark:hover:text-white rounded-lg transition"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
-              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-stone-300" />
+              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-stone-300/40" />
               <button
                 onClick={toggleFullscreen}
-                className="p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
+                className="p-1.5 md:p-2 hover:bg-white/20 text-stone-800 dark:text-stone-200 hover:text-black dark:hover:text-white rounded-lg transition"
                 title="Toggle Fullscreen"
               >
                 {isFullscreen ? <Minimize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" /> : <Maximize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />}
@@ -2271,7 +2269,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       </div>
 
       {/* HORIZONTAL SIDE-SCROLLABLE SCENE QUICK-NAVIGATOR CAROUSEL */}
-      <div id="side-scrollable-navigator" className="mt-4 bg-white dark:bg-stone-900/60 backdrop-blur-sm border border-stone-200/80 dark:border-stone-800 rounded-2xl p-4 shadow-md pointer-events-auto transition-all">
+      <div id="side-scrollable-navigator" className="mt-4 bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-2xl p-4 shadow-md pointer-events-auto transition-all">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Compass className="w-4 h-4 text-brand-green" />
