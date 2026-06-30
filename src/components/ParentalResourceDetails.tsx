@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Book, FileText, CheckCircle2, Download, Upload, AlertCircle, 
   Trash2, ShieldAlert, Award, Compass, RotateCw, Smile, 
-  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart
+  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart, Users
 } from 'lucide-react';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
@@ -592,7 +592,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
             <div className="flex flex-col h-full">
               <div className="flex justify-between items-center mb-6 border-b border-stone-100 pb-3">
                 <h3 className="text-2xl font-editorial font-bold text-stone-900">
-                  {lang === 'en' ? 'Daycare & Preschool Terms and Conditions' : 'የህፃናት ማቆያ እና የቅድመ ትምህርት ቤት ውሎች እና ሁኔታዎች'}
+                  {lang === 'en' ? 'Daycare & Preschool Comprehensive Policies' : 'የህፃናት ማቆያ እና የቅድመ ትምህርት ቤት አጠቃላይ ፖሊሲዎች'}
                 </h3>
                 <button 
                   onClick={() => window.print()}
@@ -603,43 +603,94 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                 </button>
               </div>
               
-              <div className="flex-1 overflow-y-auto pr-4 space-y-6 text-stone-700 leading-relaxed">
-                <section>
-                  <h4 className="font-bold text-stone-900 mb-2">1. Enrollment and Admission</h4>
-                  <p>Admission is open to children aged 3 months to 4 years. Parents must provide a completed enrollment form, medical history, and required immunization records. We reserve the right to refuse admission if the environment is not suitable for the child's needs.</p>
+              <div className="flex-1 overflow-y-auto pr-4 space-y-8 text-stone-700 leading-relaxed pb-10">
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <Heart size={18} className="text-red-500" />
+                    1. Health and Wellness Policy
+                  </h4>
+                  <p className="text-sm">To maintain a healthy environment, children with a fever of 38°C or higher, vomiting, diarrhea, or contagious rashes must stay home. A child must be symptom-free for 24 hours without medication before returning. All children must submit updated immunization, TB, HIV, and Hepatitis screening results before admission.</p>
                 </section>
-                <section>
-                  <h4 className="font-bold text-stone-900 mb-2">2. Operating Hours and Attendance</h4>
-                  <p>Our facility operates from 7:30 AM to 6:00 PM, Monday through Friday. Late pickups will incur a fee of $1.00 per minute per child. Please notify the center by 9:00 AM if your child will be absent.</p>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <ShieldAlert size={18} className="text-brand-orange" />
+                    2. Security & Safety Protocols
+                  </h4>
+                  <p className="text-sm">Kidtopia maintains a secure, gated environment. All visitors must register at the front desk. We conduct regular safety drills (fire, emergency evacuation). Staff are trained in basic first aid and emergency response to ensure your child's safety at all times.</p>
                 </section>
-                <section>
-                  <h4 className="font-bold text-stone-900 mb-2">3. Fees and Payment</h4>
-                  <p>Tuition is payable monthly in advance. A non-refundable registration fee is required upon enrollment. We require a 30-day written notice for withdrawal. No refunds are given for absences due to illness or vacation.</p>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <Camera size={18} className="text-brand-teal" />
+                    3. CCTV Camera Policy
+                  </h4>
+                  <p className="text-sm">For safety, security, and quality monitoring, Kidtopia is equipped with 24/7 CCTV surveillance in all common areas, classrooms, and playgrounds. Footage is used strictly for internal security audits and incident reviews. To protect the privacy of all children, live streaming to parents is not provided, but footage can be reviewed with management in case of reported incidents.</p>
                 </section>
-                <section>
-                  <h4 className="font-bold text-stone-900 mb-2">4. Health and Safety</h4>
-                  <p>Children who are ill must stay home. A child must be fever-free for 24 hours without medication before returning. We maintain strict hygiene protocols and regular sanitization of all areas.</p>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <FileText size={18} className="text-brand-green" />
+                    4. Payment and Fees
+                  </h4>
+                  <p className="text-sm">Tuition is due by the 5th of every month. A late fee applies after the 10th. A non-refundable registration fee is required upon enrollment. We require a 30-day written notice for withdrawal. No refunds are provided for short-term absences due to illness or family vacations.</p>
                 </section>
-                <section>
-                  <h4 className="font-bold text-stone-900 mb-2">5. Privacy and Data Protection</h4>
-                  <p>We respect the privacy of our families and children. Personal data and photos are used solely for educational and administrative purposes within the daycare environment, unless explicit consent is provided for other uses.</p>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <Compass size={18} className="text-brand-yellow" />
+                    5. Pickup and Drop-off Time
+                  </h4>
+                  <p className="text-sm">Standard drop-off is between 7:30 AM and 9:00 AM. Standard pickup is between 4:00 PM and 6:00 PM. Parents arriving after 6:00 PM will be charged a late pickup fee of $1.00 per minute. Please notify us if you will be arriving late due to unforeseen circumstances.</p>
+                </section>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <Sparkles size={18} className="text-brand-orange" />
+                    6. Nutrition and Dietary Guidelines
+                  </h4>
+                  <p className="text-sm">We provide balanced, organic, and locally sourced meals. Our menu is designed by nutritionists to support growth. We are a "Nut-Free" facility. Parents must clearly document any food allergies during enrollment. Outside food is only permitted for special celebrations and must be pre-approved.</p>
+                </section>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <AlertCircle size={18} className="text-stone-500" />
+                    7. Jewelry and Small Objects
+                  </h4>
+                  <p className="text-sm">For the safety of all children, please do not send your child to daycare wearing expensive jewelry, small earrings that can easily detach, or small toys that pose a choking hazard. Kidtopia is not responsible for lost or damaged personal items.</p>
+                </section>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <Users size={18} className="text-brand-teal" />
+                    8. Visit and Off-Time Pickup Policy
+                  </h4>
+                  <p className="text-sm">Parents are welcome to visit by appointment. For unscheduled off-time pickups (e.g., doctor appointments), please notify the office at least 2 hours in advance so we can prepare your child. Only authorized persons on the pickup list with valid ID can take the child.</p>
+                </section>
+
+                <section className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                  <h4 className="font-bold text-stone-900 mb-3 flex items-center gap-2">
+                    <Award size={18} className="text-brand-green" />
+                    9. Injury and Behavior Management
+                  </h4>
+                  <p className="text-sm">In case of minor injury, staff will provide first aid and notify parents via the daily report. For emergencies, parents will be contacted immediately. We use "Positive Reinforcement" for behavior management; we do not use corporal punishment. Persistent aggressive behavior will result in a parent conference to develop a support plan.</p>
                 </section>
               </div>
 
-              <div className="mt-8 p-6 bg-brand-green/5 border border-brand-green/10 rounded-2.5xl flex items-center justify-between gap-4">
+              <div className="mt-4 p-6 bg-brand-green/5 border border-brand-green/10 rounded-2.5xl flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
                 <div className="flex items-center gap-3">
                   <ShieldAlert size={20} className="text-brand-green" />
-                  <p className="text-sm text-stone-600 font-medium">
+                  <p className="text-xs sm:text-sm text-stone-600 font-medium">
                     {lang === 'en' 
-                      ? 'By enrolling your child, you agree to abide by these terms and conditions.' 
-                      : 'ልጅዎን በማስመዝገብ፣ በእነዚህ ውሎች እና ሁኔታዎች ለመስማማት ተስማምተዋል።'}
+                      ? 'By enrolling your child, you agree to abide by these comprehensive terms and conditions.' 
+                      : 'ልጅዎን በማስመዝገብ፣ በእነዚህ አጠቃላይ ውሎች እና ሁኔታዎች ለመስማማት ተስማምተዋል።'}
                   </p>
                 </div>
                 <button 
-                  onClick={() => triggerFeedback('success', lang === 'en' ? 'Terms accepted!' : 'ውሎች ተቀባይነት አግኝተዋል!')}
-                  className="px-6 py-2.5 bg-brand-green text-white rounded-xl text-sm font-bold shadow-md hover:scale-105 transition-all"
+                  onClick={() => triggerFeedback('success', lang === 'en' ? 'Policies accepted!' : 'ፖሊሲዎች ተቀባይነት አግኝተዋል!')}
+                  className="w-full sm:w-auto px-8 py-3 bg-brand-green text-white rounded-xl text-sm font-bold shadow-md hover:scale-105 active:scale-95 transition-all"
                 >
-                  {lang === 'en' ? 'I Accept' : 'እቀበላለሁ'}
+                  {lang === 'en' ? 'I Accept All Policies' : 'ሁሉንም ፖሊሲዎች እቀበላለሁ'}
                 </button>
               </div>
             </div>

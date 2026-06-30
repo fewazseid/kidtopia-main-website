@@ -71,26 +71,45 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-4.5xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 tracking-tight text-left"
+              className="font-editorial font-bold leading-[1.1] mb-6 tracking-tight text-left"
               style={{ color: t.textColor }}
             >
               {(() => {
                 const heroTitle = t.title || t.headline || '';
                 const titleHighlight = t.titleHighlight || '';
                 
-                if (titleHighlight && heroTitle.includes(titleHighlight)) {
-                  return heroTitle.split(titleHighlight).map((part: string, i: number, arr: string[]) => (
-                    <React.Fragment key={i}>
-                      {part}
-                      {i < arr.length - 1 && (
-                        <span className="underline decoration-brand-yellow decoration-wavy decoration-3 underline-offset-8" style={{ color: t.textColor || '#ffffff' }}>
-                          {titleHighlight}
-                        </span>
-                      )}
-                    </React.Fragment>
-                  ));
-                }
-                return heroTitle;
+                // Split title into first word and the rest for mobile optimization
+                const words = heroTitle.split(' ');
+                const firstWord = words[0];
+                const restOfTitle = words.slice(1).join(' ');
+
+                const renderContent = (text: string) => {
+                  if (titleHighlight && text.includes(titleHighlight)) {
+                    return text.split(titleHighlight).map((part: string, i: number, arr: string[]) => (
+                      <React.Fragment key={i}>
+                        {part}
+                        {i < arr.length - 1 && (
+                          <span className="underline decoration-brand-yellow decoration-wavy decoration-2 sm:decoration-3 underline-offset-4 sm:underline-offset-8" style={{ color: t.textColor || '#ffffff' }}>
+                            {titleHighlight}
+                          </span>
+                        )}
+                      </React.Fragment>
+                    ));
+                  }
+                  return text;
+                };
+
+                return (
+                  <>
+                    <span className="block sm:inline text-xl sm:text-6xl lg:text-7xl opacity-80 sm:opacity-100 font-medium sm:font-bold mb-1 sm:mb-0">
+                      {firstWord}
+                    </span>
+                    {" "}
+                    <span className="text-4.5xl sm:text-6xl lg:text-7xl">
+                      {renderContent(restOfTitle)}
+                    </span>
+                  </>
+                );
               })()}
             </motion.h1>
             
@@ -108,12 +127,12 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col sm:flex-row justify-start items-stretch sm:items-center gap-3 sm:gap-4.5 mb-12 w-full sm:max-w-md"
+              className="flex flex-row justify-start items-center gap-2 sm:gap-4.5 mb-12 w-full"
             >
-              <Link to="/enroll" className="btn-secondary text-center whitespace-nowrap text-sm sm:text-base font-bold shadow-[0_10px_25px_rgba(200,106,61,0.25)] hover:scale-105 active:scale-95 transition-all">
+              <Link to="/enroll" className="btn-secondary flex-1 sm:flex-none px-4 sm:px-10 py-3 sm:py-4 text-center whitespace-nowrap text-xs sm:text-base font-bold shadow-[0_10px_25px_rgba(200,106,61,0.25)] hover:scale-105 active:scale-95 transition-all">
                 {t.enroll}
               </Link>
-              <Link to="/virtual-tour" className="btn-glass text-center whitespace-nowrap text-sm sm:text-base font-bold hover:scale-105 active:scale-95 transition-all" style={{ color: t.textColor }}>
+              <Link to="/virtual-tour" className="btn-glass flex-1 sm:flex-none px-4 sm:px-10 py-3 sm:py-4 text-center whitespace-nowrap text-xs sm:text-base font-bold hover:scale-105 active:scale-95 transition-all border border-white/30 backdrop-blur-sm" style={{ color: t.textColor }}>
                 {t.virtualTour}
               </Link>
             </motion.div>

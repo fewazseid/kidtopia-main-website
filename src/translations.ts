@@ -31,7 +31,7 @@ export const translations = {
     },
     hero: {
       badgeText: "Now Enrolling for 2026",
-      title: "A Safe, Caring, and Inspiring Space for Your Child.",
+      title: "Discover a Safe, Caring, and Inspiring Space for Your Child.",
       titleHighlight: "Safe, Caring",
       subheadline: "Welcome to Kidtopia International Daycare and Preschool — where children learn, play, and thrive in a secure and nurturing environment.",
       enroll: "Enroll Your Child",
@@ -215,11 +215,12 @@ export const translations = {
     },
     resources: {
       title: "Parent Resources",
-      desc: "Helpful materials and guides to support you and your child's journey with us.",
+      desc: "Comprehensive guides and essential documents to support your child's journey at Kidtopia.",
       items: [
-        { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
-        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
-        { title: "Terms and Conditions", description: "Important legal information and agreements for daycare and preschool enrollment.", type: "Legal Document", image: "", actionType: "terms", link: "" }
+        { title: "Parent Handbook", description: "Detailed policies, daily schedules, and everything you need to know about our daycare operations.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
+        { title: "Nutrition Guide", description: "Explore our organic meal plans and nutritional standards for healthy physical development.", type: "Guide", image: "", actionType: "nutrition", link: "" },
+        { title: "Comprehensive Policies", description: "Detailed terms regarding health, security, CCTV, payments, and behavioral guidelines.", type: "Legal Document", image: "", actionType: "terms", link: "" },
+        { title: "Emergency Contacts", description: "Quick access to essential contact information and emergency response protocols.", type: "Quick Access", image: "", actionType: "contacts", link: "" }
       ]
     },
     leadCapture: {
@@ -329,7 +330,7 @@ export const translations = {
     },
     hero: {
       badgeText: "ለ2026 ምዝገባ ላይ ነን",
-      title: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
+      title: "በኪድቶፒያ ለልጅዎ ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ ያግኙ።",
       titleHighlight: "ደህንነቱ የተጠበቀ፣ አሳቢ",
       subheadline: "ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ — ህፃናት ደህንነቱ በተጠበቀ እና በሚንከባከብ አካባቢ የሚማሩበት፣ የሚጫወቱበት እና የሚበለጽጉበት።",
       enroll: "ልጅዎን ያስመዝግቡ",
@@ -492,11 +493,12 @@ export const translations = {
     },
     resources: {
       title: "የወላጅ መርጃዎች",
-      desc: "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።",
+      desc: "የልጅዎን የኪድቶፒያ ቆይታ ለመደገፍ የተዘጋጁ አጠቃላይ መመሪያዎች እና አስፈላጊ ሰነዶች።",
       items: [
-        { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
-        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
-        { title: "ውሎች እና ሁኔታዎች", description: "ለህፃናት ማቆያ እና ቅድመ ትምህርት ቤት ምዝገባ አስፈላጊ የህግ መረጃዎች እና ስምምነቶች።", type: "የህግ ሰነድ", image: "", actionType: "terms", link: "" }
+        { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ስለ ስራዎቻችን ማወቅ ያለብዎት ዝርዝር መረጃ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
+        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ለጤናማ አካላዊ እድገት የኛን ኦርጋኒክ የምግብ እቅዶች እና የአመጋገብ ደረጃዎች ይመልከቱ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
+        { title: "አጠቃላይ ፖሊሲዎች", description: "ስለ ጤና፣ ደህንነት፣ CCTV፣ ክፍያዎች እና የባህሪ መመሪያዎች ዝርዝር ውሎች።", type: "የህግ ሰነድ", image: "", actionType: "terms", link: "" },
+        { title: "የአደጋ ጊዜ እውቂያዎች", description: "አስፈላጊ የእውቂያ መረጃ እና የአደጋ ጊዜ ምላሽ ፕሮቶኮሎችን በፍጥነት ያግኙ።", type: "ፈጣን መዳረሻ", image: "", actionType: "contacts", link: "" }
       ]
     },
     leadCapture: {

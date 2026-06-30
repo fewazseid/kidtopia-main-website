@@ -44,8 +44,8 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
       },
       {
         root: null,
-        threshold: 0.8, // Trigger when 80% of card is visible
-        rootMargin: '-10% 0px -10% 0px'
+        threshold: 0.5, // Lowered threshold for better sensitivity on mobile scroll
+        rootMargin: '-20% 0px -20% 0px'
       }
     );
 
@@ -55,20 +55,37 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
     return () => observer.disconnect();
   }, [isMobile, displayedMembers]);
 
+  const [isBottomVisible, setIsBottomVisible] = useState(false);
+  const bottomRef = React.useRef<HTMLDivElement>(null);
+
   // Observer for section visibility to hide sticky button
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const sectionObserver = new IntersectionObserver(
       ([entry]) => {
         setIsSectionInView(entry.isIntersecting);
       },
       { threshold: 0.1 }
     );
 
+    const bottomObserver = new IntersectionObserver(
+      ([entry]) => {
+        setIsBottomVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
     if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+      sectionObserver.observe(sectionRef.current);
+    }
+    
+    if (bottomRef.current) {
+      bottomObserver.observe(bottomRef.current);
     }
 
-    return () => observer.disconnect();
+    return () => {
+      sectionObserver.disconnect();
+      bottomObserver.disconnect();
+    };
   }, []);
 
   const handleToggle = () => {
@@ -170,9 +187,9 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
           </div>
         )}
 
-        {/* Sticky/Floating collapse button when list is expanded - Only show when section is in view */}
+        {/* Sticky/Floating collapse button when list is expanded - Only show when section is in view and NOT at bottom */}
         <AnimatePresence>
-          {showAll && isSectionInView && (
+          {showAll && isSectionInView && !isBottomVisible && (
             <motion.div 
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -181,14 +198,16 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
             >
               <button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 px-6 py-3.5 bg-white/90 backdrop-blur-md border border-stone-200/80 rounded-full text-xs font-black tracking-widest uppercase text-stone-900 shadow-[0_20px_50px_rgba(0,0,0,0.15)] hover:bg-stone-100 transition-all duration-300 active:scale-95 cursor-pointer"
+                className="flex items-center gap-1.5 px-6 py-3.5 bg-brand-green text-white border border-brand-green/20 rounded-full text-xs font-black tracking-widest uppercase shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:bg-brand-orange transition-all duration-300 active:scale-95 cursor-pointer"
               >
-                <ChevronUp size={14} className="stroke-[2.5] text-brand-green" />
+                <ChevronUp size={14} className="stroke-[2.5]" />
                 {t.showLess}
               </button>
             </motion.div>
           )}
         </AnimatePresence>
+
+        <div ref={bottomRef} className="h-1 w-full" />
       </div>
     </section>
   );

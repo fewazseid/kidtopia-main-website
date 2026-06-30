@@ -40,10 +40,12 @@ interface SortableItemProps {
   renderField: (key: string, value: any, path: string[]) => React.ReactNode;
   sortObjectKeysByTemplate: (obj: any, path: string[]) => string[];
   isLast: boolean;
+  isSelected: boolean;
+  onToggleSelect: (index: number) => void;
 }
 
 const SortableItem: React.FC<SortableItemProps> = ({ 
-  id, index, path, item, isPrimitiveArray, onRemove, onMove, onFieldChange, renderField, sortObjectKeysByTemplate, isLast 
+  id, index, path, item, isPrimitiveArray, onRemove, onMove, onFieldChange, renderField, sortObjectKeysByTemplate, isLast, isSelected, onToggleSelect
 }) => {
   const {
     attributes,
@@ -65,44 +67,73 @@ const SortableItem: React.FC<SortableItemProps> = ({
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`mb-4 p-4 bg-white rounded-lg border border-stone-200 relative group ${isDragging ? 'shadow-xl border-brand-green' : ''}`}
+      className={`mb-4 p-4 bg-white rounded-xl border relative group transition-all ${
+        isDragging ? 'shadow-xl border-brand-green z-[100]' : 
+        isSelected ? 'border-brand-green bg-brand-green/5 ring-1 ring-brand-green/20' : 'border-stone-200'
+      }`}
     >
-      <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+      <div className="absolute top-2 right-2 flex items-center gap-1.5 z-10">
+        {/* Selection Checkbox */}
+        <input 
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggleSelect(index)}
+          className="w-4 h-4 rounded border-stone-300 text-brand-green focus:ring-brand-green mr-1.5 cursor-pointer"
+          title="Select for bulk actions"
+        />
+
         <div 
           {...attributes} 
           {...listeners} 
-          className="cursor-grab active:cursor-grabbing p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg"
+          className="cursor-grab active:cursor-grabbing p-1.5 text-stone-500 hover:text-stone-800 hover:bg-stone-100 rounded-lg bg-stone-50 border border-stone-200"
           title="Drag to reorder"
         >
           <GripVertical size={16} />
         </div>
-        {index > 0 && (
-          <button
-            onClick={() => onMove(index, 'up')}
-            className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
-            title="Move Up"
-          >
-            <ChevronUp size={16} />
-          </button>
-        )}
-        {!isLast && (
-          <button
-            onClick={() => onMove(index, 'down')}
-            className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
-            title="Move Down"
-          >
-            <ChevronDown size={16} />
-          </button>
-        )}
+        
+        <div className="flex bg-stone-100 rounded-lg border border-stone-200 p-0.5">
+          {index > 0 && (
+            <button
+              onClick={() => onMove(index, 'up')}
+              className="text-stone-600 p-1 hover:bg-white hover:shadow-sm rounded transition-all"
+              title="Move Up"
+            >
+              <ChevronUp size={16} />
+            </button>
+          )}
+          {!isLast && (
+            <button
+              onClick={() => onMove(index, 'down')}
+              className="text-stone-600 p-1 hover:bg-white hover:shadow-sm rounded transition-all"
+              title="Move Down"
+            >
+              <ChevronDown size={16} />
+            </button>
+          )}
+        </div>
+
         <button 
           onClick={() => onRemove(index)}
-          className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg"
+          className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100"
           title="Remove Item"
         >
           <Trash2 size={16} />
         </button>
       </div>
-      <div className="text-xs font-bold text-stone-400 mb-2 uppercase tracking-wider">Item {index + 1}</div>
+
+      <div className="text-[10px] font-black text-stone-400 mb-2 uppercase tracking-[0.2em] flex items-center gap-2">
+        <span>Item {index + 1}</span>
+        {isSelected && (
+          <motion.span 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-[9px] bg-brand-green text-white px-2 py-0.5 rounded-full"
+          >
+            SELECTED
+          </motion.span>
+        )}
+      </div>
+
       {isPrimitiveArray ? (
         <input
           type="text"
@@ -148,6 +179,68 @@ export const AdminDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [selectedItems, setSelectedItems] = useState<Record<string, number[]>>({});
+
+  const toggleItemSelection = (pathKey: string, index: number) => {
+    setSelectedItems(prev => {
+      const current = prev[pathKey] || [];
+      const updated = current.includes(index)
+        ? current.filter(i => i !== index)
+        : [...current, index];
+      return { ...prev, [pathKey]: updated };
+    });
+  };
+
+  const moveBulkItems = (path: string[], direction: 'up' | 'down') => {
+    const pathKey = path.join('.');
+    const indices = selectedItems[pathKey] || [];
+    if (indices.length === 0) return;
+
+    // Sort indices to ensure predictable movement
+    const sortedIndices = [...indices].sort((a, b) => direction === 'up' ? a - b : b - a);
+    
+    setContent((prevContent: any) => {
+      if (!prevContent) return prevContent;
+      const newContent = JSON.parse(JSON.stringify(prevContent));
+      
+      const moveForLang = (lang: 'en' | 'am') => {
+        let current = newContent[lang];
+        for (let i = 0; i < path.length - 1; i++) {
+          if (!current[path[i]]) return;
+          current = current[path[i]];
+        }
+        const array = current[path[path.length - 1]];
+        if (Array.isArray(array)) {
+          sortedIndices.forEach(idx => {
+            const targetIndex = direction === 'up' ? idx - 1 : idx + 1;
+            if (targetIndex >= 0 && targetIndex < array.length) {
+              const temp = array[idx];
+              array[idx] = array[targetIndex];
+              array[targetIndex] = temp;
+            }
+          });
+        }
+      };
+      
+      moveForLang('en');
+      moveForLang('am');
+      
+      setFeedback({ type: 'success', message: `Moved ${indices.length} selected items ${direction}` });
+      
+      // Update selected indices positions in state
+      setSelectedItems(prev => {
+        const current = prev[pathKey] || [];
+        const updated = current.map(idx => {
+          const targetIndex = direction === 'up' ? idx - 1 : idx + 1;
+          const arrayLen = (newContent['en'][path[0]] as any)[path[path.length-1]]?.length || 999;
+          return (targetIndex >= 0 && targetIndex < arrayLen) ? targetIndex : idx;
+        });
+        return { ...prev, [pathKey]: updated };
+      });
+
+      return newContent;
+    });
+  };
   const [confirmModal, setConfirmModal] = useState<{ message: string, onConfirm: () => void } | null>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
@@ -1278,11 +1371,55 @@ export const AdminDashboard: React.FC = () => {
       // Special case for addresses to ensure they are treated as objects even if empty
       const isAddresses = key === 'addresses';
       const isPrimitiveArray = !isAddresses && (value.length > 0 ? typeof value[0] !== 'object' : true);
+      const pathKey = path.join('.');
+      const currentSelected = selectedItems[pathKey] || [];
       
       return (
         <div key={path.join('.')} className="mb-6 p-4 bg-stone-50 rounded-xl border border-stone-200">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-stone-800 capitalize">{key}</h3>
+
+            {/* Bulk Actions Bar */}
+            {value.length > 1 && (
+              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-stone-200 shadow-sm">
+                <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest mr-2">
+                  {currentSelected.length} Selected
+                </span>
+                <button
+                  type="button"
+                  disabled={currentSelected.length === 0}
+                  onClick={() => moveBulkItems(path, 'up')}
+                  className="p-1.5 text-stone-600 hover:text-brand-green disabled:text-stone-300 disabled:cursor-not-allowed transition-colors"
+                  title="Move Selected Up"
+                >
+                  <ChevronUp size={18} />
+                </button>
+                <button
+                  type="button"
+                  disabled={currentSelected.length === 0}
+                  onClick={() => moveBulkItems(path, 'down')}
+                  className="p-1.5 text-stone-600 hover:text-brand-green disabled:text-stone-300 disabled:cursor-not-allowed transition-colors"
+                  title="Move Selected Down"
+                >
+                  <ChevronDown size={18} />
+                </button>
+                <div className="w-[1px] h-4 bg-stone-200 mx-1" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const allIndices = value.map((_, i) => i);
+                    const areAllSelected = currentSelected.length === value.length;
+                    setSelectedItems(prev => ({ 
+                      ...prev, 
+                      [pathKey]: areAllSelected ? [] : allIndices 
+                    }));
+                  }}
+                  className="text-[10px] font-bold text-stone-500 hover:text-brand-green transition-colors"
+                >
+                  {currentSelected.length === value.length ? 'DESELECT ALL' : 'SELECT ALL'}
+                </button>
+              </div>
+            )}
           </div>
           
           <DndContext
@@ -1308,6 +1445,8 @@ export const AdminDashboard: React.FC = () => {
                   renderField={renderField}
                   sortObjectKeysByTemplate={sortObjectKeysByTemplate}
                   isLast={index === value.length - 1}
+                  isSelected={currentSelected.includes(index)}
+                  onToggleSelect={(idx) => toggleItemSelection(pathKey, idx)}
                 />
               ))}
             </SortableContext>
