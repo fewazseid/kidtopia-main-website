@@ -276,6 +276,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
   const [isRoomListExpanded, setIsRoomListExpanded] = useState(false);
   const useGyroscopeRef = useRef(false);
+  const rawGyroQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
+  const gyroOffsetQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
+  const currentGyroQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
+  const isFirstGyroOrientationRef = useRef<boolean>(true);
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
 
   // Camera target orientation refs (for smooth pan interpolation)
@@ -453,27 +457,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   useEffect(() => {
     if (!useGyroscope) return;
 
-    let lastAlpha: number | null = null;
-    let lastBeta: number | null = null;
-    let lastGamma: number | null = null;
-    
-    // EMA Smoothing state for the deltas
-    let smoothedDA = 0;
-    let smoothedDB = 0;
-    
-    // ABSOLUTE SENSORY MAPPING for Butter-Smooth Gyroscope
-    const deviceQ = new THREE.Quaternion();
-    const smoothedQ = new THREE.Quaternion();
-    const worldQ = new THREE.Quaternion();
-    const lastValidDeviceQ = new THREE.Quaternion();
-    
-    // Euler objects for extraction
-    const extractedEuler = new THREE.Euler();
-    
-    let isFirstOrientation = true;
-    let initialLon = targetLonRef.current;
-    let initialLat = targetLatRef.current;
-
     const handleOrientation = (e: DeviceOrientationEvent) => {
       const { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
@@ -490,39 +473,20 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       const orientRad = THREE.MathUtils.degToRad(orient);
 
       // Standard DeviceOrientation to Three.js mapping
-      // ZXY order is standard for device orientation
-      extractedEuler.set(betaRad, alphaRad, -gammaRad, 'YXZ');
-      deviceQ.setFromEuler(extractedEuler);
+      // 'YXZ' order is standard for device orientation controls in Three.js
+      const deviceEuler = new THREE.Euler(betaRad, alphaRad, -gammaRad, 'YXZ');
+      const deviceQ = new THREE.Quaternion().setFromEuler(deviceEuler);
 
-      // Adjust for screen orientation
-      const screenAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
-      deviceQ.multiply(screenAdjQ);
-      
-      // World adjustment (maps device "forward" to Three.js "forward")
-      const worldAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
-      worldQ.copy(deviceQ).premultiply(worldAdjQ);
+      // World transform: adjust from device space to Three.js world space (-PI/2 around X)
+      const worldTransform = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+      deviceQ.multiply(worldTransform);
 
-      if (isFirstOrientation) {
-        smoothedQ.copy(worldQ);
-        isFirstOrientation = false;
-        return;
-      }
+      // Screen transform: adjust for screen orientation (landscape/portrait rotation)
+      const screenTransform = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
+      deviceQ.multiply(screenTransform);
 
-      // 1:1 Mapping with ultra-light slerp to remove sensor jitter
-      smoothedQ.slerp(worldQ, 0.4);
-
-      // Extract forward vector to calculate spherical coordinates (avoids gimbal lock flicker)
-      const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(smoothedQ);
-      
-      // Calculate spherical coordinates directly from the vector
-      // lon = atan2(x, z), lat = asin(y)
-      // This is mathematically stable across the entire sphere
-      const newLon = THREE.MathUtils.radToDeg(Math.atan2(forward.x, forward.z));
-      const newLat = THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(forward.y, -0.999, 0.999)));
-
-      // Apply 1:1 mapping
-      targetLonRef.current = newLon;
-      targetLatRef.current = newLat;
+      // Save raw gyro orientation
+      rawGyroQRef.current.copy(deviceQ);
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -545,6 +509,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       try {
         const permissionState = await (window as any).DeviceOrientationEvent.requestPermission();
         if (permissionState === 'granted') {
+          isFirstGyroOrientationRef.current = true; // reset orientation offset
           setUseGyroscope(true);
           useGyroscopeRef.current = true;
         } else {
@@ -554,6 +519,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         console.error(error);
       }
     } else {
+      isFirstGyroOrientationRef.current = true; // reset orientation offset
       setUseGyroscope(true);
       useGyroscopeRef.current = true;
     }
@@ -1176,32 +1142,68 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      // Butter-smooth lerp towards target orientation
-      const lerpFactor = 0.15;
-      cameraLonRef.current += (targetLonRef.current - cameraLonRef.current) * lerpFactor;
-      cameraLatRef.current += (targetLatRef.current - cameraLatRef.current) * lerpFactor;
-      cameraFovRef.current += (targetFovRef.current - cameraFovRef.current) * lerpFactor;
-
-      // Keep angles within standard bounds
-      const currentLat = Math.max(-85, Math.min(85, cameraLatRef.current));
-      const currentLon = cameraLonRef.current;
-      
       // Sync FOV changes dynamically in render loop
+      const lerpFactor = 0.15;
+      cameraFovRef.current += (targetFovRef.current - cameraFovRef.current) * lerpFactor;
       if (camera.fov !== cameraFovRef.current) {
         camera.fov = cameraFovRef.current;
         camera.updateProjectionMatrix();
       }
-      
-      // Calculate Look At Direction from angles
-      const phi = THREE.MathUtils.degToRad(90 - currentLat);
-      const theta = THREE.MathUtils.degToRad(currentLon);
 
-      const target = new THREE.Vector3();
-      target.x = 500 * Math.sin(phi) * Math.cos(theta);
-      target.y = 500 * Math.cos(phi);
-      target.z = 500 * Math.sin(phi) * Math.sin(theta);
+      if (useGyroscopeRef.current && rawGyroQRef.current) {
+        if (isFirstGyroOrientationRef.current) {
+          isFirstGyroOrientationRef.current = false;
+          
+          // Capture current camera quaternion (aligned to user dragging / initial values)
+          const currentCameraQ = camera.quaternion.clone();
+          
+          // Calculate offset: gyroOffsetQ = currentCameraQ * rawGyroQ.invert()
+          gyroOffsetQRef.current.copy(currentCameraQ).multiply(rawGyroQRef.current.clone().invert());
+          
+          // Set our current gyro tracker instantly to the raw orientation
+          currentGyroQRef.current.copy(rawGyroQRef.current);
+        }
 
-      camera.lookAt(target);
+        // Slerp the current gyro orientation for butter-smooth, real-time 1:1 response (0.75 factor removes jitter with zero lag)
+        currentGyroQRef.current.slerp(rawGyroQRef.current, 0.75);
+        
+        // Camera orientation is the offsetted sensor rotation
+        camera.quaternion.copy(gyroOffsetQRef.current).multiply(currentGyroQRef.current);
+        
+        // Extract lookAt direction from camera's actual rotation matrix to sync other coordinates (Compass, etc.)
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+        
+        const latRad = Math.asin(THREE.MathUtils.clamp(forward.y, -0.999, 0.999));
+        const lonRad = Math.atan2(forward.z, forward.x);
+        
+        const currentLon = THREE.MathUtils.radToDeg(lonRad);
+        const currentLat = THREE.MathUtils.radToDeg(latRad);
+        
+        cameraLonRef.current = currentLon;
+        cameraLatRef.current = currentLat;
+        targetLonRef.current = currentLon;
+        targetLatRef.current = currentLat;
+      } else {
+        // Butter-smooth lerp towards target orientation
+        cameraLonRef.current += (targetLonRef.current - cameraLonRef.current) * lerpFactor;
+        cameraLatRef.current += (targetLatRef.current - cameraLatRef.current) * lerpFactor;
+
+        // Keep angles within standard bounds
+        const currentLat = Math.max(-85, Math.min(85, cameraLatRef.current));
+        const currentLon = cameraLonRef.current;
+        
+        // Calculate Look At Direction from angles
+        const phi = THREE.MathUtils.degToRad(90 - currentLat);
+        const theta = THREE.MathUtils.degToRad(currentLon);
+
+        const target = new THREE.Vector3();
+        target.x = 500 * Math.sin(phi) * Math.cos(theta);
+        target.y = 500 * Math.cos(phi);
+        target.z = 500 * Math.sin(phi) * Math.sin(theta);
+
+        camera.lookAt(target);
+      }
+
       renderer.render(scene, camera);
 
       // Project Hotspots coordinates to 2D HTML space
@@ -1326,11 +1328,34 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     lastPointerXRef.current = e.clientX;
     lastPointerYRef.current = e.clientY;
 
-    // Both PC/Mouse and Mobile/Tablet screens now use -1 for intuitive, natural, and consistent dragging direction
-    const swipeMultiplierX = -1;
+    if (useGyroscopeRef.current) {
+      // Rotate the gyro offset quaternion dynamically based on dragging.
+      // Horizontal drag rotates around the world Y-axis (Up)
+      const yawRotation = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(0, 1, 0),
+        THREE.MathUtils.degToRad(-deltaX * panSpeedX)
+      );
+      
+      // Vertical drag rotates around the camera's local horizontal axis (Right)
+      const cameraObj = cameraRef.current;
+      const cameraRight = new THREE.Vector3(1, 0, 0);
+      if (cameraObj) {
+        cameraRight.applyQuaternion(cameraObj.quaternion);
+      }
+      
+      const pitchRotation = new THREE.Quaternion().setFromAxisAngle(
+        cameraRight,
+        THREE.MathUtils.degToRad(deltaY * panSpeedY)
+      );
+      
+      gyroOffsetQRef.current.premultiply(yawRotation).premultiply(pitchRotation);
+    } else {
+      // Both PC/Mouse and Mobile/Tablet screens now use -1 for intuitive, natural, and consistent dragging direction
+      const swipeMultiplierX = -1;
 
-    targetLonRef.current += deltaX * panSpeedX * swipeMultiplierX;
-    targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaY * panSpeedY));
+      targetLonRef.current += deltaX * panSpeedX * swipeMultiplierX;
+      targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaY * panSpeedY));
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
