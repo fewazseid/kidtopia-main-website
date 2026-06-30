@@ -1283,7 +1283,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Sync angle states local values to component states
     const angleUpdateInterval = setInterval(() => {
       // Update state for compass and UI readouts
-      if (isUserInteractingRef.current || useGyroscopeRef.current) {
+      if (isUserInteractingRef.current || useGyroscopeRef.current || showGuide) {
         setCameraLon(cameraLonRef.current);
         setCameraLat(cameraLatRef.current);
         setCameraFov(cameraFovRef.current);
@@ -1740,20 +1740,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           )}
         </AnimatePresence>
 
-        {/* Interactive Smooth Fade Transition Overlay */}
+        {/* Interactive Smooth Fade Transition Overlay - No text or signs per user request */}
         <AnimatePresence>
           {sceneLoading && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-stone-950/80 backdrop-blur-md z-50 flex items-center justify-center pointer-events-none p-4"
-            >
-              <div className="flex flex-col items-center gap-4">
-                <RefreshCw className="w-12 h-12 text-brand-green animate-spin" />
-                <span className="text-white text-xs font-black uppercase tracking-widest animate-pulse">Entering Room...</span>
-              </div>
-            </motion.div>
+              className="absolute inset-0 bg-stone-950/30 backdrop-blur-[2px] z-50 pointer-events-none"
+            />
           )}
         </AnimatePresence>
 
@@ -1782,7 +1777,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
-          <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
+          <div 
+            id="tour-compass" 
+            className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80 z-40 transition-transform duration-75"
+            style={{
+              transform: `translateX(-50%) rotate(${-cameraRollRef.current || 0}rad)`
+            }}
+          >
             {/* Horizontal sliding ruler */}
             <div className="w-full h-5 sm:h-8 bg-white/40 backdrop-blur-[24px] border border-white/60 rounded-full overflow-hidden relative shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
               <div 
@@ -1867,12 +1868,23 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   {/* TikTok-style finger swipe animation */}
                   <motion.div
                     animate={{ 
-                      x: [-60, 60, -60],
-                      rotate: [15, -15, 15]
+                      x: [-60, 60, 0, 0, 0],
+                      y: [0, 0, 0, -40, 40],
+                      rotate: [15, -15, 0, 10, -10]
+                    }}
+                    onUpdate={(latest) => {
+                      // Mirror the finger movement in the virtual tour camera
+                      if (showGuide) {
+                        const targetLon = (latest.x as number) * 0.5;
+                        const targetLat = (latest.y as number) * -0.3;
+                        
+                        cameraLonRef.current += (targetLon - (cameraLonRef.current % 360)) * 0.05;
+                        cameraLatRef.current += (targetLat - cameraLatRef.current) * 0.05;
+                      }
                     }}
                     transition={{ 
                       repeat: Infinity, 
-                      duration: 2, 
+                      duration: 4, 
                       ease: "easeInOut" 
                     }}
                     className="relative"

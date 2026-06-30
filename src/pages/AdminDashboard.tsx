@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass, GripVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -10,6 +10,114 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
 import { ThreeSixtyViewer } from '../components/ThreeSixtyViewer';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+interface SortableItemProps {
+  id: string;
+  index: number;
+  path: string[];
+  item: any;
+  isPrimitiveArray: boolean;
+  onRemove: (index: number) => void;
+  onMove: (index: number, direction: 'up' | 'down') => void;
+  onFieldChange: (path: string[], value: any) => void;
+  renderField: (key: string, value: any, path: string[]) => React.ReactNode;
+  sortObjectKeysByTemplate: (obj: any, path: string[]) => string[];
+  isLast: boolean;
+}
+
+const SortableItem: React.FC<SortableItemProps> = ({ 
+  id, index, path, item, isPrimitiveArray, onRemove, onMove, onFieldChange, renderField, sortObjectKeysByTemplate, isLast 
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 100 : 1,
+    opacity: isDragging ? 0.5 : 1
+  };
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`mb-4 p-4 bg-white rounded-lg border border-stone-200 relative group ${isDragging ? 'shadow-xl border-brand-green' : ''}`}
+    >
+      <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+        <div 
+          {...attributes} 
+          {...listeners} 
+          className="cursor-grab active:cursor-grabbing p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg"
+          title="Drag to reorder"
+        >
+          <GripVertical size={16} />
+        </div>
+        {index > 0 && (
+          <button
+            onClick={() => onMove(index, 'up')}
+            className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
+            title="Move Up"
+          >
+            <ChevronUp size={16} />
+          </button>
+        )}
+        {!isLast && (
+          <button
+            onClick={() => onMove(index, 'down')}
+            className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
+            title="Move Down"
+          >
+            <ChevronDown size={16} />
+          </button>
+        )}
+        <button 
+          onClick={() => onRemove(index)}
+          className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg"
+          title="Remove Item"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+      <div className="text-xs font-bold text-stone-400 mb-2 uppercase tracking-wider">Item {index + 1}</div>
+      {isPrimitiveArray ? (
+        <input
+          type="text"
+          value={item}
+          onChange={(e) => onFieldChange([...path, index.toString()], e.target.value)}
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
+        />
+      ) : (
+        sortObjectKeysByTemplate(item, path).map((itemKey) => 
+          renderField(itemKey, item[itemKey], [...path, index.toString(), itemKey])
+        )
+      )}
+    </div>
+  );
+};
 
 export function convertGoogleDriveUrl(url: string): string {
   if (!url) return '';
@@ -62,6 +170,47 @@ export const AdminDashboard: React.FC = () => {
   const daysOfWeek = ['Default', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const [bookings, setBookings] = useState<any[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent, path: string[]) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id as string);
+      const newIndex = parseInt(over.id as string);
+      
+      const newContent = { ...content };
+      const activeLangContent = { ...newContent[activeLang] };
+      
+      // Get the array
+      let current: any = activeLangContent;
+      for (let i = 0; i < path.length - 1; i++) {
+        current = current[path[i]];
+      }
+      
+      const lastKey = path[path.length - 1];
+      const array = [...current[lastKey]];
+      
+      // Move item
+      const movedArray = arrayMove(array, oldIndex, newIndex);
+      current[lastKey] = movedArray;
+      
+      setContent({
+        ...newContent,
+        [activeLang]: activeLangContent
+      });
+    }
+  };
 
   const checkApiHealth = async () => {
     let apiBase = (import.meta as any).env.VITE_API_URL || '';
@@ -1135,50 +1284,35 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-stone-800 capitalize">{key}</h3>
           </div>
-          {value.map((item, index) => (
-            <div key={index} className="mb-4 p-4 bg-white rounded-lg border border-stone-200 relative group">
-              <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
-                {index > 0 && (
-                  <button
-                    onClick={() => moveItem(path, index, 'up')}
-                    className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
-                    title="Move Up"
-                  >
-                    <ChevronUp size={16} />
-                  </button>
-                )}
-                {index < value.length - 1 && (
-                  <button
-                    onClick={() => moveItem(path, index, 'down')}
-                    className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
-                    title="Move Down"
-                  >
-                    <ChevronDown size={16} />
-                  </button>
-                )}
-                <button 
-                  onClick={() => removeItem(path, index)}
-                  className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg"
-                  title="Remove Item"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-              <div className="text-xs font-bold text-stone-400 mb-2 uppercase tracking-wider">Item {index + 1}</div>
-              {isPrimitiveArray ? (
-                <input
-                  type="text"
-                  value={item}
-                  onChange={(e) => handleChange([...path, index.toString()], e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
+          
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={(event) => handleDragEnd(event, path)}
+          >
+            <SortableContext
+              items={value.map((_, i) => i.toString())}
+              strategy={verticalListSortingStrategy}
+            >
+              {value.map((item, index) => (
+                <SortableItem
+                  key={index}
+                  id={index.toString()}
+                  index={index}
+                  path={path}
+                  item={item}
+                  isPrimitiveArray={isPrimitiveArray}
+                  onRemove={() => removeItem(path, index)}
+                  onMove={(idx, dir) => moveItem(path, idx, dir)}
+                  onFieldChange={handleChange}
+                  renderField={renderField}
+                  sortObjectKeysByTemplate={sortObjectKeysByTemplate}
+                  isLast={index === value.length - 1}
                 />
-              ) : (
-                sortObjectKeysByTemplate(item, path).map((itemKey) => 
-                  renderField(itemKey, item[itemKey], [...path, index.toString(), itemKey])
-                )
-              )}
-            </div>
-          ))}
+              ))}
+            </SortableContext>
+          </DndContext>
+
           <button 
             onClick={() => addItem(path)}
             className="flex items-center gap-1 text-sm text-brand-green border border-brand-green px-3 py-2 rounded-lg hover:bg-brand-green hover:text-white transition-colors w-max mt-2"

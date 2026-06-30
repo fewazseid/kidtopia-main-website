@@ -14,6 +14,8 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   const [activeBio, setActiveBio] = useState<number | null>(null);
+  const sectionRef = React.useRef<HTMLElement>(null);
+  const [isSectionInView, setIsSectionInView] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,6 +29,48 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
   const limit = isMobile ? 3 : 4;
   const displayedMembers = showAll ? t.members : t.members.slice(0, limit);
 
+  // Intersection Observer for auto-displaying bios on mobile scroll
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-index'));
+            setActiveBio(index);
+          }
+        });
+      },
+      {
+        root: null,
+        threshold: 0.8, // Trigger when 80% of card is visible
+        rootMargin: '-10% 0px -10% 0px'
+      }
+    );
+
+    const elements = document.querySelectorAll('.staff-card');
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [isMobile, displayedMembers]);
+
+  // Observer for section visibility to hide sticky button
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSectionInView(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleToggle = () => {
     if (showAll) {
       const element = document.getElementById('staff');
@@ -39,7 +83,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
   };
 
   return (
-    <section id="staff" className="py-24 bg-transparent scroll-mt-24 relative overflow-hidden">
+    <section id="staff" ref={sectionRef} className="py-24 bg-transparent scroll-mt-24 relative overflow-hidden">
       {/* Decorative vectors */}
       <div className="absolute top-1/4 right-[-10%] w-[400px] h-[400px] rounded-full bg-brand-yellow/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 left-[-10%] w-[400px] h-[400px] rounded-full bg-brand-orange/5 blur-[120px] pointer-events-none" />
@@ -77,11 +121,12 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
             {displayedMembers.map((member: any, idx: number) => (
               <motion.div
                 key={member.name + idx}
+                data-index={idx}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="group flex flex-col items-center text-center h-full"
+                className="group flex flex-col items-center text-center h-full staff-card"
                 onClick={() => isMobile && setActiveBio(activeBio === idx ? null : idx)}
               >
                 {/* Visual Avatar frame with organic border background */}
@@ -125,9 +170,9 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
           </div>
         )}
 
-        {/* Sticky/Floating collapse button when list is expanded */}
+        {/* Sticky/Floating collapse button when list is expanded - Only show when section is in view */}
         <AnimatePresence>
-          {showAll && (
+          {showAll && isSectionInView && (
             <motion.div 
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
