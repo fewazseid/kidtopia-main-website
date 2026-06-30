@@ -460,77 +460,67 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // EMA Smoothing state for the deltas
     let smoothedDA = 0;
     let smoothedDB = 0;
-    let smoothedDG = 0;
+    
+    let prevQ = new THREE.Quaternion();
+    let hasInitialQ = false;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
       let { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
 
-      // Even more aggressive low-pass filter for raw values to eliminate sensor jitter
-      const filterFactor = 0.05;
-      
-      if (lastAlpha === null) {
-        lastAlpha = alpha;
-        lastBeta = beta;
-        lastGamma = gamma;
-      } else {
-        // Handle alpha wrap-around in low-pass filter
-        let diffA = alpha - lastAlpha;
-        if (diffA > 180) diffA -= 360;
-        if (diffA < -180) diffA += 360;
-        alpha = lastAlpha + diffA * filterFactor;
-        
-        beta = lastBeta + (beta - lastBeta) * filterFactor;
-        gamma = lastGamma + (gamma - lastGamma) * filterFactor;
-      }
+      // Convert to radians for Three.js
+      const ra = THREE.MathUtils.degToRad(alpha);
+      const rb = THREE.MathUtils.degToRad(beta);
+      const rg = THREE.MathUtils.degToRad(gamma);
 
+      // Get screen orientation
       const orient = (typeof window !== 'undefined' && window.screen?.orientation)
         ? (window.screen.orientation.angle) 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
+      const orientRad = THREE.MathUtils.degToRad(orient);
 
-      // Shortest path delta for Alpha (Yaw/Longitude)
-      let deltaAlpha = alpha - lastAlpha;
-      if (deltaAlpha > 180) deltaAlpha -= 360;
-      if (deltaAlpha < -180) deltaAlpha += 360;
-      
-      const deltaBeta = beta - lastBeta;
-      const deltaGamma = gamma - lastGamma;
+      // Create a stable rotation representation using a Quaternion
+      // This avoids gimbal lock / flickering in the "middle area"
+      // We use the standard ZXY order for device orientation
+      const euler = new THREE.Euler(rb, ra, -rg, 'YXZ');
+      const currentQ = new THREE.Quaternion().setFromEuler(euler);
 
-      // Heavy velocity smoothing
-      const velocityFilter = 0.05; 
-      smoothedDA = smoothedDA + (deltaAlpha - smoothedDA) * velocityFilter;
-      smoothedDB = smoothedDB + (deltaBeta - smoothedDB) * velocityFilter;
-      smoothedDG = smoothedDG + (deltaGamma - smoothedDG) * velocityFilter;
+      // Adjust for screen orientation
+      const screenAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
+      currentQ.multiply(screenAdjQ);
 
-      // Larger deadzone to eliminate micro-jitter
-      const deadzone = 0.03;
+      if (hasInitialQ) {
+        // Calculate the delta rotation from the previous state
+        const deltaQ = prevQ.clone().invert().multiply(currentQ);
+        
+        // Convert delta rotation to Euler to extract movement on our axes
+        const deltaEuler = new THREE.Euler().setFromQuaternion(deltaQ, 'YXZ');
+        
+        let dLon = deltaEuler.y * THREE.MathUtils.RAD2DEG;
+        let dLat = deltaEuler.x * THREE.MathUtils.RAD2DEG;
 
-      const applyDelta = (da: number, db: number, dg: number) => {
-        if (Math.abs(da) > deadzone) {
-          targetLonRef.current -= da;
+        // Apply heavy smoothing to the deltas (EMA)
+        // This eliminates sensor noise while keeping movement fluid
+        const smoothingFactor = 0.15;
+        smoothedDA = smoothedDA + (dLon - smoothedDA) * smoothingFactor;
+        smoothedDB = smoothedDB + (dLat - smoothedDB) * smoothingFactor;
+
+        // Deadzone to prevent "drifting" or micro-flicker when stationary
+        const deadzone = 0.01;
+        
+        if (Math.abs(smoothedDA) > deadzone) {
+          targetLonRef.current -= smoothedDA;
         }
         
-        if (orient === 0) { // Portrait
-          if (Math.abs(db) > deadzone) {
-            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + db));
-          }
-        } else if (orient === 90 || orient === 270) { // Landscape
-          const isLeft = orient === 90;
-          if (Math.abs(dg) > deadzone) {
-            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + (isLeft ? -dg : dg)));
-          }
-        } else {
-          if (Math.abs(db) > deadzone) {
-            targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current - db));
-          }
+        if (Math.abs(smoothedDB) > deadzone) {
+          // Invert lat based on orientation if necessary (Portrait vs Landscape)
+          // The YXZ mapping above is generally stable, but we might need minor adjustments
+          targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + smoothedDB));
         }
-      };
+      }
 
-      applyDelta(smoothedDA, smoothedDB, smoothedDG);
-
-      lastAlpha = alpha;
-      lastBeta = beta;
-      lastGamma = gamma;
+      prevQ.copy(currentQ);
+      hasInitialQ = true;
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -1122,7 +1112,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     rendererRef.current = renderer;
 
     // Create Inside-Out Sphere Geometry
-    const geometry = new THREE.SphereGeometry(500, 60, 40);
+    const geometry = new THREE.SphereGeometry(500, 128, 84); // High resolution geometry
     geometry.scale(-1, 1, 1); // invert the sphere geometry on the x-axis so inside is rendered
 
     // Create Material & Mesh
@@ -1667,9 +1657,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center / Left on Mobile) */}
-          <div id="tour-compass" className="absolute sm:left-1/2 sm:-translate-x-1/2 left-4 sm:left-auto top-12 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-40 sm:w-80">
+          <div id="tour-compass" className="absolute sm:left-1/2 sm:-translate-x-1/2 left-4 sm:left-auto top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
             {/* Horizontal sliding ruler */}
-            <div className="w-full h-6 sm:h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
+            <div className="w-full h-5 sm:h-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-full overflow-hidden relative shadow-lg">
               <div 
                 className="absolute top-0 bottom-0 flex items-center transition-transform duration-100 ease-out"
                 style={{ 
@@ -1704,11 +1694,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
             
             {/* Room Title Tag - glassmorphic and elegant */}
-            <div className="bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
-              <h3 className="text-white font-sans text-[10px] sm:text-sm font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap drop-shadow-md">
+            <div className="bg-white/20 dark:bg-black/20 backdrop-blur-lg border border-white/30 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-white font-sans text-[9px] sm:text-sm font-semibold tracking-wide flex items-center gap-1.5 whitespace-nowrap drop-shadow-md">
                 <span>{currentScene?.title}</span>
                 {currentScene?.isStart && (
-                  <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[8px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
+                  <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[7px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
                     Entrance
                   </span>
                 )}
