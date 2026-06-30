@@ -161,6 +161,27 @@
   transform: translateY(0) scale(0.97);
 }
 
+.btn-glass {
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 9999px;
+  padding: 0.75rem 1.75rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.08), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+.btn-glass:active {
+  transform: translateY(0) scale(0.97);
+}
+
 .btn-outline {
   border: 1.5px solid rgba(58, 91, 50, 0.6);
   background: rgba(255, 255, 255, 0.45);
