@@ -1433,23 +1433,55 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const el = document.getElementById('three-sixty-tour-container');
     if (!el) return;
 
-    if (!document.fullscreenElement) {
-      el.requestFullscreen().then(() => setIsFullscreen(true)).catch(err => {
-        console.error('Error enabling fullscreen:', err);
-      });
+    if (!document.fullscreenElement && !isFullscreen) {
+      // Try native fullscreen
+      el.requestFullscreen()
+        .then(() => {
+          setIsFullscreen(true);
+        })
+        .catch(err => {
+          console.warn('Native fullscreen rejected or failed (falling back to robust CSS faux-fullscreen mode):', err);
+          // Fallback: Enable CSS-based faux-fullscreen
+          setIsFullscreen(true);
+        });
     } else {
-      document.exitFullscreen().then(() => setIsFullscreen(false));
+      // If we are in native fullscreen, exit it
+      if (document.fullscreenElement) {
+        document.exitFullscreen()
+          .then(() => setIsFullscreen(false))
+          .catch(err => {
+            console.error('Error exiting native fullscreen:', err);
+            setIsFullscreen(false);
+          });
+      } else {
+        // Just turn off faux-fullscreen
+        setIsFullscreen(false);
+      }
     }
   };
 
-  // Watch for fullscreen change via Esc key
+  // Watch for fullscreen change via Esc key and native events
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false);
+      }
     };
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen && !document.fullscreenElement) {
+        setIsFullscreen(false);
+      }
+    };
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen]);
 
   if (loading) {
     return (
