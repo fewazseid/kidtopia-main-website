@@ -13,6 +13,8 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
   const [showAll, setShowAll] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  const [activeBio, setActiveBio] = useState<number | null>(null);
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 640);
@@ -33,6 +35,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
       }
     }
     setShowAll(!showAll);
+    setActiveBio(null);
   };
 
   return (
@@ -79,6 +82,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 className="group flex flex-col items-center text-center h-full"
+                onClick={() => isMobile && setActiveBio(activeBio === idx ? null : idx)}
               >
                 {/* Visual Avatar frame with organic border background */}
                 <div className="relative w-full aspect-[4/5] rounded-[32px] overflow-hidden mb-6 shadow-lg bg-stone-100 border-4 border-white transition-all duration-500 group-hover:scale-[1.02] group-hover:shadow-xl">
@@ -90,8 +94,8 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
                       referrerPolicy="no-referrer"
                     />
                   )}
-                  {/* Glass overlay bio on hover */}
-                  <div className="absolute inset-0 bg-stone-950/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-400 flex flex-col justify-end p-6 text-left">
+                  {/* Glass overlay bio on hover/tap */}
+                  <div className={`absolute inset-0 bg-stone-950/70 backdrop-blur-sm transition-opacity duration-400 flex flex-col justify-end p-6 text-left ${activeBio === idx ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                     <span className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-green flex items-center justify-center mb-3">
                       <Heart size={16} className="fill-current" />
                     </span>
@@ -110,7 +114,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
         </div>
 
         {t.members.length > limit && (
-          <div className="mt-16 text-center">
+          <div className="mt-16 text-center flex justify-center">
             <button 
               onClick={handleToggle}
               className="inline-flex items-center gap-2 px-10 py-4.5 bg-brand-green text-white rounded-full text-sm font-black tracking-wider uppercase hover:bg-brand-orange hover:shadow-[0_15px_30px_rgba(240,140,60,0.2)] transition-all hover:scale-105 active:scale-95 duration-300 cursor-pointer shadow-lg"
@@ -128,11 +132,11 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              className="fixed bottom-6 right-6 z-40"
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"
             >
               <button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 px-4 py-3 bg-white/80 backdrop-blur-md border border-stone-200/80 rounded-full text-xs font-black tracking-widest uppercase text-stone-900 shadow-xl hover:bg-stone-100 transition-all duration-300 active:scale-95 cursor-pointer"
+                className="flex items-center gap-1.5 px-6 py-3.5 bg-white/90 backdrop-blur-md border border-stone-200/80 rounded-full text-xs font-black tracking-widest uppercase text-stone-900 shadow-[0_20px_50px_rgba(0,0,0,0.15)] hover:bg-stone-100 transition-all duration-300 active:scale-95 cursor-pointer"
               >
                 <ChevronUp size={14} className="stroke-[2.5] text-brand-green" />
                 {t.showLess}

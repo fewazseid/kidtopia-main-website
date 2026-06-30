@@ -1749,46 +1749,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-stone-950/80 backdrop-blur-md z-50 flex items-center justify-center pointer-events-none p-4"
             >
-              <motion.div
-                initial={{ scale: 0.95, y: 15 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 15 }}
-                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl max-w-sm w-full flex flex-col items-center text-center gap-4"
-              >
-                {nextScene ? (
-                  <div className="w-full h-32 rounded-2xl overflow-hidden relative border border-white/5 bg-stone-900 shadow-inner">
-                    <img 
-                      src={nextScene.imageUrl} 
-                      alt={nextScene.title} 
-                      className="w-full h-full object-cover opacity-60 filter blur-[0.5px]"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-stone-950/30" />
-                    <div className="absolute bottom-3 left-3 right-3 text-left">
-                      <span className="text-[8px] uppercase tracking-[0.2em] text-brand-orange font-black">Transporting To</span>
-                      <h4 className="text-white text-xs sm:text-sm font-bold truncate leading-tight">{nextScene.title}</h4>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-32 rounded-2xl bg-stone-900/50 flex items-center justify-center border border-white/5">
-                    <Compass className="w-8 h-8 text-brand-green animate-spin" style={{ animationDuration: '3s' }} />
-                  </div>
-                )}
-
-                <div className="w-full flex flex-col gap-1">
-                  <h4 className="text-white font-sans text-xs tracking-wider font-semibold uppercase">Entering Space...</h4>
-                </div>
-
-                {/* Sleek linear progress bar */}
-                <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-1 relative">
-                  <motion.div 
-                    initial={{ left: "-100%" }}
-                    animate={{ left: "100%" }}
-                    transition={{ repeat: Infinity, duration: 1.25, ease: "linear" }}
-                    className="absolute top-0 bottom-0 w-1/2 bg-brand-green shadow-[0_0_8px_rgba(16,185,129,0.8)]"
-                  />
-                </div>
-              </motion.div>
+              <div className="flex flex-col items-center gap-4">
+                <RefreshCw className="w-12 h-12 text-brand-green animate-spin" />
+                <span className="text-white text-xs font-black uppercase tracking-widest animate-pulse">Entering Room...</span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1820,7 +1784,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
           <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
             {/* Horizontal sliding ruler */}
-            <div className="w-full h-5 sm:h-8 bg-white/75 backdrop-blur-xl border border-white/50 rounded-full overflow-hidden relative shadow-lg">
+            <div className="w-full h-5 sm:h-8 bg-white/40 backdrop-blur-[24px] border border-white/60 rounded-full overflow-hidden relative shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
               <div 
                 className="absolute top-0 bottom-0 flex items-center transition-transform duration-100 ease-out"
                 style={{ 
@@ -1831,15 +1795,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 {[-3, -2, -1, 0, 1, 2, 3].map((k) => (
                   <div key={k} className="absolute top-0 bottom-0 flex items-center" style={{ left: `${k * 720}px`, width: '720px' }}>
                     <div className="absolute left-[0px] top-[2px] text-[10px] text-brand-orange font-black -translate-x-1/2 z-10">N</div>
-                    <div className="absolute left-[180px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">E</div>
-                    <div className="absolute left-[360px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">S</div>
-                    <div className="absolute left-[540px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">W</div>
+                    <div className="absolute left-[180px] top-[2px] text-[10px] text-black font-black -translate-x-1/2 z-10">E</div>
+                    <div className="absolute left-[360px] top-[2px] text-[10px] text-black font-black -translate-x-1/2 z-10">S</div>
+                    <div className="absolute left-[540px] top-[2px] text-[10px] text-black font-black -translate-x-1/2 z-10">W</div>
                     
                     {/* Ticks every 15 degrees (30px) */}
                     {Array.from({length: 24}).map((_, i) => (
                       <div 
                         key={i} 
-                        className="absolute bottom-0 w-[1.5px] bg-stone-900/30" 
+                        className="absolute bottom-0 w-[1.5px] bg-black/30" 
                         style={{ 
                           left: `${i * 30}px`, 
                           height: i % 6 === 0 ? '12px' : '6px', 
@@ -1855,8 +1819,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
             
             {/* Room Title Tag - glassmorphic and elegant */}
-            <div className="bg-white/75 backdrop-blur-xl border border-white/50 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
-              <h3 className="text-stone-900 font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
+            <div className="bg-white/40 backdrop-blur-[24px] border border-white/60 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-black font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
                 <span>{currentScene?.title}</span>
                 {currentScene?.isStart && (
                   <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[7px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
@@ -1883,259 +1847,71 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </button>
         </div>
 
-        {/* ONBOARDING CUSTOMER WALKTHROUGH GUIDE DIALOG OVERLAY */}
+        {/* ONBOARDING CUSTOMER WALKTHROUGH GUIDE (Finger Animation) */}
         {showGuide && (
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white/20 dark:bg-black/30 backdrop-blur-2xl border border-white/30 rounded-2xl p-5 shadow-2xl max-w-sm w-full animate-in zoom-in-95 duration-200 flex flex-col gap-3 pointer-events-auto text-white">
-              {/* Header */}
-              <div className="flex justify-between items-center pb-2 border-b border-white/20">
-                <span className="px-2 py-0.5 bg-brand-orange/80 text-white text-[10px] font-sans font-bold uppercase tracking-wider rounded-md">
-                  Step {guideStep + 1} of {GUIDE_STEPS.length}
-                </span>
-                <button
-                  onClick={() => {
-                    setShowGuide(false);
-                    try {
-                      localStorage.setItem('kidtopia_tour_guide_shown', 'true');
-                    } catch (e) {}
-                  }}
-                  className="text-white/60 hover:text-white transition"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              
-              {/* Step info */}
-              <div className="flex flex-col gap-1.5 drop-shadow-md">
-                <h4 className="font-sans font-black text-white text-sm tracking-wide">
-                  {GUIDE_STEPS[guideStep].title}
-                </h4>
-                <p className="text-xs text-white/90 leading-relaxed font-sans">
-                  {GUIDE_STEPS[guideStep].description}
-                </p>
-              </div>
-              
-              {/* Visual Help Indicator */}
-              <div className="bg-black/20 p-4 rounded-xl border border-white/20 flex items-center justify-center backdrop-blur-md shadow-inner overflow-hidden min-h-[80px]">
-                <AnimatePresence mode="wait">
-                  {guideStep === 0 && (
-                    <motion.div 
-                      key="step0"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      {/* TikTok-style finger swipe animation */}
-                      <motion.div
-                        animate={{ 
-                          x: [-40, 40, -40],
-                          rotate: [12, -12, 12]
-                        }}
-                        transition={{ 
-                          repeat: Infinity, 
-                          duration: 2.5, 
-                          ease: "easeInOut" 
-                        }}
-                        className="relative"
-                      >
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="2.5" 
-                          className="w-10 h-10 text-brand-orange drop-shadow-lg"
-                        >
-                          <path d="M9 13V3a1.5 1.5 0 0 1 3 0v10" fill="rgba(249,115,22,0.15)" />
-                          <path d="M6 13a3 3 0 0 1-3-3v-1a1.5 1.5 0 0 1 3 0v4" />
-                          <path d="M12 10.5V6a1.5 1.5 0 0 1 3 0v4.5" />
-                          <path d="M18 11V8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-3a6 6 0 0 1-6-6v-2" />
-                        </svg>
-                        {/* Touch press ripple */}
-                        <motion.div
-                          animate={{ 
-                            scale: [0.7, 1.6, 0.7],
-                            opacity: [0.7, 0, 0.7] 
-                          }}
-                          transition={{ 
-                            repeat: Infinity, 
-                            duration: 1.25 
-                          }}
-                          className="absolute top-0 left-2.5 w-5 h-5 bg-brand-orange/30 rounded-full border border-brand-orange/60 -z-10"
-                        />
-                      </motion.div>
-                      <span className="text-[10px] text-brand-orange font-bold uppercase tracking-wider">Drag/Swipe to look around</span>
-                    </motion.div>
-                  )}
-                  {guideStep === 1 && (
-                    <motion.div 
-                      key="step1"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      {/* Tap hotspot finger animation */}
-                      <motion.div
-                        animate={{ 
-                          scale: [1, 0.9, 1],
-                          y: [0, 6, 0]
-                        }}
-                        transition={{ 
-                          repeat: Infinity, 
-                          duration: 1.4, 
-                          ease: "easeInOut" 
-                        }}
-                        className="relative flex flex-col items-center"
-                      >
-                        <MapPin className="w-8 h-8 text-brand-orange animate-bounce" />
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="2.5" 
-                          className="w-8 h-8 text-white drop-shadow-md mt-1 translate-y-2 translate-x-1 rotate-[-15deg]"
-                        >
-                          <path d="M9 13V3a1.5 1.5 0 0 1 3 0v10" fill="rgba(255,255,255,0.2)" />
-                          <path d="M6 13a3 3 0 0 1-3-3v-1a1.5 1.5 0 0 1 3 0v4" />
-                          <path d="M12 10.5V6a1.5 1.5 0 0 1 3 0v4.5" />
-                          <path d="M18 11V8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-3a6 6 0 0 1-6-6v-2" />
-                        </svg>
-                        <motion.div
-                          animate={{ 
-                            scale: [0.5, 1.8, 0.5],
-                            opacity: [0.8, 0, 0.8] 
-                          }}
-                          transition={{ 
-                            repeat: Infinity, 
-                            duration: 1.45 
-                          }}
-                          className="absolute bottom-2 right-1 w-6 h-6 bg-white/30 rounded-full border border-white/50 -z-10"
-                        />
-                      </motion.div>
-                      <span className="text-[10px] text-white font-bold uppercase tracking-wider">Tap pointers to teleport</span>
-                    </motion.div>
-                  )}
-                  {guideStep === 2 && (
-                    <motion.div 
-                      key="step2"
-                      initial={{ opacity: 0, rotate: -45 }}
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0, rotate: 45 }}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      <motion.div
-                        animate={{ 
-                          rotate: 360,
-                          transition: { repeat: Infinity, duration: 8, ease: "linear" }
-                        }}
-                      >
-                        <Compass className="w-7 h-7 text-white" />
-                      </motion.div>
-                      <span className="text-[10px] text-white font-bold uppercase tracking-wider">Check your heading</span>
-                    </motion.div>
-                  )}
-                  {guideStep === 3 && (
-                    <motion.div 
-                      key="step3"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      className="grid grid-cols-2 gap-4 items-center"
-                    >
-                      <motion.div
-                        animate={{ 
-                          scale: [1, 1.1, 1],
-                          transition: { repeat: Infinity, duration: 2 }
-                        }}
-                        className="flex flex-col items-center gap-1"
-                      >
-                        <ZoomIn className="w-5 h-5 text-brand-orange" />
-                        <span className="text-[8px] font-bold">Zoom</span>
-                      </motion.div>
-                      <motion.div
-                        animate={{ 
-                          rotate: [0, 90, 180, 270, 360],
-                          transition: { repeat: Infinity, duration: 4 }
-                        }}
-                        className="flex flex-col items-center gap-1"
-                      >
-                        <RotateCcw className="w-5 h-5 text-brand-orange" />
-                        <span className="text-[8px] font-bold">Reset</span>
-                      </motion.div>
-                    </motion.div>
-                  )}
-                  {guideStep === 4 && (
-                    <motion.div 
-                      key="step4"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="flex items-center gap-3 overflow-hidden px-4"
-                    >
-                      {[1, 2, 3].map(i => (
-                        <motion.div 
-                          key={i}
-                          animate={{ 
-                            x: [-10, 10, -10],
-                            transition: { repeat: Infinity, duration: 3, delay: i * 0.2 }
-                          }}
-                          className="w-8 h-8 rounded bg-white/10 shrink-0 border border-white/20"
-                        />
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              
-              {/* Action controls */}
-              <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/20">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowGuide(false);
-                    try {
-                      localStorage.setItem('kidtopia_tour_guide_shown', 'true');
-                    } catch (e) {}
-                  }}
-                  className="px-3 py-1.5 text-xs text-white/70 hover:text-white transition font-sans font-semibold"
-                >
-                  Skip Guide
-                </button>
-                
-                <div className="flex gap-1.5">
-                  {guideStep > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setGuideStep(prev => prev - 1)}
-                      className="px-3 py-1.5 border border-white/30 hover:bg-white/10 text-white rounded-lg text-xs font-sans font-semibold transition"
-                    >
-                      Back
-                    </button>
-                  )}
-                  
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (guideStep < GUIDE_STEPS.length - 1) {
-                        setGuideStep(prev => prev + 1);
-                      } else {
-                        setShowGuide(false);
-                        try {
-                          localStorage.setItem('kidtopia_tour_guide_shown', 'true');
-                        } catch (e) {}
-                      }
+          <AnimatePresence>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setShowGuide(false);
+                try {
+                  localStorage.setItem('kidtopia_tour_guide_shown', 'true');
+                } catch (e) {}
+              }}
+              className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 pointer-events-auto cursor-pointer"
+            >
+              <div className="flex flex-col items-center gap-6 text-center drop-shadow-2xl">
+                <div className="relative">
+                  {/* TikTok-style finger swipe animation */}
+                  <motion.div
+                    animate={{ 
+                      x: [-60, 60, -60],
+                      rotate: [15, -15, 15]
                     }}
-                    className="px-4 py-1.5 bg-brand-orange hover:bg-brand-orange/90 text-white rounded-lg text-xs font-sans font-bold shadow-md transition border border-white/20"
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 2, 
+                      ease: "easeInOut" 
+                    }}
+                    className="relative"
                   >
-                    {guideStep === GUIDE_STEPS.length - 1 ? "Start Exploring!" : "Next"}
-                  </button>
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2.5" 
+                      className="w-20 h-20 text-white drop-shadow-lg"
+                    >
+                      <path d="M9 13V3a1.5 1.5 0 0 1 3 0v10" fill="rgba(255,255,255,0.2)" />
+                      <path d="M6 13a3 3 0 0 1-3-3v-1a1.5 1.5 0 0 1 3 0v4" />
+                      <path d="M12 10.5V6a1.5 1.5 0 0 1 3 0v4.5" />
+                      <path d="M18 11V8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-3a6 6 0 0 1-6-6v-2" />
+                    </svg>
+                    {/* Touch press ripple */}
+                    <motion.div
+                      animate={{ 
+                        scale: [0.7, 2, 0.7],
+                        opacity: [0.8, 0, 0.8] 
+                      }}
+                      transition={{ 
+                        repeat: Infinity, 
+                        duration: 1 
+                      }}
+                      className="absolute top-0 left-5 w-10 h-10 bg-white/40 rounded-full border border-white/60 -z-10"
+                    />
+                  </motion.div>
+                </div>
+                <div className="space-y-2 max-w-xs px-4">
+                  <h3 className="text-white text-xl font-editorial font-bold shadow-text">Welcome to the Tour</h3>
+                  <p className="text-white/90 text-sm font-medium shadow-text">Drag or swipe anywhere to explore Kidtopia in 360°!</p>
+                  <p className="text-brand-yellow text-xs font-black uppercase tracking-widest mt-4 animate-pulse">Click anywhere to start</p>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
         )}
 
         {/* Floating Info Hotspot Description Overlay */}
@@ -2397,40 +2173,40 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
 
             {/* Action Bar: Gyroscope, Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 px-2 md:px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 md:gap-2.5">
+            <div className="bg-white/40 backdrop-blur-[24px] border border-white/60 px-2 md:px-3 py-1.5 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] flex items-center gap-1.5 md:gap-2.5">
               <button
                 type="button"
                 onClick={requestDeviceOrientationPermission}
                 className={`p-1.5 md:p-2 rounded-lg transition-all ${
                   useGyroscope 
                     ? 'bg-brand-green/20 text-brand-green border border-brand-green/40' 
-                    : 'text-stone-800 hover:text-black hover:bg-stone-100/30 border border-transparent'
+                    : 'text-black hover:bg-white/20 border border-transparent'
                 }`}
                 title="Use Device Gyroscope"
               >
                 <Compass className={`w-4.5 h-4.5 md:w-5.5 md:h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
               </button>
 
-              <div className="w-[1px] h-3 md:h-4 bg-stone-300" />
+              <div className="w-[1px] h-3 md:h-4 bg-black/10" />
 
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-white/20 text-black rounded-lg transition"
                 title="Zoom In"
               >
                 <ZoomIn className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-white/20 text-black rounded-lg transition"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
-              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-stone-300" />
+              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-black/10" />
               <button
                 onClick={toggleFullscreen}
-                className="p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
+                className="p-1.5 md:p-2 hover:bg-white/20 text-black rounded-lg transition"
                 title="Toggle Fullscreen"
               >
                 {isFullscreen ? <Minimize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" /> : <Maximize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />}

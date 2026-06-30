@@ -492,17 +492,15 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center text-brand-green">
               {actionType === 'handbook' && <Book size={20} />}
-              {actionType === 'forms' && <FileText size={20} />}
               {actionType === 'nutrition' && <Heart size={20} />}
-              {actionType === 'ar_activities' && <Compass size={20} />}
+              {actionType === 'terms' && <ShieldAlert size={20} />}
               {actionType === 'avatar' && <Smile size={20} />}
             </div>
             <div>
               <h2 className="text-xl font-editorial font-bold text-stone-900 capitalize">
                 {actionType === 'handbook' && (lang === 'en' ? 'Interactive Handbook' : 'የእጅ መጽሐፍ')}
-                {actionType === 'forms' && (lang === 'en' ? 'Document Upload & Forms' : 'ቅጾች እና ሰነዶች')}
                 {actionType === 'nutrition' && (lang === 'en' ? 'Weekly Meal Planner' : 'ምግብ ዕቅድ')}
-                {actionType === 'ar_activities' && (lang === 'en' ? 'Interactive AR Activities' : 'ኤአር ትምህርታዊ ጨዋታ')}
+                {actionType === 'terms' && (lang === 'en' ? 'Terms & Conditions' : 'ውሎች እና ሁኔታዎች')}
                 {actionType === 'avatar' && (lang === 'en' ? 'Create Your Avatar' : 'አቫታር መፍጠሪያ')}
               </h2>
               <p className="text-xs text-stone-500">Kidtopia Parent Portal</p>
@@ -589,136 +587,60 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
             </div>
           )}
 
-          {/* 2. FORMS & UPLOAD CENTER */}
-          {actionType === 'forms' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
-              {/* Form Downloads & Upload Trigger */}
-              <div>
-                <h3 className="text-lg font-bold text-stone-950 mb-4">{lang === 'en' ? 'Download Enrollment Forms' : 'የመመዝገቢያ ቅጾችን ያውርዱ'}</h3>
-                <div className="space-y-3 mb-8">
-                  <div className="p-4 border border-stone-200 rounded-2xl flex justify-between items-center bg-stone-50/50 hover:bg-stone-50 transition">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center text-red-600">
-                        <FileText size={18} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-stone-900 text-sm">Enrollment_Contract.pdf</h4>
-                        <p className="text-xs text-stone-500">Size: 1.4 MB | PDF Forms</p>
-                      </div>
-                    </div>
-                    <a href="#" className="p-2 bg-white border border-stone-200 text-stone-700 rounded-xl hover:bg-stone-100 transition shadow-sm">
-                      <Download size={16} />
-                    </a>
-                  </div>
-                  <div className="p-4 border border-stone-200 rounded-2xl flex justify-between items-center bg-stone-50/50 hover:bg-stone-50 transition">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                        <FileText size={18} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-stone-900 text-sm">Health_Screening_Form.pdf</h4>
-                        <p className="text-xs text-stone-500">Size: 950 KB | Doctor Approved</p>
-                      </div>
-                    </div>
-                    <a href="#" className="p-2 bg-white border border-stone-200 text-stone-700 rounded-xl hover:bg-stone-100 transition shadow-sm">
-                      <Download size={16} />
-                    </a>
-                  </div>
-                </div>
-
-                {/* Upload Form */}
-                <form onSubmit={handleUploadDocument} className="border-2 border-dashed border-stone-200 rounded-2.5xl p-6 text-center hover:border-brand-green/40 transition">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept=".pdf,image/*"
-                    onChange={(e) => e.target.files && setSelectedFile(e.target.files[0])}
-                  />
-                  <Upload size={32} className="mx-auto text-stone-400 mb-3" />
-                  <p className="text-sm text-stone-800 font-bold mb-1">
-                    {lang === 'en' ? 'Drag and drop files here, or click to browse' : 'ሰነዶችን እዚህ ይጎትቱ፣ ወይም ጠቅ አድርገው ይምረጡ'}
-                  </p>
-                  <p className="text-xs text-stone-500 mb-4">Supports PDF or Image files up to 10MB</p>
-
-                  <div className="mb-4">
-                    <label className="block text-xs font-semibold text-stone-600 mb-1 text-left">Document Category</label>
-                    <select 
-                      value={docName} 
-                      onChange={(e) => setDocName(e.target.value)}
-                      className="w-full p-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-green bg-white font-medium text-stone-800"
-                    >
-                      <option value="Immunization Record">Immunization Record (የክትባት ካርድ)</option>
-                      <option value="TB Screening Certificate">TB Screening (የቲቢ ምርመራ)</option>
-                      <option value="Birth Certificate">Birth Certificate (የልደት ምስክር ወረቀት)</option>
-                      <option value="Parent Acknowledgment Form">Handbook Acknowledgment (የእጅ መጽሐፍ ስምምነት)</option>
-                    </select>
-                  </div>
-
-                  {selectedFile ? (
-                    <div className="p-3 bg-brand-green/10 text-brand-green rounded-xl text-xs font-bold mb-4 flex justify-between items-center">
-                      <span className="truncate max-w-[200px]">{selectedFile.name}</span>
-                      <button type="button" onClick={() => setSelectedFile(null)} className="text-red-500"><X size={14} /></button>
-                    </div>
-                  ) : null}
-
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold mr-2 transition-all"
-                  >
-                    Select File
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!selectedFile || loading}
-                    className="px-4 py-2 bg-brand-green hover:bg-brand-green/95 disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-md transition-all"
-                  >
-                    Upload Document
-                  </button>
-                </form>
+          {/* 2. TERMS & CONDITIONS */}
+          {actionType === 'terms' && (
+            <div className="flex flex-col h-full">
+              <div className="flex justify-between items-center mb-6 border-b border-stone-100 pb-3">
+                <h3 className="text-2xl font-editorial font-bold text-stone-900">
+                  {lang === 'en' ? 'Daycare & Preschool Terms and Conditions' : 'የህፃናት ማቆያ እና የቅድመ ትምህርት ቤት ውሎች እና ሁኔታዎች'}
+                </h3>
+                <button 
+                  onClick={() => window.print()}
+                  className="p-2 text-stone-400 hover:text-brand-green rounded-lg transition-colors"
+                  title="Print Terms"
+                >
+                  <Printer size={18} />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto pr-4 space-y-6 text-stone-700 leading-relaxed">
+                <section>
+                  <h4 className="font-bold text-stone-900 mb-2">1. Enrollment and Admission</h4>
+                  <p>Admission is open to children aged 3 months to 4 years. Parents must provide a completed enrollment form, medical history, and required immunization records. We reserve the right to refuse admission if the environment is not suitable for the child's needs.</p>
+                </section>
+                <section>
+                  <h4 className="font-bold text-stone-900 mb-2">2. Operating Hours and Attendance</h4>
+                  <p>Our facility operates from 7:30 AM to 6:00 PM, Monday through Friday. Late pickups will incur a fee of $1.00 per minute per child. Please notify the center by 9:00 AM if your child will be absent.</p>
+                </section>
+                <section>
+                  <h4 className="font-bold text-stone-900 mb-2">3. Fees and Payment</h4>
+                  <p>Tuition is payable monthly in advance. A non-refundable registration fee is required upon enrollment. We require a 30-day written notice for withdrawal. No refunds are given for absences due to illness or vacation.</p>
+                </section>
+                <section>
+                  <h4 className="font-bold text-stone-900 mb-2">4. Health and Safety</h4>
+                  <p>Children who are ill must stay home. A child must be fever-free for 24 hours without medication before returning. We maintain strict hygiene protocols and regular sanitization of all areas.</p>
+                </section>
+                <section>
+                  <h4 className="font-bold text-stone-900 mb-2">5. Privacy and Data Protection</h4>
+                  <p>We respect the privacy of our families and children. Personal data and photos are used solely for educational and administrative purposes within the daycare environment, unless explicit consent is provided for other uses.</p>
+                </section>
               </div>
 
-              {/* Upload History & Verification Status */}
-              <div className="border-l border-stone-100 pl-4 flex flex-col h-full">
-                <h3 className="text-lg font-bold text-stone-950 mb-4">{lang === 'en' ? 'Uploaded Documents & Review Status' : 'የተሰቀሉ ሰነዶች እና ግምገማ ሁኔታ'}</h3>
-                {userProfile?.documents && userProfile.documents.length > 0 ? (
-                  <div className="space-y-3 overflow-y-auto max-h-[350px]">
-                    {userProfile.documents.map((doc: any, i: number) => (
-                      <div key={i} className="p-4 border border-stone-150 rounded-2xl flex justify-between items-center hover:bg-stone-50 transition">
-                        <div>
-                          <h4 className="font-bold text-stone-900 text-sm flex items-center gap-1.5">
-                            {doc.name}
-                            {doc.status === 'approved' && <CheckCircle2 size={14} className="text-green-500" />}
-                            {doc.status === 'pending' && <AlertCircle size={14} className="text-yellow-500" />}
-                          </h4>
-                          <p className="text-xs text-stone-500">Uploaded on {doc.date}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                            doc.status === 'approved' 
-                              ? 'bg-green-100 text-green-700' 
-                              : doc.status === 'rejected'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {doc.status}
-                          </span>
-                          <button 
-                            onClick={() => deleteDocument(doc.id)}
-                            className="p-1.5 text-stone-400 hover:text-red-500 rounded-lg"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 text-stone-400 font-medium">
-                    No documents uploaded yet.
-                  </div>
-                )}
+              <div className="mt-8 p-6 bg-brand-green/5 border border-brand-green/10 rounded-2.5xl flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <ShieldAlert size={20} className="text-brand-green" />
+                  <p className="text-sm text-stone-600 font-medium">
+                    {lang === 'en' 
+                      ? 'By enrolling your child, you agree to abide by these terms and conditions.' 
+                      : 'ልጅዎን በማስመዝገብ፣ በእነዚህ ውሎች እና ሁኔታዎች ለመስማማት ተስማምተዋል።'}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => triggerFeedback('success', lang === 'en' ? 'Terms accepted!' : 'ውሎች ተቀባይነት አግኝተዋል!')}
+                  className="px-6 py-2.5 bg-brand-green text-white rounded-xl text-sm font-bold shadow-md hover:scale-105 transition-all"
+                >
+                  {lang === 'en' ? 'I Accept' : 'እቀበላለሁ'}
+                </button>
               </div>
             </div>
           )}
@@ -939,239 +861,6 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
             </div>
           )}
 
-          {/* 5. INTERACTIVE AR SIMULATOR */}
-          {actionType === 'ar_activities' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
-              {/* Left Column: AR Viewport */}
-              <div className="lg:col-span-2 flex flex-col justify-between">
-                
-                {/* AR Canvas Window */}
-                <div className="relative aspect-video bg-stone-950 rounded-2.5xl overflow-hidden border border-stone-800 shadow-inner group">
-                  {/* Confetti canvas overlay */}
-                  <div className="absolute inset-0 pointer-events-none z-30">
-                    {particles.map((p) => (
-                      <motion.div
-                        key={p.id}
-                        initial={{ opacity: 1, scale: 1, x: `${p.x}%`, y: `${p.y}%` }}
-                        animate={{ 
-                          opacity: 0, 
-                          scale: 0.2, 
-                          x: `${p.x + (Math.random() - 0.5) * 30}%`, 
-                          y: `${p.y + (Math.random() * 50) + 10}%` 
-                        }}
-                        transition={{ duration: 1.5, ease: 'easeOut' }}
-                        style={{ 
-                          position: 'absolute',
-                          width: `${p.size}px`, 
-                          height: `${p.size}px`, 
-                          backgroundColor: p.color,
-                          borderRadius: '50%'
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Camera view */}
-                  <video 
-                    ref={videoRef}
-                    className="absolute inset-0 w-full h-full object-cover z-0 filter contrast-[1.05] brightness-95"
-                    playsInline
-                    muted
-                  />
-
-                  {/* Fallback Parallax nursery background */}
-                  {!cameraActive && (
-                    <div className="absolute inset-0 bg-gradient-to-b from-blue-100 via-sky-50 to-orange-50 z-0 flex items-center justify-center overflow-hidden">
-                      {/* Sun */}
-                      <div className="absolute top-8 right-12 w-16 h-16 rounded-full bg-yellow-300 blur-sm animate-pulse" />
-                      {/* Floating nursery toys */}
-                      <div className="absolute -bottom-8 left-1/4 w-[250px] h-[140px] bg-emerald-100 rounded-t-[120px] opacity-70" />
-                      <div className="absolute -bottom-10 right-1/4 w-[200px] h-[100px] bg-teal-100 rounded-t-[100px] opacity-70" />
-                      {/* Grid Lines simulation */}
-                      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:32px_32px]" />
-                    </div>
-                  )}
-
-                  {/* Educational object rendered with exactly 1-degree rotation controls */}
-                  <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                    <motion.div 
-                      style={{ 
-                        rotateY: `${arRotation}deg`, 
-                        scale: arScale 
-                      }}
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                      className="text-8xl select-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.25)] relative"
-                    >
-                      {arCatalog[arTheme][selectedArItem]?.emoji}
-                      
-                      {/* Fact popup or speech balloon */}
-                      <AnimatePresence>
-                        {arFeedback && (
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: -45 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            className="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-stone-900 border border-stone-100 px-4 py-2 rounded-2xl shadow-xl text-xs font-bold max-w-xs whitespace-nowrap z-20 pointer-events-auto"
-                          >
-                            <Sparkles size={12} className="inline mr-1 text-yellow-500 animate-spin" />
-                            {arFeedback}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  </div>
-
-                  {/* UI Overlays */}
-                  <div className="absolute top-4 left-4 z-20 bg-black/50 text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full uppercase flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span>Live {cameraActive ? 'Camera AR' : 'Simulated AR'}</span>
-                  </div>
-
-                  <div className="absolute top-4 right-4 z-20 bg-brand-green text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
-                    <Award size={14} />
-                    <span>Score: {gameScore}</span>
-                  </div>
-
-                  {/* Prompt Banner */}
-                  {gamePrompt && (
-                    <div className="absolute bottom-4 left-4 right-4 z-20 bg-white/95 backdrop-blur-md text-stone-900 text-xs md:text-sm font-bold p-3.5 rounded-2xl shadow-lg border border-white/60 text-center flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Sparkles size={16} className="text-yellow-500 animate-bounce" />
-                        <span>{gamePrompt}</span>
-                      </div>
-                      <button 
-                        onClick={verifyArMatch}
-                        className="px-3.5 py-1.5 bg-brand-green text-white rounded-xl text-xs font-black shadow-md hover:scale-102 transition"
-                      >
-                        Place Card
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Exact 1-degree rotation calibration dashboard */}
-                <div className="mt-4 p-4 border border-stone-200 rounded-2.5xl bg-stone-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <Sliders size={18} className="text-brand-green" />
-                    <div>
-                      <h4 className="font-bold text-stone-900 text-sm">1:1 Gyroscope & Fine Calibration</h4>
-                      <p className="text-xs text-stone-500">Fine-tune object rotation in real-time down to exactly 1-degree.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 w-full md:w-auto">
-                    <div className="flex-1 md:flex-initial flex items-center gap-2">
-                      <button 
-                        onClick={() => setArRotation(prev => (prev - 1) % 360)}
-                        className="p-1.5 bg-white border border-stone-200 text-stone-700 rounded-lg hover:bg-stone-100 shadow-sm active:scale-95"
-                        title="Rotate Left 1 Degree"
-                      >
-                        -1°
-                      </button>
-                      <div className="px-3 py-1 bg-stone-900 text-stone-100 font-mono text-xs rounded-lg min-w-[50px] text-center font-bold shadow-sm">
-                        {arRotation}°
-                      </div>
-                      <button 
-                        onClick={() => setArRotation(prev => (prev + 1) % 360)}
-                        className="p-1.5 bg-white border border-stone-200 text-stone-700 rounded-lg hover:bg-stone-100 shadow-sm active:scale-95"
-                        title="Rotate Right 1 Degree"
-                      >
-                        +1°
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-stone-500">Scale:</span>
-                      <input 
-                        type="range" 
-                        min="0.5" 
-                        max="2.0" 
-                        step="0.05"
-                        value={arScale} 
-                        onChange={(e) => setArScale(parseFloat(e.target.value))}
-                        className="w-24 accent-brand-green cursor-pointer"
-                      />
-                      <span className="text-xs font-mono text-stone-650 min-w-[30px] font-bold">{arScale.toFixed(2)}x</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Right Column: Catalog List & Learning Facts */}
-              <div className="lg:col-span-1 border-l border-stone-100 lg:pl-6 flex flex-col justify-between h-full">
-                
-                {/* Theme Selector */}
-                <div className="mb-6">
-                  <h4 className="block text-xs font-black uppercase tracking-wider text-stone-500 mb-2.5">Category Theme</h4>
-                  <div className="flex gap-2">
-                    {['animals', 'alphabet', 'space'].map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => { setArTheme(t as any); setSelectedArItem(0); }}
-                        className={`flex-1 py-2 border rounded-xl text-xs font-bold capitalize transition ${
-                          arTheme === t 
-                            ? 'bg-brand-green/10 text-brand-green border-brand-green/40 shadow-sm' 
-                            : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Cards Catalog */}
-                <div className="flex-1 overflow-y-auto max-h-[300px] mb-6 space-y-2.5 pr-2">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-stone-500">Educational Cards</h4>
-                  {arCatalog[arTheme].map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedArItem(idx)}
-                      className={`w-full text-left p-3.5 border rounded-2xl flex items-center gap-3 transition-all ${
-                        selectedArItem === idx 
-                          ? 'bg-stone-50 border-brand-green shadow-sm' 
-                          : 'border-stone-150 hover:bg-stone-50/50'
-                      }`}
-                    >
-                      <span className="text-3xl">{item.emoji}</span>
-                      <div className="flex-1 truncate">
-                        <h5 className="font-bold text-stone-900 text-sm">{item.name}</h5>
-                        <p className="text-xs text-stone-500 truncate">{item.sound}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Fact Spotlight Card */}
-                <div className="p-5 bg-brand-green/10 border border-brand-green/20 rounded-2.5xl text-left">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-green mb-1.5 flex items-center gap-1">
-                    <Sparkles size={12} />
-                    <span>Learning Spotlight Fact</span>
-                  </h4>
-                  <h5 className="font-editorial text-stone-950 font-bold mb-2 leading-tight">
-                    {arCatalog[arTheme][selectedArItem]?.name}
-                  </h5>
-                  <p className="text-xs text-stone-650 leading-relaxed font-sans mb-3 font-medium">
-                    {arCatalog[arTheme][selectedArItem]?.fact}
-                  </p>
-                  <button 
-                    onClick={() => {
-                      const sound = arCatalog[arTheme][selectedArItem]?.sound;
-                      const u = new SpeechSynthesisUtterance(sound);
-                      u.rate = 0.9;
-                      window.speechSynthesis?.speak(u);
-                      triggerFeedback('success', `Sound activated: "${sound}"`);
-                    }}
-                    className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-brand-green"
-                  >
-                    <Volume2 size={12} />
-                    <span>Play Voice Guide</span>
-                  </button>
-                </div>
-
-              </div>
-            </div>
-          )}
 
         </div>
       </motion.div>

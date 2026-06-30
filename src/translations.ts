@@ -218,9 +218,8 @@ export const translations = {
       desc: "Helpful materials and guides to support you and your child's journey with us.",
       items: [
         { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
-        { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
-        { title: "Educational Activities", description: "Fun and educational activities you can do with your child at home.", type: "Video Series", image: "", actionType: "ar_activities", link: "" },
-        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" }
+        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
+        { title: "Terms and Conditions", description: "Important legal information and agreements for daycare and preschool enrollment.", type: "Legal Document", image: "", actionType: "terms", link: "" }
       ]
     },
     leadCapture: {
@@ -496,9 +495,8 @@ export const translations = {
       desc: "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።",
       items: [
         { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
-        { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
-        { title: "ትምህርታዊ እንቅስቃሴዎች", description: "ከቤትዎ ከልጅዎ ጋር ሊያደርጓቸው የሚችሏቸው አስደሳች እና ትምህርታዊ እንቅስቃሴዎች።", type: "የቪዲዮ ተከታታይ", image: "", actionType: "ar_activities", link: "" },
-        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" }
+        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
+        { title: "ውሎች እና ሁኔታዎች", description: "ለህፃናት ማቆያ እና ቅድመ ትምህርት ቤት ምዝገባ አስፈላጊ የህግ መረጃዎች እና ስምምነቶች።", type: "የህግ ሰነድ", image: "", actionType: "terms", link: "" }
       ]
     },
     leadCapture: {

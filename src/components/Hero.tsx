@@ -71,7 +71,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-6xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 tracking-tight text-left"
+              className="text-4.5xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 tracking-tight text-left"
               style={{ color: t.textColor }}
             >
               {(() => {
@@ -98,7 +98,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-lg sm:text-xl mb-10 leading-relaxed font-medium text-left max-w-2xl"
+              className="text-base sm:text-xl mb-10 leading-relaxed font-medium text-left max-w-2xl"
               style={{ color: t.textColor }}
             >
               {t.subheadline}
@@ -108,12 +108,12 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-row justify-start items-center gap-3 sm:gap-4.5 mb-12 w-full max-w-md"
+              className="flex flex-col sm:flex-row justify-start items-stretch sm:items-center gap-3 sm:gap-4.5 mb-12 w-full sm:max-w-md"
             >
-              <Link to="/enroll" className="btn-secondary flex-1 sm:flex-none text-center whitespace-nowrap text-sm sm:text-base font-bold shadow-[0_10px_25px_rgba(200,106,61,0.25)] hover:scale-105 active:scale-95 transition-all">
+              <Link to="/enroll" className="btn-secondary text-center whitespace-nowrap text-sm sm:text-base font-bold shadow-[0_10px_25px_rgba(200,106,61,0.25)] hover:scale-105 active:scale-95 transition-all">
                 {t.enroll}
               </Link>
-              <Link to="/virtual-tour" className="btn-glass flex-1 sm:flex-none text-center whitespace-nowrap text-sm sm:text-base font-bold hover:scale-105 active:scale-95 transition-all" style={{ color: t.textColor }}>
+              <Link to="/virtual-tour" className="btn-glass text-center whitespace-nowrap text-sm sm:text-base font-bold hover:scale-105 active:scale-95 transition-all" style={{ color: t.textColor }}>
                 {t.virtualTour}
               </Link>
             </motion.div>
