@@ -31,7 +31,7 @@ export const translations = {
     },
     hero: {
       badgeText: "Now Enrolling for 2026",
-      title: "Discover a Safe, Caring, and Inspiring Space for Your Child.",
+      title: "A Safe, Caring, and Inspiring Space for Your Child.",
       titleHighlight: "Safe, Caring",
       subheadline: "Welcome to Kidtopia International Daycare and Preschool — where children learn, play, and thrive in a secure and nurturing environment.",
       enroll: "Enroll Your Child",
@@ -215,12 +215,12 @@ export const translations = {
     },
     resources: {
       title: "Parent Resources",
-      desc: "Comprehensive guides and essential documents to support your child's journey at Kidtopia.",
+      desc: "Helpful materials and guides to support you and your child's journey with us.",
       items: [
-        { title: "Parent Handbook", description: "Detailed policies, daily schedules, and everything you need to know about our daycare operations.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
-        { title: "Nutrition Guide", description: "Explore our organic meal plans and nutritional standards for healthy physical development.", type: "Guide", image: "", actionType: "nutrition", link: "" },
-        { title: "Comprehensive Policies", description: "Detailed terms regarding health, security, CCTV, payments, and behavioral guidelines.", type: "Legal Document", image: "", actionType: "terms", link: "" },
-        { title: "Emergency Contacts", description: "Quick access to essential contact information and emergency response protocols.", type: "Quick Access", image: "", actionType: "contacts", link: "" }
+        { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
+        { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
+        { title: "Educational Activities", description: "Fun and educational activities you can do with your child at home.", type: "Video Series", image: "", actionType: "ar_activities", link: "" },
+        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" }
       ]
     },
     leadCapture: {
@@ -330,7 +330,7 @@ export const translations = {
     },
     hero: {
       badgeText: "ለ2026 ምዝገባ ላይ ነን",
-      title: "በኪድቶፒያ ለልጅዎ ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ ያግኙ።",
+      title: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
       titleHighlight: "ደህንነቱ የተጠበቀ፣ አሳቢ",
       subheadline: "ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ — ህፃናት ደህንነቱ በተጠበቀ እና በሚንከባከብ አካባቢ የሚማሩበት፣ የሚጫወቱበት እና የሚበለጽጉበት።",
       enroll: "ልጅዎን ያስመዝግቡ",
@@ -493,12 +493,12 @@ export const translations = {
     },
     resources: {
       title: "የወላጅ መርጃዎች",
-      desc: "የልጅዎን የኪድቶፒያ ቆይታ ለመደገፍ የተዘጋጁ አጠቃላይ መመሪያዎች እና አስፈላጊ ሰነዶች።",
+      desc: "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።",
       items: [
-        { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ስለ ስራዎቻችን ማወቅ ያለብዎት ዝርዝር መረጃ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
-        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ለጤናማ አካላዊ እድገት የኛን ኦርጋኒክ የምግብ እቅዶች እና የአመጋገብ ደረጃዎች ይመልከቱ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
-        { title: "አጠቃላይ ፖሊሲዎች", description: "ስለ ጤና፣ ደህንነት፣ CCTV፣ ክፍያዎች እና የባህሪ መመሪያዎች ዝርዝር ውሎች።", type: "የህግ ሰነድ", image: "", actionType: "terms", link: "" },
-        { title: "የአደጋ ጊዜ እውቂያዎች", description: "አስፈላጊ የእውቂያ መረጃ እና የአደጋ ጊዜ ምላሽ ፕሮቶኮሎችን በፍጥነት ያግኙ።", type: "ፈጣን መዳረሻ", image: "", actionType: "contacts", link: "" }
+        { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
+        { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
+        { title: "ትምህርታዊ እንቅስቃሴዎች", description: "ከቤትዎ ከልጅዎ ጋር ሊያደርጓቸው የሚችሏቸው አስደሳች እና ትምህርታዊ እንቅስቃሴዎች።", type: "የቪዲዮ ተከታታይ", image: "", actionType: "ar_activities", link: "" },
+        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" }
       ]
     },
     leadCapture: {

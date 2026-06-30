@@ -206,6 +206,71 @@ const createFallbackPanoTexture = (): THREE.CanvasTexture => {
   return texture;
 };
 
+// Realistic Glassmorphic Swiping Hand UI representing tutorial movement
+interface GlassyHandProps {
+  x: number;
+  y: number;
+  pressing: boolean;
+}
+
+const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing }) => {
+  return (
+    <div 
+      className="absolute pointer-events-none transition-transform duration-100 ease-out z-[999] select-none"
+      style={{ 
+        left: `${x}%`, 
+        top: `${y}%`,
+        transform: `translate(-50%, -50%) scale(${pressing ? 0.90 : 1.0})`,
+      }}
+    >
+      {/* Tap Ripple Reflection effect */}
+      {pressing && (
+        <div className="absolute top-2 left-6 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/20 rounded-full border border-white/40 animate-ping duration-1000" />
+      )}
+      
+      {/* Frosted Glass hand container wrapper */}
+      <div className="relative p-2.5 rounded-2xl bg-white/10 dark:bg-black/20 backdrop-blur-[8px] border border-white/25 shadow-[0_25px_60px_rgba(0,0,0,0.3)] ring-1 ring-white/10">
+        <svg 
+          width="75" 
+          height="75" 
+          viewBox="0 0 100 100" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          className="drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]"
+        >
+          <defs>
+            <linearGradient id="handGlass" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.45)" />
+              <stop offset="50%" stopColor="rgba(255, 255, 255, 0.18)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.05)" />
+            </linearGradient>
+            <linearGradient id="handStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.75)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.15)" />
+            </linearGradient>
+          </defs>
+          <g transform="rotate(-15 50 50)">
+            {/* Realistic contoured human hand path */}
+            <path 
+              d="M45,85 C55,85 64,80 70,72 C76,64 80,52 80,42 C80,39 78,37 75,37 C73,37 71,39 71,41 L71,25 C71,22 69,20 66,20 C63,20 61,22 61,25 L61,17 C61,14 59,12 56,12 C53,12 51,14 51,17 L51,14 C51,11 49,9 46,9 C43,9 41,11 41,14 L41,28 C41,25 39,23 36,23 C33,23 31,25 31,28 L31,48 C31,45 29,43 26,43 C23,43 21,45 21,48 L21,55 C21,65 26,75 34,80 C38,83 41,85 45,85 Z" 
+              fill="url(#handGlass)" 
+              stroke="url(#handStroke)" 
+              strokeWidth="1.5" 
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            {/* Elegant internal glass reflection guides */}
+            <path d="M31 48 L31 65" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+            <path d="M41 38 L41 68" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+            <path d="M51 32 L51 72" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+            <path d="M61 35 L61 70" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  );
+};
+
 export interface ThreeSixtyViewerProps {
   isAdminMode?: boolean;
 }
@@ -225,18 +290,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [isRoomsMenuOpen, setIsRoomsMenuOpen] = useState(false);
   const [isHotspotsMenuOpen, setIsHotspotsMenuOpen] = useState(false);
   const [deletingHotspotId, setDeletingHotspotId] = useState<string | null>(null);
-  const [useGyroscope, setUseGyroscope] = useState(false);
-  const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
   
   // Onboarding walkthrough guide states
-  const [showGuide, setShowGuide] = useState(() => {
-    try {
-      return localStorage.getItem('kidtopia_tour_guide_shown') !== 'true';
-    } catch {
-      return true;
-    }
-  });
-  const [guideStep, setGuideStep] = useState(0);
+  const [showGuide, setShowGuide] = useState(true); // Automatically pop up the interactive hand tour guide
+  const [tutorialTime, setTutorialTime] = useState(0);
+  const [tutorialStep, setTutorialStep] = useState<'horizontal' | 'vertical' | 'teleport'>('horizontal');
   
   // Camera angles (React states for coordinates indicator)
   const [cameraLon, setCameraLon] = useState(0);
@@ -246,38 +304,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   // Camera angles high-performance refs (to avoid recreating Three.js scene during drag)
   const cameraLonRef = useRef(0);
   const cameraLatRef = useRef(0);
-  const cameraRollRef = useRef(0);
   const cameraFovRef = useRef(100);
   const targetFovRef = useRef(100);
-  const targetLonRef = useRef(0);
-  const targetLatRef = useRef(0);
-  const cancelAutoPanningRef = useRef(false);
-
-  // High performance Three.js refs
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const sphereMeshRef = useRef<THREE.Mesh | null>(null);
-  const sphereMaterialRef = useRef<THREE.MeshBasicMaterial | null>(null);
-  const textureLoaderRef = useRef<THREE.TextureLoader | null>(null);
-  const textureCacheRef = useRef<Map<string, THREE.Texture>>(new Map());
-  const currentSceneRef = useRef<Scene | null>(null);
-
-  // Gyroscope / Sensor orientation refs
-  const useGyroscopeRef = useRef(false);
-  const rawGyroQRef = useRef(new THREE.Quaternion());
-  const gyroOffsetQRef = useRef(new THREE.Quaternion());
-  const currentGyroQRef = useRef(new THREE.Quaternion());
-  const isFirstGyroOrientationRef = useRef(true);
-
-  // Interaction tracking refs
-  const onPointerDownPointerXRef = useRef(0);
-  const onPointerDownPointerYRef = useRef(0);
-  const onPointerDownLonRef = useRef(0);
-  const onPointerDownLatRef = useRef(0);
-  const lastPointerXRef = useRef(0);
-  const lastPointerYRef = useRef(0);
-  const isUserInteractingRef = useRef(false);
 
   // Hotspots render positioning
   const [projectedHotspots, setProjectedHotspots] = useState<Array<{
@@ -296,25 +324,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newRoomImageFile, setNewRoomImageFile] = useState<File | null>(null);
   const [newRoomImageUrl, setNewRoomImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [isRoomListExpanded, setIsRoomListExpanded] = useState(false);
-  const [nextScene, setNextScene] = useState<Scene | null>(null);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-
-  const saveScenesConfig = async (updatedScenes: Scene[]) => {
-    try {
-      await setDoc(doc(db, 'config', 'virtualTour'), {
-        scenes: updatedScenes,
-        updatedAt: new Date().toISOString()
-      });
-      setScenes(updatedScenes);
-      setFeedback({ type: 'success', message: 'Tour configuration saved!' });
-      // Clear success feedback after 3s
-      setTimeout(() => setFeedback(null), 3000);
-    } catch (error) {
-      console.error('Error saving tour config:', error);
-      setFeedback({ type: 'error', message: 'Failed to save configuration.' });
-    }
-  };
 
   const [showAddHotspotModal, setShowAddHotspotModal] = useState(false);
   const [showEditHotspotModal, setShowEditHotspotModal] = useState(false);
@@ -325,8 +334,241 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [newHotspotDescription, setNewHotspotDescription] = useState('');
   const [newHotspotLinkedId, setNewHotspotLinkedId] = useState(''); // Selected Return Door ID
   const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
-  const [isAutoPanning, setIsAutoPanning] = useState(false);
-  const [showFingerGuide, setShowFingerGuide] = useState(false);
+  const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
+  const [isRoomListExpanded, setIsRoomListExpanded] = useState(false);
+  const [nextScene, setNextScene] = useState<Scene | null>(null);
+  const cameraRollRef = useRef(0);
+  const useGyroscopeRef = useRef(false);
+  const rawGyroQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
+  const gyroOffsetQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
+  const currentGyroQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
+  const isFirstGyroOrientationRef = useRef<boolean>(true);
+  const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
+
+  // Camera target orientation refs (for smooth pan interpolation)
+  const targetLonRef = useRef(0);
+  const targetLatRef = useRef(0);
+
+  // Three.js References
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const sphereMeshRef = useRef<THREE.Mesh | null>(null);
+  const sphereMaterialRef = useRef<THREE.MeshBasicMaterial | null>(null);
+  const textureLoaderRef = useRef<THREE.TextureLoader>(new THREE.TextureLoader());
+  const textureCacheRef = useRef<Map<string, THREE.Texture>>(new Map());
+  const currentSceneRef = useRef<Scene | null>(null);
+
+  // Interaction refs
+  const isUserInteractingRef = useRef(false);
+  const lastPointerXRef = useRef(0);
+  const lastPointerYRef = useRef(0);
+  const onPointerDownPointerXRef = useRef(0);
+  const onPointerDownPointerYRef = useRef(0);
+  const onPointerDownLonRef = useRef(0);
+  const onPointerDownLatRef = useRef(0);
+  const lastMotionTimeRef = useRef<number>(0);
+
+  const getCompassHeading = (lon: number) => {
+    let deg = (-lon) % 360;
+    if (deg < 0) deg += 360;
+    const directions = ['N 🧭', 'NE 🧭', 'E 🧭', 'SE 🧭', 'S 🧭', 'SW 🧭', 'W 🧭', 'NW 🧭'];
+    const index = Math.round(deg / 45) % 8;
+    return directions[index];
+  };
+
+  // Check Admin Role
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Simple check: check if user exists in the admin e-mails, or fetch role
+        // For simplicity and matching current Admin check style:
+        const isAdminEmail = 
+          user.email === 'admin@kidtopiaet.com' || 
+          user.email === 'fewazseidahmed@gmail.com' || 
+          user.email === 'system_worker@kidtopiaet.internal' || 
+          user.email === 'system_worker_v2@kidtopiaet.internal' || 
+          user.email === 'system_worker_v4@kidtopiaet.internal' || 
+          user.email?.endsWith('@kidtopiaet.internal');
+        
+        setIsAdmin(!!isAdminEmail);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Fetch Scenes Configuration from Firestore
+  const fetchScenes = async () => {
+    setLoading(true);
+    try {
+      const configDoc = await getDoc(doc(db, 'settings', 'virtual_tour_360'));
+      if (configDoc.exists() && configDoc.data()?.scenes) {
+        let loadedScenes = configDoc.data().scenes as Scene[];
+        let mutated = false;
+        
+        // Auto-migrate flat Unsplash images to proper equirectangular room panorama with CORS support
+        loadedScenes = loadedScenes.map(s => {
+          if (s.imageUrl && s.imageUrl.includes('unsplash.com')) {
+            mutated = true;
+            return {
+              ...s,
+              imageUrl: 'https://pannellum.org/images/cerebra.jpg'
+            };
+          }
+          return s;
+        });
+
+        // Ensure there is exactly one scene set as start, defaulting to the very first scene if none is selected
+        const hasStart = loadedScenes.some(s => s.isStart);
+        if (!hasStart && loadedScenes.length > 0) {
+          loadedScenes[0].isStart = true;
+          mutated = true;
+        }
+
+        setScenes(loadedScenes);
+        const start = loadedScenes.find(s => s.isStart) || loadedScenes[0];
+        setCurrentScene(start || null);
+        
+        if (start) {
+          const initLon = start.startLon !== undefined ? start.startLon : 0;
+          const initLat = start.startLat !== undefined ? start.startLat : 0;
+          targetLonRef.current = initLon;
+          targetLatRef.current = initLat;
+          cameraLonRef.current = initLon;
+          cameraLatRef.current = initLat;
+          setCameraLon(initLon);
+          setCameraLat(initLat);
+        }
+
+        // Save migrated configuration back to firestore silently if changed
+        if (mutated) {
+          setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: loadedScenes }).catch(e => {
+            console.warn('Silently failed to save auto-migrated 360 scene config:', e);
+          });
+        }
+      } else {
+        // Fallback to default
+        const start = DEFAULT_SCENES[0];
+        setScenes(DEFAULT_SCENES);
+        setCurrentScene(start);
+        
+        if (start) {
+          const initLon = start.startLon !== undefined ? start.startLon : 0;
+          const initLat = start.startLat !== undefined ? start.startLat : 0;
+          targetLonRef.current = initLon;
+          targetLatRef.current = initLat;
+          cameraLonRef.current = initLon;
+          cameraLatRef.current = initLat;
+          setCameraLon(initLon);
+          setCameraLat(initLat);
+        }
+        
+        // Auto-save defaults if admin
+        if (isAdmin) {
+          await setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: DEFAULT_SCENES });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load virtual tour configuration from Firestore, using defaults:', err);
+      const start = DEFAULT_SCENES[0];
+      setScenes(DEFAULT_SCENES);
+      setCurrentScene(start);
+      if (start) {
+        const initLon = start.startLon !== undefined ? start.startLon : 0;
+        const initLat = start.startLat !== undefined ? start.startLat : 0;
+        targetLonRef.current = initLon;
+        targetLatRef.current = initLat;
+        cameraLonRef.current = initLon;
+        cameraLatRef.current = initLat;
+        setCameraLon(initLon);
+        setCameraLat(initLat);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchScenes();
+  }, [isAdmin]);
+
+  // Interactive Tutorial Animation Loop (realistic swiping with camera response)
+  useEffect(() => {
+    if (!showGuide) return;
+
+    let animId: number;
+    let startTime = Date.now();
+    const initialLon = cameraLonRef.current;
+    const initialLat = cameraLatRef.current;
+
+    const runTutorial = () => {
+      const elapsed = Date.now() - startTime;
+      setTutorialTime(elapsed);
+
+      // Loop the swiping tutorial cycle (14 seconds)
+      const cycleTime = elapsed % 14000;
+
+      if (cycleTime < 5000) {
+        setTutorialStep('horizontal');
+        const progress = cycleTime / 5000;
+        const angle = Math.sin(progress * Math.PI * 3); // 1.5 complete smooth oscillations
+        
+        // Panning is opposite to dragging direction
+        targetLonRef.current = initialLon - angle * 45;
+        targetLatRef.current = initialLat; // keep vertical view steady
+      }
+      else if (cycleTime < 10000) {
+        setTutorialStep('vertical');
+        const progress = (cycleTime - 5000) / 5000;
+        const angle = Math.sin(progress * Math.PI * 3);
+        
+        // Tilting camera latitude
+        targetLonRef.current = initialLon; // keep horizontal view steady
+        targetLatRef.current = initialLat - angle * 22;
+      }
+      else {
+        setTutorialStep('teleport');
+        // Let view settle in place
+        targetLonRef.current = initialLon;
+        targetLatRef.current = initialLat;
+      }
+
+      animId = requestAnimationFrame(runTutorial);
+    };
+
+    animId = requestAnimationFrame(runTutorial);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      // Cleanly return the camera angles to original positions when guide closes
+      targetLonRef.current = initialLon;
+      targetLatRef.current = initialLat;
+    };
+  }, [showGuide]);
+
+  // Check Admin Role
+  const saveScenesConfig = async (updatedScenes: Scene[]) => {
+    try {
+      setSceneLoading(true);
+      await setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: updatedScenes });
+      setScenes(updatedScenes);
+      // Refresh current scene representation
+      if (currentScene) {
+        const freshCurrent = updatedScenes.find(s => s.id === currentScene.id);
+        if (freshCurrent) {
+          setCurrentScene(freshCurrent);
+        }
+      }
+      alert('Virtual tour configuration saved successfully!');
+    } catch (err) {
+      console.error('Failed to save scenes config to Firestore:', err);
+      alert('Error saving virtual tour: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setSceneLoading(false);
+    }
+  };
 
   // Manage Gyroscope / Device Orientation (1:1 Movement Mapping)
   useEffect(() => {
@@ -359,10 +601,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       // Screen transform: adjust for screen orientation (landscape/portrait rotation)
       const screenTransform = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
       deviceQ.multiply(screenTransform);
-
-      // Save roll angle for hotspots leveling
-      const euler = new THREE.Euler().setFromQuaternion(deviceQ, 'YXZ');
-      cameraRollRef.current = -euler.z;
 
       // Save raw gyro orientation
       rawGyroQRef.current.copy(deviceQ);
@@ -404,120 +642,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     }
   };
 
-  // Automated Tour Guide Logic
-  const triggerTourGuide = async () => {
-    if (loading || !isThreeReady) return;
-
-    // Stop any active auto panning first
-    cancelAutoPanningRef.current = true;
-    await new Promise(r => setTimeout(r, 60)); // Allow previous frames to fully clear
-    
-    cancelAutoPanningRef.current = false;
-    setIsAutoPanning(true);
-    setShowFingerGuide(true);
-    
-    const originalLon = cameraLonRef.current;
-    const originalLat = cameraLatRef.current;
-
-    const animate = async (targetLon: number, targetLat: number, duration: number) => {
-      const startLon = targetLonRef.current;
-      const startLat = targetLatRef.current;
-      const startTime = Date.now();
-
-      return new Promise<void>(resolve => {
-        const step = () => {
-          if (cancelAutoPanningRef.current) {
-            resolve();
-            return;
-          }
-          const elapsed = Date.now() - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          const easeProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
-
-          targetLonRef.current = startLon + (targetLon - startLon) * easeProgress;
-          targetLatRef.current = startLat + (targetLat - startLat) * easeProgress;
-
-          if (progress < 1) {
-            requestAnimationFrame(step);
-          } else {
-            resolve();
-          }
-        };
-        requestAnimationFrame(step);
-      });
-    };
-
-    // Hold visual focus slightly before panning
-    await new Promise(r => setTimeout(r, 1200));
-    if (cancelAutoPanningRef.current) return;
-
-    await animate(originalLon + 40, originalLat, 1500); // Pan Left
-    if (cancelAutoPanningRef.current) return;
-    await animate(originalLon - 40, originalLat, 2000); // Pan Right
-    if (cancelAutoPanningRef.current) return;
-    await animate(originalLon, originalLat + 20, 1200);  // Pan Up
-    if (cancelAutoPanningRef.current) return;
-    await animate(originalLon, originalLat - 20, 1200);  // Pan Down
-    if (cancelAutoPanningRef.current) return;
-    await animate(originalLon, originalLat, 1000);       // Return to start center
-
-    setShowFingerGuide(false);
-    setIsAutoPanning(false);
-    
-    try {
-      localStorage.setItem('kidtopia_tour_guide_shown', 'true');
-    } catch (e) {}
-  };
-
-  // Auto-start on first-time load
-  useEffect(() => {
-    if (loading || !isThreeReady) return;
-    
-    const hasShownBefore = localStorage.getItem('kidtopia_tour_guide_shown') === 'true';
-    if (!hasShownBefore) {
-      triggerTourGuide();
-    }
-  }, [loading, isThreeReady]);
-
-  const renderHotspots = () => {
-    if (!mountRef.current || !cameraRef.current || !currentScene) return;
-
-    const canvasWidth = mountRef.current.clientWidth;
-    const canvasHeight = mountRef.current.clientHeight;
-    
-    const results = currentScene.hotspots.map(hs => {
-      const vector = new THREE.Vector3();
-      const phi = THREE.MathUtils.degToRad(90 - hs.pitch);
-      const theta = THREE.MathUtils.degToRad(hs.yaw);
-
-      vector.setFromSphericalCoords(500, phi, theta);
-      vector.project(cameraRef.current!);
-
-      const x = (vector.x + 1) * canvasWidth / 2;
-      const y = -(vector.y - 1) * canvasHeight / 2;
-      
-      // Determine if hotspot is "behind" the camera view
-      const visible = vector.z < 1.0;
-
-      return {
-        hotspot: hs,
-        x,
-        y,
-        roll: cameraRollRef.current, // Level with gravity
-        visible
-      };
-    });
-
-    setProjectedHotspots(results);
-  };
-
   // Switch Room with transition
   const handleSwitchRoom = (sceneId: string, hotspot?: Hotspot) => {
     const targetScene = scenes.find(s => s.id === sceneId);
     if (!targetScene || !currentScene) return;
 
-    // Stage 1: Fast fly-forward/zoom transition in 3D Space
-    targetFovRef.current = 20; // Zoom in extremely close to look like flying forward
+    // Stage 1: Fast fly-forward/zoom transition in 3D Space (zoom in above the direction)
+    targetFovRef.current = 15; // Zoom in very close to look like flying forward
     if (hotspot) {
       // Use shortest path to prevent 360 spin
       let deltaLon = hotspot.yaw - (cameraLonRef.current % 360);
@@ -569,28 +700,27 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       cameraLonRef.current = landingLon;
       cameraLatRef.current = landingLat;
       
-      cameraFovRef.current = 110; // Start extra wide for "arrival" feel
-      targetFovRef.current = 100;  // Lerp smoothly to standard view
+      // Dramatic wide-angle zoom out in the next room to "show the stop"
+      cameraFovRef.current = 135; // Start extra wide (zoomed out)
+      targetFovRef.current = 100;  // Lerp smoothly down to standard view
       setNextScene(null);
     };
 
     setNextScene(targetScene);
+    setSceneLoading(true); // Start top YouTube-style progress bar instantly
+
     if (isPreloaded) {
-      setSceneLoading(true);
-      // Give the zoom effect 400ms to play out before instantly swapping textures
+      // Give the camera zoom-in 500ms to play out before instantly swapping textures
       setTimeout(() => {
         finalizeTransition();
         setSceneLoading(false);
-      }, 400);
+      }, 500);
     } else {
-      // Fallback transitional cross-fade if not preloaded
+      // Fallback transition load if texture needs fetching
       setTimeout(() => {
-        setSceneLoading(true);
-        setTimeout(() => {
-          finalizeTransition();
-          setSceneLoading(false);
-        }, 300);
-      }, 300);
+        finalizeTransition();
+        setSceneLoading(false);
+      }, 850);
     }
   };
 
@@ -1266,7 +1396,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Sync angle states local values to component states
     const angleUpdateInterval = setInterval(() => {
       // Update state for compass and UI readouts
-      if (isUserInteractingRef.current || useGyroscopeRef.current || showGuide) {
+      if (isUserInteractingRef.current || useGyroscopeRef.current) {
         setCameraLon(cameraLonRef.current);
         setCameraLat(cameraLatRef.current);
         setCameraFov(cameraFovRef.current);
@@ -1293,15 +1423,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
   // Handle Drag & Swipe Events
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (showGuide) return; // Prevent user drag interference during automatic swiping tutorial
     if (!e.isPrimary) return; // Only pan with the primary pointer
-    
-    // Instantly cancel active auto-tour guide if the user interacts
-    if (isAutoPanning || showFingerGuide) {
-      cancelAutoPanningRef.current = true;
-      setIsAutoPanning(false);
-      setShowFingerGuide(false);
-    }
-
     isUserInteractingRef.current = true;
     onPointerDownPointerXRef.current = e.clientX;
     onPointerDownPointerYRef.current = e.clientY;
@@ -1537,6 +1660,42 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     );
   }
 
+  // Dynamic calculation of glassy hand swiping coordinates based on current tutorial timer
+  let handX = 50;
+  let handY = 55;
+  let handPress = false;
+  let tutorialLabel = "Explore around";
+  let tutorialDesc = "Drag or swipe anywhere to rotate the 360 view.";
+
+  if (showGuide) {
+    const cycleTime = tutorialTime % 14000;
+    if (cycleTime < 5000) {
+      const progress = cycleTime / 5000;
+      const angle = Math.sin(progress * Math.PI * 3); // oscillate back and forth 1.5 times
+      handX = 50 + angle * 25; // sweep 25% to 75%
+      handY = 55;
+      handPress = true;
+      tutorialLabel = "Swipe Left & Right";
+      tutorialDesc = "The viewport moves dynamically to let you look all around the room in 360°!";
+    } else if (cycleTime < 10000) {
+      const progress = (cycleTime - 5000) / 5000;
+      const angle = Math.sin(progress * Math.PI * 3);
+      handX = 50;
+      handY = 55 + angle * 20; // sweep 35% to 75%
+      handPress = true;
+      tutorialLabel = "Swipe Up & Down";
+      tutorialDesc = "Look up towards the ceiling or down to the floor to adjust your pitch perspective!";
+    } else {
+      const progress = (cycleTime - 10000) / 4000;
+      // Gently orbit and click/tap
+      handX = 55 + Math.sin(progress * Math.PI * 4) * 3;
+      handY = 60 + Math.cos(progress * Math.PI * 4) * 3;
+      handPress = Math.floor(cycleTime / 1000) % 2 === 0; // pulse click effect
+      tutorialLabel = "Tap to Teleport";
+      tutorialDesc = "Click or tap on any floating arrow portal to walk into another playroom or classroom!";
+    }
+  }
+
   return (
     <div className="flex flex-col space-y-6">
       
@@ -1573,7 +1732,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               style={{ 
                 left: `${x}px`, 
                 top: `${y}px`,
-                transform: `translate(-50%, -50%) rotate(${roll || 0}rad)`
+                transform: `translate(-50%, -50%) rotate(${-roll || 0}rad)`
               }}
             >
               {isInfo ? (
@@ -1723,22 +1882,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               animate={{ width: "95%", opacity: 1 }}
               exit={{ width: "100%", opacity: 0 }}
               transition={{ 
-                width: { duration: 2, ease: "easeOut" },
-                opacity: { duration: 0.3 }
+                width: { duration: 0.55, ease: "easeOut" },
+                opacity: { duration: 0.25 }
               }}
-              className="absolute top-0 left-0 h-1 bg-brand-orange z-[60] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Interactive Smooth Fade Transition Overlay - No text or signs per user request */}
-        <AnimatePresence>
-          {sceneLoading && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-stone-950/30 backdrop-blur-[2px] z-50 pointer-events-none"
+              className="absolute top-0 left-0 h-1 bg-red-600 z-[60] shadow-[0_0_10px_rgba(220,38,38,0.85)]"
             />
           )}
         </AnimatePresence>
@@ -1768,15 +1915,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
 
           {/* CUSTOM HORIZONTAL COMPASS RULER (Top Center) */}
-          <div 
-            id="tour-compass" 
-            className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80 z-40 transition-transform duration-75"
-            style={{
-              transform: `translateX(-50%) rotate(${-cameraRollRef.current || 0}rad)`
-            }}
-          >
+          <div id="tour-compass" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-0 pointer-events-none flex flex-col items-center gap-1.5 w-36 sm:w-80">
             {/* Horizontal sliding ruler */}
-            <div className="w-full h-5 sm:h-8 bg-white/40 backdrop-blur-[24px] border border-white/60 rounded-full overflow-hidden relative shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+            <div className="w-full h-5 sm:h-8 bg-white/75 backdrop-blur-xl border border-white/50 rounded-full overflow-hidden relative shadow-lg">
               <div 
                 className="absolute top-0 bottom-0 flex items-center transition-transform duration-100 ease-out"
                 style={{ 
@@ -1787,15 +1928,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 {[-3, -2, -1, 0, 1, 2, 3].map((k) => (
                   <div key={k} className="absolute top-0 bottom-0 flex items-center" style={{ left: `${k * 720}px`, width: '720px' }}>
                     <div className="absolute left-[0px] top-[2px] text-[10px] text-brand-orange font-black -translate-x-1/2 z-10">N</div>
-                    <div className="absolute left-[180px] top-[2px] text-[10px] text-black font-black -translate-x-1/2 z-10">E</div>
-                    <div className="absolute left-[360px] top-[2px] text-[10px] text-black font-black -translate-x-1/2 z-10">S</div>
-                    <div className="absolute left-[540px] top-[2px] text-[10px] text-black font-black -translate-x-1/2 z-10">W</div>
+                    <div className="absolute left-[180px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">E</div>
+                    <div className="absolute left-[360px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">S</div>
+                    <div className="absolute left-[540px] top-[2px] text-[10px] text-stone-950 font-black -translate-x-1/2 z-10">W</div>
                     
                     {/* Ticks every 15 degrees (30px) */}
                     {Array.from({length: 24}).map((_, i) => (
                       <div 
                         key={i} 
-                        className="absolute bottom-0 w-[1.5px] bg-black/30" 
+                        className="absolute bottom-0 w-[1.5px] bg-stone-900/30" 
                         style={{ 
                           left: `${i * 30}px`, 
                           height: i % 6 === 0 ? '12px' : '6px', 
@@ -1811,8 +1952,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
             
             {/* Room Title Tag - glassmorphic and elegant */}
-            <div className="bg-white/40 backdrop-blur-[24px] border border-white/60 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] pointer-events-auto flex flex-col items-center gap-0.5">
-              <h3 className="text-black font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
+            <div className="bg-white/75 backdrop-blur-xl border border-white/50 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
+              <h3 className="text-stone-900 font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
                 <span>{currentScene?.title}</span>
                 {currentScene?.isStart && (
                   <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[7px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
@@ -1827,14 +1968,83 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         {/* Floating Guide Button - Top Left */}
         <div className="absolute top-4 left-4 z-40 pointer-events-auto">
           <button 
-            onClick={() => triggerTourGuide()}
-            className="px-2.5 sm:px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95 cursor-pointer"
+            onClick={() => {
+              setTutorialTime(0);
+              setTutorialStep('horizontal');
+              setShowGuide(true);
+            }}
+            className="px-2.5 sm:px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95 animate-pulse"
             title="Open Navigation Tour Guide"
           >
             <HelpCircle className="w-4.5 h-4.5 text-brand-green animate-bounce" />
             <span className="hidden sm:inline">Tour Guide</span>
           </button>
         </div>
+
+        {/* INTERACTIVE GLASSY HAND TUTORIAL OVERLAY */}
+        {showGuide && (
+          <div className="absolute inset-0 z-50 pointer-events-none select-none flex flex-col justify-between p-4 sm:p-6">
+            {/* Header: Subtle vignette and Skip button */}
+            <div className="w-full flex justify-end pointer-events-auto">
+              <button
+                onClick={() => {
+                  setShowGuide(false);
+                  try {
+                    localStorage.setItem('kidtopia_tour_guide_shown', 'true');
+                  } catch (e) {}
+                }}
+                className="px-4 py-2 bg-white/15 dark:bg-black/20 hover:bg-white/25 border border-white/25 backdrop-blur-md rounded-xl text-white text-xs font-bold font-sans active:scale-95 transition-all shadow-lg shadow-black/10 flex items-center gap-1.5"
+              >
+                <X className="w-4 h-4" />
+                <span>Skip Tour Tutorial</span>
+              </button>
+            </div>
+
+            {/* Realistic Glassy Swiping Hand Component */}
+            <GlassyHand x={handX} y={handY} pressing={handPress} />
+
+            {/* Footer Tutorial Dialogue Card */}
+            <div className="w-full max-w-sm mx-auto mb-4 pointer-events-auto">
+              <div className="bg-white/20 dark:bg-black/30 backdrop-blur-xl border border-white/30 p-5 rounded-3xl shadow-2xl flex flex-col gap-3 text-white relative overflow-hidden ring-1 ring-white/15">
+                {/* Subtle colorful spotlight backing */}
+                <div className="absolute -top-12 -left-12 w-24 h-24 bg-brand-green/25 rounded-full filter blur-2xl" />
+                <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-brand-orange/25 rounded-full filter blur-2xl" />
+
+                <div className="relative flex flex-col gap-1 drop-shadow">
+                  <span className="text-[9px] uppercase tracking-[0.2em] text-brand-orange font-black">Interactive Tutorial</span>
+                  <h4 className="font-sans font-black text-white text-base sm:text-lg tracking-wide flex items-center gap-2">
+                    {tutorialStep === 'horizontal' ? '🎒 ' : tutorialStep === 'vertical' ? '🧭 ' : '🚪 '}
+                    {tutorialLabel}
+                  </h4>
+                  <p className="text-xs text-white/90 leading-relaxed font-sans mt-0.5">
+                    {tutorialDesc}
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-center mt-1 pt-3 border-t border-white/15 relative z-10">
+                  <div className="flex gap-1">
+                    <div className={`w-6 h-1.5 rounded-full transition-all duration-300 ${tutorialStep === 'horizontal' ? 'bg-brand-orange w-8' : 'bg-white/20'}`} />
+                    <div className={`w-6 h-1.5 rounded-full transition-all duration-300 ${tutorialStep === 'vertical' ? 'bg-brand-orange w-8' : 'bg-white/20'}`} />
+                    <div className={`w-6 h-1.5 rounded-full transition-all duration-300 ${tutorialStep === 'teleport' ? 'bg-brand-orange w-8' : 'bg-white/20'}`} />
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setShowGuide(false);
+                      try {
+                        localStorage.setItem('kidtopia_tour_guide_shown', 'true');
+                      } catch (e) {}
+                    }}
+                    className="px-4.5 py-2 bg-brand-green hover:bg-brand-green/90 text-white rounded-xl text-xs font-sans font-bold shadow-lg shadow-brand-green/25 transition-all border border-white/20 active:scale-95 flex items-center gap-1"
+                  >
+                    <span>Got it! Explore</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Floating Info Hotspot Description Overlay */}
         {activeInfoHotspot && (
@@ -2095,40 +2305,40 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
 
             {/* Action Bar: Gyroscope, Zoom In, Zoom Out, Fullscreen - transparent glass layout */}
-            <div className="bg-white/40 backdrop-blur-[24px] border border-white/60 px-2 md:px-3 py-1.5 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] flex items-center gap-1.5 md:gap-2.5">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/50 px-2 md:px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 md:gap-2.5">
               <button
                 type="button"
                 onClick={requestDeviceOrientationPermission}
                 className={`p-1.5 md:p-2 rounded-lg transition-all ${
                   useGyroscope 
                     ? 'bg-brand-green/20 text-brand-green border border-brand-green/40' 
-                    : 'text-black hover:bg-white/20 border border-transparent'
+                    : 'text-stone-800 hover:text-black hover:bg-stone-100/30 border border-transparent'
                 }`}
                 title="Use Device Gyroscope"
               >
                 <Compass className={`w-4.5 h-4.5 md:w-5.5 md:h-5.5 ${useGyroscope ? 'animate-spin' : ''}`} style={{ animationDuration: useGyroscope ? '6s' : '0s' }} />
               </button>
 
-              <div className="w-[1px] h-3 md:h-4 bg-black/10" />
+              <div className="w-[1px] h-3 md:h-4 bg-stone-300" />
 
               <button
                 onClick={() => handleKeyDown('zoomIn')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-white/20 text-black rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
                 title="Zoom In"
               >
                 <ZoomIn className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
               <button
                 onClick={() => handleKeyDown('zoomOut')}
-                className="hidden md:block p-1.5 md:p-2 hover:bg-white/20 text-black rounded-lg transition"
+                className="hidden md:block p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />
               </button>
-              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-black/10" />
+              <div className="hidden md:block w-[1px] h-3 md:h-4 bg-stone-300" />
               <button
                 onClick={toggleFullscreen}
-                className="p-1.5 md:p-2 hover:bg-white/20 text-black rounded-lg transition"
+                className="p-1.5 md:p-2 hover:bg-stone-100/30 text-stone-800 hover:text-black rounded-lg transition"
                 title="Toggle Fullscreen"
               >
                 {isFullscreen ? <Minimize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" /> : <Maximize2 className="w-4.5 h-4.5 md:w-5.5 md:h-5.5" />}
@@ -2363,114 +2573,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
         </div>
       )}
-
-      {/* Finger Guide Animation */}
-      <AnimatePresence>
-        {showFingerGuide && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            className="fixed inset-0 z-[60] pointer-events-none flex items-center justify-center"
-          >
-            <motion.div
-              animate={{
-                x: [0, -100, 100, 0, 0, 0, 0],
-                y: [0, 0, 0, 0, -80, 80, 0],
-                scale: [1, 0.95, 0.95, 1, 0.95, 0.95, 1],
-              }}
-              transition={{
-                duration: 6,
-                times: [0, 0.25, 0.5, 0.6, 0.75, 0.9, 1],
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="relative flex flex-col items-center justify-center"
-            >
-              <div className="relative w-32 h-32 flex items-center justify-center">
-                {/* The outer circular aura under the pointer finger to indicate contact point */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 rounded-full border border-white/30 backdrop-blur-xs flex items-center justify-center">
-                  <div className="w-10 h-10 bg-brand-green/30 rounded-full animate-ping absolute" />
-                  <div className="w-3 h-3 bg-white rounded-full shadow-[0_0_12px_#fff] absolute" />
-                </div>
-
-                <svg 
-                  viewBox="0 0 100 100" 
-                  className="w-24 h-24 select-none pointer-events-none drop-shadow-2xl"
-                  style={{ transform: "translateY(10px)" }}
-                >
-                  <defs>
-                    <linearGradient id="glassHandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="rgba(255, 255, 255, 0.5)" />
-                      <stop offset="30%" stopColor="rgba(255, 255, 255, 0.25)" />
-                      <stop offset="100%" stopColor="rgba(240, 240, 250, 0.12)" />
-                    </linearGradient>
-                    <linearGradient id="handBorderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="rgba(255, 255, 255, 0.8)" />
-                      <stop offset="100%" stopColor="rgba(255, 255, 255, 0.25)" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* Elegant human hand shape pointing up */}
-                  <path
-                    d="M 40 90 
-                       C 38 82, 30 75, 27 68 
-                       C 24 62, 29 57, 34 57 
-                       C 39 57, 42 61, 44 64 
-                       C 44 55, 43 38, 43 18 
-                       C 43 11, 53 11, 53 18 
-                       L 53 45 
-                       C 56 45, 61 45, 63 48
-                       C 65 50, 65 54, 61 56
-                       C 65 56, 67 60, 62 63
-                       C 65 63, 66 67, 61 70
-                       C 58 75, 51 82, 51 90
-                       Z"
-                    fill="url(#glassHandGrad)"
-                    stroke="url(#handBorderGrad)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="backdrop-blur-[8px]"
-                  />
-                  
-                  {/* Inner detail lines of the pointing hand */}
-                  <path
-                    d="M 44 64 C 47 67, 51 68, 54 65"
-                    stroke="rgba(255,255,255,0.4)"
-                    strokeWidth="1.2"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M 46 72 C 49 75, 53 76, 55 72"
-                    stroke="rgba(255,255,255,0.3)"
-                    strokeWidth="1"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M 33 59 C 36 62, 41 64, 44 64"
-                    stroke="rgba(255,255,255,0.4)"
-                    strokeWidth="1"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-
-              <motion.div 
-                animate={{ opacity: [0.8, 1, 0.8] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute top-28 left-1/2 -translate-x-1/2 whitespace-nowrap text-stone-900 dark:text-white font-black tracking-widest uppercase text-[10px] bg-white/40 dark:bg-black/40 backdrop-blur-md border border-white/40 dark:border-stone-800 px-5 py-2.5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] flex items-center gap-2"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-green animate-ping" />
-                <span>Drag to explore</span>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* MODAL 1: Add New Room */}
       {showAddRoomModal && (
