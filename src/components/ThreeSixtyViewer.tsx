@@ -206,7 +206,7 @@ const createFallbackPanoTexture = (): THREE.CanvasTexture => {
   return texture;
 };
 
-// Realistic Glassmorphic Swiping Hand UI representing tutorial movement
+// Realistic Glassmorphic Pointed Hand UI representing tutorial movement
 interface GlassyHandProps {
   x: number;
   y: number;
@@ -220,50 +220,61 @@ const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing }) => {
       style={{ 
         left: `${x}%`, 
         top: `${y}%`,
-        transform: `translate(-50%, -50%) scale(${pressing ? 0.90 : 1.0})`,
+        transform: `translate(-50%, -50%) scale(${pressing ? 0.88 : 1.0})`,
       }}
     >
-      {/* Tap Ripple Reflection effect */}
+      {/* Tap Ripple effect directly at the index fingertip */}
       {pressing && (
-        <div className="absolute top-2 left-6 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/20 rounded-full border border-white/40 animate-ping duration-1000" />
+        <div className="absolute top-[18%] left-[46%] -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/20 rounded-full border border-white/40 animate-ping duration-1000 z-0" />
       )}
       
       {/* Frosted Glass hand container wrapper */}
-      <div className="relative p-2.5 rounded-2xl bg-white/10 dark:bg-black/20 backdrop-blur-[8px] border border-white/25 shadow-[0_25px_60px_rgba(0,0,0,0.3)] ring-1 ring-white/10">
+      <div className="relative p-2.5 rounded-2xl bg-white/10 dark:bg-black/20 backdrop-blur-[10px] border border-white/25 shadow-[0_25px_60px_rgba(0,0,0,0.35)] ring-1 ring-white/10">
         <svg 
           width="75" 
           height="75" 
           viewBox="0 0 100 100" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]"
+          className="drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]"
         >
           <defs>
             <linearGradient id="handGlass" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.45)" />
+              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.48)" />
               <stop offset="50%" stopColor="rgba(255, 255, 255, 0.18)" />
               <stop offset="100%" stopColor="rgba(255, 255, 255, 0.05)" />
             </linearGradient>
             <linearGradient id="handStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.75)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.15)" />
+              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.85)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.20)" />
             </linearGradient>
           </defs>
-          <g transform="rotate(-15 50 50)">
-            {/* Realistic contoured human hand path */}
+          <g transform="rotate(-12 50 50)">
+            {/* Soft backdrop shadow layer (skeuomorphic depth) */}
             <path 
-              d="M45,85 C55,85 64,80 70,72 C76,64 80,52 80,42 C80,39 78,37 75,37 C73,37 71,39 71,41 L71,25 C71,22 69,20 66,20 C63,20 61,22 61,25 L61,17 C61,14 59,12 56,12 C53,12 51,14 51,17 L51,14 C51,11 49,9 46,9 C43,9 41,11 41,14 L41,28 C41,25 39,23 36,23 C33,23 31,25 31,28 L31,48 C31,45 29,43 26,43 C23,43 21,45 21,48 L21,55 C21,65 26,75 34,80 C38,83 41,85 45,85 Z" 
+              d="M40,60 L40,16 C40,10 52,10 52,16 L52,48 C52,45 57,43 61,46 C65,49 65,54 61,57 C64,55 68,55 70,59 C72,63 69,67 65,68 C67,67 71,69 72,73 C73,77 69,81 63,81 C58,81 48,83 42,83 C32,83 24,76 23,65 C22,58 25,53 31,50 C36,48 40,52 40,56 C40,59 36,63 34,65"
+              fill="rgba(0,0,0,0.22)" 
+              filter="blur(3px)"
+              transform="translate(2.5, 4.5)"
+            />
+            {/* Highly realistic contoured pointing hand path */}
+            <path 
+              d="M40,60 L40,16 C40,10 52,10 52,16 L52,48 C52,45 57,43 61,46 C65,49 65,54 61,57 C64,55 68,55 70,59 C72,63 69,67 65,68 C67,67 71,69 72,73 C73,77 69,81 63,81 C58,81 48,83 42,83 C32,83 24,76 23,65 C22,58 25,53 31,50 C36,48 40,52 40,56 C40,59 36,63 34,65" 
               fill="url(#handGlass)" 
               stroke="url(#handStroke)" 
               strokeWidth="1.5" 
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* Elegant internal glass reflection guides */}
-            <path d="M31 48 L31 65" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-            <path d="M41 38 L41 68" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-            <path d="M51 32 L51 72" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-            <path d="M61 35 L61 70" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+            {/* Highly detailed fingernail / specular reflection on pointing index finger */}
+            <ellipse cx="46" cy="18" rx="3.5" ry="4.5" fill="rgba(255,255,255,0.3)" />
+            <ellipse cx="45" cy="16.5" rx="1.5" ry="2" fill="white" opacity="0.8" />
+            
+            {/* Elegant internal glass contoured reflection lines */}
+            <path d="M40,30 L40,48" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+            <path d="M52,32 L52,46" stroke="rgba(255,255,255,0.15)" strokeWidth="0.8" />
+            <path d="M31,50 Q36,54 40,56" stroke="rgba(255,255,255,0.2)" strokeWidth="1" fill="none" />
+            <path d="M42,83 C48,83 52,80 58,81" stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none" />
           </g>
         </svg>
       </div>
@@ -507,32 +518,26 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       const elapsed = Date.now() - startTime;
       setTutorialTime(elapsed);
 
-      // Loop the swiping tutorial cycle (14 seconds)
-      const cycleTime = elapsed % 14000;
+      // Loop the swiping tutorial cycle (10 seconds)
+      const cycleTime = elapsed % 10000;
 
       if (cycleTime < 5000) {
         setTutorialStep('horizontal');
         const progress = cycleTime / 5000;
-        const angle = Math.sin(progress * Math.PI * 3); // 1.5 complete smooth oscillations
+        const angle = Math.sin(progress * Math.PI * 2); // Beautiful smooth back-and-forth oscillation
         
-        // Panning is opposite to dragging direction
-        targetLonRef.current = initialLon - angle * 45;
+        // Horizontal swiping reaction
+        targetLonRef.current = initialLon - angle * 40;
         targetLatRef.current = initialLat; // keep vertical view steady
       }
-      else if (cycleTime < 10000) {
+      else {
         setTutorialStep('vertical');
         const progress = (cycleTime - 5000) / 5000;
-        const angle = Math.sin(progress * Math.PI * 3);
+        const angle = Math.sin(progress * Math.PI * 2);
         
-        // Tilting camera latitude
+        // Vertical tilting reaction
         targetLonRef.current = initialLon; // keep horizontal view steady
-        targetLatRef.current = initialLat - angle * 22;
-      }
-      else {
-        setTutorialStep('teleport');
-        // Let view settle in place
-        targetLonRef.current = initialLon;
-        targetLatRef.current = initialLat;
+        targetLatRef.current = initialLat - angle * 20;
       }
 
       animId = requestAnimationFrame(runTutorial);
@@ -1660,39 +1665,25 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     );
   }
 
-  // Dynamic calculation of glassy hand swiping coordinates based on current tutorial timer
+  // Dynamic calculation of glassy pointing hand swiping coordinates based on current 10-second tutorial timer
   let handX = 50;
   let handY = 55;
   let handPress = false;
-  let tutorialLabel = "Explore around";
-  let tutorialDesc = "Drag or swipe anywhere to rotate the 360 view.";
 
   if (showGuide) {
-    const cycleTime = tutorialTime % 14000;
+    const cycleTime = tutorialTime % 10000;
     if (cycleTime < 5000) {
       const progress = cycleTime / 5000;
-      const angle = Math.sin(progress * Math.PI * 3); // oscillate back and forth 1.5 times
+      const angle = Math.sin(progress * Math.PI * 2); // oscillates back and forth
       handX = 50 + angle * 25; // sweep 25% to 75%
       handY = 55;
       handPress = true;
-      tutorialLabel = "Swipe Left & Right";
-      tutorialDesc = "The viewport moves dynamically to let you look all around the room in 360°!";
-    } else if (cycleTime < 10000) {
+    } else {
       const progress = (cycleTime - 5000) / 5000;
-      const angle = Math.sin(progress * Math.PI * 3);
+      const angle = Math.sin(progress * Math.PI * 2);
       handX = 50;
       handY = 55 + angle * 20; // sweep 35% to 75%
       handPress = true;
-      tutorialLabel = "Swipe Up & Down";
-      tutorialDesc = "Look up towards the ceiling or down to the floor to adjust your pitch perspective!";
-    } else {
-      const progress = (cycleTime - 10000) / 4000;
-      // Gently orbit and click/tap
-      handX = 55 + Math.sin(progress * Math.PI * 4) * 3;
-      handY = 60 + Math.cos(progress * Math.PI * 4) * 3;
-      handPress = Math.floor(cycleTime / 1000) % 2 === 0; // pulse click effect
-      tutorialLabel = "Tap to Teleport";
-      tutorialDesc = "Click or tap on any floating arrow portal to walk into another playroom or classroom!";
     }
   }
 
@@ -1702,6 +1693,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       {/* Main Tour Display Section */}
       <div 
         id="three-sixty-tour-container"
+        onPointerDownCapture={() => {
+          if (showGuide) {
+            setShowGuide(false);
+          }
+        }}
         className={`relative w-full rounded-2xl overflow-hidden shadow-2xl border bg-black transition-all duration-300 ${
           isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[320px] sm:h-[420px] md:h-[600px] border-stone-200/80 dark:border-stone-800'
         }`}
@@ -1965,85 +1961,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           </div>
         </div>
 
-        {/* Floating Guide Button - Top Left */}
-        <div className="absolute top-4 left-4 z-40 pointer-events-auto">
-          <button 
-            onClick={() => {
-              setTutorialTime(0);
-              setTutorialStep('horizontal');
-              setShowGuide(true);
-            }}
-            className="px-2.5 sm:px-4 py-2 bg-white/90 backdrop-blur-md border border-white/20 text-black rounded-xl hover:bg-white transition-all shadow-xl flex items-center gap-2 text-xs font-bold font-sans active:scale-95 animate-pulse"
-            title="Open Navigation Tour Guide"
-          >
-            <HelpCircle className="w-4.5 h-4.5 text-brand-green animate-bounce" />
-            <span className="hidden sm:inline">Tour Guide</span>
-          </button>
-        </div>
-
         {/* INTERACTIVE GLASSY HAND TUTORIAL OVERLAY */}
         {showGuide && (
-          <div className="absolute inset-0 z-50 pointer-events-none select-none flex flex-col justify-between p-4 sm:p-6">
-            {/* Header: Subtle vignette and Skip button */}
-            <div className="w-full flex justify-end pointer-events-auto">
-              <button
-                onClick={() => {
-                  setShowGuide(false);
-                  try {
-                    localStorage.setItem('kidtopia_tour_guide_shown', 'true');
-                  } catch (e) {}
-                }}
-                className="px-4 py-2 bg-white/15 dark:bg-black/20 hover:bg-white/25 border border-white/25 backdrop-blur-md rounded-xl text-white text-xs font-bold font-sans active:scale-95 transition-all shadow-lg shadow-black/10 flex items-center gap-1.5"
-              >
-                <X className="w-4 h-4" />
-                <span>Skip Tour Tutorial</span>
-              </button>
-            </div>
-
-            {/* Realistic Glassy Swiping Hand Component */}
-            <GlassyHand x={handX} y={handY} pressing={handPress} />
-
-            {/* Footer Tutorial Dialogue Card */}
-            <div className="w-full max-w-sm mx-auto mb-4 pointer-events-auto">
-              <div className="bg-white/20 dark:bg-black/30 backdrop-blur-xl border border-white/30 p-5 rounded-3xl shadow-2xl flex flex-col gap-3 text-white relative overflow-hidden ring-1 ring-white/15">
-                {/* Subtle colorful spotlight backing */}
-                <div className="absolute -top-12 -left-12 w-24 h-24 bg-brand-green/25 rounded-full filter blur-2xl" />
-                <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-brand-orange/25 rounded-full filter blur-2xl" />
-
-                <div className="relative flex flex-col gap-1 drop-shadow">
-                  <span className="text-[9px] uppercase tracking-[0.2em] text-brand-orange font-black">Interactive Tutorial</span>
-                  <h4 className="font-sans font-black text-white text-base sm:text-lg tracking-wide flex items-center gap-2">
-                    {tutorialStep === 'horizontal' ? '🎒 ' : tutorialStep === 'vertical' ? '🧭 ' : '🚪 '}
-                    {tutorialLabel}
-                  </h4>
-                  <p className="text-xs text-white/90 leading-relaxed font-sans mt-0.5">
-                    {tutorialDesc}
-                  </p>
-                </div>
-
-                <div className="flex justify-between items-center mt-1 pt-3 border-t border-white/15 relative z-10">
-                  <div className="flex gap-1">
-                    <div className={`w-6 h-1.5 rounded-full transition-all duration-300 ${tutorialStep === 'horizontal' ? 'bg-brand-orange w-8' : 'bg-white/20'}`} />
-                    <div className={`w-6 h-1.5 rounded-full transition-all duration-300 ${tutorialStep === 'vertical' ? 'bg-brand-orange w-8' : 'bg-white/20'}`} />
-                    <div className={`w-6 h-1.5 rounded-full transition-all duration-300 ${tutorialStep === 'teleport' ? 'bg-brand-orange w-8' : 'bg-white/20'}`} />
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setShowGuide(false);
-                      try {
-                        localStorage.setItem('kidtopia_tour_guide_shown', 'true');
-                      } catch (e) {}
-                    }}
-                    className="px-4.5 py-2 bg-brand-green hover:bg-brand-green/90 text-white rounded-xl text-xs font-sans font-bold shadow-lg shadow-brand-green/25 transition-all border border-white/20 active:scale-95 flex items-center gap-1"
-                  >
-                    <span>Got it! Explore</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <GlassyHand x={handX} y={handY} pressing={handPress} />
         )}
 
         {/* Floating Info Hotspot Description Overlay */}
