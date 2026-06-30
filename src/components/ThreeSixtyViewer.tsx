@@ -60,7 +60,7 @@ export function getLowResAndHighResUrls(url: string): { low: string; high: strin
     const cleanUrl = converted.split('=')[0];
     return {
       low: `${cleanUrl}=w800`,
-      high: `${cleanUrl}=w4096`
+      high: `${cleanUrl}=w8192` // Upgrade to 8K for maximum sharpness
     };
   }
   
@@ -68,7 +68,7 @@ export function getLowResAndHighResUrls(url: string): { low: string; high: strin
     const cleanUrl = converted.split('?')[0];
     return {
       low: `${cleanUrl}?q=30&w=800`,
-      high: `${cleanUrl}?q=85&w=4096`
+      high: `${cleanUrl}?q=95&w=8192` // Upgrade to 8K with higher quality
     };
   }
   
@@ -475,54 +475,54 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     let initialLat = targetLatRef.current;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
-      let { alpha, beta, gamma } = e;
+      const { alpha, beta, gamma } = e;
       if (alpha === null || beta === null || gamma === null) return;
 
       // Convert to radians
-      const ra = THREE.MathUtils.degToRad(alpha);
-      const rb = THREE.MathUtils.degToRad(beta);
-      const rg = THREE.MathUtils.degToRad(gamma);
+      const alphaRad = THREE.MathUtils.degToRad(alpha);
+      const betaRad = THREE.MathUtils.degToRad(beta);
+      const gammaRad = THREE.MathUtils.degToRad(gamma);
 
-      // Get screen orientation
+      // Screen orientation
       const orient = (typeof window !== 'undefined' && window.screen?.orientation)
         ? (window.screen.orientation.angle) 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
       const orientRad = THREE.MathUtils.degToRad(orient);
 
-      // Standard YXZ mapping for device orientation
-      extractedEuler.set(rb, ra, -rg, 'YXZ');
+      // Standard DeviceOrientation to Three.js mapping
+      // ZXY order is standard for device orientation
+      extractedEuler.set(betaRad, alphaRad, -gammaRad, 'YXZ');
       deviceQ.setFromEuler(extractedEuler);
 
       // Adjust for screen orientation
       const screenAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
       deviceQ.multiply(screenAdjQ);
       
-      // World adjustment (y-up)
+      // World adjustment (maps device "forward" to Three.js "forward")
       const worldAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
       worldQ.copy(deviceQ).premultiply(worldAdjQ);
 
       if (isFirstOrientation) {
         smoothedQ.copy(worldQ);
         isFirstOrientation = false;
-        // Store the initial rotation to prevent "snap" on start
-        extractedEuler.setFromQuaternion(worldQ, 'YXZ');
-        initialLon = -extractedEuler.y * THREE.MathUtils.RAD2DEG;
-        initialLat = extractedEuler.x * THREE.MathUtils.RAD2DEG;
         return;
       }
 
-      // Smooth Slerp
-      smoothedQ.slerp(worldQ, 0.15);
+      // 1:1 Mapping with ultra-light slerp to remove sensor jitter
+      smoothedQ.slerp(worldQ, 0.4);
 
-      extractedEuler.setFromQuaternion(smoothedQ, 'YXZ');
+      // Extract forward vector to calculate spherical coordinates (avoids gimbal lock flicker)
+      const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(smoothedQ);
       
-      const gyroLon = extractedEuler.y * THREE.MathUtils.RAD2DEG;
-      const gyroLat = extractedEuler.x * THREE.MathUtils.RAD2DEG;
+      // Calculate spherical coordinates directly from the vector
+      // lon = atan2(x, z), lat = asin(y)
+      // This is mathematically stable across the entire sphere
+      const newLon = THREE.MathUtils.radToDeg(Math.atan2(forward.x, forward.z));
+      const newLat = THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(forward.y, -0.999, 0.999)));
 
-      // We apply the delta from initial to current sensor state to our current target
-      // This allows the user to still drag while gyro is active if they want (hybrid mode)
-      targetLonRef.current = -gyroLon;
-      targetLatRef.current = gyroLat;
+      // Apply 1:1 mapping
+      targetLonRef.current = newLon;
+      targetLatRef.current = newLat;
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -562,7 +562,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   // Switch Room with transition
   const handleSwitchRoom = (sceneId: string, hotspot?: Hotspot) => {
     const targetScene = scenes.find(s => s.id === sceneId);
-    if (!targetScene) return;
+    if (!targetScene || !currentScene) return;
 
     // Stage 1: Fast fly-forward/zoom transition in 3D Space
     targetFovRef.current = 20; // Zoom in extremely close to look like flying forward
@@ -578,50 +578,58 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     const isPreloaded = textureCacheRef.current.has(sceneId);
 
-    // Stage 2: Calculate landing angles based on reciprocal return door
+    // Stage 2: Calculate landing angles based on directional continuity
+    // Default to the target scene's configured start angle
     let landingLon = targetScene.startLon !== undefined ? targetScene.startLon : 0;
     let landingLat = targetScene.startLat !== undefined ? targetScene.startLat : 0;
 
-    if (hotspot?.linkedHotspotId) {
-      const linkedDoor = targetScene.hotspots.find(h => h.id === hotspot.linkedHotspotId);
-      if (linkedDoor) {
-        // Look away from the return door to simulate walking forward into the room
-        landingLon = linkedDoor.yaw + 180;
-        if (landingLon > 180) landingLon -= 360;
-        // Pitch should stay level or look slightly down/up based on the door, but usually 0 is safer
-        landingLat = 0; 
+    if (hotspot) {
+      // Find the entry point in the new room (where the user is coming from)
+      let entryPoint = hotspot.linkedHotspotId 
+        ? targetScene.hotspots.find(h => h.id === hotspot.linkedHotspotId) 
+        : null;
+      
+      // Auto-Reciprocal Detection: If no explicit link, find any hotspot in the target room pointing back to where we are
+      if (!entryPoint) {
+        entryPoint = targetScene.hotspots.find(h => h.targetSceneId === currentScene.id);
+      }
+
+      if (entryPoint) {
+        // Face 180 degrees away from the entry point to look into the room
+        landingLon = entryPoint.yaw + 180;
+        
+        // Normalize landingLon relative to current camera rotation to minimize spin
+        // We want the shortest rotation path to reach the new "forward" heading
+        let deltaLanding = landingLon - (targetLonRef.current % 360);
+        while (deltaLanding > 180) deltaLanding -= 360;
+        while (deltaLanding < -180) deltaLanding += 360;
+        
+        landingLon = targetLonRef.current + deltaLanding;
+        landingLat = 0; // Keep horizon level on entry
       }
     }
 
+    const finalizeTransition = () => {
+      setCurrentScene(targetScene);
+      // Apply the landing orientation
+      targetLonRef.current = landingLon;
+      targetLatRef.current = landingLat;
+      cameraLonRef.current = landingLon;
+      cameraLatRef.current = landingLat;
+      
+      cameraFovRef.current = 110; // Start extra wide for "arrival" feel
+      targetFovRef.current = 100;  // Lerp smoothly to standard view
+    };
+
     if (isPreloaded) {
       // Give the zoom effect 400ms to play out before instantly swapping textures
-      setTimeout(() => {
-        setCurrentScene(targetScene);
-        // Apply starting camera directions for this classroom to avoid facing backwards
-        targetLonRef.current = landingLon;
-        targetLatRef.current = landingLat;
-        cameraLonRef.current = landingLon;
-        cameraLatRef.current = landingLat;
-        
-        cameraFovRef.current = 110; // Start extra wide
-        targetFovRef.current = 100;  // Lerp smoothly to zoomed out state
-      }, 400);
+      setTimeout(finalizeTransition, 400);
     } else {
       // Fallback transitional cross-fade if not preloaded
       setTimeout(() => {
         setSceneLoading(true);
-        
         setTimeout(() => {
-          setCurrentScene(targetScene);
-          // Apply starting camera directions for this classroom to avoid facing backwards
-          targetLonRef.current = landingLon;
-          targetLatRef.current = landingLat;
-          cameraLonRef.current = landingLon;
-          cameraLatRef.current = landingLat;
-          
-          cameraFovRef.current = 110;
-          targetFovRef.current = 100;
-          
+          finalizeTransition();
           setSceneLoading(false);
         }, 300);
       }, 300);
