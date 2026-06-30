@@ -462,7 +462,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     let smoothedDB = 0;
     
     // ABSOLUTE SENSORY MAPPING for Butter-Smooth Gyroscope
-    // We use quaternions directly to avoid Euler singularities (flickering at horizon)
     const deviceQ = new THREE.Quaternion();
     const smoothedQ = new THREE.Quaternion();
     const worldQ = new THREE.Quaternion();
@@ -472,6 +471,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const extractedEuler = new THREE.Euler();
     
     let isFirstOrientation = true;
+    let initialLon = targetLonRef.current;
+    let initialLat = targetLatRef.current;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
       let { alpha, beta, gamma } = e;
@@ -488,42 +489,38 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
       const orientRad = THREE.MathUtils.degToRad(orient);
 
-      // The standard device orientation to Three.js mapping (ZXY order is most stable for mobile)
-      // alpha = rotation around z (0-360)
-      // beta = rotation around x (-180-180)
-      // gamma = rotation around y (-90-90)
-      // We use 'YXZ' mapping which is standard for device orientation controls
+      // Standard YXZ mapping for device orientation
       extractedEuler.set(rb, ra, -rg, 'YXZ');
       deviceQ.setFromEuler(extractedEuler);
 
-      // Adjust for screen orientation (Portrait vs Landscape)
+      // Adjust for screen orientation
       const screenAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
       deviceQ.multiply(screenAdjQ);
       
-      // Additional world adjustment to make it feel natural (y-up)
+      // World adjustment (y-up)
       const worldAdjQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
       worldQ.copy(deviceQ).premultiply(worldAdjQ);
 
       if (isFirstOrientation) {
         smoothedQ.copy(worldQ);
         isFirstOrientation = false;
+        // Store the initial rotation to prevent "snap" on start
+        extractedEuler.setFromQuaternion(worldQ, 'YXZ');
+        initialLon = -extractedEuler.y * THREE.MathUtils.RAD2DEG;
+        initialLat = extractedEuler.x * THREE.MathUtils.RAD2DEG;
         return;
       }
 
-      // Butter-Smooth Slerp (Spherical Linear Interpolation)
-      // This is the absolute best way to eliminate sensor jitter and flickering
-      // 0.1 is very smooth, 0.2 is more responsive
-      smoothedQ.slerp(worldQ, 0.12);
+      // Smooth Slerp
+      smoothedQ.slerp(worldQ, 0.15);
 
-      // Convert the smoothed world orientation back to our standard Lon/Lat
-      // We use 'YXZ' extraction to match our panorama projection
       extractedEuler.setFromQuaternion(smoothedQ, 'YXZ');
       
       const gyroLon = extractedEuler.y * THREE.MathUtils.RAD2DEG;
       const gyroLat = extractedEuler.x * THREE.MathUtils.RAD2DEG;
 
-      // Update the targets directly from the absolute sensor data
-      // This ensures 1:1 mapping with no drift
+      // We apply the delta from initial to current sensor state to our current target
+      // This allows the user to still drag while gyro is active if they want (hybrid mode)
       targetLonRef.current = -gyroLon;
       targetLatRef.current = gyroLat;
     };
@@ -1056,11 +1053,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             }
             
             textureLoaderRef.current.load(urls.high, (highResTexture) => {
-              highResTexture.minFilter = THREE.LinearMipmapLinearFilter;
-              highResTexture.generateMipmaps = true;
+              highResTexture.minFilter = THREE.LinearFilter; // Change to LinearFilter for sharper close-ups
+              highResTexture.magFilter = THREE.LinearFilter;
+              highResTexture.generateMipmaps = false; // Disable mipmaps for max sharpness on static high-res textures
               highResTexture.colorSpace = THREE.SRGBColorSpace;
               if (rendererRef.current) {
-                highResTexture.anisotropy = rendererRef.current.capabilities.getMaxAnisotropy() || 1;
+                highResTexture.anisotropy = Math.min(rendererRef.current.capabilities.getMaxAnisotropy(), 16);
               }
               textureCacheRef.current.set(currentScene.id, highResTexture);
               if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
@@ -1117,7 +1115,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     rendererRef.current = renderer;
 
     // Create Inside-Out Sphere Geometry
-    const geometry = new THREE.SphereGeometry(500, 128, 84); // High resolution geometry
+    const geometry = new THREE.SphereGeometry(500, 256, 128); // Even higher resolution geometry
     geometry.scale(-1, 1, 1); // invert the sphere geometry on the x-axis so inside is rendered
 
     // Create Material & Mesh
