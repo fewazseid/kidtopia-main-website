@@ -1385,18 +1385,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const currentWidth = mountRef.current.clientWidth;
         const currentHeight = mountRef.current.clientHeight;
 
-        // Save original camera orientation
-        const originalQ = camera.quaternion.clone();
-        let projRoll = cameraRollRef.current;
-
-        if (useGyroscopeRef.current && hasReceivedFirstGyroReadingRef.current) {
-          // Decompose actual camera orientation into Euler angles
-          const cameraEuler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
-          // Invert ONLY the roll (Z axis) for opposite steering wheel motion
-          const oppositeEuler = new THREE.Euler(cameraEuler.x, cameraEuler.y, -cameraEuler.z, 'YXZ');
-          camera.quaternion.setFromEuler(oppositeEuler);
-          projRoll = -cameraEuler.z;
-        }
+        const roll = cameraRollRef.current || 0;
 
         const projections = activeScene.hotspots.map(hs => {
           // Convert hotspot's pitch/yaw back to 3D point in the sphere coordinates
@@ -1410,11 +1399,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           hsVector.y = 500 * Math.cos(hsPhi);
           hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
 
-          // Project point using the camera (which has the opposite roll applied if gyro is active)
+          // Project point using the active camera (which has the perfect pitch, yaw, and roll)
           const vector = hsVector.clone();
           vector.project(camera);
 
-          // Check if point is in front of the projection camera
+          // Check if point is in front of the active camera
           const cameraDirection = new THREE.Vector3();
           camera.getWorldDirection(cameraDirection);
           const isBehind = hsVector.dot(cameraDirection) < 0;
@@ -1426,13 +1415,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             hotspot: hs,
             x: screenX,
             y: screenY,
-            roll: projRoll,
+            roll: roll,
             visible: !isBehind && screenX >= 0 && screenX <= currentWidth && screenY >= 0 && screenY <= currentHeight
           };
         });
-
-        // Restore original camera orientation
-        camera.quaternion.copy(originalQ);
 
         // Set state safely
         setProjectedHotspots(projections);
