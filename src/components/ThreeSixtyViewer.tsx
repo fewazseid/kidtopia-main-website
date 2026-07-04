@@ -1346,49 +1346,30 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         // Calculate container dimensions dynamically to solve shifting on mobile/tablet viewports
         const currentWidth = mountRef.current.clientWidth;
         const currentHeight = mountRef.current.clientHeight;
-        
-        // Create a level camera cloned from the main camera to project hotspots
-        // This keeps hotspots locked to the down side of the screen regardless of camera pitch/tilt.
-        const levelCamera = camera.clone();
-        const levelPhi = THREE.MathUtils.degToRad(90); // level horizon
-        const levelTheta = THREE.MathUtils.degToRad(cameraLonRef.current);
-        
-        const levelTarget = new THREE.Vector3();
-        // Mirror x coordinate (-500) to match the inverted geometry scale of the sphere
-        levelTarget.x = -500 * Math.sin(levelPhi) * Math.cos(levelTheta);
-        levelTarget.y = 500 * Math.cos(levelPhi);
-        levelTarget.z = 500 * Math.sin(levelPhi) * Math.sin(levelTheta);
-        
-        levelCamera.position.set(0, 0, 0);
-        levelCamera.lookAt(levelTarget);
-        levelCamera.updateMatrixWorld();
 
         const projections = activeScene.hotspots.map(hs => {
-          // Project the hotspot at its yaw, but with pitch fixed to a comfortable floor pitch (-15 degrees)
-          // so it stays locked to the down side of the viewport.
-          const levelHsPhi = THREE.MathUtils.degToRad(90 - (-15));
-          const levelHsTheta = THREE.MathUtils.degToRad(hs.yaw);
+          // Convert hotspot's pitch/yaw back to 3D point in the sphere coordinates
+          const hsPhi = THREE.MathUtils.degToRad(90 - hs.pitch);
+          const hsTheta = THREE.MathUtils.degToRad(hs.yaw);
           
           const hsVector = new THREE.Vector3();
-          // Mirror x coordinate to match the inverted geometry of the sphere
-          hsVector.x = -500 * Math.sin(levelHsPhi) * Math.cos(levelHsTheta);
-          hsVector.y = 500 * Math.cos(levelHsPhi);
-          hsVector.z = 500 * Math.sin(levelHsPhi) * Math.sin(levelHsTheta);
+          // Use positive x to match camera lookAt target coordinate system.
+          // This keeps hotspots and directions perfectly stuck to the surface when the camera rotates.
+          hsVector.x = 500 * Math.sin(hsPhi) * Math.cos(hsTheta);
+          hsVector.y = 500 * Math.cos(hsPhi);
+          hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
 
-          // Project point using the level camera
+          // Project point using the actual camera
           const vector = hsVector.clone();
-          vector.project(levelCamera);
+          vector.project(camera);
 
-          // Check if point is in front of the level camera
-          const levelDirection = new THREE.Vector3();
-          levelCamera.getWorldDirection(levelDirection);
-          const isBehind = hsVector.dot(levelDirection) < 0;
+          // Check if point is in front of the actual camera
+          const cameraDirection = new THREE.Vector3();
+          camera.getWorldDirection(cameraDirection);
+          const isBehind = hsVector.dot(cameraDirection) < 0;
 
-          // Compute screen horizontal coordinates
           const screenX = (vector.x * 0.5 + 0.5) * currentWidth;
-          
-          // Lock screenY to the bottom portion of the screen (the "down side" no matter which way we turned)
-          const screenY = currentHeight - 75;
+          const screenY = (-(vector.y * 0.5) + 0.5) * currentHeight;
 
           return {
             hotspot: hs,
