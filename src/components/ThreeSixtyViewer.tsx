@@ -203,6 +203,7 @@ const createFallbackPanoTexture = (): THREE.CanvasTexture => {
     ctx.fillText('Loading 360 view... drag to explore this room spacer', 512, 274);
   }
   const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
   return texture;
 };
 
@@ -1073,6 +1074,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       ctx.fillText('Loading ultra-high definition panorama...', 256, 160);
     }
     const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
     return texture;
   };
 
@@ -1102,6 +1104,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             texture.minFilter = THREE.LinearMipmapLinearFilter;
             texture.generateMipmaps = true;
             texture.anisotropy = rendererRef.current?.capabilities.getMaxAnisotropy() || 1;
+            texture.wrapS = THREE.RepeatWrapping;
             textureCacheRef.current.set(scene.id, texture);
             console.log(`Successfully preloaded high-res background texture for: ${scene.id}`);
           },
@@ -1151,6 +1154,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         textureLoaderRef.current.load(
           urls.low,
           (lowResTexture) => {
+            lowResTexture.wrapS = THREE.RepeatWrapping;
             if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current && !textureCacheRef.current.has(currentScene.id)) {
               sphereMaterialRef.current.map = lowResTexture;
               sphereMaterialRef.current.needsUpdate = true;
@@ -1161,6 +1165,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               highResTexture.magFilter = THREE.LinearFilter;
               highResTexture.generateMipmaps = false; // Disable mipmaps for max sharpness on static high-res textures
               highResTexture.colorSpace = THREE.SRGBColorSpace;
+              highResTexture.wrapS = THREE.RepeatWrapping;
               if (rendererRef.current) {
                 highResTexture.anisotropy = Math.min(rendererRef.current.capabilities.getMaxAnisotropy(), 16);
               }
@@ -1251,6 +1256,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         texture.generateMipmaps = true;
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy() || 1;
+        texture.wrapS = THREE.RepeatWrapping;
         textureCacheRef.current.set(scene.id, texture);
         
         // Use the local sphereMaterial variable directly to avoid ref timing issues
@@ -1304,7 +1310,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
         
         const latRad = Math.asin(THREE.MathUtils.clamp(forward.y, -0.999, 0.999));
-        const lonRad = Math.atan2(forward.z, forward.x);
+        const lonRad = Math.atan2(forward.z, -forward.x);
         
         const currentLon = THREE.MathUtils.radToDeg(lonRad);
         const currentLat = THREE.MathUtils.radToDeg(latRad);
@@ -1327,7 +1333,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const theta = THREE.MathUtils.degToRad(currentLon);
 
         const target = new THREE.Vector3();
-        target.x = 500 * Math.sin(phi) * Math.cos(theta);
+        target.x = -500 * Math.sin(phi) * Math.cos(theta);
         target.y = 500 * Math.cos(phi);
         target.z = 500 * Math.sin(phi) * Math.sin(theta);
 
@@ -1353,9 +1359,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           const hsTheta = THREE.MathUtils.degToRad(hs.yaw);
           
           const hsVector = new THREE.Vector3();
-          // Use positive x to match camera lookAt target coordinate system.
+          // Use mirrored x to match the camera lookAt target and the inverted sphere coordinate system.
           // This keeps hotspots and directions perfectly stuck to the surface when the camera rotates.
-          hsVector.x = 500 * Math.sin(hsPhi) * Math.cos(hsTheta);
+          hsVector.x = -500 * Math.sin(hsPhi) * Math.cos(hsTheta);
           hsVector.y = 500 * Math.cos(hsPhi);
           hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
 
