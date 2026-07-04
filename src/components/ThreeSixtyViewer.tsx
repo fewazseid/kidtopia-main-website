@@ -353,6 +353,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const gyroOffsetQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
   const currentGyroQRef = useRef<THREE.Quaternion>(new THREE.Quaternion());
   const isFirstGyroOrientationRef = useRef<boolean>(true);
+  const hasReceivedFirstGyroReadingRef = useRef<boolean>(false);
   const [activeInfoHotspot, setActiveInfoHotspot] = useState<Hotspot | null>(null);
 
   // Camera target orientation refs (for smooth pan interpolation)
@@ -593,8 +594,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         : (typeof window !== 'undefined' && typeof window.orientation !== 'undefined' ? (window.orientation as number) : 0);
       const orientRad = THREE.MathUtils.degToRad(orient);
 
-      // Inverted DeviceOrientation controls to rotate camera in the opposite direction matching user preferences
-      const deviceEuler = new THREE.Euler(-betaRad, -alphaRad, gammaRad, 'YXZ');
+      // Correct DeviceOrientation controls to rotate camera matching physical movement
+      const deviceEuler = new THREE.Euler(betaRad, alphaRad, -gammaRad, 'YXZ');
       const deviceQ = new THREE.Quaternion().setFromEuler(deviceEuler);
 
       // World transform: adjust from device space to Three.js world space (-PI/2 around X)
@@ -605,8 +606,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       const screenTransform = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -orientRad);
       deviceQ.multiply(screenTransform);
 
-      // Save raw gyro orientation
+      // Save raw gyro orientation and mark first reading as received
       rawGyroQRef.current.copy(deviceQ);
+      hasReceivedFirstGyroReadingRef.current = true;
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
@@ -618,6 +620,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     if (useGyroscope) {
       setUseGyroscope(false);
       useGyroscopeRef.current = false;
+      hasReceivedFirstGyroReadingRef.current = false;
       return;
     }
 
@@ -630,6 +633,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const permissionState = await (window as any).DeviceOrientationEvent.requestPermission();
         if (permissionState === 'granted') {
           isFirstGyroOrientationRef.current = true; // reset orientation offset
+          hasReceivedFirstGyroReadingRef.current = false;
           setUseGyroscope(true);
           useGyroscopeRef.current = true;
         } else {
@@ -640,6 +644,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       }
     } else {
       isFirstGyroOrientationRef.current = true; // reset orientation offset
+      hasReceivedFirstGyroReadingRef.current = false;
       setUseGyroscope(true);
       useGyroscopeRef.current = true;
     }
@@ -1275,7 +1280,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         camera.updateProjectionMatrix();
       }
 
-      if (useGyroscopeRef.current && rawGyroQRef.current) {
+      if (useGyroscopeRef.current && rawGyroQRef.current && hasReceivedFirstGyroReadingRef.current) {
         if (isFirstGyroOrientationRef.current) {
           isFirstGyroOrientationRef.current = false;
           
@@ -1342,29 +1347,48 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const currentWidth = mountRef.current.clientWidth;
         const currentHeight = mountRef.current.clientHeight;
         
+        // Create a level camera cloned from the main camera to project hotspots
+        // This keeps hotspots locked to the down side of the screen regardless of camera pitch/tilt.
+        const levelCamera = camera.clone();
+        const levelPhi = THREE.MathUtils.degToRad(90); // level horizon
+        const levelTheta = THREE.MathUtils.degToRad(cameraLonRef.current);
+        
+        const levelTarget = new THREE.Vector3();
+        // Mirror x coordinate (-500) to match the inverted geometry scale of the sphere
+        levelTarget.x = -500 * Math.sin(levelPhi) * Math.cos(levelTheta);
+        levelTarget.y = 500 * Math.cos(levelPhi);
+        levelTarget.z = 500 * Math.sin(levelPhi) * Math.sin(levelTheta);
+        
+        levelCamera.position.set(0, 0, 0);
+        levelCamera.lookAt(levelTarget);
+        levelCamera.updateMatrixWorld();
+
         const projections = activeScene.hotspots.map(hs => {
-          // Convert hotspot's pitch/yaw back to 3D point
-          const hsPhi = THREE.MathUtils.degToRad(90 - hs.pitch);
-          const hsTheta = THREE.MathUtils.degToRad(hs.yaw);
+          // Project the hotspot at its yaw, but with pitch fixed to a comfortable floor pitch (-15 degrees)
+          // so it stays locked to the down side of the viewport.
+          const levelHsPhi = THREE.MathUtils.degToRad(90 - (-15));
+          const levelHsTheta = THREE.MathUtils.degToRad(hs.yaw);
           
           const hsVector = new THREE.Vector3();
-          // Use positive x to match camera lookAt target coordinate system.
-          // This keeps hotspots and directions perfectly stuck to the surface when the camera rotates.
-          hsVector.x = 500 * Math.sin(hsPhi) * Math.cos(hsTheta);
-          hsVector.y = 500 * Math.cos(hsPhi);
-          hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
+          // Mirror x coordinate to match the inverted geometry of the sphere
+          hsVector.x = -500 * Math.sin(levelHsPhi) * Math.cos(levelHsTheta);
+          hsVector.y = 500 * Math.cos(levelHsPhi);
+          hsVector.z = 500 * Math.sin(levelHsPhi) * Math.sin(levelHsTheta);
 
-          // Project point to camera coordinates
+          // Project point using the level camera
           const vector = hsVector.clone();
-          vector.project(camera);
+          vector.project(levelCamera);
 
-          // Check if point is in front of camera
-          const cameraDirection = new THREE.Vector3();
-          camera.getWorldDirection(cameraDirection);
-          const isBehind = hsVector.dot(cameraDirection) < 0;
+          // Check if point is in front of the level camera
+          const levelDirection = new THREE.Vector3();
+          levelCamera.getWorldDirection(levelDirection);
+          const isBehind = hsVector.dot(levelDirection) < 0;
 
-          const screenX = (vector.x * .5 + .5) * currentWidth;
-          const screenY = (-(vector.y * .5) + .5) * currentHeight;
+          // Compute screen horizontal coordinates
+          const screenX = (vector.x * 0.5 + 0.5) * currentWidth;
+          
+          // Lock screenY to the bottom portion of the screen (the "down side" no matter which way we turned)
+          const screenY = currentHeight - 75;
 
           return {
             hotspot: hs,
@@ -1591,7 +1615,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     }
   };
 
-  // Watch for fullscreen change via Esc key and native events
+  // Watch for fullscreen change via Esc key and native events, lock page scroll, and handle orientation change
   useEffect(() => {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
@@ -1605,12 +1629,37 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       }
     };
 
+    // Lock background scroll in fullscreen mode to prevent exiting fullscreen on iPad when scrolling
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    // Force camera aspect ratio update on screen/device orientation change
+    const handleOrientationChange = () => {
+      setTimeout(() => {
+        if (mountRef.current && cameraRef.current && rendererRef.current) {
+          const width = mountRef.current.clientWidth;
+          const height = mountRef.current.clientHeight;
+          cameraRef.current.aspect = width / height;
+          cameraRef.current.updateProjectionMatrix();
+          rendererRef.current.setSize(width, height);
+        }
+      }, 200);
+    };
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
     
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', handleOrientationChange);
+      document.body.style.overflow = '';
     };
   }, [isFullscreen]);
 
