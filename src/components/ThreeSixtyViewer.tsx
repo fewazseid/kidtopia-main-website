@@ -204,6 +204,7 @@ const createFallbackPanoTexture = (): THREE.CanvasTexture => {
   }
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
+  texture.repeat.x = -1;
   return texture;
 };
 
@@ -1075,6 +1076,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.wrapS = THREE.RepeatWrapping;
+    texture.repeat.x = -1;
     return texture;
   };
 
@@ -1105,6 +1107,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             texture.generateMipmaps = true;
             texture.anisotropy = rendererRef.current?.capabilities.getMaxAnisotropy() || 1;
             texture.wrapS = THREE.RepeatWrapping;
+            texture.repeat.x = -1;
             textureCacheRef.current.set(scene.id, texture);
             console.log(`Successfully preloaded high-res background texture for: ${scene.id}`);
           },
@@ -1155,6 +1158,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           urls.low,
           (lowResTexture) => {
             lowResTexture.wrapS = THREE.RepeatWrapping;
+            lowResTexture.repeat.x = -1;
             if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current && !textureCacheRef.current.has(currentScene.id)) {
               sphereMaterialRef.current.map = lowResTexture;
               sphereMaterialRef.current.needsUpdate = true;
@@ -1166,6 +1170,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               highResTexture.generateMipmaps = false; // Disable mipmaps for max sharpness on static high-res textures
               highResTexture.colorSpace = THREE.SRGBColorSpace;
               highResTexture.wrapS = THREE.RepeatWrapping;
+              highResTexture.repeat.x = -1;
               if (rendererRef.current) {
                 highResTexture.anisotropy = Math.min(rendererRef.current.capabilities.getMaxAnisotropy(), 16);
               }
@@ -1223,12 +1228,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     mountRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Create Inside-Out Sphere Geometry
+    // Create Inside-Out Sphere Geometry (using BackSide to render internally)
     const geometry = new THREE.SphereGeometry(500, 256, 128); // Even higher resolution geometry
-    geometry.scale(-1, 1, 1); // invert the sphere geometry on the x-axis so inside is rendered
 
     // Create Material & Mesh
-    const sphereMaterial = new THREE.MeshBasicMaterial();
+    const sphereMaterial = new THREE.MeshBasicMaterial({ side: THREE.BackSide });
     sphereMaterialRef.current = sphereMaterial;
     
     // Initialize material with a beautiful starting placeholder
@@ -1257,6 +1261,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy() || 1;
         texture.wrapS = THREE.RepeatWrapping;
+        texture.repeat.x = -1;
         textureCacheRef.current.set(scene.id, texture);
         
         // Use the local sphereMaterial variable directly to avoid ref timing issues
@@ -1310,7 +1315,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
         
         const latRad = Math.asin(THREE.MathUtils.clamp(forward.y, -0.999, 0.999));
-        const lonRad = Math.atan2(forward.z, -forward.x);
+        const lonRad = Math.atan2(forward.z, forward.x);
         
         const currentLon = THREE.MathUtils.radToDeg(lonRad);
         const currentLat = THREE.MathUtils.radToDeg(latRad);
@@ -1333,7 +1338,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const theta = THREE.MathUtils.degToRad(currentLon);
 
         const target = new THREE.Vector3();
-        target.x = -500 * Math.sin(phi) * Math.cos(theta);
+        target.x = 500 * Math.sin(phi) * Math.cos(theta);
         target.y = 500 * Math.cos(phi);
         target.z = 500 * Math.sin(phi) * Math.sin(theta);
 
@@ -1359,9 +1364,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           const hsTheta = THREE.MathUtils.degToRad(hs.yaw);
           
           const hsVector = new THREE.Vector3();
-          // Use mirrored x to match the camera lookAt target and the inverted sphere coordinate system.
+          // Use positive x to match camera lookAt target coordinate system.
           // This keeps hotspots and directions perfectly stuck to the surface when the camera rotates.
-          hsVector.x = -500 * Math.sin(hsPhi) * Math.cos(hsTheta);
+          hsVector.x = 500 * Math.sin(hsPhi) * Math.cos(hsTheta);
           hsVector.y = 500 * Math.cos(hsPhi);
           hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
 
