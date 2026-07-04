@@ -208,6 +208,29 @@ const createFallbackPanoTexture = (): THREE.CanvasTexture => {
   return texture;
 };
 
+const sanitizeForFirestore = <T,>(val: T): T => {
+  if (val === undefined) {
+    return null as any;
+  }
+  if (val === null) {
+    return null as any;
+  }
+  if (Array.isArray(val)) {
+    return val.map(sanitizeForFirestore) as any;
+  }
+  if (typeof val === 'object') {
+    const res: any = {};
+    for (const key of Object.keys(val as any)) {
+      const v = (val as any)[key];
+      if (v !== undefined) {
+        res[key] = sanitizeForFirestore(v);
+      }
+    }
+    return res;
+  }
+  return val;
+};
+
 // Realistic Glassmorphic Pointed Hand UI representing tutorial movement
 interface GlassyHandProps {
   x: number;
@@ -457,7 +480,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
         // Save migrated configuration back to firestore silently if changed
         if (mutated) {
-          setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: loadedScenes }).catch(e => {
+          setDoc(doc(db, 'settings', 'virtual_tour_360'), sanitizeForFirestore({ scenes: loadedScenes })).catch(e => {
             console.warn('Silently failed to save auto-migrated 360 scene config:', e);
           });
         }
@@ -480,7 +503,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         
         // Auto-save defaults if admin
         if (isAdmin) {
-          await setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: DEFAULT_SCENES });
+          await setDoc(doc(db, 'settings', 'virtual_tour_360'), sanitizeForFirestore({ scenes: DEFAULT_SCENES }));
         }
       }
     } catch (err) {
@@ -559,7 +582,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const saveScenesConfig = async (updatedScenes: Scene[]) => {
     try {
       setSceneLoading(true);
-      await setDoc(doc(db, 'settings', 'virtual_tour_360'), { scenes: updatedScenes });
+      await setDoc(doc(db, 'settings', 'virtual_tour_360'), sanitizeForFirestore({ scenes: updatedScenes }));
       setScenes(updatedScenes);
       // Refresh current scene representation
       if (currentScene) {
