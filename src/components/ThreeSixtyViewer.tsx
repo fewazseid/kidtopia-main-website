@@ -239,7 +239,7 @@ interface GlassyHandProps {
   step?: 'horizontal' | 'vertical' | 'teleport';
 }
 
-const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing, step = 'horizontal' }) => {
+const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, step = 'horizontal' }) => {
   return (
     <div 
       className="absolute pointer-events-none transition-transform duration-150 ease-out z-[999] select-none flex flex-col items-center"
@@ -250,128 +250,38 @@ const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing, step = 'horizon
       }}
     >
       {/* Absolute center layout glow */}
-      <div className="absolute top-[40px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 bg-brand-orange/20 dark:bg-brand-orange/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-brand-orange/30 dark:bg-brand-orange/20 rounded-full blur-2xl pointer-events-none" />
 
-      {/* Ripple/Pulse effect at the exact fingertip of our hand icon (offset-x: 12px, offset-y: 10px) */}
+      {/* Ripple/Pulse effect at the exact fingertip of 👆 */}
       <motion.div 
         animate={{ 
-          scale: [0.8, 2],
-          opacity: [0.6, 0]
+          scale: [0.8, 1.8],
+          opacity: [0.7, 0]
         }}
         transition={{ 
           repeat: Infinity, 
           duration: 1.5, 
           ease: "easeOut" 
         }}
-        className="absolute top-[24px] left-[calc(50%-12px)] -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-brand-orange/30 rounded-full border border-brand-orange/50 z-0" 
+        className="absolute top-[-4px] left-[0px] -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-brand-orange/40 rounded-full border border-brand-orange/60 z-0" 
       />
 
-      {/* Glassmorphic interactive container */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 10 }}
-        animate={{ opacity: 1, scale: pressing ? 0.96 : 1, y: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="relative bg-stone-900/80 dark:bg-stone-950/85 backdrop-blur-2xl border border-white/10 p-5 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] flex flex-col items-center gap-3"
+      {/* Sleek, premium 👆 hand pointing cursor with micro-animations */}
+      <motion.div
+        animate={step === 'horizontal' ? {
+          x: [-32, 32, -32],
+          rotate: [-12, 12, -12],
+        } : {
+          y: [-24, 24, -24],
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 2.0,
+          ease: "easeInOut"
+        }}
+        className="relative text-5xl sm:text-6xl drop-shadow-[0_12px_24px_rgba(0,0,0,0.5)] select-none pointer-events-none"
       >
-        {/* Sleek, premium custom hand pointing cursor with micro-rotations */}
-        <motion.div
-          animate={step === 'horizontal' ? {
-            x: [-24, 24, -24],
-            rotate: [-10, 10, -10],
-          } : {
-            y: [-16, 16, -16],
-            rotate: [0, 0, 0],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 2.2,
-            ease: "easeInOut"
-          }}
-          className="relative text-brand-orange drop-shadow-[0_8px_16px_rgba(249,115,22,0.4)] flex items-center justify-center"
-        >
-          {/* Decorative floating swipe helper path */}
-          {step === 'horizontal' && (
-            <div className="absolute -top-4 w-20 flex justify-between items-center text-white/40 text-[9px] font-bold tracking-widest font-mono select-none">
-              <span>←</span>
-              <span className="text-[7px] text-white/30 uppercase">Swipe</span>
-              <span>→</span>
-            </div>
-          )}
-          {step === 'vertical' && (
-            <div className="absolute -left-6 h-16 flex flex-col justify-between items-center text-white/40 text-[9px] font-bold tracking-widest font-mono select-none">
-              <span>↑</span>
-              <span className="text-[7px] text-white/30 uppercase rotate-90 my-1">Tilt</span>
-              <span>↓</span>
-            </div>
-          )}
-
-          <svg 
-            width="60" 
-            height="60" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* Soft inner glow gradient of our premium pointing hand */}
-            <path 
-              d="M10 11V3a1.5 1.5 0 0 1 3 0v8M13 11v-3.5a1.5 1.5 0 0 1 3 0v3.5M16 11V9a1.5 1.5 0 0 1 3 0v2M19 11v-1a1.5 1.5 0 0 1 3 0v5a7 7 0 0 1-7 7h-1a7 7 0 0 1-7-7v-3a1.5 1.5 0 0 1 3 0v2M7 11.5a2.5 2.5 0 0 0-2.5 2.5v1.5a3 3 0 0 0 3 3h2.5" 
-              fill="rgba(249, 115, 22, 0.2)"
-              className="text-brand-orange"
-            />
-          </svg>
-        </motion.div>
-
-        {/* Dynamic Instructional Arrow Badges */}
-        <div className="flex flex-col items-center text-center">
-          {step === 'horizontal' ? (
-            <div className="flex items-center gap-1.5 text-stone-200">
-              <motion.span 
-                animate={{ x: [-2, 2, -2] }} 
-                transition={{ repeat: Infinity, duration: 1.2 }}
-                className="text-xs font-black text-brand-orange"
-              >
-                ←
-              </motion.span>
-              <span className="text-[10px] font-sans font-bold tracking-wide text-stone-100">
-                Drag to Look Around
-              </span>
-              <motion.span 
-                animate={{ x: [2, -2, 2] }} 
-                transition={{ repeat: Infinity, duration: 1.2 }}
-                className="text-xs font-black text-brand-orange"
-              >
-                →
-              </motion.span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 text-stone-200">
-              <motion.span 
-                animate={{ y: [-2, 2, -2] }} 
-                transition={{ repeat: Infinity, duration: 1.2 }}
-                className="text-xs font-black text-brand-orange"
-              >
-                ↑
-              </motion.span>
-              <span className="text-[10px] font-sans font-bold tracking-wide text-stone-100">
-                Drag Up/Down to Tilt
-              </span>
-              <motion.span 
-                animate={{ y: [2, -2, 2] }} 
-                transition={{ repeat: Infinity, duration: 1.2 }}
-                className="text-xs font-black text-brand-orange"
-              >
-                ↓
-              </motion.span>
-            </div>
-          )}
-          
-          <span className="text-[8px] text-stone-400 font-medium tracking-wider uppercase mt-1.5 opacity-80">
-            Tap anywhere to explore
-          </span>
-        </div>
+        👆
       </motion.div>
     </div>
   );
@@ -1424,25 +1334,23 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
         // Slerp the current gyro orientations for butter-smooth, real-time 1:1 response (0.75 factor removes jitter with zero lag)
         currentGyroQRef.current.slerp(rawGyroQRef.current, 0.75);
-        currentOppositeGyroQRef.current.slerp(rawOppositeGyroQRef.current, 0.75);
         
         // Camera orientation is the offsetted sensor rotation (keeps the background panorama standard)
         camera.quaternion.copy(gyroOffsetQRef.current).multiply(currentGyroQRef.current);
         
-        // Extract lookAt direction from the opposite camera's actual rotation matrix to sync compass and directions oppositely
-        const oppositeCameraQ = new THREE.Quaternion().copy(gyroOffsetOppositeQRef.current).multiply(currentOppositeGyroQRef.current);
-        const forwardOpposite = new THREE.Vector3(0, 0, -1).applyQuaternion(oppositeCameraQ);
+        // Extract lookAt direction from the actual camera to keep compass and visual direction locked to their place
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
         
-        const latRadOpposite = Math.asin(THREE.MathUtils.clamp(forwardOpposite.y, -0.999, 0.999));
-        const lonRadOpposite = Math.atan2(forwardOpposite.z, forwardOpposite.x);
+        const latRad = Math.asin(THREE.MathUtils.clamp(forward.y, -0.999, 0.999));
+        const lonRad = Math.atan2(forward.z, forward.x);
         
-        const currentLonOpposite = THREE.MathUtils.radToDeg(lonRadOpposite);
-        const currentLatOpposite = THREE.MathUtils.radToDeg(latRadOpposite);
+        const currentLon = THREE.MathUtils.radToDeg(lonRad);
+        const currentLat = THREE.MathUtils.radToDeg(latRad);
         
-        cameraLonRef.current = currentLonOpposite;
-        cameraLatRef.current = currentLatOpposite;
-        targetLonRef.current = currentLonOpposite;
-        targetLatRef.current = currentLatOpposite;
+        cameraLonRef.current = currentLon;
+        cameraLatRef.current = currentLat;
+        targetLonRef.current = currentLon;
+        targetLatRef.current = currentLat;
       } else {
         // Butter-smooth lerp towards target orientation
         cameraLonRef.current += (targetLonRef.current - cameraLonRef.current) * lerpFactor;
@@ -1477,15 +1385,18 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const currentWidth = mountRef.current.clientWidth;
         const currentHeight = mountRef.current.clientHeight;
 
-        // Determine which camera/quaternion to use for projecting hotspots (opposite direction for gyroscope)
-        const projCamera = camera.clone();
-        if (useGyroscopeRef.current && hasReceivedFirstGyroReadingRef.current) {
-          projCamera.quaternion.copy(gyroOffsetOppositeQRef.current).multiply(currentOppositeGyroQRef.current);
-        }
+        // Save original camera orientation
+        const originalQ = camera.quaternion.clone();
+        let projRoll = cameraRollRef.current;
 
-        // Extract roll from projection camera
-        const projEuler = new THREE.Euler().setFromQuaternion(projCamera.quaternion, 'YXZ');
-        const projRoll = projEuler.z;
+        if (useGyroscopeRef.current && hasReceivedFirstGyroReadingRef.current) {
+          // Decompose actual camera orientation into Euler angles
+          const cameraEuler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+          // Invert ONLY the roll (Z axis) for opposite steering wheel motion
+          const oppositeEuler = new THREE.Euler(cameraEuler.x, cameraEuler.y, -cameraEuler.z, 'YXZ');
+          camera.quaternion.setFromEuler(oppositeEuler);
+          projRoll = -cameraEuler.z;
+        }
 
         const projections = activeScene.hotspots.map(hs => {
           // Convert hotspot's pitch/yaw back to 3D point in the sphere coordinates
@@ -1499,13 +1410,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           hsVector.y = 500 * Math.cos(hsPhi);
           hsVector.z = 500 * Math.sin(hsPhi) * Math.sin(hsTheta);
 
-          // Project point using the actual or opposite projection camera
+          // Project point using the camera (which has the opposite roll applied if gyro is active)
           const vector = hsVector.clone();
-          vector.project(projCamera);
+          vector.project(camera);
 
-          // Check if point is in front of the actual projection camera
+          // Check if point is in front of the projection camera
           const cameraDirection = new THREE.Vector3();
-          projCamera.getWorldDirection(cameraDirection);
+          camera.getWorldDirection(cameraDirection);
           const isBehind = hsVector.dot(cameraDirection) < 0;
 
           const screenX = (vector.x * 0.5 + 0.5) * currentWidth;
@@ -1519,6 +1430,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             visible: !isBehind && screenX >= 0 && screenX <= currentWidth && screenY >= 0 && screenY <= currentHeight
           };
         });
+
+        // Restore original camera orientation
+        camera.quaternion.copy(originalQ);
 
         // Set state safely
         setProjectedHotspots(projections);
