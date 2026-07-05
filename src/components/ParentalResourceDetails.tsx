@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Book, FileText, CheckCircle2, Download, Upload, AlertCircle, 
   Trash2, ShieldAlert, Award, Compass, RotateCw, Smile, 
-  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart
+  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart, CheckSquare
 } from 'lucide-react';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
@@ -375,6 +375,48 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
   // ==========================================
   // 5. AUGMENTED REALITY SIMULATOR
   // ==========================================
+  // ==========================================
+  // 6. DEVELOPMENT MILESTONES TRACKER
+  // ==========================================
+  const [milestoneAge, setMilestoneAge] = useState<'toddler' | 'preschool' | 'kinder'>('toddler');
+  const [checkedMilestones, setCheckedMilestones] = useState<string[]>([]);
+
+  const milestonesData = {
+    toddler: {
+      title: lang === 'en' ? 'Toddlers (12 - 24 Months)' : 'ታዳጊዎች (ከ12 - 24 ወራት)',
+      items: [
+        { id: 't1', text: lang === 'en' ? 'Walks independently and starts to run' : 'በራሱ ይራመዳል እና መሮጥ ይጀምራል' },
+        { id: 't2', text: lang === 'en' ? 'Says several single words and simple 2-word phrases' : 'በርካታ ነጠላ ቃላትን እና ቀላል ባለ 2-ቃል ሀረጎችን ይናገራል' },
+        { id: 't3', text: lang === 'en' ? 'Points to objects or pictures when they are named' : 'ዕቃዎች ወይም ስዕሎች ሲጠሩ ይጠቁማል' },
+        { id: 't4', text: lang === 'en' ? 'Begins to sort shapes and colors' : 'ቅርጾችን እና ቀለሞችን መለየት ይጀምራል' },
+        { id: 't5', text: lang === 'en' ? 'Plays simple pretend games (e.g., feeding a doll)' : 'ቀላል የማስመስል ጨዋታዎችን ይጫወታል (ለምሳሌ አሻንጉሊት መመገብ)' },
+        { id: 't6', text: lang === 'en' ? 'Follows simple one-step verbal instructions' : 'ቀላል የአንድ-ደረጃ የቃል መመሪያዎችን ይከተላል' }
+      ]
+    },
+    preschool: {
+      title: lang === 'en' ? 'Preschoolers (2 - 4 Years)' : 'ቅድመ ትምህርት ቤት (ከ2 - 4 ዓመታት)',
+      items: [
+        { id: 'p1', text: lang === 'en' ? 'Climbs well and runs easily' : 'በጥሩ ሁኔታ ይወጣል እና በቀላሉ ይሮጣል' },
+        { id: 'p2', text: lang === 'en' ? 'Speaks in sentences of 3-4 words' : 'ከ3-4 ቃላት ባሉት ዓረፍተ ነገሮች ይናገራል' },
+        { id: 'p3', text: lang === 'en' ? 'Can work toys with buttons, levers, and moving parts' : 'አዝራሮች፣ ማንሻዎች እና ተንቀሳቃሽ ክፍሎች ያሏቸውን መጫወቻዎች ማንቀሳቀስ ይችላል' },
+        { id: 'p4', text: lang === 'en' ? 'Copies a circle with crayon or pencil' : 'በቀለም እርሳስ ወይም እርሳስ ክብ መቅዳት ይችላል' },
+        { id: 'p5', text: lang === 'en' ? 'Shows affection for friends and expresses wide range of emotions' : 'ለጓደኞቹ ፍቅር ያሳያል እና ሰፊ ስሜቶችን ይገልጻል' },
+        { id: 'p6', text: lang === 'en' ? 'Takes turns in games and understands "mine" and "theirs"' : 'በጨዋታዎች ውስጥ ተራ ይይዛል እና "የእኔ" እና "የእነሱ" የሚለውን ይረዳል' }
+      ]
+    },
+    kinder: {
+      title: lang === 'en' ? 'Kindergarten (4 - 5 Years)' : 'ኪንደርጋርተን (ከ4 - 5 ዓመታት)',
+      items: [
+        { id: 'k1', text: lang === 'en' ? 'Speaks very clearly and tells simple stories' : 'በጣም ግልጽ በሆነ ሁኔታ ይናገራል እና ቀላል ታሪኮችን ይነግራል' },
+        { id: 'k2', text: lang === 'en' ? 'Can count 10 or more objects' : '10 ወይም ከዚያ በላይ እቃዎችን መቁጠር ይችላል' },
+        { id: 'k3', text: lang === 'en' ? 'Draws a person with at least 6 body parts' : 'ቢያንስ 6 የሰውነት ክፍሎች ያሉት ሰው ይስላል' },
+        { id: 'k4', text: lang === 'en' ? 'Writes some letters or numbers, and copies triangle' : 'አንዳንድ ፊደላትን ወይም ቁጥሮችን ይጽፋል፣ እና ሶስት ማዕዘን ይገለብጣል' },
+        { id: 'k5', text: lang === 'en' ? 'Stands on one foot for 10 seconds or longer' : 'በአንድ እግሩ ለ10 ሰከንድ ወይም ከዚያ በላይ ይቆማል' },
+        { id: 'k6', text: lang === 'en' ? 'Understands the difference between real and make-believe' : 'በእውነተኛ እና በማስመስል መካከል ያለውን ልዩነት ይረዳል' }
+      ]
+    }
+  };
+
   const [arTheme, setArTheme] = useState<'animals' | 'alphabet' | 'space'>('animals');
   const [selectedArItem, setSelectedArItem] = useState(0);
   const [arRotation, setArRotation] = useState(180); // Exact degrees
@@ -496,6 +538,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
               {actionType === 'nutrition' && <Heart size={20} />}
               {actionType === 'ar_activities' && <Compass size={20} />}
               {actionType === 'avatar' && <Smile size={20} />}
+              {actionType === 'milestones' && <CheckSquare size={20} />}
             </div>
             <div>
               <h2 className="text-xl font-editorial font-bold text-stone-900 capitalize">
@@ -504,6 +547,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                 {actionType === 'nutrition' && (lang === 'en' ? 'Weekly Meal Planner' : 'ምግብ ዕቅድ')}
                 {actionType === 'ar_activities' && (lang === 'en' ? 'Interactive AR Activities' : 'ኤአር ትምህርታዊ ጨዋታ')}
                 {actionType === 'avatar' && (lang === 'en' ? 'Create Your Avatar' : 'አቫታር መፍጠሪያ')}
+                {actionType === 'milestones' && (lang === 'en' ? 'Development Milestones Tracker' : 'የልጅ እድገት ደረጃዎች መከታተያ')}
               </h2>
               <p className="text-xs text-stone-500">Kidtopia Parent Portal</p>
             </div>
@@ -1169,6 +1213,138 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                   </button>
                 </div>
 
+              </div>
+            </div>
+          )}
+
+          {/* 6. DEVELOPMENT MILESTONES TRACKER */}
+          {actionType === 'milestones' && (
+            <div className="max-w-4xl mx-auto h-full flex flex-col justify-between">
+              <div>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-stone-100 pb-5">
+                  <div>
+                    <h3 className="text-xl font-editorial font-bold text-stone-900">
+                      {lang === 'en' ? 'Interactive Milestones & Cognitive Growth Checklist' : 'በይነተገናኝ የእድገት ደረጃዎች መከታተያ'}
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-1">
+                      {lang === 'en' 
+                        ? 'Select your child’s age range below to track age-appropriate developmental benchmarks.' 
+                        : 'የልጅዎን የዕድሜ ክልል በመምረጥ የእድገት መመዘኛዎችን እዚህ ይከታተሉ።'}
+                    </p>
+                  </div>
+                  
+                  {/* Category select buttons */}
+                  <div className="flex bg-stone-100 p-1 rounded-xl shrink-0">
+                    {(['toddler', 'preschool', 'kinder'] as const).map((ageKey) => (
+                      <button
+                        key={ageKey}
+                        onClick={() => setMilestoneAge(ageKey)}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all capitalize ${
+                          milestoneAge === ageKey
+                            ? 'bg-white text-brand-green shadow-sm'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        {ageKey === 'toddler' ? (lang === 'en' ? 'Toddler' : 'ታዳጊ') : ageKey === 'preschool' ? (lang === 'en' ? 'Preschool' : 'ቅድመ ትምህርት') : (lang === 'en' ? 'Kindergarten' : 'ኪንደርጋርተን')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                {(() => {
+                  const currentCategoryItems = milestonesData[milestoneAge].items;
+                  const checkedInCat = currentCategoryItems.filter(item => checkedMilestones.includes(item.id)).length;
+                  const totalInCat = currentCategoryItems.length;
+                  const percent = totalInCat > 0 ? Math.round((checkedInCat / totalInCat) * 100) : 0;
+                  
+                  return (
+                    <div className="mb-8 p-5 bg-brand-green/5 border border-brand-green/10 rounded-2.5xl">
+                      <div className="flex justify-between items-center mb-2.5">
+                        <span className="text-xs font-black uppercase tracking-wider text-brand-green">
+                          {milestonesData[milestoneAge].title}
+                        </span>
+                        <span className="text-sm font-mono font-bold text-brand-green">{percent}% Completed</span>
+                      </div>
+                      
+                      {/* Bar */}
+                      <div className="w-full bg-stone-200 h-2.5 rounded-full overflow-hidden shadow-inner">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percent}%` }}
+                          transition={{ duration: 0.5, ease: 'easeOut' }}
+                          className="h-full bg-brand-green rounded-full shadow-[0_0_10px_rgba(58,91,50,0.3)]"
+                        />
+                      </div>
+
+                      <p className="text-xs text-stone-500 mt-2 font-medium">
+                        {percent === 100 
+                          ? (lang === 'en' ? 'Outstanding! All developmental milestones have been checked and tracked!' : 'ድንቅ ነው! ሁሉም የእድገት ደረጃዎች ምልክት ተደርገውባቸዋል!') 
+                          : percent >= 50
+                          ? (lang === 'en' ? 'Great progress! Your child is growing and achieving crucial developmental leaps.' : 'ጥሩ እድገት ነው! ልጅዎ ወሳኝ የሆኑ የእድገት ደረጃዎችን እያሳካ ነው።')
+                          : (lang === 'en' ? 'Check off milestones as your child demonstrates these social, cognitive, and physical skills.' : 'ልጅዎ ማህበራዊ፣ የእውቀት እና የአካል ክህሎቶችን ሲያሳይ ምልክት ያድርጉባቸው።')
+                        }
+                      </p>
+                    </div>
+                  );
+                })()}
+
+                {/* Checklist Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                  {milestonesData[milestoneAge].items.map((item) => {
+                    const isChecked = checkedMilestones.includes(item.id);
+                    return (
+                      <div 
+                        key={item.id}
+                        onClick={() => {
+                          setCheckedMilestones(prev => 
+                            isChecked ? prev.filter(id => id !== item.id) : [...prev, item.id]
+                          );
+                          if (!isChecked) {
+                            // Play audio guidance safely
+                            const utterance = new SpeechSynthesisUtterance(lang === 'en' ? 'Awesome!' : 'ድንቅ!');
+                            utterance.rate = 1.2;
+                            window.speechSynthesis?.speak(utterance);
+                          }
+                        }}
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 select-none ${
+                          isChecked 
+                            ? 'bg-brand-green/10 border-brand-green/40 shadow-sm' 
+                            : 'border-stone-150 hover:border-stone-200 bg-white hover:bg-stone-50/40'
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center mt-0.5 transition-all ${
+                          isChecked ? 'bg-brand-green border-brand-green text-white' : 'border-stone-300'
+                        }`}>
+                          {isChecked && <CheckSquare size={14} className="stroke-[3]" />}
+                        </div>
+                        <div>
+                          <p className={`text-sm font-semibold transition-colors leading-relaxed ${
+                            isChecked ? 'text-stone-900' : 'text-stone-700'
+                          }`}>
+                            {item.text}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* PDF Print/Share */}
+              <div className="mt-8 pt-6 border-t border-stone-100 flex justify-between items-center bg-stone-50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 px-6 md:px-8 py-5">
+                <p className="text-xs text-stone-500 font-medium">
+                  {lang === 'en' 
+                    ? 'Disclaimer: This checklist is for informational purposes only. Consult with your pediatrician for health assessments.' 
+                    : 'ማስገንዘቢያ፡ ይህ የመከታተያ ዝርዝር ለመረጃ አገልግሎት ብቻ የተዘጋጀ ነው። ለጤና ግምገማዎች እባክዎን የልጆች ሐኪም ያማክሩ።'}
+                </p>
+                <button
+                  onClick={() => window.print()}
+                  className="px-4.5 py-2.5 bg-brand-green text-white rounded-xl text-xs font-black shadow-md hover:bg-brand-green/95 transition flex items-center gap-2"
+                >
+                  <Printer size={14} />
+                  <span>{lang === 'en' ? 'Print Report' : 'ሪፖርት አትም'}</span>
+                </button>
               </div>
             </div>
           )}

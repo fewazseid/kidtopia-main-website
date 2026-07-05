@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
-import { BookOpen, Download, FileText, Video, GraduationCap } from 'lucide-react';
+import { BookOpen, Download, FileText, Sparkles, GraduationCap, User, CheckSquare } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 import { ParentalResourceDetails } from './ParentalResourceDetails';
 
@@ -17,8 +17,10 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
   const icons = [
     <BookOpen className="w-6 h-6 text-brand-teal" />,
     <FileText className="w-6 h-6 text-brand-orange" />,
-    <Video className="w-6 h-6 text-brand-yellow" />,
-    <Download className="w-6 h-6 text-brand-green" />
+    <Sparkles className="w-6 h-6 text-brand-yellow" />,
+    <Download className="w-6 h-6 text-brand-green" />,
+    <User className="w-6 h-6 text-brand-teal" />,
+    <CheckSquare className="w-6 h-6 text-brand-orange" />
   ];
 
   return (
@@ -64,7 +66,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
         </div>
 
         {/* Resources Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {t.items.map((resource: any, idx: number) => (
             <motion.div 
               key={idx} 

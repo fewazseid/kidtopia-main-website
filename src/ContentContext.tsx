@@ -56,6 +56,54 @@ function deepMerge(target: any, source: any): any {
   return output;
 }
 
+// Highly intelligent Amharic merge to discard any un-localized English reference values in DB
+function deepMergeAmharic(target: any, source: any, referenceEn: any): any {
+  if (source === null || source === undefined) return target;
+
+  if (Array.isArray(source)) {
+    const cleaned = source.filter(item => item !== null && item !== undefined);
+    if (cleaned.length === 0) return target;
+
+    if (Array.isArray(target)) {
+      return cleaned.map((item, idx) => {
+        const refItem = Array.isArray(referenceEn) ? referenceEn[idx] || referenceEn[0] : undefined;
+        if (item && typeof item === 'object') {
+          const defaultTarget = target[idx] || target[0] || {};
+          return deepMergeAmharic(defaultTarget, item, refItem);
+        }
+        if (typeof item === 'string' && typeof refItem === 'string' && item.trim().toLowerCase() === refItem.trim().toLowerCase()) {
+          return target[idx] || item;
+        }
+        return item;
+      });
+    }
+    return cleaned;
+  }
+
+  if (typeof source !== 'object') {
+    if ((source === "" || source === null || source === undefined) && target) {
+      return target;
+    }
+    if (typeof source === 'string' && typeof referenceEn === 'string' && source.trim().toLowerCase() === referenceEn.trim().toLowerCase()) {
+      return target;
+    }
+    return source;
+  }
+
+  const output = { ...target };
+  for (const key of Object.keys(source)) {
+    if (source[key] !== null && source[key] !== undefined) {
+      const refVal = referenceEn ? referenceEn[key] : undefined;
+      if (key in target) {
+        output[key] = deepMergeAmharic(target[key], source[key], refVal);
+      } else {
+        output[key] = source[key];
+      }
+    }
+  }
+  return output;
+}
+
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<any>(defaultTranslations);
   const [loading, setLoading] = useState(true);
@@ -89,7 +137,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (snapshot.exists()) {
         setContent((prev: any) => ({
           ...prev,
-          am: deepMerge(defaultTranslations.am, snapshot.data())
+          am: deepMergeAmharic(defaultTranslations.am, snapshot.data(), defaultTranslations.en)
         }));
       }
       amLoaded = true;

@@ -228,8 +228,10 @@ export const translations = {
       items: [
         { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
         { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
-        { title: "Educational Activities", description: "Fun and educational activities you can do with your child at home.", type: "Video Series", image: "", actionType: "ar_activities", link: "" },
-        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" }
+        { title: "AR Simulator Game", description: "Interactive Augmented Reality simulator for fun and creative learning.", type: "Interactive Game", image: "", actionType: "ar_activities", link: "" },
+        { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
+        { title: "Profile Avatar Creator", description: "Design a unique custom character avatar for you and your child's portal profile.", type: "Interactive Tool", image: "", actionType: "avatar", link: "" },
+        { title: "Development Milestones", description: "Track your child's age-appropriate developmental stages, cognitive and motor skills.", type: "Milestone Tracker", image: "", actionType: "milestones", link: "" }
       ]
     },
     leadCapture: {
@@ -506,8 +508,10 @@ export const translations = {
       items: [
         { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
         { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
-        { title: "ትምህርታዊ እንቅስቃሴዎች", description: "ከቤትዎ ከልጅዎ ጋር ሊያደርጓቸው የሚችሏቸው አስደሳች እና ትምህርታዊ እንቅስቃሴዎች።", type: "የቪዲዮ ተከታታይ", image: "", actionType: "ar_activities", link: "" },
-        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" }
+        { title: "ኤአር አስመሳይ ጨዋታ", description: "በይነተገናኝ የተጨመረው እውነታ (AR) አስመሳይ ለአስደሳች እና ፈጠራዊ ትምህርት።", type: "በይነተገናኝ ጨዋታ", image: "", actionType: "ar_activities", link: "" },
+        { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
+        { title: "የአቫታር መፍጠሪያ", description: "ለእርስዎ እና ለልጅዎ የሚሆን ልዩ መገለጫ አቫታር ይንደፉ።", type: "በይነተገናኝ መሣሪያ", image: "", actionType: "avatar", link: "" },
+        { title: "የልጅ እድገት ደረጃዎች", description: "የልጅዎን የእድገት ደረጃዎች፣ የዕውቀት እና የአካል ክህሎቶች ይከታተሉ።", type: "ደረጃ መከታተያ", image: "", actionType: "milestones", link: "" }
       ]
     },
     leadCapture: {

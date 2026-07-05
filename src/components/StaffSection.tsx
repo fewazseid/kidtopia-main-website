@@ -70,43 +70,40 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
 
         {/* Members Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 items-stretch">
-          <AnimatePresence mode="popLayout">
-            {displayedMembers.filter(Boolean).map((member: any, idx: number) => (
-              <motion.div
-                key={member.name + idx}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="group flex flex-col items-center text-center h-full"
-              >
-                {/* Visual Avatar frame with organic border background */}
-                <div className="relative w-full aspect-[4/5] rounded-[32px] overflow-hidden mb-6 shadow-lg bg-stone-100 border-4 border-white transition-all duration-500 group-hover:scale-[1.02] group-hover:shadow-xl">
-                  {member.image && (
-                    <img 
-                      src={member.image} 
-                      alt={member.name}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                      referrerPolicy="no-referrer"
-                    />
-                  )}
-                  {/* Glass overlay bio on hover */}
-                  <div className="absolute inset-0 bg-stone-950/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-400 flex flex-col justify-end p-6 text-left">
-                    <span className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-green flex items-center justify-center mb-3">
-                      <Heart size={16} className="fill-current" />
-                    </span>
-                    <p className="text-white text-sm font-medium leading-relaxed mb-1">{member.desc}</p>
-                    <span className="text-[10px] uppercase tracking-widest text-brand-yellow font-black">Bio Profile</span>
-                  </div>
+          {displayedMembers.filter(Boolean).map((member: any, idx: number) => (
+            <motion.div
+              key={member.name + idx}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              className="group flex flex-col items-center text-center h-full"
+            >
+              {/* Visual Avatar frame with organic border background */}
+              <div className="relative w-full aspect-[4/5] rounded-[32px] overflow-hidden mb-6 shadow-lg bg-stone-100 border-4 border-white transition-all duration-500 group-hover:scale-[1.02] group-hover:shadow-xl">
+                {member.image && (
+                  <img 
+                    src={member.image} 
+                    alt={member.name}
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                {/* Glass overlay bio on hover */}
+                <div className="absolute inset-0 bg-stone-950/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-400 flex flex-col justify-end p-6 text-left">
+                  <span className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-green flex items-center justify-center mb-3">
+                    <Heart size={16} className="fill-current" />
+                  </span>
+                  <p className="text-white text-sm font-medium leading-relaxed mb-1">{member.desc}</p>
+                  <span className="text-[10px] uppercase tracking-widest text-brand-yellow font-black">Bio Profile</span>
                 </div>
+              </div>
 
-                <div className="px-2">
-                  <h3 className="text-xl font-editorial font-bold text-stone-900 mb-1 tracking-tight group-hover:text-brand-green transition-colors duration-300">{member.name}</h3>
-                  <p className="text-brand-green font-black text-[11px] uppercase tracking-wider font-accent">{member.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              <div className="px-2">
+                <h3 className="text-xl font-editorial font-bold text-stone-900 mb-1 tracking-tight group-hover:text-brand-green transition-colors duration-300">{member.name}</h3>
+                <p className="text-brand-green font-black text-[11px] uppercase tracking-wider font-accent">{member.role}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
         {t.members.length > limit && (
