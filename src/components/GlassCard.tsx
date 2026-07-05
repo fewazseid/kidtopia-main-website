@@ -8,6 +8,7 @@ interface GlassCardProps {
   id?: string;
   delay?: number;
   layout?: boolean | 'x' | 'y' | 'size' | 'position';
+  animateOnLoad?: boolean;
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -17,6 +18,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   id,
   delay = 0,
   layout,
+  animateOnLoad = true,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -118,10 +120,10 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onClick={onClick}
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+        initial={animateOnLoad ? { opacity: 0, y: 30 } : undefined}
+        whileInView={animateOnLoad ? { opacity: 1, y: 0 } : undefined}
+        viewport={animateOnLoad ? { once: true, margin: '-60px' } : undefined}
+        transition={animateOnLoad ? { duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] } : undefined}
         style={{
           rotateX,
           rotateY,

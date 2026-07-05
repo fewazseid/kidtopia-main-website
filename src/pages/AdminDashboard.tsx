@@ -39,7 +39,7 @@ export const AdminDashboard: React.FC = () => {
   const [activeLang, setActiveLang] = useState<'en' | 'am'>('en');
   const [activeSection, setActiveSection] = useState('hero');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ message: string, onConfirm: () => void } | null>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
@@ -500,12 +500,153 @@ export const AdminDashboard: React.FC = () => {
     return obj;
   };
 
+  const [translatingFields, setTranslatingFields] = useState<Record<string, boolean>>({});
+
+  const translateTextOnServer = async (text: string, source: 'en' | 'am', target: 'en' | 'am') => {
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, sourceLang: source, targetLang: target })
+      });
+      const data = await response.json();
+      if (data.success && data.translatedText) {
+        return data.translatedText;
+      }
+    } catch (e) {
+      console.error('API Translation failed', e);
+    }
+    return '';
+  };
+
+  const getOtherLangValue = (path: string[]) => {
+    const otherLang = activeLang === 'en' ? 'am' : 'en';
+    if (!content || !content[otherLang]) return '';
+    let current = content[otherLang];
+    for (const segment of path) {
+      if (current === null || current === undefined) return '';
+      current = current[segment];
+    }
+    return typeof current === 'string' ? current : '';
+  };
+
+  const handleInlineTranslate = async (path: string[]) => {
+    const otherVal = getOtherLangValue(path);
+    if (!otherVal) return;
+    
+    const pathKey = path.join('.');
+    setTranslatingFields(prev => ({ ...prev, [pathKey]: true }));
+    try {
+      const otherLang = activeLang === 'en' ? 'am' : 'en';
+      const translated = await translateTextOnServer(otherVal, otherLang, activeLang);
+      if (translated) {
+        handleChange(path, translated);
+      } else {
+        alert('Translation failed. Please check your network connection.');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTranslatingFields(prev => ({ ...prev, [pathKey]: false }));
+    }
+  };
+
+  interface TranslationJob {
+    path: string[];
+    sourceText: string;
+    sourceLang: 'en' | 'am';
+    targetLang: 'en' | 'am';
+  }
+
+  const findTranslationJobs = (enVal: any, amVal: any, currentPath: string[], jobs: TranslationJob[]) => {
+    if (enVal === null || enVal === undefined || amVal === null || amVal === undefined) return;
+
+    if (typeof enVal === 'string' && typeof amVal === 'string') {
+      const trimmedEn = enVal.trim();
+      const trimmedAm = amVal.trim();
+      
+      if (trimmedEn !== '' && trimmedAm === '') {
+        jobs.push({
+          path: currentPath,
+          sourceText: trimmedEn,
+          sourceLang: 'en',
+          targetLang: 'am'
+        });
+      } else if (trimmedAm !== '' && trimmedEn === '') {
+        jobs.push({
+          path: currentPath,
+          sourceText: trimmedAm,
+          sourceLang: 'am',
+          targetLang: 'en'
+        });
+      }
+      return;
+    }
+
+    if (Array.isArray(enVal) && Array.isArray(amVal)) {
+      const len = Math.min(enVal.length, amVal.length);
+      for (let i = 0; i < len; i++) {
+        findTranslationJobs(enVal[i], amVal[i], [...currentPath, i.toString()], jobs);
+      }
+      return;
+    }
+
+    if (typeof enVal === 'object' && typeof amVal === 'object') {
+      for (const key of Object.keys(enVal)) {
+        if (key in amVal) {
+          findTranslationJobs(enVal[key], amVal[key], [...currentPath, key], jobs);
+        }
+      }
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
+    setFeedback({ type: 'info', message: 'Checking for empty fields to auto-translate...' });
     try {
-      await setDoc(doc(db, 'content', 'en'), content.en);
-      await setDoc(doc(db, 'content', 'am'), content.am);
-      setFeedback({ type: 'success', message: 'Content saved successfully for both languages!' });
+      const enDataCopy = JSON.parse(JSON.stringify(content.en));
+      const amDataCopy = JSON.parse(JSON.stringify(content.am));
+      const jobs: TranslationJob[] = [];
+      
+      findTranslationJobs(enDataCopy, amDataCopy, [], jobs);
+      
+      if (jobs.length > 0) {
+        setFeedback({ 
+          type: 'info', 
+          message: `Auto-translating ${jobs.length} empty counterparts using Gemini AI (please wait)...` 
+        });
+        
+        // Let's run all translation jobs
+        const results = await Promise.all(
+          jobs.map(async (job) => {
+            const translated = await translateTextOnServer(job.sourceText, job.sourceLang, job.targetLang);
+            return { job, translated };
+          })
+        );
+        
+        // Write translations back to our data copies
+        results.forEach(({ job, translated }) => {
+          if (translated) {
+            let current = job.targetLang === 'en' ? enDataCopy : amDataCopy;
+            for (let i = 0; i < job.path.length - 1; i++) {
+              current = current[job.path[i]];
+            }
+            current[job.path[job.path.length - 1]] = translated;
+          }
+        });
+
+        // Set state so UI updates
+        setContent({ en: enDataCopy, am: amDataCopy });
+      }
+
+      await setDoc(doc(db, 'content', 'en'), enDataCopy);
+      await setDoc(doc(db, 'content', 'am'), amDataCopy);
+      setFeedback({ 
+        type: 'success', 
+        message: jobs.length > 0 
+          ? `Content saved successfully! Automatically translated ${jobs.length} empty fields using Gemini AI.` 
+          : 'Content saved successfully for both languages!' 
+      });
     } catch (err) {
       console.error('Failed to save content', err);
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Unknown error' });
@@ -997,9 +1138,31 @@ export const AdminDashboard: React.FC = () => {
       if (isAnnouncementText) {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              {key}
-            </label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-sm font-medium text-stone-700 capitalize">
+                {key}
+              </label>
+              {getOtherLangValue(path) && (
+                <button
+                  type="button"
+                  onClick={() => handleInlineTranslate(path)}
+                  disabled={translatingFields[path.join('.')]}
+                  className="text-xs text-brand-green hover:text-brand-orange hover:scale-102 transition-all flex items-center gap-1 cursor-pointer font-bold disabled:opacity-50"
+                  title="Auto-translate this field from the other language using Gemini AI"
+                >
+                  {translatingFields[path.join('.')] ? (
+                    <>
+                      <span className="w-2.5 h-2.5 border-2 border-brand-green border-t-transparent rounded-full animate-spin"></span>
+                      <span>Translating...</span>
+                    </>
+                  ) : (
+                    <>
+                      ✨ Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
             <textarea
               value={value}
               onChange={(e) => handleChange(path, e.target.value)}
@@ -1091,9 +1254,31 @@ export const AdminDashboard: React.FC = () => {
               <span>Learn More Section Content</span>
             </div>
           )}
-          <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-            {isEmailBody ? 'Email Content (Line breaks are preserved)' : key.replace(/([A-Z])/g, ' $1').trim()}
-          </label>
+          <div className="flex justify-between items-center mb-1.5">
+            <label className="block text-sm font-medium text-stone-700 capitalize">
+              {isEmailBody ? 'Email Content (Line breaks are preserved)' : key.replace(/([A-Z])/g, ' $1').trim()}
+            </label>
+            {getOtherLangValue(path) && (
+              <button
+                type="button"
+                onClick={() => handleInlineTranslate(path)}
+                disabled={translatingFields[path.join('.')]}
+                className="text-xs text-brand-green hover:text-brand-orange hover:scale-102 transition-all flex items-center gap-1 cursor-pointer font-bold disabled:opacity-50"
+                title="Auto-translate this field from the other language using Gemini AI"
+              >
+                {translatingFields[path.join('.')] ? (
+                  <>
+                    <span className="w-2.5 h-2.5 border-2 border-brand-green border-t-transparent rounded-full animate-spin"></span>
+                    <span>Translating...</span>
+                  </>
+                ) : (
+                  <>
+                    ✨ Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
+                  </>
+                )}
+              </button>
+            )}
+          </div>
           {key === 'actionType' ? (
             <select
               value={value}
@@ -1883,10 +2068,16 @@ export const AdminDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full shadow-lg text-white font-medium flex items-center gap-2 ${
-              feedback.type === 'success' ? 'bg-brand-green' : 'bg-red-500'
+              feedback.type === 'success' ? 'bg-brand-green' : feedback.type === 'info' ? 'bg-blue-600 animate-pulse' : 'bg-red-500'
             }`}
           >
-            {feedback.type === 'success' ? <Shield size={18} /> : <X size={18} />}
+            {feedback.type === 'success' ? (
+              <Shield size={18} />
+            ) : feedback.type === 'info' ? (
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            ) : (
+              <X size={18} />
+            )}
             {feedback.message}
           </motion.div>
         )}

@@ -112,6 +112,45 @@ export function setupRoutes(app: Express) {
     }
   });
 
+  // Translation Route using Gemini API
+  app.post('/api/translate', async (req, res) => {
+    const { text, sourceLang, targetLang } = req.body;
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required for translation' });
+    }
+
+    try {
+      const { GoogleGenAI } = await import('@google/genai');
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        console.warn("GEMINI_API_KEY not configured. Skipping translate.");
+        return res.status(500).json({ error: 'Gemini API key is not configured on the server.' });
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
+        }
+      });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: `Translate the following text from ${sourceLang === 'en' ? 'English' : 'Amharic'} to ${targetLang === 'en' ? 'English' : 'Amharic'}. Provide ONLY the direct translation, nothing else, no quotes, no surrounding text:
+        
+        "${text}"`,
+      });
+
+      const translatedText = response.text?.trim() || '';
+      res.json({ success: true, translatedText });
+    } catch (err: any) {
+      console.error('Gemini translate error:', err);
+      res.status(500).json({ error: 'Failed to translate: ' + err.message });
+    }
+  });
+
   // Content Routes
   app.get('/api/ping', (req, res) => {
     res.json({ status: 'ok', message: 'API is reachable' });

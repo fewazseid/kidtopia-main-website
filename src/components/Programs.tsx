@@ -50,16 +50,13 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
         {/* Programs Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {t.cards.map((card: any, idx: number) => (
-            <motion.div 
+            <div 
               key={idx} 
               className="flex h-full"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
             >
               <GlassCard 
                 layout
+                animateOnLoad={false}
                 className="overflow-hidden flex flex-col group w-full h-full shadow-[0_15px_35px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_25px_50px_-20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300"
                 delay={0}
               >
@@ -131,7 +128,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
 
                 </div>
               </GlassCard>
-            </motion.div>
+            </div>
           ))}
         </div>
 
