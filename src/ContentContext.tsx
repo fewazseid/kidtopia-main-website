@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations as defaultTranslations, Language } from './translations';
 import { db } from './firebase';
 import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
+import { motion, AnimatePresence } from 'motion/react';
 
 type ContentContextType = {
   content: any;
@@ -14,6 +15,29 @@ const ContentContext = createContext<ContentContextType>({
   loading: true,
   refresh: async () => {},
 });
+
+// Robust deep merge to ensure partial edits in Firestore do not destroy nested translations structures
+function deepMerge(target: any, source: any): any {
+  if (!source) return target;
+  const output = { ...target };
+  for (const key of Object.keys(source)) {
+    if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      if (key in target) {
+        output[key] = deepMerge(target[key], source[key]);
+      } else {
+        output[key] = source[key];
+      }
+    } else {
+      // Guard against empty strings or falsy values from Firestore replacing valid translation values
+      if ((source[key] === "" || source[key] === null || source[key] === undefined) && target[key]) {
+        output[key] = target[key];
+      } else {
+        output[key] = source[key];
+      }
+    }
+  }
+  return output;
+}
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<any>(defaultTranslations);
@@ -33,7 +57,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (snapshot.exists()) {
         setContent((prev: any) => ({
           ...prev,
-          en: { ...defaultTranslations.en, ...snapshot.data() }
+          en: deepMerge(defaultTranslations.en, snapshot.data())
         }));
       }
       enLoaded = true;
@@ -48,7 +72,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (snapshot.exists()) {
         setContent((prev: any) => ({
           ...prev,
-          am: { ...defaultTranslations.am, ...snapshot.data() }
+          am: deepMerge(defaultTranslations.am, snapshot.data())
         }));
       }
       amLoaded = true;
@@ -65,16 +89,22 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-cream/40">
-        <div className="w-12 h-12 rounded-full border-4 border-brand-green/20 border-t-brand-green animate-spin"></div>
-      </div>
-    );
-  }
-
   return (
     <ContentContext.Provider value={{ content, loading, refresh: async () => {} }}>
+      <AnimatePresence>
+        {loading && (
+          <motion.div 
+            initial={{ width: "0%", opacity: 1 }}
+            animate={{ width: "90%", opacity: 1 }}
+            exit={{ width: "100%", opacity: 0 }}
+            transition={{ 
+              width: { duration: 1.2, ease: "easeOut" },
+              opacity: { duration: 0.3, delay: 0.1 }
+            }}
+            className="fixed top-0 left-0 h-1 bg-red-600 z-[9999] shadow-[0_0_10px_rgba(220,38,38,0.85)]"
+          />
+        )}
+      </AnimatePresence>
       {children}
     </ContentContext.Provider>
   );
@@ -82,7 +112,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
 export const useContent = (lang: Language) => {
   const { content } = useContext(ContentContext);
-  return content[lang];
+  return content[lang] || defaultTranslations[lang];
 };
 
 export const useContentRefresh = () => {
