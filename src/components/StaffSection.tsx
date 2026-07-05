@@ -71,7 +71,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
         {/* Members Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 items-stretch">
           <AnimatePresence mode="popLayout">
-            {displayedMembers.map((member: any, idx: number) => (
+            {displayedMembers.filter(Boolean).map((member: any, idx: number) => (
               <motion.div
                 key={member.name + idx}
                 initial={{ opacity: 0, y: 30 }}
