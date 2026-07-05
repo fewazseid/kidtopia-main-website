@@ -64,7 +64,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
         </div>
 
         {/* Visual Collage */}
-        <div className="relative max-w-4xl mx-auto mb-32 h-[500px]">
+        <div className="relative max-w-4xl mx-auto mb-16 sm:mb-32 h-[320px] xs:h-[400px] sm:h-[450px] md:h-[500px]">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -77,7 +77,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             <div className="absolute -bottom-12 -left-12 w-72 h-72 bg-brand-green/20 rounded-full blur-3xl -z-10" />
             
             {/* Organic Frame 1 */}
-            <div className="absolute top-0 left-0 sm:left-12 w-[65%] sm:w-[55%] aspect-[4/5] rounded-[48px] overflow-hidden border-8 border-white shadow-2xl rotate-[-3deg] hover:rotate-0 transition-transform duration-500 group z-10">
+            <div className="absolute top-0 left-0 sm:left-12 w-[65%] sm:w-[55%] aspect-[4/5] rounded-[24px] sm:rounded-[48px] overflow-hidden border-4 sm:border-8 border-white shadow-2xl rotate-[-3deg] hover:rotate-0 transition-transform duration-500 group z-10">
               <img 
                 src={t.collageImage1 || "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop"} 
                 alt="Happy children learning and playing" 
@@ -88,7 +88,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             </div>
 
             {/* Organic Frame 2 */}
-            <div className="absolute bottom-4 right-0 sm:right-12 w-[55%] sm:w-[45%] aspect-[1/1] rounded-[40px] overflow-hidden border-6 border-white shadow-xl rotate-[6deg] hover:rotate-0 transition-transform duration-500 group z-20">
+            <div className="absolute bottom-4 right-0 sm:right-12 w-[55%] sm:w-[45%] aspect-[1/1] rounded-[20px] sm:rounded-[40px] overflow-hidden border-4 sm:border-6 border-white shadow-xl rotate-[6deg] hover:rotate-0 transition-transform duration-500 group z-20">
               <img 
                 src={t.collageImage2 || "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"} 
                 alt="Daycare active play" 
@@ -98,19 +98,19 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             </div>
 
             {/* Decorative scribble badge */}
-            <div className="absolute top-1/4 -right-2 sm:-right-8 bg-brand-orange text-white p-4.5 rounded-[24px] shadow-xl z-30 rotate-[12deg] max-w-[160px] border border-white/20">
-              <span className="text-2xl font-black block mb-0.5 leading-none">{t.ratingText}</span>
-              <span className="text-[11px] font-bold uppercase tracking-wider block opacity-90">{t.ratingSubtext}</span>
+            <div className="absolute top-1/4 -right-1 sm:-right-8 bg-brand-orange text-white p-3 sm:p-4.5 rounded-[16px] sm:rounded-[24px] shadow-xl z-30 rotate-[12deg] max-w-[110px] sm:max-w-[160px] border border-white/20">
+              <span className="text-lg sm:text-2xl font-black block mb-0.5 leading-none">{t.ratingText}</span>
+              <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider block opacity-90">{t.ratingSubtext}</span>
             </div>
 
             {/* Floating trust badge */}
-            <div className="absolute bottom-1/4 -left-4 sm:-left-12 bg-white text-stone-800 py-3.5 px-5 rounded-[24px] shadow-xl z-30 rotate-[-8deg] flex items-center gap-3 border border-stone-100">
-              <div className="w-9 h-9 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green">
-                <Shield size={18} className="stroke-[2.5]" />
+            <div className="absolute bottom-1/4 -left-2 sm:-left-12 bg-white text-stone-800 py-2.5 px-3.5 sm:py-3.5 sm:px-5 rounded-[16px] sm:rounded-[24px] shadow-xl z-30 rotate-[-8deg] flex items-center gap-2 sm:gap-3 border border-stone-100 max-w-[150px] sm:max-w-none">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green shrink-0">
+                <Shield size={15} className="sm:size-[18px] stroke-[2.5]" />
               </div>
               <div className="text-left">
-                <span className="font-extrabold text-stone-900 text-sm block leading-tight">{t.trustText}</span>
-                <span className="text-[10px] font-bold text-stone-400 block uppercase tracking-wide">{t.trustSubtext}</span>
+                <span className="font-extrabold text-stone-900 text-xs sm:text-sm block leading-tight">{t.trustText}</span>
+                <span className="text-[8px] sm:text-[10px] font-bold text-stone-400 block uppercase tracking-wide">{t.trustSubtext}</span>
               </div>
             </div>
           </motion.div>

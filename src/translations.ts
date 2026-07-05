@@ -1,5 +1,14 @@
 export type Language = 'en' | 'am';
 
+// @ts-ignore
+import staffFaeza from './assets/images/staff_faeza_1783247404498.jpg';
+// @ts-ignore
+import staffMekdes from './assets/images/staff_mekdes_1783247416818.jpg';
+// @ts-ignore
+import staffHayat from './assets/images/staff_hayat_1783247428289.jpg';
+// @ts-ignore
+import staffAlemitu from './assets/images/staff_alemitu_1783247442769.jpg';
+
 export const translations = {
   en: {
     nav: {
@@ -237,10 +246,10 @@ export const translations = {
       showLess: "Show Less",
       seeMore: "See More Staff",
       members: [
-        { name: "Faeza Ebrahim", role: "School Nurse", desc: "Dedicated to the health and well-being of every child at Kidtopia.", image: "https://picsum.photos/seed/nurse-faeza/600/800" },
-        { name: "Miss Mekdes Alemu", role: "Lead Teacher", desc: "Expert in early childhood education and child development.", image: "https://picsum.photos/seed/teacher-mekdes/600/800" },
-        { name: "Miss Hayat Seid", role: "Caregiver", desc: "Providing a nurturing and supportive environment for our toddlers.", image: "https://picsum.photos/seed/caregiver-hayat/600/800" },
-        { name: "Miss Alemitu Abebe", role: "Preschool Educator", desc: "Preparing our older children for a smooth transition to school.", image: "https://picsum.photos/seed/educator-alemitu/600/800" }
+        { name: "Faeza Ebrahim", role: "School Nurse", desc: "Dedicated to the health and well-being of every child at Kidtopia.", image: staffFaeza },
+        { name: "Miss Mekdes Alemu", role: "Lead Teacher", desc: "Expert in early childhood education and child development.", image: staffMekdes },
+        { name: "Miss Hayat Seid", role: "Caregiver", desc: "Providing a nurturing and supportive environment for our toddlers.", image: staffHayat },
+        { name: "Miss Alemitu Abebe", role: "Preschool Educator", desc: "Preparing our older children for a smooth transition to school.", image: staffAlemitu }
       ]
     },
     login: {
@@ -515,10 +524,10 @@ export const translations = {
       showLess: "ያነሰ አሳይ",
       seeMore: "ተጨማሪ ሰራተኞችን ይመልከቱ",
       members: [
-        { name: "ፋኢዛ ኢብራሂም", role: "የትምህርት ቤት ነርስ", desc: "በኪድቶፒያ ለእያንዳንዱ ልጅ ጤና እና ደህንነት የተሰጠች።", image: "https://picsum.photos/seed/nurse-faeza/600/800" },
-        { name: "ሚስ መቅደስ አለሙ", role: "ዋና መምህርት", desc: "በቅድመ ልጅነት ትምህርት እና በልጅ እድገት ላይ ባለሙያ።", image: "https://picsum.photos/seed/teacher-mekdes/600/800" },
-        { name: "ሚስ ሀያት ሰይድ", role: "ተንከባካቢ", desc: "ለታዳጊዎቻችን አሳቢ እና ደጋፊ አካባቢን መስጠት።", image: "https://picsum.photos/seed/caregiver-hayat/600/800" },
-        { name: "ሚስ አለሚቱ አበበ", role: "የቅድመ ትምህርት ቤት አስተማሪ", desc: "ትላልቅ ልጆቻችንን ወደ ትምህርት ቤት ለስላሳ ሽግግር ማዘጋጀት።", image: "https://picsum.photos/seed/educator-alemitu/600/800" }
+        { name: "ፋኢዛ ኢብራሂም", role: "የትምህርት ቤት ነርስ", desc: "በኪድቶፒያ ለእያንዳንዱ ልጅ ጤና እና ደህንነት የተሰጠች።", image: staffFaeza },
+        { name: "ሚስ መቅደስ አለሙ", role: "ዋና መምህርት", desc: "በቅድመ ልጅነት ትምህርት እና በልጅ እድገት ላይ ባለሙያ።", image: staffMekdes },
+        { name: "ሚስ ሀያት ሰይድ", role: "ተንከባካቢ", desc: "ለታዳጊዎቻችን አሳቢ እና ደጋፊ አካባቢን መስጠት።", image: staffHayat },
+        { name: "ሚስ አለሚቱ አበበ", role: "የቅድመ ትምህርት ቤት አስተማሪ", desc: "ትላልቅ ልጆቻችንን ወደ ትምህርት ቤት ለስላሳ ሽግግር ማዘጋጀት።", image: staffAlemitu }
       ]
     },
     login: {

@@ -135,7 +135,7 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
           </AnimatePresence>
 
           {t.list.length > 1 && (
-            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-2 sm:px-0">
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-2 sm:px-0 hidden sm:flex">
               <button 
                 onClick={prev}
                 className="pointer-events-auto w-12 h-12 rounded-full bg-white/90 backdrop-blur-md shadow-md text-stone-500 hover:text-brand-green hover:bg-white transition-all flex items-center justify-center border border-stone-100 hover:scale-105 active:scale-95"
