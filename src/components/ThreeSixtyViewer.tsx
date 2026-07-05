@@ -239,7 +239,7 @@ interface GlassyHandProps {
   step?: 'horizontal' | 'vertical' | 'teleport';
 }
 
-const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, step = 'horizontal' }) => {
+const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing, step = 'horizontal' }) => {
   return (
     <div 
       className="absolute pointer-events-none transition-transform duration-150 ease-out z-[999] select-none flex flex-col items-center"
@@ -268,11 +268,9 @@ const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, step = 'horizontal' }) =>
 
       {/* Sleek, premium 👆 hand pointing cursor with micro-animations */}
       <motion.div
-        animate={step === 'horizontal' ? {
-          x: [-32, 32, -32],
-          rotate: [-12, 12, -12],
-        } : {
-          y: [-24, 24, -24],
+        animate={{
+          scale: pressing ? [1, 0.95, 1] : 1,
+          rotate: step === 'horizontal' ? [-8, 8, -8] : 0,
         }}
         transition={{
           repeat: Infinity,
@@ -543,8 +541,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const progress = cycleTime / 5000;
         const angle = Math.sin(progress * Math.PI * 2); // Beautiful smooth back-and-forth oscillation
         
-        // Horizontal swiping reaction
-        targetLonRef.current = initialLon - angle * 40;
+        // Horizontal swiping reaction: as hand sweeps right (angle positive), camera rotates left to make scene move right
+        targetLonRef.current = initialLon + angle * 40;
         targetLatRef.current = initialLat; // keep vertical view steady
       }
       else {
@@ -552,9 +550,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const progress = (cycleTime - 5000) / 5000;
         const angle = Math.sin(progress * Math.PI * 2);
         
-        // Vertical tilting reaction
+        // Vertical tilting reaction: as hand sweeps down (angle positive), camera rotates up to make scene move down
         targetLonRef.current = initialLon; // keep horizontal view steady
-        targetLatRef.current = initialLat - angle * 20;
+        targetLatRef.current = initialLat + angle * 20;
       }
 
       animId = requestAnimationFrame(runTutorial);
@@ -1560,8 +1558,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       
       gyroOffsetQRef.current.premultiply(yawRotation).premultiply(pitchRotation);
     } else {
-      // Both PC/Mouse and Mobile/Tablet screens now use -1 for intuitive, natural, and consistent dragging direction
-      const swipeMultiplierX = -1;
+      // Both PC/Mouse and Mobile/Tablet screens now use 1 for intuitive, natural, and consistent dragging direction (grab and drag)
+      const swipeMultiplierX = 1;
 
       targetLonRef.current += deltaX * panSpeedX * swipeMultiplierX;
       targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaY * panSpeedY));
