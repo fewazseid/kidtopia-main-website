@@ -496,8 +496,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           await setDoc(doc(db, 'settings', 'virtual_tour_360'), sanitizeForFirestore({ scenes: DEFAULT_SCENES }));
         }
       }
-    } catch (err) {
-      console.error('Failed to load virtual tour configuration from Firestore, using defaults:', err);
+    } catch (err: any) {
+      const isOffline = err && (
+        String(err.message || err).toLowerCase().includes('offline') || 
+        String(err.message || err).toLowerCase().includes('unavailable') ||
+        String(err.message || err).toLowerCase().includes('could not reach')
+      );
+      if (isOffline) {
+        console.warn('Failed to load virtual tour configuration from Firestore (operating in offline mode), using defaults:', err?.message || err);
+      } else {
+        console.error('Failed to load virtual tour configuration from Firestore, using defaults:', err);
+      }
       const start = DEFAULT_SCENES[0];
       setScenes(DEFAULT_SCENES);
       setCurrentScene(start);

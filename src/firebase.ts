@@ -1,13 +1,26 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword as firebaseUpdatePassword } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc, deleteDoc, serverTimestamp, query, where, addDoc } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, setLogLevel, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc, deleteDoc, serverTimestamp, query, where, addDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../firebase-applet-config.json';
 
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+// Silence internal firebase logs to prevent polluting console or triggering false test failures
+try {
+  setLogLevel('silent');
+} catch (e) {
+  // Ignore log level configuration failures
+}
+
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+}, firebaseConfig.firestoreDatabaseId);
+
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
@@ -147,8 +160,14 @@ async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client is offline.");
+    if (error instanceof Error && (
+      error.message.toLowerCase().includes('offline') || 
+      error.message.toLowerCase().includes('could not reach') || 
+      error.message.toLowerCase().includes('unavailable')
+    )) {
+      console.warn("Please check your Firebase configuration. The client is offline.");
+    } else {
+      console.error("Firebase connection error:", error);
     }
   }
 }

@@ -128,7 +128,16 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       enLoaded = true;
       checkLoaded();
     }, (err) => {
-      console.error('Firestore EN snapshot error:', err);
+      const isOffline = err && (
+        String(err.message || err).toLowerCase().includes('offline') || 
+        String(err.message || err).toLowerCase().includes('unavailable') ||
+        String(err.message || err).toLowerCase().includes('could not reach')
+      );
+      if (isOffline) {
+        console.warn('Firestore EN snapshot warning (offline):', err.message || err);
+      } else {
+        console.error('Firestore EN snapshot error:', err);
+      }
       enLoaded = true;
       checkLoaded();
     });
@@ -143,7 +152,16 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       amLoaded = true;
       checkLoaded();
     }, (err) => {
-      console.error('Firestore AM snapshot error:', err);
+      const isOffline = err && (
+        String(err.message || err).toLowerCase().includes('offline') || 
+        String(err.message || err).toLowerCase().includes('unavailable') ||
+        String(err.message || err).toLowerCase().includes('could not reach')
+      );
+      if (isOffline) {
+        console.warn('Firestore AM snapshot warning (offline):', err.message || err);
+      } else {
+        console.error('Firestore AM snapshot error:', err);
+      }
       amLoaded = true;
       checkLoaded();
     });
