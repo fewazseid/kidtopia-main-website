@@ -339,11 +339,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [editRoomTitle, setEditRoomTitle] = useState('');
   const [newRoomImageFile, setNewRoomImageFile] = useState<File | null>(null);
   const [newRoomImageUrl, setNewRoomImageUrl] = useState('');
+  const [editRoomImageUrl, setEditRoomImageUrl] = useState('');
+  const [editRoomImageFile, setEditRoomImageFile] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const [showAddHotspotModal, setShowAddHotspotModal] = useState(false);
   const [showEditHotspotModal, setShowEditHotspotModal] = useState(false);
   const [editingHotspotId, setEditingHotspotId] = useState<string | null>(null);
+  const [editingHotspotPitch, setEditingHotspotPitch] = useState<number | null>(null);
+  const [editingHotspotYaw, setEditingHotspotYaw] = useState<number | null>(null);
   const [newHotspotText, setNewHotspotText] = useState('');
   const [newHotspotTarget, setNewHotspotTarget] = useState('');
   const [newHotspotType, setNewHotspotType] = useState<'link' | 'info'>('link');
@@ -752,8 +756,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     }
   };
 
-  // Image Upload handler for creating rooms
-  const handleImageUpload = async (file: File) => {
+  // Image Upload handler for creating/editing rooms
+  const handleImageUpload = async (file: File, isEdit: boolean = false) => {
     setUploadingImage(true);
     try {
       const formData = new FormData();
@@ -770,7 +774,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
       const data = await response.json();
       if (data.url) {
-        setNewRoomImageUrl(data.url);
+        if (isEdit) {
+          setEditRoomImageUrl(data.url);
+        } else {
+          setNewRoomImageUrl(data.url);
+        }
       } else {
         throw new Error('No URL returned from upload response');
       }
@@ -817,18 +825,29 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     setShowAddRoomModal(false);
   };
 
-  // Edit Scene Room Name
-  const handleEditRoomName = async (e: React.FormEvent) => {
+  // Edit Scene Room Details
+  const handleEditRoomDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentScene) return;
     if (!editRoomTitle.trim()) {
       alert('Please enter a room title');
       return;
     }
+    if (!editRoomImageUrl.trim()) {
+      alert('Please enter or upload a 360 panorama image');
+      return;
+    }
+
+    const finalImageUrl = convertGoogleDriveUrl(editRoomImageUrl);
+
+    // If the image URL changed, clear the cache for this scene so Three.js reloads the new texture!
+    if (finalImageUrl !== currentScene.imageUrl) {
+      textureCacheRef.current.delete(currentScene.id);
+    }
 
     const updated = scenes.map(s => {
       if (s.id === currentScene.id) {
-        return { ...s, title: editRoomTitle };
+        return { ...s, title: editRoomTitle, imageUrl: finalImageUrl };
       }
       return s;
     });
@@ -836,7 +855,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     await saveScenesConfig(updated);
     
     // Update local state immediately
-    setCurrentScene({ ...currentScene, title: editRoomTitle });
+    setCurrentScene({ ...currentScene, title: editRoomTitle, imageUrl: finalImageUrl });
     
     setShowEditRoomModal(false);
   };
@@ -921,6 +940,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     setNewHotspotLinkedId(hs.linkedHotspotId || '');
     setNewHotspotDescription(hs.description || '');
     setNewHotspotColor(hs.color || '#10b981');
+    setEditingHotspotPitch(hs.pitch);
+    setEditingHotspotYaw(hs.yaw);
     setShowAddHotspotModal(true);
   };
 
@@ -932,6 +953,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     setNewHotspotType('link');
     setNewHotspotDescription('');
     setNewHotspotColor('#10b981'); // Reset to default brand green
+    setEditingHotspotPitch(null);
+    setEditingHotspotYaw(null);
     setShowAddHotspotModal(false);
   };
 
@@ -966,6 +989,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   type: newHotspotType,
                   description: newHotspotType === 'info' ? newHotspotDescription : '',
                   color: newHotspotColor,
+                  pitch: editingHotspotPitch !== null ? editingHotspotPitch : h.pitch,
+                  yaw: editingHotspotYaw !== null ? editingHotspotYaw : h.yaw,
                   linkedHotspotId: (newHotspotType === 'link' && newHotspotLinkedId) ? newHotspotLinkedId : undefined
                 };
               }
@@ -976,6 +1001,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         return s;
       });
       await saveScenesConfig(updated);
+      
+      const currentUpdatedScene = updated.find(s => s.id === currentScene.id);
+      if (currentUpdatedScene) {
+        setCurrentScene(currentUpdatedScene);
+      }
+      
       resetHotspotForm();
       return;
     }
@@ -2432,14 +2463,6 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 <Plus className="w-4 h-4" />
                 <span>Add New 360 Room</span>
               </button>
-              
-              <button
-                onClick={() => setShowAddHotspotModal(true)}
-                className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition shadow"
-              >
-                <Move className="w-4 h-4" />
-                <span>Link a Room (Hotspot)</span>
-              </button>
 
               <button
                 onClick={handleSetAsStartRoom}
@@ -2453,12 +2476,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               <button
                 onClick={() => {
                   setEditRoomTitle(currentScene.title);
+                  setEditRoomImageUrl(currentScene.imageUrl || '');
+                  setEditRoomImageFile(null);
                   setShowEditRoomModal(true);
                 }}
                 className="px-3.5 py-2 bg-stone-700 hover:bg-stone-800 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition shadow"
               >
                 <Settings className="w-4 h-4" />
-                <span>Rename Current Room</span>
+                <span>Edit Room Details</span>
               </button>
 
               <button
@@ -2484,10 +2509,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Hotspots Connections List */}
             <div className="bg-white dark:bg-stone-950 p-4 rounded-xl border border-stone-200 dark:border-stone-800">
-              <h5 className="text-stone-800 dark:text-stone-200 text-xs font-mono uppercase tracking-wider font-semibold mb-3 flex items-center gap-1.5">
-                <Compass className="w-4 h-4 text-brand-green" />
-                Outgoing Hotspots in {currentScene.title}
-              </h5>
+              <div className="flex items-center justify-between mb-3">
+                <h5 className="text-stone-800 dark:text-stone-200 text-xs font-mono uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                  <Compass className="w-4 h-4 text-brand-green" />
+                  Outgoing Hotspots in {currentScene.title}
+                </h5>
+                <button
+                  onClick={() => setShowAddHotspotModal(true)}
+                  className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg flex items-center gap-1 transition shadow-sm pointer-events-auto"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Link a Room (Hotspot)</span>
+                </button>
+              </div>
               
               {currentScene.hotspots && currentScene.hotspots.length > 0 ? (
                 <div className="space-y-2">
@@ -2703,7 +2737,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-sans font-bold text-stone-800 dark:text-white text-lg flex items-center gap-2">
                 <Settings className="w-5 h-5 text-stone-700 dark:text-stone-300" />
-                Rename 360 Scene Room
+                Edit 360 Scene Room Details
               </h4>
               <button 
                 onClick={() => setShowEditRoomModal(false)}
@@ -2713,7 +2747,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               </button>
             </div>
 
-            <form onSubmit={handleEditRoomName} className="space-y-4 font-sans text-sm">
+            <form onSubmit={handleEditRoomDetails} className="space-y-4 font-sans text-sm">
               <div>
                 <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
                   Room Title / Label
@@ -2728,6 +2762,84 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 />
               </div>
 
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                  Replace 360 Panorama Photo (Equirectangular)
+                </label>
+                
+                <div className="border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-2xl p-6 text-center hover:bg-stone-50 dark:hover:bg-stone-950/40 transition">
+                  <input
+                    type="file"
+                    id="pano-upload-input-edit"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (files && files.length > 0) {
+                        setEditRoomImageFile(files[0]);
+                        handleImageUpload(files[0], true);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <label htmlFor="pano-upload-input-edit" className="cursor-pointer block">
+                    {uploadingImage ? (
+                      <div className="flex flex-col items-center">
+                        <RefreshCw className="w-8 h-8 animate-spin text-brand-green mb-2" />
+                        <span className="text-stone-500 text-xs">Uploading and processing 360 panorama file...</span>
+                      </div>
+                    ) : editRoomImageUrl ? (
+                      <div className="flex flex-col items-center">
+                        <Check className="w-8 h-8 text-brand-green mb-2" />
+                        <span className="text-brand-green text-xs font-semibold">Image uploaded successfully!</span>
+                        <span className="text-stone-400 text-[11px] truncate max-w-xs mt-1">{editRoomImageUrl}</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <ImageIcon className="w-8 h-8 text-stone-400 mb-2" />
+                        <span className="text-stone-700 dark:text-stone-300 font-semibold text-xs">Click or Drag & Drop to Upload</span>
+                        <span className="text-stone-400 text-[10px] mt-1">Supports JPEG, PNG, WEBP (Equirectangular recommended)</span>
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5 flex items-center justify-between">
+                  <span>Or replace using a web image URL</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const link = prompt(`Please paste your shared Google Drive 360 panorama link:\n(Make sure sharing in Drive is set to 'Anyone with the link can view')`);
+                      if (link) {
+                        const converted = convertGoogleDriveUrl(link);
+                        setEditRoomImageUrl(converted);
+                        alert('Google Drive panorama successfully imported & converted!');
+                      }
+                    }}
+                    className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <span>📥 Select from Drive</span>
+                  </button>
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://example.com/panorama.jpg (Paste Google Drive link to auto-import!)"
+                  value={editRoomImageUrl}
+                  onChange={(e) => setEditRoomImageUrl(e.target.value)}
+                  onBlur={() => {
+                    const converted = convertGoogleDriveUrl(editRoomImageUrl);
+                    if (converted !== editRoomImageUrl) {
+                      setEditRoomImageUrl(converted);
+                    }
+                  }}
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                />
+                <p className="mt-1 text-[11px] text-stone-500 dark:text-stone-400 leading-normal">
+                  💡 <strong>Google Drive links supported!</strong> Simply copy & paste any shared Drive file link and it will automatically convert to a direct high-speed image.
+                </p>
+              </div>
+
               <div className="pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-end gap-2">
                 <button
                   type="button"
@@ -2738,9 +2850,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-brand-green hover:bg-emerald-600 text-white rounded-xl font-medium transition shadow flex items-center gap-2"
+                  disabled={uploadingImage || !editRoomImageUrl || !editRoomTitle}
+                  className="px-4 py-2 bg-brand-green hover:bg-brand-green/90 disabled:bg-stone-200 disabled:dark:bg-stone-800 disabled:text-stone-400 text-white rounded-xl font-medium transition shadow flex items-center gap-2"
                 >
-                  Save Name
+                  Save Changes
                 </button>
               </div>
             </form>
@@ -2754,11 +2867,20 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-md shadow-2xl p-6 animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-sans font-bold text-stone-800 dark:text-white text-lg flex items-center gap-2">
-                <Plus className="w-5 h-5 text-amber-500 animate-pulse" />
-                Add Interactive Hotspot
+                {editingHotspotId ? (
+                  <>
+                    <Settings className="w-5 h-5 text-amber-500 animate-pulse" />
+                    <span>Edit Hotspot / Direction</span>
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-5 h-5 text-amber-500 animate-pulse" />
+                    <span>Add Interactive Hotspot</span>
+                  </>
+                )}
               </h4>
               <button 
-                onClick={() => setShowAddHotspotModal(false)}
+                onClick={resetHotspotForm}
                 className="p-1 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-500 dark:text-stone-400 rounded-full transition"
               >
                 <X className="w-4 h-4" />
@@ -2766,14 +2888,37 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             </div>
 
             <form onSubmit={handleCreateHotspot} className="space-y-4 font-sans text-sm">
-              <div className="p-3 bg-amber-50/80 dark:bg-stone-950 border border-amber-100 dark:border-stone-800 rounded-xl flex flex-col space-y-1">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-800 dark:text-amber-400 font-bold">
-                  Hotspot Coordinates Locked
-                </span>
+              <div className="p-3 bg-amber-50/80 dark:bg-stone-950 border border-amber-100 dark:border-stone-800 rounded-xl flex flex-col space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-amber-800 dark:text-amber-400 font-bold">
+                    {editingHotspotId ? 'Hotspot Positioning' : 'Hotspot Coordinates Locked'}
+                  </span>
+                  {editingHotspotId && (
+                    <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 text-[9px] font-sans font-bold rounded">
+                      Editing Mode
+                    </span>
+                  )}
+                </div>
+                
                 <span className="font-mono text-stone-600 dark:text-stone-400 text-xs">
-                  Pitch (Vertical Lat): {Math.round(cameraLat)}° <br />
-                  Yaw (Horizontal Lon): {Math.round(cameraLon)}°
+                  Pitch (Vertical Lat): {Math.round(editingHotspotPitch !== null ? editingHotspotPitch : cameraLat)}° <br />
+                  Yaw (Horizontal Lon): {Math.round(editingHotspotYaw !== null ? editingHotspotYaw : cameraLon)}°
                 </span>
+
+                {editingHotspotId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingHotspotPitch(Math.round(cameraLat));
+                      setEditingHotspotYaw(Math.round(cameraLon));
+                    }}
+                    className="w-full py-1.5 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition border border-stone-200 dark:border-stone-700"
+                    title="Reposition this hotspot/direction arrow to where you are currently looking"
+                  >
+                    <Move className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Move to Current View Center</span>
+                  </button>
+                )}
               </div>
 
               {/* Hotspot Type Switcher Segmented Control */}
@@ -2935,7 +3080,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               <div className="pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddHotspotModal(false)}
+                  onClick={resetHotspotForm}
                   className="px-4 py-2 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-700 transition font-medium"
                 >
                   Cancel
@@ -2948,7 +3093,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   }
                   className="px-4 py-2 bg-brand-green hover:bg-brand-green/90 disabled:bg-stone-200 disabled:dark:bg-stone-800 disabled:text-stone-400 text-white rounded-xl transition font-medium shadow"
                 >
-                  Create Hotspot
+                  {editingHotspotId ? 'Save Changes' : 'Create Hotspot'}
                 </button>
               </div>
             </form>
