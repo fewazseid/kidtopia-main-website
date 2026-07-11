@@ -2218,6 +2218,7 @@ export const AdminDashboard: React.FC = () => {
                                 <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                                   b.status === 'approved' ? 'bg-green-100 text-green-700' :
                                   b.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                  b.status === 'cancelled' ? 'bg-stone-200 text-stone-600' :
                                   'bg-amber-100 text-amber-700'
                                 }`}>
                                   {b.status.toUpperCase()}

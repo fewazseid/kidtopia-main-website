@@ -372,12 +372,26 @@ export const getBooking = async (id: string) => {
   }
 };
 
-export const updateBookingTime = async (id: string, date: string, time: string) => {
+export const updateBookingTime = async (id: string, date: string, time: string, branch?: string) => {
   try {
     const docRef = doc(db, 'bookings', id);
-    await setDoc(docRef, { date, time }, { merge: true });
+    const updateData: any = { date, time };
+    if (branch) {
+      updateData.branch = branch;
+    }
+    await setDoc(docRef, updateData, { merge: true });
   } catch (err) {
     console.error("Failed to update booking time:", err);
+    throw err;
+  }
+};
+
+export const cancelBooking = async (id: string) => {
+  try {
+    const docRef = doc(db, 'bookings', id);
+    await setDoc(docRef, { status: 'cancelled' }, { merge: true });
+  } catch (err) {
+    console.error("Failed to cancel booking:", err);
     throw err;
   }
 };
