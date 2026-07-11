@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Music2 } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Music2, ExternalLink } from 'lucide-react';
 
 interface FooterProps {
   lang: Language;
@@ -12,6 +12,8 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
   const content = useContent(lang);
   const t = content.footer;
   const nav = content.nav;
+
+  const [selectedBranchIdx, setSelectedBranchIdx] = useState(0);
 
   return (
     <footer id="footer" className="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-400 py-20 relative overflow-hidden">
@@ -25,18 +27,46 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               {t.contact}
             </h3>
             <div className="space-y-4.5">
-              {t.addresses && t.addresses.map((addr: any, idx: number) => (
-                <a 
-                  key={idx}
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof addr === 'string' ? addr : (addr.googleMapsCoordinates || addr.locationName))}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start space-x-3.5 hover:text-white transition-all group/link"
-                >
-                  <MapPin size={18} className="shrink-0 mt-1 text-brand-orange group-hover/link:scale-110 transition-transform stroke-[2]" />
-                  <span className="text-sm font-medium leading-relaxed">{typeof addr === 'string' ? addr : addr.locationName}</span>
-                </a>
-              ))}
+              {t.addresses && t.addresses.map((addr: any, idx: number) => {
+                const locationStr = typeof addr === 'string' ? addr : addr.locationName;
+                const isSelected = selectedBranchIdx === idx;
+                return (
+                  <div key={idx} className="space-y-1">
+                    <button 
+                      onClick={() => setSelectedBranchIdx(idx)}
+                      className={`flex items-start space-x-3.5 hover:text-white text-left transition-all group/link w-full ${isSelected ? 'text-white' : 'text-stone-400'}`}
+                    >
+                      <MapPin size={18} className={`shrink-0 mt-1 transition-transform group-hover/link:scale-115 stroke-[2] ${isSelected ? 'text-brand-orange' : 'text-stone-500'}`} />
+                      <span className="text-sm font-medium leading-relaxed">{locationStr}</span>
+                    </button>
+                  </div>
+                );
+              })}
+
+              {t.addresses && t.addresses[selectedBranchIdx] && (
+                <div className="mt-4 pt-1">
+                  <div className="rounded-xl overflow-hidden border border-white/10 h-28 w-full relative">
+                    <iframe
+                      title="Kidtopia Location Map"
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof t.addresses[selectedBranchIdx] === 'string' ? t.addresses[selectedBranchIdx] : (t.addresses[selectedBranchIdx].googleMapsCoordinates || t.addresses[selectedBranchIdx].locationName))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen={false}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof t.addresses[selectedBranchIdx] === 'string' ? t.addresses[selectedBranchIdx] : (t.addresses[selectedBranchIdx].googleMapsCoordinates || t.addresses[selectedBranchIdx].locationName))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-brand-orange hover:underline font-bold animate-pulse"
+                  >
+                    View map details <ExternalLink size={10} />
+                  </a>
+                </div>
+              )}
               {t.phones && t.phones.map((ph: string, idx: number) => (
                 <a 
                   key={idx}

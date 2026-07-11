@@ -120,13 +120,24 @@ export const saveFingerprintTemplate = async (template: string) => {
   }, { merge: true });
 };
 
-export const getAdminConfig = async () => {
-  const defaults = {
+export interface AdminConfig {
+  username?: string;
+  password?: string;
+  email?: string;
+  firebasePassword?: string;
+  adminEmails?: string[];
+  operationsEmail?: string;
+  [key: string]: any;
+}
+
+export const getAdminConfig = async (): Promise<AdminConfig> => {
+  const defaults: AdminConfig = {
     username: 'admin',
     password: '123456',
     email: 'system_worker_v4@kidtopiaet.internal',
     firebasePassword: 'internal_system_password_99X',
-    adminEmails: []
+    adminEmails: [],
+    operationsEmail: ''
   };
   const configDoc = await getDoc(doc(db, 'settings', 'admin_config'));
   if (configDoc.exists()) {
@@ -389,7 +400,7 @@ export const updateBookingReminderStatus = async (id: string, reminderSent: bool
   }
 };
 
-export const sendEmail = async (to: string, subject: string, html: string) => {
+export const sendEmail = async (to: string, subject: string, html: string, replyTo?: string) => {
   try {
     const response = await fetch('/api/send-email', {
       method: 'POST',
@@ -400,6 +411,7 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
         to,
         subject,
         html,
+        replyTo,
       }),
     });
 

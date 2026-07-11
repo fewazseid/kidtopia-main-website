@@ -72,9 +72,16 @@ export function startReminderJob() {
 
         if (createdAtMs > 0 && (now - createdAtMs > REMINDER_THRESHOLD)) {
           const config = await getAdminConfig();
-          const adminEmails = config.adminEmails || [];
+          const recipientEmails: string[] = [];
+          if (config.operationsEmail) {
+            recipientEmails.push(config.operationsEmail);
+          } else if (config.adminEmails && config.adminEmails.length > 0) {
+            recipientEmails.push(...config.adminEmails);
+          } else {
+            recipientEmails.push('admin@kidtopiaet.com');
+          }
           
-          if (adminEmails.length > 0) {
+          if (recipientEmails.length > 0) {
             const subject = `Reminder: Pending Booking for ${b.name}`;
             const html = `
               <h3>Action Required: Pending Tour Booking</h3>
@@ -87,10 +94,11 @@ export function startReminderJob() {
               <p>Please log in to the admin dashboard to process this booking.</p>
             `;
 
-            // Send to all configured admin emails
-            for (const email of adminEmails) {
+            // Send to all configured admin/operations emails
+            for (const email of recipientEmails) {
               await transporter.sendMail({
                 from: `"Kidtopia Daycare" <${GMAIL_USER}>`,
+                replyTo: config.operationsEmail || GMAIL_USER,
                 to: email,
                 subject,
                 html

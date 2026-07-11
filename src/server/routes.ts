@@ -33,7 +33,7 @@ const upload = multer({
 export function setupRoutes(app: Express) {
   // Email sending endpoint
   app.post('/api/send-email', async (req, res) => {
-    const { to, subject, html } = req.body;
+    const { to, subject, html, replyTo } = req.body;
     
     // Allow configuration via environment variables
     const GMAIL_USER = process.env.GMAIL_USER;
@@ -45,6 +45,15 @@ export function setupRoutes(app: Express) {
     }
 
     try {
+      let operationsEmail = '';
+      try {
+        const { getAdminConfig } = await import('../firebase');
+        const config = await getAdminConfig();
+        operationsEmail = config.operationsEmail || '';
+      } catch (dbErr) {
+        console.warn("Failed to fetch operationsEmail dynamically in API route:", dbErr);
+      }
+
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -53,8 +62,14 @@ export function setupRoutes(app: Express) {
         }
       });
 
+      const finalReplyTo = replyTo || operationsEmail || GMAIL_USER;
+      const fromDisplay = operationsEmail 
+        ? `"Kidtopia Daycare" <${GMAIL_USER}>` 
+        : `"Kidtopia Daycare" <${GMAIL_USER}>`;
+
       await transporter.sendMail({
-        from: `"Kidtopia Daycare" <${GMAIL_USER}>`,
+        from: fromDisplay,
+        replyTo: finalReplyTo,
         to: to,
         subject: subject,
         html: html

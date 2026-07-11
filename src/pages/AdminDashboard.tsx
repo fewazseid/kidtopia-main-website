@@ -1822,6 +1822,41 @@ export const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div className="mt-12 pt-8 border-t border-stone-100">
+                    <h3 className="text-lg font-bold text-stone-900 mb-2">Central Operations & Notifications Email</h3>
+                    <p className="text-sm text-stone-500 mb-4">
+                      Enter the single, central email address used to receive "Contact Us" submissions, receive 2-hour pending review alerts, and serve as the reply-to destination for tour schedule emails.
+                    </p>
+                    <div className="flex flex-col gap-4 max-w-md">
+                      <input 
+                        type="email"
+                        value={adminConfig?.operationsEmail || ''}
+                        onChange={(e) => {
+                          setAdminConfig({ ...adminConfig, operationsEmail: e.target.value.trim() });
+                        }}
+                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
+                        placeholder="operations@kidtopiaet.com"
+                      />
+                      <button 
+                        onClick={async () => {
+                          setSecurityLoading(true);
+                          try {
+                            await updateAdminConfig(adminConfig);
+                            setFeedback({ type: 'success', message: 'Central operations email saved!' });
+                          } catch (err) {
+                            setFeedback({ type: 'error', message: 'Failed to update email' });
+                          } finally {
+                            setSecurityLoading(false);
+                          }
+                        }}
+                        disabled={securityLoading}
+                        className="py-2 bg-brand-green text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                      >
+                        Save Operations Email
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-12 pt-8 border-t border-stone-100">
                     <h3 className="text-lg font-bold text-stone-900 mb-2">Notification Emails</h3>
                     <p className="text-sm text-stone-500 mb-4">Enter the email addresses that should receive alerts (like the 2-hour pending approval reminder). Separate multiple emails with a comma.</p>
                     <div className="flex flex-col gap-4 max-w-md">
@@ -1972,6 +2007,7 @@ export const AdminDashboard: React.FC = () => {
                         <thead>
                           <tr className="border-b border-stone-200">
                             <th className="pb-3 text-sm font-bold text-stone-600">Date & Time</th>
+                            <th className="pb-3 text-sm font-bold text-stone-600">Campus Branch</th>
                             <th className="pb-3 text-sm font-bold text-stone-600">Name</th>
                             <th className="pb-3 text-sm font-bold text-stone-600">Contact</th>
                             <th className="pb-3 text-sm font-bold text-stone-600">Status</th>
@@ -1984,6 +2020,7 @@ export const AdminDashboard: React.FC = () => {
                               <td className="py-4 text-sm text-stone-900 font-medium">
                                 {b.date} <br/><span className="text-stone-500 font-normal">{b.time}</span>
                               </td>
+                              <td className="py-4 text-sm text-stone-700 font-semibold">{b.branch || 'Main Branch'}</td>
                               <td className="py-4 text-sm text-stone-800">{b.name}</td>
                               <td className="py-4 text-sm text-stone-500">
                                 {b.email}<br/>{b.phone}

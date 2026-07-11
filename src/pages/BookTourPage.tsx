@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getTourSchedule, getBookingsByDate, createBooking } from '../firebase';
-import { Calendar, Clock, User, Mail, Phone, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Calendar, Clock, User, Mail, Phone, CheckCircle, ArrowLeft, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
@@ -11,7 +11,10 @@ interface BookTourPageProps {
 }
 
 export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
-  const t = useContent(lang).leadCapture;
+  const content = useContent(lang);
+  const t = content.leadCapture;
+  const footerT = content.footer;
+  const branches = footerT.addresses || [];
   
   const [schedule, setSchedule] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -21,6 +24,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [selectedBranchIdx, setSelectedBranchIdx] = useState(0);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -76,10 +80,17 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
     
     setSubmitting(true);
     try {
+      const selectedBranchName = branches[selectedBranchIdx]
+        ? (typeof branches[selectedBranchIdx] === 'string' 
+            ? branches[selectedBranchIdx] 
+            : branches[selectedBranchIdx].locationName)
+        : 'Main Branch';
+
       const bookingId = await createBooking({
         ...formData,
         date: selectedDate,
         time: selectedTime,
+        branch: selectedBranchName,
       });
 
       // Send confirmation email via Firebase Trigger Email extension
@@ -93,6 +104,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
           <h2>Kidtopia Tour Booking Request</h2>
           <p>Hi ${formData.name},</p>
           <p>We have successfully received your request for a physical tour at Kidtopia International Daycare and Preschool.</p>
+          <p><strong>Campus/Branch Location:</strong> ${selectedBranchName}</p>
           <p><strong>Requested Date:</strong> ${dayName}, ${selectedDate}</p>
           <p><strong>Requested Time:</strong> ${selectedTime}</p>
           <p>Our team will review your request and send you an email once it is approved.</p>
@@ -166,6 +178,57 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Branch/Campus Selection with Embedded Google Map */}
+                <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 text-left space-y-4">
+                  <label className="flex items-center text-stone-900 font-bold mb-2">
+                    <MapPin className="mr-2 text-brand-orange animate-bounce" size={20} /> {lang === 'en' ? 'Select Kidtopia Campus/Branch' : 'ቅርንጫፍ ይምረጡ'}
+                  </label>
+                  
+                  {branches.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {branches.map((addr: any, idx: number) => {
+                        const locationStr = typeof addr === 'string' ? addr : addr.locationName;
+                        const isSelected = selectedBranchIdx === idx;
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setSelectedBranchIdx(idx)}
+                            className={`p-4 rounded-xl text-left border-2 transition-all flex items-start gap-3 ${
+                              isSelected 
+                                ? 'border-brand-green bg-brand-green/5 text-brand-green ring-1 ring-brand-green' 
+                                : 'border-stone-200 text-stone-600 hover:border-brand-green bg-white'
+                            }`}
+                          >
+                            <MapPin className={`shrink-0 mt-0.5 ${isSelected ? 'text-brand-green' : 'text-stone-400'}`} size={18} />
+                            <div>
+                              <div className="font-extrabold text-sm">{typeof addr === 'string' ? `Branch ${idx + 1}` : locationStr.split(',')[0]}</div>
+                              <div className="text-xs mt-1 text-stone-500 leading-relaxed">{locationStr}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {branches[selectedBranchIdx] && (
+                    <div className="mt-4">
+                      <div className="rounded-xl overflow-hidden border border-stone-200 h-44 relative bg-stone-100 shadow-inner">
+                        <iframe
+                          title="Selected Branch Location Map"
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof branches[selectedBranchIdx] === 'string' ? branches[selectedBranchIdx] : (branches[selectedBranchIdx].googleMapsCoordinates || branches[selectedBranchIdx].locationName))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          allowFullScreen={false}
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Date Selection */}
                   <div className="space-y-4">

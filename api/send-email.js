@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { to, subject, html } = req.body;
+  const { to, subject, html, replyTo } = req.body;
   const GMAIL_USER = process.env.GMAIL_USER;
   const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 
@@ -25,6 +25,7 @@ export default async function handler(req, res) {
 
     await transporter.sendMail({
       from: `"Kidtopia Daycare" <${GMAIL_USER}>`,
+      replyTo: replyTo || GMAIL_USER,
       to: to,
       subject: subject,
       html: html
