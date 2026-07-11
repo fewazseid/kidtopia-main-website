@@ -127,122 +127,97 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, []);
 
-  return (
+   return (
     <ContentContext.Provider value={{ content, loading, refresh: async () => {} }}>
       <AnimatePresence>
         {loading && (
           <>
-            {/* Top glowing red loading bar */}
+            {/* Top glowing Kidtopia brand green & orange loading progress bar */}
             <motion.div 
               key="top-loading-bar"
               initial={{ width: "0%", opacity: 1 }}
-              animate={{ width: "90%", opacity: 1 }}
+              animate={{ width: "95%", opacity: 1 }}
               exit={{ width: "100%", opacity: 0 }}
               transition={{ 
-                width: { duration: 1.5, ease: "easeOut" },
+                width: { duration: 2.0, ease: "easeOut" },
                 opacity: { duration: 0.3, delay: 0.1 }
               }}
-              className="fixed top-0 left-0 h-1 bg-red-600 z-[9999] shadow-[0_0_10px_rgba(220,38,38,0.85)]"
+              className="fixed top-0 left-0 h-1 bg-gradient-to-r from-brand-green to-brand-orange z-[9999] shadow-[0_0_15px_rgba(58,91,50,0.9)]"
             />
 
-            {/* YouTube Desktop Skeleton Screen Background Overlay */}
+            {/* Custom Kidtopia Immersive Loading Screen Background Overlay */}
             <motion.div
-              key="youtube-skeleton"
+              key="kidtopia-loading-screen"
               initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="fixed inset-0 bg-stone-50 z-[9998] flex flex-col font-sans select-none overflow-hidden"
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+              className="fixed inset-0 bg-brand-cream z-[9998] flex flex-col items-center justify-center font-sans select-none overflow-hidden"
             >
-              {/* Header */}
-              <div className="h-14 border-b border-stone-200 bg-white px-4 flex items-center justify-between flex-shrink-0">
-                <div className="flex items-center gap-4">
-                  {/* Menu Icon Placeholder */}
-                  <div className="w-5 h-4 flex flex-col justify-between">
-                    <div className="h-0.5 bg-stone-200 rounded animate-pulse" />
-                    <div className="h-0.5 bg-stone-200 rounded animate-pulse" />
-                    <div className="h-0.5 bg-stone-200 rounded animate-pulse" />
-                  </div>
-                  {/* Logo Placeholder */}
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-brand-green/10 animate-pulse flex items-center justify-center">
-                      <span className="w-4 h-4 rounded-full bg-brand-green animate-pulse" />
-                    </div>
-                    <div className="w-24 h-5 bg-stone-200 rounded-md animate-pulse" />
-                  </div>
+              {/* Responsive Loading Backgrounds from Google Drive */}
+              {/* Mobile Loading Background */}
+              <div 
+                className="block md:hidden absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
+                style={{ 
+                  backgroundImage: "url('https://lh3.googleusercontent.com/d/1GN2JSjap-KYp4U2c0WYQOZs4zLajJUmU')" 
+                }}
+              />
+              {/* Desktop & Tablet Loading Background */}
+              <div 
+                className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
+                style={{ 
+                  backgroundImage: "url('https://lh3.googleusercontent.com/d/18WFRU2ZNWIeCsyP26XQI9UV6Xf2wJ1PA')" 
+                }}
+              />
+
+              {/* Semi-transparent dark/warm ambient vignette overlay to keep logo and text highly legible */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/35 z-[1]" />
+
+              {/* Premium Glassmorphic Centered Loading Card */}
+              <motion.div 
+                initial={{ scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.5, ease: "easeOut" }}
+                className="relative z-[2] max-w-sm w-11/12 mx-auto bg-white/75 backdrop-blur-xl border border-white/60 p-8 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.12)] flex flex-col items-center text-center"
+              >
+                {/* Logo with bouncing animation */}
+                <div className="font-display font-black text-3xl tracking-tighter flex items-center mb-1.5 select-none">
+                  <span className="text-brand-orange animate-pulse">K</span>
+                  <span className="text-brand-yellow animate-pulse delay-75">I</span>
+                  <span className="text-brand-green animate-pulse delay-100">D</span>
+                  <span className="text-brand-teal animate-pulse delay-150">T</span>
+                  <span className="text-brand-tan animate-pulse delay-200">O</span>
+                  <span className="text-brand-orange animate-pulse delay-250">P</span>
+                  <span className="text-brand-yellow animate-pulse delay-300">I</span>
+                  <span className="text-brand-green animate-pulse delay-350">A</span>
+                  <span className="ml-1.5 w-2.5 h-2.5 rounded-full bg-brand-orange animate-bounce"></span>
+                </div>
+                
+                <span className="text-[9px] font-display font-extrabold tracking-widest text-brand-green uppercase mb-6 opacity-90">
+                  International Daycare & Preschool
+                </span>
+
+                {/* Aesthetic Circular Spinner using Kidtopia Color Accents */}
+                <div className="relative w-12 h-12 mb-5 flex items-center justify-center">
+                  <span className="absolute inset-0 rounded-full border-4 border-brand-green/10"></span>
+                  <span className="absolute inset-0 rounded-full border-4 border-t-brand-green border-r-brand-orange animate-spin"></span>
                 </div>
 
-                {/* Search Bar Placeholder */}
-                <div className="hidden sm:flex items-center w-full max-w-xl h-9 border border-stone-200 rounded-full overflow-hidden bg-stone-50">
-                  <div className="flex-1 px-4 py-1 animate-pulse bg-stone-50" />
-                  <div className="w-16 border-l border-stone-200 bg-stone-100 flex items-center justify-center h-full">
-                    <div className="w-4 h-4 rounded-full border-2 border-stone-300 animate-pulse" />
-                  </div>
+                {/* Dynamic Dual-language Animated Status Messages */}
+                <div className="space-y-1">
+                  <p className="text-stone-800 font-display font-semibold text-sm tracking-tight">
+                    Welcoming you to Kidtopia...
+                  </p>
+                  <p className="text-brand-green/90 font-display font-medium text-xs tracking-wide">
+                    ወደ ኪድቶፒያ እንኳን በደህና መጡ...
+                  </p>
                 </div>
+              </motion.div>
 
-                {/* Header Right Actions */}
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-stone-200 animate-pulse" />
-                  <div className="w-8 h-8 rounded-full bg-stone-200 animate-pulse" />
-                  <div className="w-8 h-8 rounded-full bg-stone-200 animate-pulse" />
-                </div>
-              </div>
-
-              {/* Main Skeleton Page Structure */}
-              <div className="flex flex-1 overflow-hidden">
-                {/* Sidebar Skeleton (desktop only) */}
-                <div className="hidden md:flex flex-col w-60 border-r border-stone-200 bg-white p-3 gap-6 flex-shrink-0">
-                  <div className="flex flex-col gap-2">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="flex items-center gap-4 px-3 py-2.5 rounded-xl">
-                        <div className="w-5 h-5 rounded-lg bg-stone-200 animate-pulse" />
-                        <div className="w-28 h-4 rounded-full bg-stone-200 animate-pulse" />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="h-[1px] bg-stone-200" />
-                  <div className="flex flex-col gap-2">
-                    <div className="px-3 h-3 w-16 bg-stone-200 rounded-full animate-pulse mb-1" />
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="flex items-center gap-4 px-3 py-2 rounded-xl">
-                        <div className="w-6 h-6 rounded-full bg-stone-200 animate-pulse" />
-                        <div className="w-24 h-4 rounded-full bg-stone-200 animate-pulse" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Video Feed / Grid Skeleton */}
-                <div className="flex-1 overflow-y-auto bg-stone-50 p-4 sm:p-6">
-                  {/* Category Chips Skeleton */}
-                  <div className="flex items-center gap-2 overflow-x-hidden mb-6 flex-shrink-0">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-8 rounded-lg animate-pulse bg-stone-200 shrink-0 ${
-                          i === 0 ? 'w-14 bg-stone-400' : i === 1 ? 'w-24' : i === 2 ? 'w-20' : 'w-16'
-                        }`}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Grid of Skeleton Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <div key={i} className="flex flex-col gap-3">
-                        {/* Video Thumbnail */}
-                        <div className="aspect-video rounded-2xl bg-stone-200 animate-pulse w-full shadow-sm" />
-                        {/* Channel Info & Title */}
-                        <div className="flex gap-3 px-1">
-                          <div className="w-9 h-9 rounded-full bg-stone-200 animate-pulse shrink-0" />
-                          <div className="flex flex-col gap-2 w-full">
-                            <div className="h-4 w-11/12 bg-stone-200 rounded animate-pulse" />
-                            <div className="h-3 w-2/3 bg-stone-200 rounded animate-pulse" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {/* Small footer tag on the loading screen */}
+              <div className="absolute bottom-6 left-0 right-0 text-center z-[2] pointer-events-none">
+                <span className="text-white/80 text-[10px] tracking-widest font-display font-bold uppercase drop-shadow-md">
+                  Nurturing Minds • Shaping Futures
+                </span>
               </div>
             </motion.div>
           </>
