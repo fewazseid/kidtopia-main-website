@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getTourSchedule, getBookingsByDate, createBooking } from '../firebase';
+import { getTourSchedule, getBookingsByDate, createBooking, sendEmail, getAdminConfig } from '../firebase';
 import { Calendar, Clock, User, Mail, Phone, CheckCircle, ArrowLeft, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
@@ -93,34 +93,79 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
         branch: selectedBranchName,
       });
 
-      // Send confirmation email via Firebase Trigger Email extension
+      // Send confirmation emails (to parent and admin notification)
       try {
         const [y, m, d] = selectedDate.split('-').map(Number);
         const dateObj = new Date(y, m - 1, d);
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
 
         const rescheduleLink = `${window.location.origin}/reschedule/${bookingId}`;
-        const emailHtml = `
-          <h2>Kidtopia Tour Booking Request</h2>
-          <p>Hi ${formData.name},</p>
-          <p>We have successfully received your request for a physical tour at Kidtopia International Daycare and Preschool.</p>
-          <p><strong>Campus/Branch Location:</strong> ${selectedBranchName}</p>
-          <p><strong>Requested Date:</strong> ${dayName}, ${selectedDate}</p>
-          <p><strong>Requested Time:</strong> ${selectedTime}</p>
-          <p>Our team will review your request and send you an email once it is approved.</p>
-          <br/>
-          <p>If you need to change your tour time before it is finalized, <a href="${rescheduleLink}">click here to reschedule</a>.</p>
-          <br/>
-          <p>Best regards,</p>
-          <p>Kidtopia Team</p>
-        `;
         
-        await fetch('/api/dummy-ignore-just-to-skip', { method: 'GET' }).catch(() => {}); // Stub for extension
-        import('../firebase').then(({ sendEmail }) => {
-           sendEmail(formData.email, 'Kidtopia Tour Booking Request Received', emailHtml).catch(console.error);
-        });
+        const parentEmailHtml = `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 32px;">🏫</span>
+              <h2 style="color: #10b981; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">Kidtopia Tour Received</h2>
+            </div>
+            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Dear ${formData.name},</p>
+            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Thank you for booking a physical tour at <strong>Kidtopia International Daycare and Preschool</strong>! We are excited to show you our campus.</p>
+            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Here are your request details:</p>
+            
+            <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981; font-size: 14px; color: #44403c; line-height: 1.6;">
+              <p style="margin: 0 0 8px 0;"><strong>📍 Campus Location:</strong> ${selectedBranchName}</p>
+              <p style="margin: 0 0 8px 0;"><strong>📅 Date:</strong> ${dayName}, ${selectedDate}</p>
+              <p style="margin: 0;"><strong>⏰ Time:</strong> ${selectedTime}</p>
+            </div>
+            
+            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Our admissions team will review your request shortly and send you an email once your tour is confirmed.</p>
+            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">If you need to change your requested time before it is finalized, click the button below:</p>
+            
+            <div style="text-align: center; margin: 24px 0;">
+              <a href="${rescheduleLink}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; shadow: 0 4px 6px rgba(0,0,0,0.05);">Reschedule Your Tour</a>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
+            <p style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0;">Kidtopia International Daycare and Preschool<br/>Providing top-tier bilingual early childhood education.</p>
+          </div>
+        `;
+
+        // Send confirmation to the parent
+        sendEmail(formData.email, 'Kidtopia Tour Booking Request Received', parentEmailHtml).catch(console.error);
+
+        // Fetch central operations email to send admin notification
+        getAdminConfig().then((config) => {
+          const opsEmail = config.operationsEmail;
+          if (opsEmail) {
+            const adminEmailHtml = `
+              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                  <span style="font-size: 32px;">🔔</span>
+                  <h2 style="color: #f59e0b; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">New Pending Tour Booking</h2>
+                </div>
+                <p style="font-size: 15px; color: #44403c; line-height: 1.6;">A new physical tour booking request has been submitted and is pending review in the admin dashboard.</p>
+                
+                <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #f59e0b; font-size: 14px; color: #44403c; line-height: 1.6;">
+                  <p style="margin: 0 0 8px 0;"><strong>👤 Parent Name:</strong> ${formData.name}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>📧 Parent Email:</strong> ${formData.email}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>📞 Parent Phone:</strong> ${formData.phone}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>📍 Campus Location:</strong> ${selectedBranchName}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>📅 Date:</strong> ${dayName}, ${selectedDate}</p>
+                  <p style="margin: 0;"><strong>⏰ Time:</strong> ${selectedTime}</p>
+                </div>
+                
+                <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Please log in to your admin panel to approve or reject this tour request.</p>
+                
+                <div style="text-align: center; margin: 24px 0;">
+                  <a href="${window.location.origin}/admin" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Go to Admin Dashboard</a>
+                </div>
+              </div>
+            `;
+            sendEmail(opsEmail, 'Alert: New Pending Tour Booking Request', adminEmailHtml).catch(console.error);
+          }
+        }).catch(console.error);
+
       } catch (err) {
-        console.error("Failed to enqueue email", err);
+        console.error("Failed to construct/send emails:", err);
       }
 
       setSuccess(true);
@@ -157,24 +202,67 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-12"
+                className="text-left max-w-2xl mx-auto py-6 space-y-6"
               >
-                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle size={40} />
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle size={40} />
+                  </div>
+                  <h2 className="text-3xl font-serif font-bold text-stone-900 mb-4">{lang === 'en' ? 'Tour Booked Successfully!' : 'ጉብኝቱ በተሳካ ሁኔታ ተይዟል!'}</h2>
+                  <p className="text-stone-600 text-lg mb-6">
+                    {lang === 'en' 
+                      ? `Thank you! We have successfully received your request for ${selectedDate} at ${selectedTime}. A confirmation email has been sent to ${formData.email}.` 
+                      : `እናመሰግናለን! ለጉብኝት ያቀረቡት ጥያቄ በ ${selectedDate} በ ${selectedTime} ደርሶናል። የማረጋገጫ ኢሜይል ወደ ${formData.email} ተልኳል።`}
+                  </p>
                 </div>
-                <h2 className="text-3xl font-bold text-stone-900 mb-4">{lang === 'en' ? 'Tour Booked Successfully!' : 'ጉብኝቱ በተሳካ ሁኔታ ተይዟል!'}</h2>
-                <p className="text-stone-600 text-lg mb-8">{lang === 'en' ? `We have received your request for ${selectedDate} at ${selectedTime}. We will contact you shortly to confirm.` : `ለጉብኝት ያቀረቡት ጥያቄ በ ${selectedDate} በ ${selectedTime} ደርሶናል። ለማረጋገጥ በቅርቡ እናገኝዎታለን።`}</p>
-                <button 
-                  onClick={() => {
-                    setSuccess(false);
-                    setSelectedDate('');
-                    setSelectedTime('');
-                    setFormData({ name: '', email: '', phone: '' });
-                  }}
-                  className="btn-primary"
-                >
-                  {lang === 'en' ? 'Book Another Tour' : 'ሌላ ጉብኝት ያስይዙ'}
-                </button>
+
+                {/* Display selected branch location details & Map */}
+                <div className="bg-stone-50 border border-stone-200 rounded-2xl p-6 space-y-4">
+                  <h3 className="font-bold text-stone-900 text-base border-b border-stone-200 pb-2 flex items-center gap-2">
+                    <MapPin className="text-brand-orange" size={18} />
+                    {lang === 'en' ? 'Selected Campus Location' : 'የተመረጠው የካምፓስ አድራሻ'}
+                  </h3>
+                  <div>
+                    <div className="font-extrabold text-stone-800 text-sm">
+                      {branches[selectedBranchIdx] 
+                        ? (typeof branches[selectedBranchIdx] === 'string' ? `Campus Branch` : branches[selectedBranchIdx].locationName.split(',')[0])
+                        : 'Kidtopia Campus'}
+                    </div>
+                    <div className="text-xs text-stone-500 mt-1">
+                      {branches[selectedBranchIdx] 
+                        ? (typeof branches[selectedBranchIdx] === 'string' ? branches[selectedBranchIdx] : branches[selectedBranchIdx].locationName)
+                        : ''}
+                    </div>
+                  </div>
+                  {branches[selectedBranchIdx] && (
+                    <div className="rounded-xl overflow-hidden border border-stone-200 h-48 relative bg-stone-100 shadow-inner">
+                      <iframe
+                        title="Booked Branch Map"
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof branches[selectedBranchIdx] === 'string' ? branches[selectedBranchIdx] : (branches[selectedBranchIdx].googleMapsCoordinates || branches[selectedBranchIdx].locationName))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen={false}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-center pt-4">
+                  <button 
+                    onClick={() => {
+                      setSuccess(false);
+                      setSelectedDate('');
+                      setSelectedTime('');
+                      setFormData({ name: '', email: '', phone: '' });
+                    }}
+                    className="btn-primary"
+                  >
+                    {lang === 'en' ? 'Book Another Tour' : 'ሌላ ጉብኝት ያስይዙ'}
+                  </button>
+                </div>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-8">

@@ -4,7 +4,7 @@ import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Tras
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
-import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus } from '../firebase';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -981,6 +981,68 @@ export const AdminDashboard: React.FC = () => {
     });
   };
 
+  // Strips legacy HTML tags and maps technical placeholders to user-friendly ones
+  const cleanEmailTemplateForUser = (text: string): string => {
+    if (!text) return '';
+    let cleaned = text
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/h[1-6]>/gi, '\n\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<[^>]+>/g, ''); // strip any remaining tags
+    
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+
+    cleaned = cleaned
+      .replace(/\{name\}/g, '[Parent Name]')
+      .replace(/\{date\}/g, '[Date]')
+      .replace(/\{time\}/g, '[Time]')
+      .replace(/\{dayName\}/g, '[Day]');
+
+    return cleaned.trim();
+  };
+
+  // Translates user-friendly placeholders back to internal format
+  const prepareEmailTemplateForSave = (text: string): string => {
+    if (!text) return '';
+    return text
+      .replace(/\[Parent Name\]/g, '{name}')
+      .replace(/\[Date\]/g, '{date}')
+      .replace(/\[Time\]/g, '{time}')
+      .replace(/\[Day\]/g, '{dayName}');
+  };
+
+  // Formats email template text with a beautiful Kidtopia header/wrapper
+  const formatEmailWithTheme = (title: string, bodyText: string): string => {
+    const paragraphs = bodyText
+      .split('\n')
+      .filter(p => p.trim() !== '')
+      .map(p => `<p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.6; color: #44403c;">${p}</p>`)
+      .join('');
+
+    return `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #fafaf9; padding: 40px 20px; text-align: center;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e7e5e4; text-align: left;">
+          
+          <!-- Header Banner -->
+          <div style="background-color: #10b981; padding: 32px 40px; text-align: center;">
+            <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">${title}</h1>
+          </div>
+
+          <!-- Body Content -->
+          <div style="padding: 40px;">
+            ${paragraphs}
+            
+            <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #f5f5f4; color: #78716c; font-size: 13px;">
+              <p style="margin: 0 0 4px 0; font-weight: bold; color: #44403c;">Kidtopia International Daycare and Preschool</p>
+              <p style="margin: 0;">Providing top-tier bilingual early childhood education.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    `;
+  };
+
   const renderField = (key: string, value: any, path: string[]) => {
     const isRating = key.toLowerCase() === 'rating' || key.toLowerCase() === 'rate';
     if (typeof value === 'number' || isRating) {
@@ -1361,12 +1423,76 @@ export const AdminDashboard: React.FC = () => {
               <option value="nutrition">nutrition (Nutrition & Meal Guide)</option>
               <option value="url">url (Custom External URL Link)</option>
             </select>
-          ) : value.length > 100 || isMoreInfo || isDescription || isEmailBody ? (
+          ) : isEmailBody ? (
+            <div className="space-y-3 w-full">
+              <textarea
+                value={cleanEmailTemplateForUser(value)}
+                onChange={(e) => {
+                  const prepared = prepareEmailTemplateForSave(e.target.value);
+                  handleChange(path, prepared);
+                }}
+                className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green outline-none font-sans text-sm text-stone-800 leading-relaxed"
+                rows={8}
+                placeholder="Write your beautiful email template message here..."
+              />
+              <div className="bg-lime-50/50 p-3 rounded-xl border border-brand-green/10">
+                <span className="text-[11px] font-bold text-brand-green uppercase tracking-wider block mb-2">
+                  ✨ Tap to Insert Friendly Tags (Automatically replaced with actual booking details):
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleaned = cleanEmailTemplateForUser(value);
+                      const updated = cleaned + " [Parent Name]";
+                      handleChange(path, prepareEmailTemplateForSave(updated));
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
+                  >
+                    👤 Parent Name
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleaned = cleanEmailTemplateForUser(value);
+                      const updated = cleaned + " [Date]";
+                      handleChange(path, prepareEmailTemplateForSave(updated));
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
+                  >
+                    📅 Date
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleaned = cleanEmailTemplateForUser(value);
+                      const updated = cleaned + " [Time]";
+                      handleChange(path, prepareEmailTemplateForSave(updated));
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
+                  >
+                    ⏰ Time
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleaned = cleanEmailTemplateForUser(value);
+                      const updated = cleaned + " [Day]";
+                      handleChange(path, prepareEmailTemplateForSave(updated));
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
+                  >
+                    📆 Day
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : value.length > 100 || isMoreInfo || isDescription ? (
             <textarea
               value={value}
               onChange={(e) => handleChange(path, e.target.value)}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
-              rows={isMoreInfo || isEmailBody ? 6 : 3}
+              rows={isMoreInfo ? 6 : 3}
             />
           ) : (
             <input
@@ -2048,23 +2174,20 @@ export const AdminDashboard: React.FC = () => {
                                         const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
                                         const templateHeader = content[activeLang]?.emailTemplates?.approval?.subject || 'Kidtopia Tour Booking - Confirmed';
                                         const templateBody = content[activeLang]?.emailTemplates?.approval?.body || `Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.`;
-                                        const emailHtml = templateBody
-                                            .replace(/\n/g, '<br/>')
-                                            .replace(/\{name\}/g, b.name || '')
-                                            .replace(/\{date\}/g, b.date || '')
-                                            .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName)
-                                            // Handle potential legacy <p> tags visually nicely if they exist
-                                            .replace(/<p>/g, '<p style="margin: 0 0 10px 0;">');
                                         const subject = templateHeader
                                             .replace(/\{name\}/g, b.name || '')
                                             .replace(/\{date\}/g, b.date || '')
                                             .replace(/\{time\}/g, b.time || '')
                                             .replace(/\{dayName\}/g, dayName);
 
-                                        import('../firebase').then(({ sendEmail }) => {
-                                            sendEmail(b.email, subject, emailHtml).catch(console.error);
-                                        });
+                                        const processedBody = templateBody
+                                            .replace(/\{name\}/g, b.name || '')
+                                            .replace(/\{date\}/g, b.date || '')
+                                            .replace(/\{time\}/g, b.time || '')
+                                            .replace(/\{dayName\}/g, dayName);
+
+                                        const emailHtml = formatEmailWithTheme(subject, processedBody);
+                                        sendEmail(b.email, subject, emailHtml).catch(console.error);
                                       }
                                     }}
                                     className="text-brand-green hover:underline font-medium"
@@ -2083,22 +2206,20 @@ export const AdminDashboard: React.FC = () => {
                                         const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
                                         const templateHeader = content[activeLang]?.emailTemplates?.rejection?.subject || 'Tour Booking Update';
                                         const templateBody = content[activeLang]?.emailTemplates?.rejection?.body || `Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.`;
-                                        const emailHtml = templateBody
-                                            .replace(/\n/g, '<br/>')
-                                            .replace(/\{name\}/g, b.name || '')
-                                            .replace(/\{date\}/g, b.date || '')
-                                            .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName)
-                                            .replace(/<p>/g, '<p style="margin: 0 0 10px 0;">');
                                         const subject = templateHeader
                                             .replace(/\{name\}/g, b.name || '')
                                             .replace(/\{date\}/g, b.date || '')
                                             .replace(/\{time\}/g, b.time || '')
                                             .replace(/\{dayName\}/g, dayName);
 
-                                        import('../firebase').then(({ sendEmail }) => {
-                                            sendEmail(b.email, subject, emailHtml).catch(console.error);
-                                        });
+                                        const processedBody = templateBody
+                                            .replace(/\{name\}/g, b.name || '')
+                                            .replace(/\{date\}/g, b.date || '')
+                                            .replace(/\{time\}/g, b.time || '')
+                                            .replace(/\{dayName\}/g, dayName);
+
+                                        const emailHtml = formatEmailWithTheme(subject, processedBody);
+                                        sendEmail(b.email, subject, emailHtml).catch(console.error);
                                       }
                                     }}
                                     className="text-red-500 hover:underline font-medium ml-2"

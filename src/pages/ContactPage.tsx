@@ -24,7 +24,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedBranchIdx, setSelectedBranchIdx] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,18 +146,17 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
                 <MapPin className="text-brand-orange" size={32} />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">Location</h3>
+                <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">Locations</h3>
                 <div className="space-y-1">
                   {t.addresses && t.addresses.map((addr: any, idx: number) => {
                     const locationStr = typeof addr === 'string' ? addr : addr.locationName;
                     return (
-                      <button
+                      <div
                         key={idx}
-                        onClick={() => setSelectedBranchIdx(idx)}
-                        className="block text-stone-600 hover:text-brand-orange transition-colors text-left font-medium text-sm"
+                        className="text-stone-600 text-sm font-medium"
                       >
                         {locationStr}
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -166,73 +164,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ lang }) => {
             </GlassCard>
           </div>
 
-          {/* Core Interactive Section: Maps & Contact Form */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          {/* Core Interactive Section: Center-Aligned Contact Form */}
+          <div className="max-w-3xl mx-auto">
             
-            {/* Left Column (5/12): Map & Branch Details */}
-            <div className="lg:col-span-5 space-y-6 text-left">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200/60 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
-                <span className="text-[10px] font-extrabold tracking-widest text-brand-orange uppercase">Our Campus Locations</span>
-                <h2 className="text-2xl font-serif font-bold text-stone-900 mt-1 mb-5">Where is Kidtopia?</h2>
-
-                {/* Branch quick tabs */}
-                {t.addresses && t.addresses.length > 1 && (
-                  <div className="flex flex-col gap-2.5 mb-6">
-                    {t.addresses.map((addr: any, idx: number) => {
-                      const locationStr = typeof addr === 'string' ? addr : addr.locationName;
-                      const isSelected = selectedBranchIdx === idx;
-                      return (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => setSelectedBranchIdx(idx)}
-                          className={`p-3.5 rounded-2xl text-left border transition-all flex items-start gap-3.5 ${
-                            isSelected 
-                              ? 'bg-brand-green/5 border-brand-green ring-1 ring-brand-green text-stone-900' 
-                              : 'bg-stone-50/70 border-stone-100 hover:bg-stone-100 text-stone-600'
-                          }`}
-                        >
-                          <MapPin className={`shrink-0 mt-0.5 ${isSelected ? 'text-brand-green animate-pulse' : 'text-stone-400'}`} size={18} />
-                          <div>
-                            <div className="font-extrabold text-sm">{typeof addr === 'string' ? `Branch ${idx + 1}` : locationStr.split(',')[0]}</div>
-                            <div className="text-xs mt-1 text-stone-500 leading-relaxed font-medium">{locationStr}</div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Map display */}
-                {t.addresses && t.addresses[selectedBranchIdx] && (
-                  <div className="space-y-4">
-                    <div className="rounded-2xl overflow-hidden border border-stone-200 h-80 relative shadow-inner bg-stone-100">
-                      <iframe
-                        title="Kidtopia Interactive Map"
-                        src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof t.addresses[selectedBranchIdx] === 'string' ? t.addresses[selectedBranchIdx] : (t.addresses[selectedBranchIdx].googleMapsCoordinates || t.addresses[selectedBranchIdx].locationName))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0 }}
-                        allowFullScreen={false}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof t.addresses[selectedBranchIdx] === 'string' ? t.addresses[selectedBranchIdx] : (t.addresses[selectedBranchIdx].googleMapsCoordinates || t.addresses[selectedBranchIdx].locationName))}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs text-brand-green hover:text-brand-green/80 font-bold tracking-wide"
-                    >
-                      Open Campus Map in Google Maps &rarr;
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right Column (7/12): Dynamic Contact Email Form */}
-            <div className="lg:col-span-7 text-left">
+            {/* Dynamic Contact Email Form */}
+            <div className="text-left">
               <div className="bg-white p-6 sm:p-10 rounded-3xl border border-stone-200/60 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
                 <span className="text-[10px] font-extrabold tracking-widest text-brand-green uppercase">Direct Message</span>
                 <h2 className="text-3xl font-serif font-bold text-stone-900 mt-1 mb-6">Write Us Directly</h2>

@@ -29,44 +29,13 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
             <div className="space-y-4.5">
               {t.addresses && t.addresses.map((addr: any, idx: number) => {
                 const locationStr = typeof addr === 'string' ? addr : addr.locationName;
-                const isSelected = selectedBranchIdx === idx;
                 return (
-                  <div key={idx} className="space-y-1">
-                    <button 
-                      onClick={() => setSelectedBranchIdx(idx)}
-                      className={`flex items-start space-x-3.5 hover:text-white text-left transition-all group/link w-full ${isSelected ? 'text-white' : 'text-stone-400'}`}
-                    >
-                      <MapPin size={18} className={`shrink-0 mt-1 transition-transform group-hover/link:scale-115 stroke-[2] ${isSelected ? 'text-brand-orange' : 'text-stone-500'}`} />
-                      <span className="text-sm font-medium leading-relaxed">{locationStr}</span>
-                    </button>
+                  <div key={idx} className="flex items-start space-x-3.5 text-stone-400">
+                    <MapPin size={18} className="shrink-0 mt-1 text-brand-orange stroke-[2]" />
+                    <span className="text-sm font-medium leading-relaxed">{locationStr}</span>
                   </div>
                 );
               })}
-
-              {t.addresses && t.addresses[selectedBranchIdx] && (
-                <div className="mt-4 pt-1">
-                  <div className="rounded-xl overflow-hidden border border-white/10 h-28 w-full relative">
-                    <iframe
-                      title="Kidtopia Location Map"
-                      src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof t.addresses[selectedBranchIdx] === 'string' ? t.addresses[selectedBranchIdx] : (t.addresses[selectedBranchIdx].googleMapsCoordinates || t.addresses[selectedBranchIdx].locationName))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen={false}
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof t.addresses[selectedBranchIdx] === 'string' ? t.addresses[selectedBranchIdx] : (t.addresses[selectedBranchIdx].googleMapsCoordinates || t.addresses[selectedBranchIdx].locationName))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-brand-orange hover:underline font-bold animate-pulse"
-                  >
-                    View map details <ExternalLink size={10} />
-                  </a>
-                </div>
-              )}
               {t.phones && t.phones.map((ph: string, idx: number) => (
                 <a 
                   key={idx}
@@ -146,6 +115,51 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
             </div>
           </div>
         </div>
+
+        {/* Full-width branch maps display - all locations displayed in the footer at the bottom */}
+        {t.addresses && t.addresses.length > 0 && (
+          <div className="border-t border-white/5 pt-12 pb-8 mt-10">
+            <h3 className="font-display font-black uppercase text-xs tracking-widest text-stone-200 mb-6 pb-2 border-b border-white/10 inline-block">
+              {lang === 'en' ? 'Our Campus Locations & Maps' : 'የካምፓስ አካባቢዎች እና ካርታዎች'}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {t.addresses.map((addr: any, idx: number) => {
+                const locationStr = typeof addr === 'string' ? addr : addr.locationName;
+                return (
+                  <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin size={18} className="shrink-0 mt-1 text-brand-orange stroke-[2]" />
+                      <div>
+                        <h4 className="text-white text-sm font-bold">{typeof addr === 'string' ? `Campus ${idx + 1}` : locationStr.split(',')[0]}</h4>
+                        <p className="text-xs text-stone-400 mt-1">{locationStr}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl overflow-hidden border border-white/10 h-48 w-full relative">
+                      <iframe
+                        title={`Kidtopia Map - ${idx}`}
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof addr === 'string' ? addr : (addr.googleMapsCoordinates || addr.locationName))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen={false}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof addr === 'string' ? addr : (addr.googleMapsCoordinates || addr.locationName))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-brand-orange hover:underline font-bold"
+                    >
+                      Open in Google Maps <ExternalLink size={11} />
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col justify-center mb-6 md:mb-0">
