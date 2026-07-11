@@ -14,6 +14,7 @@ service cloud.firestore {
           request.auth.token.email == "system_worker@kidtopiaet.internal" ||
           request.auth.token.email == "system_worker_v2@kidtopiaet.internal" ||
           request.auth.token.email == "system_worker_v4@kidtopiaet.internal" ||
+          request.auth.token.email == "system_worker_v5@kidtopiaet.internal" ||
           request.auth.token.email.matches('.*@kidtopiaet\\.internal')
         )
       ) || (

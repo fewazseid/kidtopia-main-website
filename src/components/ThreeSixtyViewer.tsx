@@ -415,6 +415,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           user.email === 'system_worker@kidtopiaet.internal' || 
           user.email === 'system_worker_v2@kidtopiaet.internal' || 
           user.email === 'system_worker_v4@kidtopiaet.internal' || 
+          user.email === 'system_worker_v5@kidtopiaet.internal' || 
           user.email?.endsWith('@kidtopiaet.internal');
         
         setIsAdmin(!!isAdminEmail);

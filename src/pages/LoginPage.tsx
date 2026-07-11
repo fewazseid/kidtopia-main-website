@@ -194,6 +194,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
               user.email === 'system_worker@kidtopiaet.internal' ||
               user.email === 'system_worker_v2@kidtopiaet.internal' ||
               user.email === 'system_worker_v4@kidtopiaet.internal' ||
+              user.email === 'system_worker_v5@kidtopiaet.internal' ||
               user.email?.endsWith('@kidtopiaet.internal')) {
             role = 'admin';
             await setUserRole(user.uid, role, user.email || '');

@@ -66,6 +66,7 @@ export const getUserRole = async (uid: string) => {
       auth.currentUser?.email === 'system_worker@kidtopiaet.internal' || 
       auth.currentUser?.email === 'system_worker_v2@kidtopiaet.internal' || 
       auth.currentUser?.email === 'system_worker_v4@kidtopiaet.internal' || 
+      auth.currentUser?.email === 'system_worker_v5@kidtopiaet.internal' || 
       auth.currentUser?.email?.endsWith('@kidtopiaet.internal')) {
     return 'admin';
   }
@@ -135,7 +136,7 @@ export const getAdminConfig = async (): Promise<AdminConfig> => {
   const defaults: AdminConfig = {
     username: 'admin',
     password: '123456',
-    email: 'system_worker_v4@kidtopiaet.internal',
+    email: 'system_worker_v5@kidtopiaet.internal',
     firebasePassword: 'internal_system_password_99X',
     adminEmails: [],
     operationsEmail: '',
@@ -301,6 +302,7 @@ export const getAllBookings = async () => {
                        email === 'system_worker@kidtopiaet.internal' ||
                        email === 'system_worker_v2@kidtopiaet.internal' ||
                        email === 'system_worker_v4@kidtopiaet.internal' ||
+                       email === 'system_worker_v5@kidtopiaet.internal' ||
                        email.endsWith('@kidtopiaet.internal');
 
   let hasPermission = isAdminEmail;
