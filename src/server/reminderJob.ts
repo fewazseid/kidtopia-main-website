@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { sendEmail } from './email.ts';
 import { getAllBookings, getAdminConfig, updateBookingReminderStatus, auth } from '../firebase.ts';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -46,20 +46,6 @@ export function startReminderJob() {
       const pendingBookings = bookings.filter((b: any) => b.status === 'pending' && !b.reminderSent);
       
       const now = Date.now();
-      const GMAIL_USER = process.env.GMAIL_USER;
-      const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-
-      if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
-        return; // Email not configured
-      }
-
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: GMAIL_USER,
-          pass: GMAIL_APP_PASSWORD
-        }
-      });
 
       for (const b of pendingBookings) {
         let createdAtMs = 0;
@@ -116,13 +102,7 @@ export function startReminderJob() {
 
             // Send to all configured admin/operations emails
             for (const email of recipientEmails) {
-              await transporter.sendMail({
-                from: `"Kidtopia Daycare" <${GMAIL_USER}>`,
-                replyTo: config.operationsEmail || GMAIL_USER,
-                to: email,
-                subject,
-                html
-              }).catch(err => console.error(`Failed to send reminder to ${email}`, err));
+              await sendEmail(email, subject, html, config.operationsEmail).catch(err => console.error(`Failed to send reminder to ${email}`, err));
             }
           }
           

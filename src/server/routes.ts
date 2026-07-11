@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import nodemailer from 'nodemailer';
+import { sendEmail } from './email.ts';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-kidtopia';
 
@@ -35,15 +35,6 @@ export function setupRoutes(app: Express) {
   app.post('/api/send-email', async (req, res) => {
     const { to, subject, html, replyTo } = req.body;
     
-    // Allow configuration via environment variables
-    const GMAIL_USER = process.env.GMAIL_USER;
-    const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-
-    if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
-      console.warn("Gmail environment variables not configured. Skipping email send.");
-      return res.status(500).json({ error: 'Email configuration missing on server.' });
-    }
-
     try {
       let operationsEmail = '';
       try {
@@ -54,30 +45,12 @@ export function setupRoutes(app: Express) {
         console.warn("Failed to fetch operationsEmail dynamically in API route:", dbErr);
       }
 
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: GMAIL_USER,
-          pass: GMAIL_APP_PASSWORD
-        }
-      });
-
-      const finalReplyTo = replyTo || operationsEmail || GMAIL_USER;
-      const fromDisplay = operationsEmail 
-        ? `"Kidtopia Daycare" <${GMAIL_USER}>` 
-        : `"Kidtopia Daycare" <${GMAIL_USER}>`;
-
-      await transporter.sendMail({
-        from: fromDisplay,
-        replyTo: finalReplyTo,
-        to: to,
-        subject: subject,
-        html: html
-      });
+      await sendEmail(to, subject, html, replyTo || operationsEmail);
+      
       console.log(`Email successfully sent to ${to}`);
       res.json({ success: true, message: 'Email sent successfully!' });
     } catch (err: any) {
-      console.error('Nodemailer error:', err);
+      console.error('Email sending error:', err);
       res.status(500).json({ error: 'Failed to send email: ' + err.message });
     }
   });
