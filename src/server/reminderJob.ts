@@ -4,12 +4,13 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export function startReminderJob() {
   const CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
-  const REMINDER_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
 
   setInterval(async () => {
     try {
       // Authenticate as admin before querying private collections
       const config = await getAdminConfig();
+      const reminderHours = config.reminderHours || 2;
+      const REMINDER_THRESHOLD = reminderHours * 60 * 60 * 1000;
       if (config.email && config.firebasePassword) {
         if (!auth.currentUser || auth.currentUser.email !== config.email) {
           try {
@@ -85,7 +86,7 @@ export function startReminderJob() {
             const subject = `Reminder: Pending Booking for ${b.name}`;
             const html = `
               <h3>Action Required: Pending Tour Booking</h3>
-              <p>The following tour booking has been pending for over 2 hours and requires review:</p>
+              <p>The following tour booking has been pending for over ${reminderHours} hours and requires review:</p>
               <ul>
                 <li><strong>Name:</strong> ${b.name}</li>
                 <li><strong>Requested Date:</strong> ${b.date}</li>

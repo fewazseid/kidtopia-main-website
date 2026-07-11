@@ -127,6 +127,7 @@ export interface AdminConfig {
   firebasePassword?: string;
   adminEmails?: string[];
   operationsEmail?: string;
+  reminderHours?: number;
   [key: string]: any;
 }
 
@@ -137,7 +138,8 @@ export const getAdminConfig = async (): Promise<AdminConfig> => {
     email: 'system_worker_v4@kidtopiaet.internal',
     firebasePassword: 'internal_system_password_99X',
     adminEmails: [],
-    operationsEmail: ''
+    operationsEmail: '',
+    reminderHours: 2
   };
   const configDoc = await getDoc(doc(db, 'settings', 'admin_config'));
   if (configDoc.exists()) {

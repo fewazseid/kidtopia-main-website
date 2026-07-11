@@ -1011,13 +1011,32 @@ export const AdminDashboard: React.FC = () => {
       .replace(/\[Day\]/g, '{dayName}');
   };
 
-  // Formats email template text with a beautiful Kidtopia header/wrapper
-  const formatEmailWithTheme = (title: string, bodyText: string): string => {
+  // Formats email template text with a beautiful Kidtopia header/wrapper and Map section
+  const formatEmailWithTheme = (title: string, bodyText: string, branchName?: string): string => {
     const paragraphs = bodyText
       .split('\n')
       .filter(p => p.trim() !== '')
       .map(p => `<p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.6; color: #44403c;">${p}</p>`)
       .join('');
+
+    let mapSection = '';
+    if (branchName) {
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branchName)}`;
+      mapSection = `
+        <div style="margin-top: 30px; border: 1px solid #e7e5e4; border-radius: 16px; background-color: #fafaf9; padding: 24px;">
+          <h4 style="margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #1c1917;">
+            📍 Campus Location Details
+          </h4>
+          <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #10b981;">${branchName}</p>
+          <p style="margin: 0 0 18px 0; font-size: 13px; line-height: 1.4; color: #78716c;">
+            We have embedded the direct link to get driving directions, walking pathways, or public transit routes to this campus on Google Maps. Tap the button below to get directions:
+          </p>
+          <div style="text-align: center;">
+            <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 12px 24px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(234,88,12,0.15); font-family: sans-serif;">🧭 Open Campus in Google Maps</a>
+          </div>
+        </div>
+      `;
+    }
 
     return `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #fafaf9; padding: 40px 20px; text-align: center;">
@@ -1031,6 +1050,8 @@ export const AdminDashboard: React.FC = () => {
           <!-- Body Content -->
           <div style="padding: 40px;">
             ${paragraphs}
+            
+            ${mapSection}
             
             <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #f5f5f4; color: #78716c; font-size: 13px;">
               <p style="margin: 0 0 4px 0; font-weight: bold; color: #44403c;">Kidtopia International Daycare and Preschool</p>
@@ -1950,7 +1971,7 @@ export const AdminDashboard: React.FC = () => {
                   <div className="mt-12 pt-8 border-t border-stone-100">
                     <h3 className="text-lg font-bold text-stone-900 mb-2">Central Operations & Notifications Email</h3>
                     <p className="text-sm text-stone-500 mb-4">
-                      Enter the single, central email address used to receive "Contact Us" submissions, receive 2-hour pending review alerts, and serve as the reply-to destination for tour schedule emails.
+                      Enter the single, central email address used to receive "Contact Us" submissions, receive {adminConfig?.reminderHours || 2}-hour pending review alerts, and serve as the reply-to destination for tour schedule emails.
                     </p>
                     <div className="flex flex-col gap-4 max-w-md">
                       <input 
@@ -1983,8 +2004,50 @@ export const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div className="mt-12 pt-8 border-t border-stone-100">
+                    <h3 className="text-lg font-bold text-stone-900 mb-2">Pending Booking Alert Interval</h3>
+                    <p className="text-sm text-stone-500 mb-4">
+                      Choose after how many hours a pending booking triggers automatic reminder emails to the admin notification recipients.
+                    </p>
+                    <div className="flex flex-col gap-4 max-w-md">
+                      <select
+                        value={adminConfig?.reminderHours || 2}
+                        onChange={(e) => {
+                          setAdminConfig({ ...adminConfig, reminderHours: parseInt(e.target.value, 10) });
+                        }}
+                        className="w-full px-4 py-2.5 border border-stone-200 rounded-xl outline-none focus:border-brand-green bg-white text-stone-800 text-sm font-medium"
+                      >
+                        <option value={1}>1 Hour</option>
+                        <option value={2}>2 Hours (Default)</option>
+                        <option value={4}>4 Hours</option>
+                        <option value={6}>6 Hours</option>
+                        <option value={12}>12 Hours</option>
+                        <option value={24}>24 Hours (1 Day)</option>
+                        <option value={48}>48 Hours (2 Days)</option>
+                        <option value={72}>72 Hours (3 Days)</option>
+                      </select>
+                      <button 
+                        onClick={async () => {
+                          setSecurityLoading(true);
+                          try {
+                            await updateAdminConfig(adminConfig);
+                            setFeedback({ type: 'success', message: 'Pending alert interval saved!' });
+                          } catch (err) {
+                            setFeedback({ type: 'error', message: 'Failed to update alert interval' });
+                          } finally {
+                            setSecurityLoading(false);
+                          }
+                        }}
+                        disabled={securityLoading}
+                        className="py-2 bg-brand-green text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                      >
+                        Save Alert Interval
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-12 pt-8 border-t border-stone-100">
                     <h3 className="text-lg font-bold text-stone-900 mb-2">Notification Emails</h3>
-                    <p className="text-sm text-stone-500 mb-4">Enter the email addresses that should receive alerts (like the 2-hour pending approval reminder). Separate multiple emails with a comma.</p>
+                    <p className="text-sm text-stone-500 mb-4">Enter the email addresses that should receive alerts (like the {adminConfig?.reminderHours || 2}-hour pending approval reminder). Separate multiple emails with a comma.</p>
                     <div className="flex flex-col gap-4 max-w-md">
                       <input 
                         type="text"
@@ -2186,7 +2249,7 @@ export const AdminDashboard: React.FC = () => {
                                             .replace(/\{time\}/g, b.time || '')
                                             .replace(/\{dayName\}/g, dayName);
 
-                                        const emailHtml = formatEmailWithTheme(subject, processedBody);
+                                        const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch);
                                         sendEmail(b.email, subject, emailHtml).catch(console.error);
                                       }
                                     }}
