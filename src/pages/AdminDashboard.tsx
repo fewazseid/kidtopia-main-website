@@ -475,10 +475,10 @@ export const AdminDashboard: React.FC = () => {
     return false;
   };
 
-  const transformToOtherLangItem = (obj: any): any => {
+  const transformToOtherLangItem = (obj: any, keyName?: string): any => {
     if (obj === null || obj === undefined) return obj;
     if (Array.isArray(obj)) {
-      return obj.map(item => transformToOtherLangItem(item));
+      return obj.map(item => transformToOtherLangItem(item, keyName));
     }
     if (typeof obj === 'object') {
       const newObj: any = {};
@@ -486,15 +486,18 @@ export const AdminDashboard: React.FC = () => {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
           const value = obj[key];
           if (isNonTextField(key, value)) {
-            newObj[key] = transformToOtherLangItem(value);
+            newObj[key] = JSON.parse(JSON.stringify(value));
           } else {
-            newObj[key] = "";
+            newObj[key] = transformToOtherLangItem(value, key);
           }
         }
       }
       return newObj;
     }
     if (typeof obj === 'string') {
+      if (keyName && isNonTextField(keyName, obj)) {
+        return obj;
+      }
       return "";
     }
     return obj;
@@ -558,62 +561,127 @@ export const AdminDashboard: React.FC = () => {
     targetLang: 'en' | 'am';
   }
 
-  const findTranslationJobs = (enVal: any, amVal: any, currentPath: string[], jobs: TranslationJob[]) => {
-    if (enVal === null || enVal === undefined || amVal === null || amVal === undefined) return;
+  const syncAndQueueTranslations = (enVal: any, amVal: any, currentPath: string[], jobs: TranslationJob[]): { en: any, am: any } => {
+    if (enVal === null || enVal === undefined) return { en: null, am: amVal };
+    if (amVal === null || amVal === undefined) return { en: enVal, am: null };
 
-    if (typeof enVal === 'string' && typeof amVal === 'string') {
-      const trimmedEn = enVal.trim();
-      const trimmedAm = amVal.trim();
-      
-      if (trimmedEn !== '' && trimmedAm === '') {
-        jobs.push({
-          path: currentPath,
-          sourceText: trimmedEn,
-          sourceLang: 'en',
-          targetLang: 'am'
-        });
-      } else if (trimmedAm !== '' && trimmedEn === '') {
-        jobs.push({
-          path: currentPath,
-          sourceText: trimmedAm,
-          sourceLang: 'am',
-          targetLang: 'en'
-        });
-      }
-      return;
+    let repairedEn = enVal;
+    let repairedAm = amVal;
+
+    // Structural repair: If one side is an object/array and the other is a primitive (e.g., "", null, undefined),
+    // convert the primitive to match the object's structure.
+    const keyName = currentPath[currentPath.length - 1];
+    if (typeof enVal === 'object' && enVal !== null && (typeof amVal !== 'object' || amVal === null)) {
+      repairedAm = transformToOtherLangItem(enVal, keyName);
+    } else if (typeof amVal === 'object' && amVal !== null && (typeof enVal !== 'object' || enVal === null)) {
+      repairedEn = transformToOtherLangItem(amVal, keyName);
     }
 
-    if (Array.isArray(enVal) && Array.isArray(amVal)) {
-      const len = Math.min(enVal.length, amVal.length);
-      for (let i = 0; i < len; i++) {
-        findTranslationJobs(enVal[i], amVal[i], [...currentPath, i.toString()], jobs);
-      }
-      return;
-    }
-
-    if (typeof enVal === 'object' && typeof amVal === 'object') {
-      for (const key of Object.keys(enVal)) {
-        if (key in amVal) {
-          findTranslationJobs(enVal[key], amVal[key], [...currentPath, key], jobs);
+    // Now check if either is primitive
+    if (typeof repairedEn !== 'object' || typeof repairedAm !== 'object' || repairedEn === null || repairedAm === null) {
+      if (typeof repairedEn === 'string' && typeof repairedAm === 'string') {
+        const trimmedEn = repairedEn.trim();
+        const trimmedAm = repairedAm.trim();
+        
+        if (trimmedEn !== '' && trimmedAm === '') {
+          jobs.push({
+            path: currentPath,
+            sourceText: trimmedEn,
+            sourceLang: 'en',
+            targetLang: 'am'
+          });
+        } else if (trimmedAm !== '' && trimmedEn === '') {
+          jobs.push({
+            path: currentPath,
+            sourceText: trimmedAm,
+            sourceLang: 'am',
+            targetLang: 'en'
+          });
         }
       }
+      return { en: repairedEn, am: repairedAm };
     }
+
+    // If both are arrays
+    if (Array.isArray(repairedEn) && Array.isArray(repairedAm)) {
+      const maxLength = Math.max(repairedEn.length, repairedAm.length);
+      const newEnArr = [];
+      const newAmArr = [];
+      for (let i = 0; i < maxLength; i++) {
+        const itemEn = repairedEn[i];
+        const itemAm = repairedAm[i];
+        const nextPath = [...currentPath, i.toString()];
+
+        if (itemEn !== undefined && itemAm !== undefined) {
+          const res = syncAndQueueTranslations(itemEn, itemAm, nextPath, jobs);
+          newEnArr.push(res.en);
+          newAmArr.push(res.am);
+        } else if (itemEn !== undefined) {
+          // Missing in Amharic: Clone English item structure to Amharic
+          const clonedAm = transformToOtherLangItem(itemEn, keyName);
+          const res = syncAndQueueTranslations(itemEn, clonedAm, nextPath, jobs);
+          newEnArr.push(res.en);
+          newAmArr.push(res.am);
+        } else if (itemAm !== undefined) {
+          // Missing in English: Clone Amharic item structure to English
+          const clonedEn = transformToOtherLangItem(itemAm, keyName);
+          const res = syncAndQueueTranslations(clonedEn, itemAm, nextPath, jobs);
+          newEnArr.push(res.en);
+          newAmArr.push(res.am);
+        }
+      }
+      return { en: newEnArr, am: newAmArr };
+    }
+
+    // If both are objects
+    if (typeof repairedEn === 'object' && typeof repairedAm === 'object') {
+      const allKeys = Array.from(new Set([...Object.keys(repairedEn), ...Object.keys(repairedAm)]));
+      const newEnObj: any = {};
+      const newAmObj: any = {};
+
+      for (const key of allKeys) {
+        const nextPath = [...currentPath, key];
+        const valEn = repairedEn[key];
+        const valAm = repairedAm[key];
+
+        if (valEn !== undefined && valAm !== undefined) {
+          const res = syncAndQueueTranslations(valEn, valAm, nextPath, jobs);
+          newEnObj[key] = res.en;
+          newAmObj[key] = res.am;
+        } else if (valEn !== undefined) {
+          // Key exists in English, but missing in Amharic
+          const clonedAm = transformToOtherLangItem(valEn, key);
+          const res = syncAndQueueTranslations(valEn, clonedAm, nextPath, jobs);
+          newEnObj[key] = res.en;
+          newAmObj[key] = res.am;
+        } else if (valAm !== undefined) {
+          // Key exists in Amharic, but missing in English
+          const clonedEn = transformToOtherLangItem(valAm, key);
+          const res = syncAndQueueTranslations(clonedEn, valAm, nextPath, jobs);
+          newEnObj[key] = res.en;
+          newAmObj[key] = res.am;
+        }
+      }
+      return { en: newEnObj, am: newAmObj };
+    }
+
+    return { en: repairedEn, am: repairedAm };
   };
 
   const handleSave = async () => {
     setSaving(true);
-    setFeedback({ type: 'info', message: 'Checking for empty fields to auto-translate...' });
+    setFeedback({ type: 'info', message: 'Checking structures and queued translations...' });
     try {
       const enDataCopy = JSON.parse(JSON.stringify(content.en));
       const amDataCopy = JSON.parse(JSON.stringify(content.am));
       const jobs: TranslationJob[] = [];
       
-      findTranslationJobs(enDataCopy, amDataCopy, [], jobs);
+      const { en: syncedEn, am: syncedAm } = syncAndQueueTranslations(enDataCopy, amDataCopy, [], jobs);
       
       if (jobs.length > 0) {
         setFeedback({ 
           type: 'info', 
-          message: `Auto-translating ${jobs.length} empty counterparts using Gemini AI (please wait)...` 
+          message: `Auto-translating ${jobs.length} structural text fields using Gemini AI (please wait)...` 
         });
         
         // Let's run all translation jobs
@@ -627,25 +695,27 @@ export const AdminDashboard: React.FC = () => {
         // Write translations back to our data copies
         results.forEach(({ job, translated }) => {
           if (translated) {
-            let current = job.targetLang === 'en' ? enDataCopy : amDataCopy;
+            let current = job.targetLang === 'en' ? syncedEn : syncedAm;
             for (let i = 0; i < job.path.length - 1; i++) {
               current = current[job.path[i]];
             }
             current[job.path[job.path.length - 1]] = translated;
           }
         });
-
+        
         // Set state so UI updates
-        setContent({ en: enDataCopy, am: amDataCopy });
+        setContent({ en: syncedEn, am: syncedAm });
+      } else {
+        setContent({ en: syncedEn, am: syncedAm });
       }
 
-      await setDoc(doc(db, 'content', 'en'), enDataCopy);
-      await setDoc(doc(db, 'content', 'am'), amDataCopy);
+      await setDoc(doc(db, 'content', 'en'), syncedEn);
+      await setDoc(doc(db, 'content', 'am'), syncedAm);
       setFeedback({ 
         type: 'success', 
         message: jobs.length > 0 
-          ? `Content saved successfully! Automatically translated ${jobs.length} empty fields using Gemini AI.` 
-          : 'Content saved successfully for both languages!' 
+          ? `Content synchronized and saved successfully! Automatically translated ${jobs.length} structural fields.` 
+          : 'Content and structure synchronized perfectly across both languages!' 
       });
     } catch (err) {
       console.error('Failed to save content', err);
@@ -774,7 +844,7 @@ export const AdminDashboard: React.FC = () => {
       const otherLang = activeLang === 'en' ? 'am' : 'en';
       const otherArray = getArrayAt(otherLang);
       if (Array.isArray(otherArray)) {
-        otherArray.push(transformToOtherLangItem(template));
+        otherArray.push(transformToOtherLangItem(template, key));
       }
       
       setContent(newContent);
@@ -1391,6 +1461,32 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-stone-100 flex flex-col md:flex-row pt-20">
+      {/* Desktop & Mobile Fixed Sticky Save & Notification Header Panel aligned parallel with Kidtopia Logo */}
+      <div className="fixed top-0 left-0 right-0 h-20 z-[60] pointer-events-none">
+        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-end gap-2 md:gap-4 pointer-events-auto">
+          <button 
+            onClick={() => setActiveSection('bookings')}
+            className={`relative p-2 md:p-2.5 text-stone-600 bg-white/80 hover:bg-white border border-stone-200/60 rounded-full transition-colors shadow-sm cursor-pointer flex items-center justify-center ${activeSection === 'bookings' ? 'ring-2 ring-brand-green bg-white' : ''}`}
+            title="View Tour Bookings"
+          >
+            <Bell size={18} className="text-stone-700 md:w-5 md:h-5" />
+            {bookings.filter(b => b.status === 'pending').length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] md:text-[10px] rounded-full w-4.5 h-4.5 md:w-5 md:h-5 flex items-center justify-center font-bold border-2 border-white">
+                {bookings.filter(b => b.status === 'pending').length}
+              </span>
+            )}
+          </button>
+          <button 
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-1.5 md:gap-2 bg-brand-green text-white px-3.5 py-2 md:px-5 md:py-2.5 rounded-full font-semibold hover:opacity-95 active:scale-98 transition-all disabled:opacity-50 shadow-md shadow-brand-green/10 cursor-pointer text-xs md:text-sm animate-pulse-once"
+          >
+            <Save size={16} className="md:w-[18px] md:h-[18px]" />
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </div>
+
       {/* Mobile Header Overlay */}
       <div className="md:hidden fixed top-20 left-0 right-0 z-30 bg-white border-b border-stone-200 px-4 py-3 flex items-center justify-between shadow-sm">
         <button 
@@ -1402,28 +1498,10 @@ export const AdminDashboard: React.FC = () => {
         </button>
         <div className="flex gap-2">
           <button 
-            onClick={() => setActiveSection('bookings')}
-            className="p-2 bg-stone-100 text-stone-600 rounded-lg relative"
-          >
-            <Bell size={18} />
-            {bookings.filter(b => b.status === 'pending').length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                {bookings.filter(b => b.status === 'pending').length}
-              </span>
-            )}
-          </button>
-          <button 
             onClick={() => setActiveLang(activeLang === 'en' ? 'am' : 'en')}
             className="px-3 py-1 bg-stone-100 rounded-lg text-xs font-bold text-stone-600"
           >
             {activeLang.toUpperCase()}
-          </button>
-          <button 
-            onClick={handleSave}
-            disabled={saving}
-            className="p-2 bg-brand-green text-white rounded-lg disabled:opacity-50"
-          >
-            <Save size={18} />
           </button>
         </div>
       </div>
@@ -1562,27 +1640,6 @@ export const AdminDashboard: React.FC = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-stone-900 capitalize">
               {activeSection} Content ({activeLang.toUpperCase()})
             </h1>
-            <div className="hidden md:flex items-center gap-4">
-              <button 
-                onClick={() => setActiveSection('bookings')}
-                className="relative p-2 text-stone-600 bg-white border border-stone-200 hover:bg-stone-50 rounded-full transition-colors shadow-sm"
-              >
-                <Bell size={20} />
-                {bookings.filter(b => b.status === 'pending').length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold border-2 border-white">
-                    {bookings.filter(b => b.status === 'pending').length}
-                  </span>
-                )}
-              </button>
-              <button 
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 bg-brand-green text-white px-6 py-2.5 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-              >
-                <Save size={18} />
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-4 md:p-8">

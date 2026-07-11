@@ -112,7 +112,21 @@ export function setupRoutes(app: Express) {
     }
   });
 
-  // Translation Route using Gemini API
+  // Translation helper function
+  async function fallbackTranslate(text: string, sourceLang: string, targetLang: string): Promise<string> {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Google Translate fallback failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    if (data && data[0]) {
+      return data[0].map((x: any) => x[0]).join('').trim();
+    }
+    return '';
+  }
+
+  // Translation Route using Gemini API with robust Google Translate fallback
   app.post('/api/translate', async (req, res) => {
     const { text, sourceLang, targetLang } = req.body;
     if (!text) {
@@ -120,13 +134,14 @@ export function setupRoutes(app: Express) {
     }
 
     try {
-      const { GoogleGenAI } = await import('@google/genai');
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
-        console.warn("GEMINI_API_KEY not configured. Skipping translate.");
-        return res.status(500).json({ error: 'Gemini API key is not configured on the server.' });
+        console.warn("GEMINI_API_KEY not configured. Falling back to Google Translate.");
+        const translatedText = await fallbackTranslate(text, sourceLang, targetLang);
+        return res.json({ success: true, translatedText });
       }
 
+      const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({
         apiKey,
         httpOptions: {
@@ -144,10 +159,20 @@ export function setupRoutes(app: Express) {
       });
 
       const translatedText = response.text?.trim() || '';
-      res.json({ success: true, translatedText });
+      if (translatedText) {
+        res.json({ success: true, translatedText });
+      } else {
+        throw new Error('Empty response from Gemini translation model');
+      }
     } catch (err: any) {
-      console.error('Gemini translate error:', err);
-      res.status(500).json({ error: 'Failed to translate: ' + err.message });
+      console.warn('Gemini translate failed, trying Google Translate fallback. Error:', err.message || err);
+      try {
+        const translatedText = await fallbackTranslate(text, sourceLang, targetLang);
+        res.json({ success: true, translatedText });
+      } catch (fallbackErr: any) {
+        console.error('All translation methods failed:', fallbackErr);
+        res.status(500).json({ error: 'Failed to translate: ' + fallbackErr.message });
+      }
     }
   });
 

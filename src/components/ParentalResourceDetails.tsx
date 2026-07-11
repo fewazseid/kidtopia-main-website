@@ -315,6 +315,24 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
       content: lang === 'en'
         ? 'Our days are filled with structured balance: free play, cognitive group studies, healthy meals, and a dedicated afternoon nap (13:00 to 15:00). Blankets and daycare sheets are clean and laundered internally using our commercial hygienic laundry system.'
         : 'ቀናቶቻችን የተዋቀሩ ሚዛኖች የተሞሉ ናቸው-ነፃ ጨዋታ ፣ የእውቀት ቡድን ጥናቶች ፣ ጤናማ ምግቦች እና ከሰዓት በኋላ እንቅልፍ (ከ 13:00 እስከ 15:00)። ብርድ ልብሶች እና አንሶላዎች በንግድ ንፅህና ማጠቢያ ስርዓታችን በመጠቀም በቤት ውስጥ ይታጠባሉ።'
+    },
+    {
+      title: lang === 'en' ? '5. Financial Terms & Tuition Fees' : '5. የክፍያ መዋቅር፣ የክፍያ ውሎች እና ደንቦች',
+      content: lang === 'en'
+        ? 'Parents agree to make tuition payments on or before the 1st of each calendar month. A late payment fee of 10% is applied to outstanding balances after the 5th. Written withdrawal notification must be provided at least 30 calendar days in advance; failure to do so will result in forfeiture of the registration security deposit. Regular attendance ensures continuity of educational milestones.'
+        : 'ወላጆች በየወሩ በ1ኛው ቀን ወይም ከዚያ በፊት የትምህርት ክፍያዎችን ለመክፈል ይስማማሉ። ከ5ኛው ቀን በኋላ ባልተከፈሉ ክፍያዎች ላይ የ10% የዘግይቶ መክፈያ ክፍያ ይተገበራል። ልጆችን ለማውጣት ቢያንስ ከ30 የቀን መቁጠሪያ ቀናት በፊት የጽሁፍ ማስታወቂያ መቅረብ አለበት፤ ይህ ካልሆነ ግን የመመዝገቢያ ማስያዣ ገንዘብ ይወረሳል። አዘውትሮ መገኘት የትምህርት እድገት ቀጣይነትን ያረጋግጣል።'
+    },
+    {
+      title: lang === 'en' ? '6. Emergency Medical Authorization' : '6. የድንገተኛ ጊዜ የህክምና ፍቃድ እና ስምምነት',
+      content: lang === 'en'
+        ? 'In the event of a medical emergency, Kidtopia staff will make every reasonable effort to contact the parents immediately. If parents cannot be reached, the parent hereby authorizes Kidtopia to obtain emergency medical treatment, hospitalize, secure anesthesia, or order injections/surgery for the child under licensed medical direction. All families must keep emergency contact information 100% updated.'
+        : 'በድንገተኛ የህክምና ጊዜ የኪድቶፒያ ሰራተኞች ወላጆችን ለማግኘት የተቻለውን ሁሉ ጥረት ያደርጋሉ። ወላጆችን ማግኘት ካልተቻለ፣ ወላጅ በህጋዊ የህክምና መመሪያ ስር ለልጁ ድንገተኛ ህክምና ለማግኘት፣ ሆስፒታል ለማስገባት፣ ማደንዘዣ ለመስጠት ወይም መርፌዎችን/ቀዶ ጥገናዎችን ለማዘዝ ለኪድቶፒያ ፈቃድ ይሰጣሉ። ሁሉም ቤተሰቦች የድንገተኛ አደጋ መገናኛ መረጃዎችን 100% ወቅታዊ ማድረግ አለባቸው።'
+    },
+    {
+      title: lang === 'en' ? '7. Code of Parental Conduct & Respect' : '7. የወላጅ ባህሪ እና የጋራ መከባበር መመሪያ',
+      content: lang === 'en'
+        ? 'We believe in a mutual relationship of respect and collaboration. Parents are expected to communicate respectfully with all teachers, care professionals, and administrative coordinators. Aggressive behavior, derogatory remarks, or physical/verbal harassment of any form will result in immediate termination of daycare enrollment with zero refund of any current monthly balances.'
+        : 'እኛ የምናምነው በጋራ መከባበር እና ትብብር ላይ ነው። ወላጆች ከሁሉም አስተማሪዎች፣ የእንክብካቤ ባለሙያዎች እና የአስተዳደር አስተባባሪዎች ጋር በአክብሮት እንዲገናኙ ይጠበቅባቸዋል። አስገዳጅ ወይም ጨካኝ ባህሪ፣ አጸያፊ አስተያየቶች፣ ወይም አካላዊ/የቃል ትንኮሳ ምንም አይነት ክፍያ ሳይመለስ ወዲያውኑ የልጁን ምዝገባ እንዲቋረጥ ያደርጋል።'
     }
   ];
 

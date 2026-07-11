@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kidtopia - Offline Mode</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #fcfbf7;
+            color: #292524;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            max-width: 480px;
+            padding: 40px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px border #e7e5e4;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+        .letter-k { color: #ea580c; }
+        .letter-i { color: #eab308; }
+        .letter-d { color: #3a5b32; }
+        .letter-t { color: #06b6d4; }
+        .letter-o { color: #d97706; }
+        .letter-p { color: #ea580c; }
+        .letter-y { color: #eab308; }
+        .letter-a { color: #3a5b32; }
+        
+        h1 {
+            font-size: 20px;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: #3a5b32;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #57534e;
+            margin-bottom: 24px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3a5b32;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #f5f5f4;
+            color: #78716c;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <span class="letter-k">K</span>
+            <span class="letter-i">I</span>
+            <span class="letter-d">D</span>
+            <span class="letter-t">T</span>
+            <span class="letter-o">O</span>
+            <span class="letter-p">P</span>
+            <span class="letter-i">I</span>
+            <span class="letter-a">A</span>
+        </div>
+        <div class="badge">Offline Active</div>
+        <h1>Connection Fluctuating</h1>
+        <p>You are currently operating in offline mode. Don't worry! All previously loaded 360 virtual tour panoramas and interactive parental handbooks are cached on your device and fully accessible.</p>
+        <a href="/" class="button">Reload Virtual Tour</a>
+    </div>
+</body>
+</html>

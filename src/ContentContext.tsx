@@ -18,38 +18,36 @@ const ContentContext = createContext<ContentContextType>({
 
 // Robust deep merge to ensure partial edits in Firestore do not destroy nested translations structures
 function deepMerge(target: any, source: any): any {
-  if (source === null || source === undefined) return target;
+  if (source === undefined || source === null) return target;
 
   if (Array.isArray(source)) {
-    const cleaned = source.filter(item => item !== null && item !== undefined);
-    if (cleaned.length === 0) return target;
-
-    if (Array.isArray(target)) {
-      return cleaned.map((item, idx) => {
-        if (item && typeof item === 'object') {
-          const defaultTarget = target[idx] || target[0] || {};
-          return deepMerge(defaultTarget, item);
-        }
-        return item;
-      });
-    }
-    return cleaned;
+    if (!Array.isArray(target)) return source;
+    return source.map((item, idx) => {
+      const defaultTarget = target[idx] || target[0];
+      if (item && typeof item === 'object' && defaultTarget && typeof defaultTarget === 'object') {
+        return deepMerge(defaultTarget, item);
+      }
+      return item;
+    });
   }
 
   if (typeof source !== 'object') {
-    if ((source === "" || source === null || source === undefined) && target) {
-      return target;
-    }
+    // If source is empty string "", it's a valid empty field, do not replace with target
+    return source;
+  }
+
+  if (target === null || target === undefined || typeof target !== 'object') {
     return source;
   }
 
   const output = { ...target };
   for (const key of Object.keys(source)) {
-    if (source[key] !== null && source[key] !== undefined) {
+    const sourceVal = source[key];
+    if (sourceVal !== undefined && sourceVal !== null) {
       if (key in target) {
-        output[key] = deepMerge(target[key], source[key]);
+        output[key] = deepMerge(target[key], sourceVal);
       } else {
-        output[key] = source[key];
+        output[key] = sourceVal;
       }
     }
   }
@@ -58,50 +56,7 @@ function deepMerge(target: any, source: any): any {
 
 // Highly intelligent Amharic merge to discard any un-localized English reference values in DB
 function deepMergeAmharic(target: any, source: any, referenceEn: any): any {
-  if (source === null || source === undefined) return target;
-
-  if (Array.isArray(source)) {
-    const cleaned = source.filter(item => item !== null && item !== undefined);
-    if (cleaned.length === 0) return target;
-
-    if (Array.isArray(target)) {
-      return cleaned.map((item, idx) => {
-        const refItem = Array.isArray(referenceEn) ? referenceEn[idx] || referenceEn[0] : undefined;
-        if (item && typeof item === 'object') {
-          const defaultTarget = target[idx] || target[0] || {};
-          return deepMergeAmharic(defaultTarget, item, refItem);
-        }
-        if (typeof item === 'string' && typeof refItem === 'string' && item.trim().toLowerCase() === refItem.trim().toLowerCase()) {
-          return target[idx] || item;
-        }
-        return item;
-      });
-    }
-    return cleaned;
-  }
-
-  if (typeof source !== 'object') {
-    if ((source === "" || source === null || source === undefined) && target) {
-      return target;
-    }
-    if (typeof source === 'string' && typeof referenceEn === 'string' && source.trim().toLowerCase() === referenceEn.trim().toLowerCase()) {
-      return target;
-    }
-    return source;
-  }
-
-  const output = { ...target };
-  for (const key of Object.keys(source)) {
-    if (source[key] !== null && source[key] !== undefined) {
-      const refVal = referenceEn ? referenceEn[key] : undefined;
-      if (key in target) {
-        output[key] = deepMergeAmharic(target[key], source[key], refVal);
-      } else {
-        output[key] = source[key];
-      }
-    }
-  }
-  return output;
+  return deepMerge(target, source);
 }
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
