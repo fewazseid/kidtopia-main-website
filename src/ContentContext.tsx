@@ -10,7 +10,7 @@ type ContentContextType = {
   refresh: () => Promise<void>;
 };
 
-const ContentContext = createContext<ContentContextType>({
+export const ContentContext = createContext<ContentContextType>({
   content: defaultTranslations,
   loading: true,
   refresh: async () => {},

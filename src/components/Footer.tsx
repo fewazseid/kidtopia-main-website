@@ -118,11 +118,11 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
 
         {/* Full-width branch maps display - all locations displayed in the footer at the bottom */}
         {t.addresses && t.addresses.length > 0 && (
-          <div className="border-t border-white/5 pt-12 pb-8 mt-10">
-            <h3 className="font-display font-black uppercase text-xs tracking-widest text-stone-200 mb-6 pb-2 border-b border-white/10 inline-block">
+          <div className="border-t border-white/5 pt-12 pb-8 mt-10 flex flex-col items-center justify-center text-center">
+            <h3 className="font-display font-black uppercase text-xs tracking-widest text-stone-200 mb-6 pb-2 border-b border-white/10 inline-block mx-auto">
               {lang === 'en' ? 'Our Campus Locations & Maps' : 'የካምፓስ አካባቢዎች እና ካርታዎች'}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl justify-center text-left">
               {t.addresses.map((addr: any, idx: number) => {
                 const locationStr = typeof addr === 'string' ? addr : addr.locationName;
                 return (

@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
               <span className="ml-1.5 w-2 h-2 rounded-full bg-brand-orange animate-bounce"></span>
             </div>
             <span 
-              className="text-[10px] font-display font-bold tracking-widest uppercase mt-[-3px] hidden xl:block opacity-80 group-hover:opacity-100 transition-opacity"
+              className="text-[7px] sm:text-[9px] md:text-[10px] font-display font-bold tracking-widest uppercase mt-[-3px] block opacity-80 group-hover:opacity-100 transition-opacity"
               style={{ color: t.activeColor || '#3a5b32' }}
             >
               International Daycare & Preschool

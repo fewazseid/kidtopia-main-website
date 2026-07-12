@@ -30,7 +30,7 @@ import { useLocation } from 'react-router-dom';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
-  const isMinimalLayout = ['/login', '/admin', '/staff', '/parent', '/book-tour'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
+  const isMinimalLayout = ['/login', '/admin', '/staff', '/parent'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
 
   return (
     <div className="min-h-screen selection:bg-brand-green/20 relative">

@@ -37,7 +37,7 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
               <span className="text-brand-yellow">I</span>
               <span className="text-brand-green">A</span>
             </div>
-            <span className="text-[8px] font-sans text-brand-green font-medium tracking-wide mt-[-4px] hidden sm:block">
+            <span className="text-[7px] sm:text-[8px] font-sans text-brand-green font-medium tracking-wide mt-[-4px] block">
               International Daycare and Preschool
             </span>
           </div>

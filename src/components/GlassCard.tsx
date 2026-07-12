@@ -140,7 +140,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
           backdropFilter: 'blur(28px) saturate(210%)',
           WebkitBackdropFilter: 'blur(28px) saturate(210%)',
         }}
-        className={`relative overflow-hidden cursor-pointer rounded-3xl border border-white/55 ${outerClassName}`}
+        className={`relative overflow-hidden ${onClick ? 'cursor-pointer' : ''} rounded-3xl border border-white/55 ${outerClassName}`}
       >
         {/* Dynamic Sheen/Glare Overlay */}
         <motion.div
@@ -160,7 +160,10 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 
         {/* Content wrapper with layer offset for parallax effect */}
         <div 
-          style={{ transform: 'translateZ(20px)', transformStyle: 'preserve-3d' }}
+          style={{ 
+            transform: disableHover ? undefined : 'translateZ(20px)', 
+            transformStyle: disableHover ? undefined : 'preserve-3d' 
+          }}
           className={`relative z-20 w-full h-full ${innerClassName}`}
         >
           {children}

@@ -2,8 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useContentRefresh } from '../ContentContext';
+import { useContentRefresh, ContentContext } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
+
+// Live Preview Components
+import { Hero } from '../components/Hero';
+import { Announcement } from '../components/Announcement';
+import { TrustSafety } from '../components/TrustSafety';
+import { Programs } from '../components/Programs';
+import { WhyChoose } from '../components/WhyChoose';
+import { StaffSection } from '../components/StaffSection';
+import { VirtualTour } from '../components/VirtualTour';
+import { DailyExperience } from '../components/DailyExperience';
+import { Resources } from '../components/Resources';
+import { Testimonials } from '../components/Testimonials';
+import { FAQSection } from '../components/FAQSection';
+import { CTASection } from '../components/CTASection';
+import { Footer } from '../components/Footer';
+import { Header } from '../components/Header';
+import { EnrollPage } from './EnrollPage';
 import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -39,6 +56,8 @@ export const AdminDashboard: React.FC = () => {
   const [activeLang, setActiveLang] = useState<'en' | 'am'>('en');
   const [activeSection, setActiveSection] = useState('hero');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ message: string, onConfirm: () => void } | null>(null);
   const [users, setUsers] = useState<any[]>([]);
@@ -945,6 +964,61 @@ export const AdminDashboard: React.FC = () => {
     { id: 'security', icon: <Shield size={18} />, label: 'Security Settings' },
   ];
 
+  const previewableSections = [
+    'hero', 'announcement', 'safety', 'programs', 'whyChoose', 
+    'staff', 'virtualTour', 'dailyExperience', 'resources', 
+    'testimonials', 'faq', 'cta', 'footer', 'nav', 'enrollmentPage'
+  ];
+  const canPreview = previewableSections.includes(activeSection);
+
+  const renderPreviewComponent = () => {
+    switch (activeSection) {
+      case 'hero':
+        return <Hero lang={activeLang} onScrollTo={() => {}} />;
+      case 'announcement':
+        return <Announcement lang={activeLang} />;
+      case 'safety':
+        return <TrustSafety lang={activeLang} />;
+      case 'programs':
+        return <Programs lang={activeLang} />;
+      case 'whyChoose':
+        return <WhyChoose lang={activeLang} />;
+      case 'staff':
+        return <StaffSection lang={activeLang} />;
+      case 'virtualTour':
+        return <VirtualTour lang={activeLang} />;
+      case 'dailyExperience':
+        return <DailyExperience lang={activeLang} />;
+      case 'resources':
+        return <Resources lang={activeLang} />;
+      case 'testimonials':
+        return <Testimonials lang={activeLang} />;
+      case 'faq':
+        return <FAQSection lang={activeLang} />;
+      case 'cta':
+        return <CTASection lang={activeLang} />;
+      case 'footer':
+        return <Footer lang={activeLang} />;
+      case 'nav':
+        return (
+          <div className="relative pt-24 pb-8 bg-stone-100">
+            <Header lang={activeLang} setLang={() => {}} onScrollTo={() => {}} />
+            <div className="p-8 text-center text-stone-500 font-medium bg-white border border-stone-200 rounded-2xl shadow-sm mt-8 mx-4">
+              Navigation Header is rendered above. You can see how the menu items and language controls are positioned.
+            </div>
+          </div>
+        );
+      case 'enrollmentPage':
+        return <EnrollPage lang={activeLang} />;
+      default:
+        return (
+          <div className="p-8 text-center text-stone-500">
+            No preview available for this section.
+          </div>
+        );
+    }
+  };
+
   const sortObjectKeysByTemplate = (obj: any, path: string[]) => {
     if (!obj || typeof obj !== 'object') return [];
     
@@ -1807,10 +1881,36 @@ export const AdminDashboard: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto h-[calc(100vh-5rem)] mt-14 md:mt-0">
         <div className="p-4 md:p-10 max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-stone-900 capitalize">
-              {activeSection} Content ({activeLang.toUpperCase()})
-            </h1>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-stone-100">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-stone-900 capitalize">
+                {activeSection === 'bookings' ? 'Tour Bookings' : activeSection === 'emailTemplates' ? 'Email Templates' : activeSection === 'users' ? 'User Management' : activeSection === 'security' ? 'Security Settings' : `${activeSection} Content`} ({activeLang.toUpperCase()})
+              </h1>
+              <p className="text-xs text-stone-500 mt-1">
+                {activeSection === 'bookings' ? 'Review and manage incoming tour requests.' : activeSection === 'users' ? 'Manage system roles and bio logins.' : 'Customize wording and live-preview changes in real-time.'}
+              </p>
+            </div>
+            
+            {canPreview && (
+              <div className="flex bg-stone-100 p-1 rounded-xl border border-stone-200/60 shadow-inner shrink-0 self-end sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode(false)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${!previewMode ? 'bg-white text-brand-green shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+                >
+                  <Settings size={14} />
+                  Form Editor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode(true)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${previewMode ? 'bg-white text-brand-green shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+                >
+                  <Eye size={14} />
+                  Live Preview
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-4 md:p-8">
@@ -2363,37 +2463,82 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             ) : content[activeLang] && content[activeLang][activeSection] ? (
-              <>
-                {activeSection === 'emailTemplates' && (
-                  <div className="mb-6 p-4 bg-lime-50 border border-brand-green/20 rounded-xl">
-                    <h3 className="font-bold text-brand-green mb-2 flex items-center gap-2">
-                       <Megaphone size={18}/> Placeholder Variables
-                    </h3>
-                    <p className="text-sm text-stone-600 mb-2">You can use these placeholders inside your email templates. They will be automatically replaced with the booking data when an email is sent:</p>
-                    <ul className="list-disc pl-5 text-sm text-stone-600 space-y-1">
-                      <li><strong>{`{name}`}</strong> - The parent's name</li>
-                      <li><strong>{`{date}`}</strong> - The requested tour date (YYYY-MM-DD)</li>
-                      <li><strong>{`{time}`}</strong> - The requested tour time</li>
-                      <li><strong>{`{dayName}`}</strong> - The day of the week (e.g., Monday, Tuesday)</li>
-                    </ul>
+              previewMode && canPreview ? (
+                <div className="w-full text-center">
+                  {/* Device selector */}
+                  <div className="flex justify-center gap-2 mb-6 bg-stone-50 p-2.5 rounded-2xl border border-stone-200/60 max-w-sm mx-auto shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDevice('desktop')}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${previewDevice === 'desktop' ? 'bg-brand-green text-white shadow-sm' : 'text-stone-600 hover:bg-stone-200/40'}`}
+                    >
+                      💻 Desktop
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDevice('tablet')}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${previewDevice === 'tablet' ? 'bg-brand-green text-white shadow-sm' : 'text-stone-600 hover:bg-stone-200/40'}`}
+                    >
+                      📟 Tablet
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDevice('mobile')}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${previewDevice === 'mobile' ? 'bg-brand-green text-white shadow-sm' : 'text-stone-600 hover:bg-stone-200/40'}`}
+                    >
+                      📱 Mobile
+                    </button>
                   </div>
-                )}
-                {activeSection === 'virtualTour' && (
-                  <div className="mb-10 p-6 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm">
-                    <h3 className="font-bold text-stone-800 dark:text-stone-100 text-base mb-2 flex items-center gap-2 font-sans">
-                      <Compass size={20} className="text-brand-green animate-spin" style={{ animationDuration: '12s' }} />
-                      Interactive 360° Virtual Tour Layout Builder
-                    </h3>
-                    <p className="text-sm text-stone-600 dark:text-stone-400 mb-6 font-sans">
-                      Drag to look around the virtual room, and use the "🛠️ Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
-                    </p>
-                    <ThreeSixtyViewer isAdminMode={true} />
+
+                  {/* Device Frame */}
+                  <div className={`transition-all duration-300 ${
+                    previewDevice === 'mobile' 
+                      ? 'max-w-[375px] mx-auto border-[12px] border-stone-800 rounded-[40px] h-[650px] overflow-y-auto bg-white shadow-2xl relative' 
+                      : previewDevice === 'tablet'
+                      ? 'max-w-[768px] mx-auto border-[10px] border-stone-800 rounded-3xl h-[650px] overflow-y-auto bg-white shadow-lg relative'
+                      : 'w-full border border-stone-200 rounded-2xl overflow-hidden bg-white shadow-sm p-1'
+                  }`}>
+                    {/* Inner scaled viewport */}
+                    <div className="w-full h-full text-left">
+                      <ContentContext.Provider value={{ content, loading: false, refresh: async () => {} }}>
+                        {renderPreviewComponent()}
+                      </ContentContext.Provider>
+                    </div>
                   </div>
-                )}
-                {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 
-                  renderField(key, content[activeLang][activeSection][key], [activeSection, key])
-                )}
-              </>
+                </div>
+              ) : (
+                <>
+                  {activeSection === 'emailTemplates' && (
+                    <div className="mb-6 p-4 bg-lime-50 border border-brand-green/20 rounded-xl">
+                      <h3 className="font-bold text-brand-green mb-2 flex items-center gap-2">
+                         <Megaphone size={18}/> Placeholder Variables
+                      </h3>
+                      <p className="text-sm text-stone-600 mb-2">You can use these placeholders inside your email templates. They will be automatically replaced with the booking data when an email is sent:</p>
+                      <ul className="list-disc pl-5 text-sm text-stone-600 space-y-1">
+                        <li><strong>{`{name}`}</strong> - The parent's name</li>
+                        <li><strong>{`{date}`}</strong> - The requested tour date (YYYY-MM-DD)</li>
+                        <li><strong>{`{time}`}</strong> - The requested tour time</li>
+                        <li><strong>{`{dayName}`}</strong> - The day of the week (e.g., Monday, Tuesday)</li>
+                      </ul>
+                    </div>
+                  )}
+                  {activeSection === 'virtualTour' && (
+                    <div className="mb-10 p-6 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm">
+                      <h3 className="font-bold text-stone-800 dark:text-stone-100 text-base mb-2 flex items-center gap-2 font-sans">
+                        <Compass size={20} className="text-brand-green animate-spin" style={{ animationDuration: '12s' }} />
+                        Interactive 360° Virtual Tour Layout Builder
+                      </h3>
+                      <p className="text-sm text-stone-600 dark:text-stone-400 mb-6 font-sans">
+                        Drag to look around the virtual room, and use the "🛠️ Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
+                      </p>
+                      <ThreeSixtyViewer isAdminMode={true} />
+                    </div>
+                  )}
+                  {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 
+                    renderField(key, content[activeLang][activeSection][key], [activeSection, key])
+                  )}
+                </>
+              )
             ) : (
               <p className="text-stone-500">No content available for this section.</p>
             )}
