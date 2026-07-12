@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useContent } from '../ContentContext';
 import { Language } from '../translations';
 import { CheckCircle, ClipboardList, AlertCircle, ArrowLeft, ArrowRight, ShieldCheck, FileCheck, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PolicyModal } from '../components/PolicyModal';
 
 interface EnrollPageProps {
   lang: Language;
@@ -42,6 +43,13 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
   };
 
   const [activeTab, setActiveTab] = useState<'rules' | 'handbook' | 'nutrition' | 'milestones'>('rules');
+  const [isPolicyOpen, setIsPolicyOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState<'terms' | 'guidelines' | 'health' | 'privacy'>('terms');
+
+  const openPolicy = (tab: 'terms' | 'guidelines' | 'health' | 'privacy') => {
+    setPolicyTab(tab);
+    setIsPolicyOpen(true);
+  };
 
   // Load parent resources data from synced translations
   const resData = t.resources || {};
@@ -263,6 +271,13 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
               ? 'እባክዎ ከመመዝገብዎ በፊት እያንዳንዱን ትር ጠቅ በማድረግ ሁሉንም መመሪያዎች፣ የወላጅ መመሪያ ምዕራፎችን፣ ሳምንታዊ ምግቦችን እና የልጅ እድገት ደረጃዎችን ያንብቡ።'
               : 'Please review all information, parent handbook chapters, nutritional guides, and milestones by clicking each tab before checking the acceptance box.'}
           </p>
+
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button onClick={() => openPolicy('terms')} className="px-4 py-2 bg-stone-100 rounded-lg text-xs font-bold text-stone-700 hover:bg-stone-200">View Terms</button>
+            <button onClick={() => openPolicy('guidelines')} className="px-4 py-2 bg-stone-100 rounded-lg text-xs font-bold text-stone-700 hover:bg-stone-200">View Guidelines</button>
+            <button onClick={() => openPolicy('health')} className="px-4 py-2 bg-stone-100 rounded-lg text-xs font-bold text-stone-700 hover:bg-stone-200">View Health Policy</button>
+            <button onClick={() => openPolicy('privacy')} className="px-4 py-2 bg-stone-100 rounded-lg text-xs font-bold text-stone-700 hover:bg-stone-200">View Privacy Policy</button>
+          </div>
 
           {/* Navigation Tabs */}
           <div className="flex flex-wrap gap-1.5 mb-5 border-b border-stone-200/60 pb-3">
@@ -519,6 +534,17 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           )}
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {isPolicyOpen && (
+          <PolicyModal 
+            isOpen={isPolicyOpen} 
+            onClose={() => setIsPolicyOpen(false)} 
+            lang={lang} 
+            initialTab={policyTab} 
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 };

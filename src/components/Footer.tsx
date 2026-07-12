@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Music2, ExternalLink } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
+import { PolicyModal } from './PolicyModal';
 
 interface FooterProps {
   lang: Language;
@@ -14,6 +16,13 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
   const nav = content.nav;
 
   const [selectedBranchIdx, setSelectedBranchIdx] = useState(0);
+  const [isPolicyOpen, setIsPolicyOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState<'terms' | 'guidelines' | 'health' | 'privacy'>('terms');
+
+  const openPolicy = (tab: 'terms' | 'guidelines' | 'health' | 'privacy') => {
+    setPolicyTab(tab);
+    setIsPolicyOpen(true);
+  };
 
   return (
     <footer id="footer" className="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-400 py-20 relative overflow-hidden">
@@ -79,10 +88,10 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               {content.nav.parentResources || t.resources}
             </h3>
             <ul className="space-y-3.5">
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Parent Guidelines</button></li>
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Health Policy</button></li>
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Terms and Conditions</button></li>
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Privacy Policy</button></li>
+              <li><button onClick={() => openPolicy('guidelines')} className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer text-left">{lang === 'en' ? 'Parent Guidelines' : 'የወላጅ መመሪያዎች'}</button></li>
+              <li><button onClick={() => openPolicy('health')} className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer text-left">{lang === 'en' ? 'Health Policy' : 'የጤና ፖሊሲ'}</button></li>
+              <li><button onClick={() => openPolicy('terms')} className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer text-left">{lang === 'en' ? 'Terms and Conditions' : 'ውሎች እና ሁኔታዎች'}</button></li>
+              <li><button onClick={() => openPolicy('privacy')} className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer text-left">{lang === 'en' ? 'Privacy Policy' : 'የግል መረጃ ጥበቃ'}</button></li>
             </ul>
           </div>
 
@@ -189,6 +198,16 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           </div>
         </div>
       </div>
+      <AnimatePresence>
+        {isPolicyOpen && (
+          <PolicyModal 
+            isOpen={isPolicyOpen} 
+            onClose={() => setIsPolicyOpen(false)} 
+            lang={lang} 
+            initialTab={policyTab} 
+          />
+        )}
+      </AnimatePresence>
     </footer>
   );
 };

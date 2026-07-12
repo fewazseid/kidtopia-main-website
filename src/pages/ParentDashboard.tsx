@@ -9,12 +9,20 @@ import { auth, logout, db } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { GlassCard } from '../components/GlassCard';
 import { ParentalResourceDetails } from '../components/ParentalResourceDetails';
+import { PolicyModal } from '../components/PolicyModal';
 
 export const ParentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'portal' | 'health' | 'timeline' | 'gallery'>('portal');
+  const [isPolicyOpen, setIsPolicyOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState<'terms' | 'guidelines' | 'health' | 'privacy'>('terms');
+
+  const openPolicy = (tab: 'terms' | 'guidelines' | 'health' | 'privacy') => {
+    setPolicyTab(tab);
+    setIsPolicyOpen(true);
+  };
   
   // Health updates form state
   const [allergies, setAllergies] = useState('');
@@ -177,7 +185,7 @@ export const ParentDashboard: React.FC = () => {
         {activeTab === 'portal' && (
           <div className="space-y-8">
             {/* Core Action Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               
               <GlassCard 
                 className="p-6 flex flex-row items-center gap-4 text-left h-full cursor-pointer hover:shadow-md hover:scale-[1.02] transition"
@@ -232,6 +240,20 @@ export const ParentDashboard: React.FC = () => {
                 <div>
                   <h3 className="text-base font-black text-stone-900 leading-none mb-1 font-sans">Health File</h3>
                   <p className="text-stone-500 text-xs">Update medical and allergy info.</p>
+                </div>
+              </GlassCard>
+
+              <GlassCard 
+                className="p-6 flex flex-row items-center gap-4 text-left h-full cursor-pointer hover:shadow-md hover:scale-[1.02] transition"
+                onClick={() => openPolicy('terms')}
+                delay={0.25}
+              >
+                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 shrink-0">
+                  <ShieldCheck size={24} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-stone-900 leading-none mb-1 font-sans">Policies</h3>
+                  <p className="text-stone-500 text-xs">Guidelines & Terms.</p>
                 </div>
               </GlassCard>
 
@@ -493,6 +515,14 @@ export const ParentDashboard: React.FC = () => {
             actionType={activeAction} 
             onClose={() => setActiveAction(null)} 
             lang="en" 
+          />
+        )}
+        {isPolicyOpen && (
+          <PolicyModal 
+            isOpen={isPolicyOpen} 
+            onClose={() => setIsPolicyOpen(false)} 
+            lang="en"
+            initialTab={policyTab}
           />
         )}
       </AnimatePresence>

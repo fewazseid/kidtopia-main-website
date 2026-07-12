@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Book, FileText, CheckCircle2, Download, Upload, AlertCircle, 
   Trash2, ShieldAlert, Award, Compass, RotateCw, Smile, 
-  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart, CheckSquare
+  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart, CheckSquare,
+  Scale, Laptop, MessageSquare, ShieldCheck
 } from 'lucide-react';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { useContent } from '../ContentContext';
+import { PolicyModal } from './PolicyModal';
 
 interface ParentalResourceDetailsProps {
   actionType: string;
@@ -318,6 +320,14 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
   // ==========================================
   const [milestoneAge, setMilestoneAge] = useState<'toddler' | 'preschool' | 'kinder'>('toddler');
   const [checkedMilestones, setCheckedMilestones] = useState<string[]>([]);
+  
+  const [isPolicyOpen, setIsPolicyOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState<'terms' | 'guidelines' | 'health' | 'privacy'>('terms');
+
+  const openPolicy = (tab: 'terms' | 'guidelines' | 'health' | 'privacy') => {
+    setPolicyTab(tab);
+    setIsPolicyOpen(true);
+  };
 
   const milestonesData = contentResources.milestonesData || {
     toddler: { title: '', items: [] },
@@ -350,6 +360,9 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
               {actionType === 'ar_activities' && <Compass size={20} />}
               {actionType === 'avatar' && <Smile size={20} />}
               {actionType === 'milestones' && <CheckSquare size={20} />}
+              {actionType === 'intl_act' && <Scale size={20} />}
+              {actionType === 'intl_guidelines' && <ShieldCheck size={20} />}
+              {actionType === 'comms' && <Laptop size={20} />}
             </div>
             <div>
               <h2 className="text-xl font-editorial font-bold text-stone-900 capitalize">
@@ -359,6 +372,9 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                 {actionType === 'ar_activities' && (lang === 'en' ? 'Interactive AR Activities' : 'ኤአር ትምህርታዊ ጨዋታ')}
                 {actionType === 'avatar' && (lang === 'en' ? 'Create Your Avatar' : 'አቫታር መፍጠሪያ')}
                 {actionType === 'milestones' && (lang === 'en' ? 'Development Milestones Tracker' : 'የልጅ እድገት ደረጃዎች መከታተያ')}
+                {actionType === 'intl_act' && (lang === 'en' ? 'Ethiopian Child Care Standards (Directive 1084/2025)' : 'የኢትዮጵያ የህፃናት ማቆያ ደረጃዎች (መመሪያ 1084/2025)')}
+                {actionType === 'intl_guidelines' && (lang === 'en' ? 'Daycare Parent Handbook Guidelines' : 'የማቆያ መመሪያዎች እና ደንቦች')}
+                {actionType === 'comms' && (lang === 'en' ? 'Daycare Control & Communication Software' : 'የማቆያ መቆጣጠሪያ እና መገናኛ ሶፍትዌር')}
               </h2>
               <p className="text-xs text-stone-500">Kidtopia Parent Portal</p>
             </div>
@@ -433,7 +449,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                 </div>
 
                 <div className="mt-8 p-4 bg-brand-green/5 border border-brand-green/10 rounded-2xl flex items-center gap-3">
-                  <Award size={18} className="text-brand-green shrink-0" />
+                  <div className="flex flex-wrap gap-2 mb-4"><button onClick={() => openPolicy('terms')} className="px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-bold text-stone-700 hover:bg-stone-50">View Terms</button><button onClick={() => openPolicy('guidelines')} className="px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-bold text-stone-700 hover:bg-stone-50">View Guidelines</button><button onClick={() => openPolicy('health')} className="px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-bold text-stone-700 hover:bg-stone-50">View Health</button></div><Award size={18} className="text-brand-green shrink-0" />
                   <p className="text-xs text-stone-600 font-medium leading-normal">
                     {lang === 'en' 
                       ? 'Confirm that you have read and understood our policies. This acknowledgement status is shared with the administration.' 
@@ -926,6 +942,321 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                   <span>{lang === 'en' ? 'Print Report' : 'ሪፖርት አትም'}</span>
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* 7. ETHIOPIAN CHILD CARE STANDARDS (DIRECTIVE 1084/2025) */}
+          {actionType === 'intl_act' && (
+            <div className="max-w-4xl mx-auto h-full text-left space-y-6">
+              <div className="p-5 bg-brand-green/5 border border-brand-green/10 rounded-2.5xl flex items-start gap-4 mb-4">
+                <Scale className="text-brand-green shrink-0 mt-1 animate-pulse" size={24} />
+                <div>
+                  <h3 className="font-editorial font-bold text-stone-900 text-lg">
+                    {lang === 'en' ? 'Ministry of Women & Social Affairs (MoWSA) Compliance Directive' : 'የሴቶችና ማህበራዊ ጉዳይ ሚኒስቴር (MoWSA) አስገዳጅ መመሪያ'}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                    {lang === 'en' 
+                      ? 'Legal criteria, safety procedures, and mandated care-ratios governed under Ethiopia Child-care centers Directive Number 1084/2025.'
+                      : 'በኢትዮጵያ የህጻናት ማቆያ ማዕከላት መመሪያ ቁጥር 1084/2025 ስር የተደነገጉ ህጋዊ መስፈርቶች፣ የደህንነት ሂደቶች እና የእንክብካቤ ደረጃዎች።'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Ratio Card */}
+                <div className="bg-stone-50 p-5 rounded-2xl border border-stone-150 space-y-4">
+                  <h4 className="font-bold text-stone-900 text-xs uppercase tracking-wider text-brand-green flex items-center gap-1.5 border-b border-stone-200 pb-2">
+                    <ShieldCheck size={14} />
+                    {lang === 'en' ? 'Staff-to-Child Ratios' : 'የሰራተኛ እና የህጻናት ጥምርታ'}
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-stone-700">{lang === 'en' ? 'Infants (3-12 months)' : 'ህጻናት (ከ3-12 ወራት)'}</span>
+                      <span className="font-mono font-bold px-2 py-0.5 bg-brand-green/10 text-brand-green rounded">1 : 3</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-stone-700">{lang === 'en' ? 'Toddlers (1-2 years)' : 'ታዳጊዎች (ከ1-2 ዓመት)'}</span>
+                      <span className="font-mono font-bold px-2 py-0.5 bg-brand-green/10 text-brand-green rounded">1 : 5</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-stone-700">{lang === 'en' ? 'Preschool (3-5 years)' : 'ቅድመ ትምህርት (ከ3-5 ዓመት)'}</span>
+                      <span className="font-mono font-bold px-2 py-0.5 bg-brand-green/10 text-brand-green rounded">1 : 10</span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-stone-500 leading-relaxed font-medium">
+                    {lang === 'en' 
+                      ? 'Strictly monitored maximum limits under Article 9 of Directive 1084/2025 to ensure focused individual attention and developmental tracking.'
+                      : 'ለእያንዳንዱ ህጻን በቂ ትኩረት ለመስጠት በመመሪያው አንቀጽ 9 ስር የተቀመጠው ከፍተኛው የልጆች ቁጥር ገደብ።'}
+                  </p>
+                </div>
+
+                {/* Safety Card */}
+                <div className="bg-stone-50 p-5 rounded-2xl border border-stone-150 space-y-4">
+                  <h4 className="font-bold text-stone-900 text-xs uppercase tracking-wider text-brand-orange flex items-center gap-1.5 border-b border-stone-200 pb-2">
+                    <AlertCircle size={14} />
+                    {lang === 'en' ? 'Required Facilities' : 'የማዕከሉ የስራ መስፈርቶች'}
+                  </h4>
+                  <ul className="text-xs text-stone-600 space-y-2 leading-relaxed">
+                    <li>• <strong>{lang === 'en' ? 'Medical Isolation Room' : 'የህክምና ማግለያ ክፍል'}</strong>: {lang === 'en' ? 'Dedicated quarantine space for sudden illnesses.' : 'ድንገት ለሚታመሙ ህጻናት የተለየ ማቆያ።'}</li>
+                    <li>• <strong>{lang === 'en' ? 'Separate Lavatories' : 'የተለዩ መጸዳጃ ቤቶች'}</strong>: {lang === 'en' ? 'Exclusive independent toilets for children and adult staff.' : 'ለልጆች እና ለአዋቂዎች ለየብቻ የተዘጋጁ ንጹህ መጸዳጃዎች።'}</li>
+                    <li>• <strong>{lang === 'en' ? 'Biometric Check-out' : 'የደህንነት መውጫ ቁጥጥር'}</strong>: {lang === 'en' ? 'Mandatory electronic tracking log for child safety.' : 'ልጆችን በቁጥጥር ስር ለማስገባት የጣት አሻራ መመዝገቢያ።'}</li>
+                  </ul>
+                </div>
+
+                {/* Medical Screening Card */}
+                <div className="bg-stone-50 p-5 rounded-2xl border border-stone-150 space-y-4">
+                  <h4 className="font-bold text-stone-900 text-xs uppercase tracking-wider text-brand-teal flex items-center gap-1.5 border-b border-stone-200 pb-2">
+                    <Heart size={14} />
+                    {lang === 'en' ? 'Health Mandates' : 'የጤና እና የክትባት ግዴታዎች'}
+                  </h4>
+                  <p className="text-xs text-stone-600 leading-relaxed">
+                    {lang === 'en' 
+                      ? 'No child can be admitted without a stamped pediatric lab screening proving immunization updates and active clearance for Tuberculosis, HIV, and Hepatitis B.'
+                      : 'ሁሉም ህጻናት ከመመዝገባቸው በፊት ከታወቀ የላብራቶሪ የሳንባ ነቀርሳ (TB)፣ የኤችአይቪ (HIV)፣ የሄፓታይተስ ቢ እና የክትባት ማረጋገጫ ማቅረብ አለባቸው።'}
+                  </p>
+                  <div className="p-2.5 bg-brand-teal/5 border border-brand-teal/15 rounded-xl flex items-center gap-2">
+                    <ShieldCheck className="text-brand-teal shrink-0" size={16} />
+                    <span className="text-[10px] text-brand-teal font-extrabold uppercase tracking-wide">{lang === 'en' ? '100% Compliant Facility' : 'ሙሉ በሙሉ ደንብን የሚያከብር ማዕከል'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal Disclaimer & Articles List */}
+              <div className="p-5 border border-stone-200 rounded-2.5xl space-y-3 bg-white">
+                <h4 className="font-bold text-stone-900 text-sm">{lang === 'en' ? 'Core Regulatory Articles - Daycare Obligations' : 'ዋና ዋና አስገዳጅ አንቀጾች - የማቆያው ግዴታዎች'}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-stone-600">
+                  <div className="p-3.5 bg-stone-50/50 rounded-xl space-y-1.5 border border-stone-100">
+                    <strong className="text-stone-900 block">{lang === 'en' ? 'Article 14: Prohibition of Corporal Punishment' : 'አንቀጽ 14፡ የአካል ቅጣት ሙሉ በሙሉ መከልከል'}</strong>
+                    <p>{lang === 'en' ? 'Absolute ban on physical punishment, emotional abuse, isolation, or verbal degradation of children. Focus is centered purely on positive behavioral reinforcement.' : 'በልጆች ላይ ማንኛውንም አይነት የአካል ወይም የስሜት ቅጣት፣ ማግለል ወይም መሳደብ መፈጸም በጥብቅ የተከለከለ ነው። ትকুረቱ በአዎንታዊ ባህሪ ግንባታ ላይ ነው።'}</p>
+                  </div>
+                  <div className="p-3.5 bg-stone-50/50 rounded-xl space-y-1.5 border border-stone-100">
+                    <strong className="text-stone-900 block">{lang === 'en' ? 'Article 22: Caregiver Certifications' : 'አንቀጽ 22፡ የእንክብካቤ ሰጪዎች ማረጋገጫ'}</strong>
+                    <p>{lang === 'en' ? 'All active childcare personnel must possess certified college credentials in nursing, pediatric health, or early childhood education, paired with valid background checks.' : 'ሁሉም የእንክብካቤ ሰራተኞች በህፃናት ህክምና፣ በነርሲንግ ወይም በቅድመ-ወሊድ አስተዳደግ የሰለጠኑ እና የጸዳ የፖሊስ ሰነድ ያላቸው መሆን አለባቸው።'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Print and Download Footer */}
+              <div className="mt-8 pt-6 border-t border-stone-100 flex justify-between items-center bg-stone-50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 px-6 md:px-8 py-5">
+                <p className="text-xs text-stone-500 font-medium">
+                  {lang === 'en' 
+                    ? 'Official documentation sourced from the Ethiopian Federal Ministry of Justice.' 
+                    : 'ከኢትዮጵያ ፌዴራላዊ የፍትህ ሚኒስቴር የተወሰደ ህጋዊ ሰነድ።'}
+                </p>
+                <button
+                  onClick={() => window.print()}
+                  className="px-4.5 py-2.5 bg-brand-green text-white rounded-xl text-xs font-black shadow-md hover:bg-brand-green/95 transition flex items-center gap-2"
+                >
+                  <Printer size={14} />
+                  <span>{lang === 'en' ? 'Print Directive Sheet' : 'መመሪያውን አትም'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 8. DAYCARE PARENT HANDBOOK 2025 GUIDELINES Accordion */}
+          {actionType === 'intl_guidelines' && (
+            <div className="max-w-4xl mx-auto h-full text-left space-y-6">
+              <div className="p-5 bg-brand-orange/5 border border-brand-orange/10 rounded-2.5xl flex items-start gap-4 mb-4">
+                <Book className="text-brand-orange shrink-0 mt-1 animate-bounce" size={24} />
+                <div>
+                  <h3 className="font-editorial font-bold text-stone-900 text-lg">
+                    {lang === 'en' ? 'Parent Handbook Operations Summary' : 'የወላጅ መመሪያ መጽሐፍ ደንቦች ማጠቃለያ'}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                    {lang === 'en' 
+                      ? 'Detailed handbook summary for enrolled parents, including tuition fees, check-in, health, and routines as of Sept 2025.'
+                      : 'የተመዘገቡ ወላጆች ሊከተሏቸው የሚገቡ ዝርዝር የማቆያው ደንቦች፣ ክፍያዎች፣ የጤና እና የእለት ተእለት ፕሮግራሞች።'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Accordion List */}
+              <div className="space-y-4">
+                {[
+                  {
+                    id: 'payment',
+                    title: lang === 'en' ? 'Tuition, Late Payments, & Suspension' : 'የወር ክፍያ፣ የቅጣት ውሎች እና ጊዜያዊ እገዳ',
+                    icon: DollarSign,
+                    color: 'text-brand-orange',
+                    content: lang === 'en' 
+                      ? 'Tuition fees must be cleared by the 1st day of every month. A 10% penalty is automatically added on the 6th day for any unpaid balances. Services are suspended immediately on the 11th if payment remains outstanding. To withdraw a child, a full 30 days prior written notice is required, otherwise the security deposit is forfeited.' 
+                      : 'የማቆያ ክፍያ በየወሩ ከ1ኛው ቀን በፊት በጥሬ ገንዘብ ወይም በባንክ ክፍያ መፈጸም አለበት። ካልተከፈለ ከ6ኛው ቀን ጀምሮ የ10% የቅጣት ክፍያ ይታሰባል። ክፍያው ሳይጠናቀቅ 11ኛው ቀን ላይ ከደረሰ አገልግሎቱ ለልጅዎ ለጊዜው ይቋረጣል። ልጅዎን ከማቆያው ለማውጣት ቢያንስ የ30 ቀናት ቅድመ ማስጠንቀቂያ በጽሁፍ ለአስተዳደሩ ማስገባት አለብዎት፤ ያለበለዚያ የያዙት የዋስትና ክፍያ አይመለስም።'
+                  },
+                  {
+                    id: 'hours',
+                    title: lang === 'en' ? 'Operating Hours, Authorizations & Late Pick-ups' : 'የስራ ሰዓት፣ ህጋዊ ልጅ መረከቢያ እና የዘግይቶ መረከብ ክፍያ',
+                    icon: Clock,
+                    color: 'text-brand-yellow',
+                    content: lang === 'en' 
+                      ? 'We are open from 7:30 AM to 6:00 PM, Monday to Friday. A penalty of $1 per minute is strictly added for any pick-ups after 6:00 PM. Children will ONLY be released to authorized individuals registered in our database with valid fingerprint credentials and photo IDs. Any temporary pick-up changes must be authorized in writing 2 hours in advance.' 
+                      : 'የመክፈቻ ሰዓት ከሰኞ እስከ አርብ ከጠዋቱ 1:30 ሰዓት እስከ ማታ 12:00 ሰዓት ነው። ከምሽቱ 12:00 በኋላ በሚደረግ ማንኛውም መረከብ በደቂቃ $1 (ወይም ተመጣጣኝ ብር) ቅጣት ይታሰባል። ልጆች የሚለቀቁት በጣት አሻራ እና በመታወቂያ ካርድ በዳታቤዛችን ውስጥ ለተመዘገቡ ህጋዊ ወላጆች/ተወካዮች ብቻ ነው። ጊዜያዊ ወኪል ለመላክ ቢያንስ ከ2 ሰዓት በፊት በአፕሊኬሽኑ በኩል ማሳወቅ ያስፈልጋል።'
+                  },
+                  {
+                    id: 'health',
+                    title: lang === 'en' ? 'Sick Day Guidelines & Symptoms Quarantine' : 'የታመሙ ልጆች ህግ እና የጤና ማግለያ ደንቦች',
+                    icon: Heart,
+                    color: 'text-red-500',
+                    content: lang === 'en' 
+                      ? 'Children displaying a fever over 38°C (100.4°F), continuous coughing, diarrhea, vomiting, or raw contagious skin rashes are strictly barred. Children must remain home and be entirely symptom-free for a full 24 hours without fever-reducing medicine before they can return to the facility. Mandatory TB, Hep B, and HIV screenings must be kept on file.' 
+                      : 'ትኩሳታቸው ከ 38°C (100.4°F) በላይ የሆኑ፣ የሚያስመልሳቸው፣ ተቅማጥ ያለባቸው ወይም ተላላፊ ሽፍታ የሚታይባቸው ልጆች ወደ ማቆያው መምጣት በጥብቅ የተከለከለ ነው። ህጻናት ትኩሳት ማስታገሻ ሳይወስዱ ለ24 ሰዓታት ሙሉ በሙሉ ደህና መሆናቸው ሳይረጋገጥ መመለስ አይችሉም። የቲቢ፣ የሄፓታይተስ ቢ እና የኤችአይቪ ምርመራዎች በማህደራቸው ውስጥ መኖር አለባቸው።'
+                  },
+                  {
+                    id: 'nap',
+                    title: lang === 'en' ? 'Quiet/Nap Routine & In-House Bedding Laundry' : 'የእንቅልፍ ሰዓት እና የማቆያው የአልጋ ልብስ ማጠቢያ',
+                    icon: ShieldCheck,
+                    color: 'text-brand-green',
+                    content: lang === 'en' 
+                      ? 'A mandatory quiet rest and nap period is integrated daily from 1:00 PM to 3:00 PM. Kidtopia provides custom individual toddler bedding. These linens and sheets are sanitized and laundered daily inside our private high-heat industrial laundry facility. Personal pillows, blankets, or soft toys are not allowed due to allergy safety codes.' 
+                      : 'በየቀኑ ከቀኑ 7:00 እስከ 9:00 ሰዓት ለሁሉም ታዳጊዎች የእንቅልፍ እና የጸጥታ ሰዓት ነው። ኪድቶፒያ ለእያንዳንዱ ልጅ የሚሆን አልጋ እና አንሶላ ያዘጋጃል። እነዚህ የአልጋ ልብሶች በየቀኑ በማቆያው ማጠቢያ ማዕከል ውስጥ በከፍተኛ ሙቀት በንጽህና ይታጠባሉ። ከአለርጂ ስጋቶች ለመከላከል የግል ትራሶች፣ ብርድ ልብሶች ወይም መጫወቻዎች መያዝ አይፈቀድም።'
+                  }
+                ].map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={idx} className="p-5 bg-stone-50 rounded-2xl border border-stone-150 space-y-2">
+                      <h4 className="font-bold text-stone-900 text-sm flex items-center gap-2">
+                        <Icon size={18} className={item.color} />
+                        <span>{item.title}</span>
+                      </h4>
+                      <p className="text-xs text-stone-600 leading-relaxed font-medium pl-6">
+                        {item.content}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Print and Download Footer */}
+              <div className="mt-8 pt-6 border-t border-stone-100 flex justify-between items-center bg-stone-50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 px-6 md:px-8 py-5">
+                <p className="text-xs text-stone-500 font-medium">
+                  {lang === 'en' 
+                    ? 'Refer to the full Sept 2025 Parent Handbook PDF for additional policies.' 
+                    : 'ለተጨማሪ ደንቦች እባክዎን ኦሪጅናሉን የሴፕቴምበር 2025 የወላጅ መመሪያ መጽሐፍ ይመልከቱ።'}
+                </p>
+                <button
+                  onClick={() => window.print()}
+                  className="px-4.5 py-2.5 bg-brand-green text-white rounded-xl text-xs font-black shadow-md hover:bg-brand-green/95 transition flex items-center gap-2"
+                >
+                  <Printer size={14} />
+                  <span>{lang === 'en' ? 'Print Handbook Summary' : 'ማጠቃለያውን አትም'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 9. DAYCARE COMMUNICATION SOFTWARE MOCK INTERACTIVE PANEL */}
+          {actionType === 'comms' && (
+            <div className="max-w-4xl mx-auto h-full text-left space-y-6">
+              <div className="p-5 bg-brand-teal/5 border border-brand-teal/10 rounded-2.5xl flex items-start gap-4 mb-4">
+                <Laptop className="text-brand-teal shrink-0 mt-1" size={24} />
+                <div>
+                  <h3 className="font-editorial font-bold text-stone-900 text-lg">
+                    {lang === 'en' ? 'Kidtopia Daycare Portal Control Software' : 'የኪድቶፒያ የህፃናት ማቆያ መቆጣጠሪያ ሶፍትዌር ፖርታል'}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                    {lang === 'en' 
+                      ? 'Secure dashboard connecting parents with teachers. Track meals, check-ins, naps, and authorize emergency pickups.'
+                      : 'ወላጆችን ከአስተማሪዎች ጋር የሚያገናኝ አስተማማኝ መገናኛ ገጽ። ዕለታዊ ምግቦችን፣ እንቅልፍን እና ድንገተኛ ልጅ መረከቢያዎችን እዚህ ያስተዳድሩ።'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Interactive Child Tracker Mock */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {/* Child Status Widget */}
+                <div className="md:col-span-1 bg-stone-50 border border-stone-200 p-5 rounded-2xl space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-brand-green/20 border-2 border-brand-green flex items-center justify-center font-editorial font-bold text-brand-green text-lg">
+                      Y
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-stone-900 text-sm">Yonas Alene</h4>
+                      <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">{lang === 'en' ? 'Toddler Class B' : 'ታዳጊ ክፍል B'}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5 border-t border-stone-200 pt-4 text-xs font-medium">
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">{lang === 'en' ? 'Check-in Time' : 'የመግቢያ ሰዓት'}</span>
+                      <span className="text-stone-900 font-bold font-mono">07:44 AM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">{lang === 'en' ? 'Status' : 'የደህንነት ሁኔታ'}</span>
+                      <span className="text-brand-green font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-brand-green rounded-full animate-ping" />
+                        {lang === 'en' ? 'Checked In' : 'ገብቷል'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">{lang === 'en' ? 'Last Feed' : 'የመጨረሻ አመጋገብ'}</span>
+                      <span className="text-stone-900 font-bold font-mono">11:15 AM (Milk & Oats)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">{lang === 'en' ? 'Nap Status' : 'የእንቅልፍ ሁኔታ'}</span>
+                      <span className="text-stone-900 font-bold">{lang === 'en' ? 'Sleeping (1:15 PM)' : 'ተኝቷል (7:15 ከሰዓት)'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Teacher Updates Mock Feed */}
+                <div className="md:col-span-2 bg-stone-50 border border-stone-200 p-5 rounded-2xl flex flex-col justify-between">
+                  <div>
+                    <h4 className="font-black text-stone-900 text-xs uppercase tracking-widest mb-4 flex items-center gap-1.5 border-b border-stone-200 pb-2">
+                      <MessageSquare size={14} className="text-brand-teal" />
+                      {lang === 'en' ? 'Teacher Live Communication Board' : 'የመምህራን የቀጥታ መገናኛ ሰሌዳ'}
+                    </h4>
+                    
+                    <div className="space-y-3 max-h-48 overflow-y-auto font-sans">
+                      <div className="p-3 bg-white rounded-xl border border-stone-150 text-xs space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="font-black text-stone-900">{lang === 'en' ? 'Teacher Tigist' : 'መምህርት ትዕግስት'}</span>
+                          <span className="text-[9px] text-stone-400 font-mono font-bold">11:30 AM</span>
+                        </div>
+                        <p className="text-stone-600">
+                          {lang === 'en' 
+                            ? 'Yonas finished his bowl of organic oatmeal and fresh bananas completely! He was very helpful in cleaning up the table.' 
+                            : 'ዮናስ የተዘጋጀለትን ኦርጋኒክ ሙዝ እና አጃ ምግብ ሙሉ በሙሉ በልቷል! ጠረጴዛውን ለማጽዳትም በጣም አግዟል።'}
+                        </p>
+                      </div>
+
+                      <div className="p-3 bg-white rounded-xl border border-stone-150 text-xs space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="font-black text-stone-900">{lang === 'en' ? 'Daycare Nurse' : 'የማቆያው ነርስ'}</span>
+                          <span className="text-[9px] text-stone-400 font-mono font-bold">08:15 AM</span>
+                        </div>
+                        <p className="text-stone-600">
+                          {lang === 'en' 
+                            ? 'Mandatory morning temperature check complete. Yonas registered 36.6°C. Clear and active.' 
+                            : 'የጠዋት የሙቀት መጠን ምርመራ ተጠናቋል። ዮናስ 36.6°C መዝግቧል። ጤናማ እና ንቁ ነው።'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Interactive ad-hoc pick-up authorization button mockup */}
+                  <div className="mt-4 pt-3 border-t border-stone-200">
+                    <button
+                      onClick={() => triggerFeedback('success', lang === 'en' ? 'Ad-hoc pickup authorization submitted to guards!' : 'ጊዜያዊ የልጅ መረከቢያ ፈቃድ ለጥበቃዎች ተልኳል!')}
+                      className="w-full py-2.5 bg-brand-teal hover:bg-brand-teal/95 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow transition"
+                    >
+                      {lang === 'en' ? '⚡ Authorize Emergency Pickup (Today)' : '⚡ ድንገተኛ ልጅ መረከቢያ ፍቀድ (ዛሬ)'}
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* System security status banner */}
+              <div className="p-4 bg-brand-green/5 border border-brand-green/10 rounded-2xl flex items-center gap-3">
+                <ShieldCheck size={20} className="text-brand-green shrink-0" />
+                <p className="text-xs text-stone-600 font-medium">
+                  {lang === 'en' 
+                    ? 'Our Daycare Communication Software complies with international security certificates and uses fully encrypted databases to host child files.' 
+                    : 'የማቆያ መገናኛ ሶፍትዌራችን ከዓለም አቀፍ የደህንነት ደረጃዎች ጋር የሚስማማ እና የተመሰጠረ መረጃ ቋት (Database) የሚጠቀም ነው።'}
+                </p>
+              </div>
+
             </div>
           )}
 
