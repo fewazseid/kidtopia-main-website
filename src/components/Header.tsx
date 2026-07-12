@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,9 +14,23 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('theme') === 'dark' || 
+      (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
   const t = useContent(lang).nav;
 
   const location = useLocation();
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -170,6 +184,14 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
               <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
               <span>{lang === 'en' ? 'አማርኛ' : 'English'}</span>
             </button>
+            <button
+              onClick={() => setIsDark(!isDark)}
+              className="p-1.5 xl:p-2 bg-white/40 backdrop-blur-sm border border-white/60 transition-all rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+              style={{ color: t.textColor || '#44403c' }}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
             <Link 
               to="/login" 
               className="text-white font-bold font-display rounded-full px-4 xl:px-6 py-1.5 xl:py-2.5 text-[10px] xl:text-[11px] shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
@@ -205,16 +227,24 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
               <div className="flex flex-col gap-4 pb-4 border-b border-stone-100 flex-shrink-0">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-widest opacity-60" style={{ color: t.textColor || '#44403c' }}>Navigation</span>
-                  <button 
-                    onClick={() => {
-                      setLang(lang === 'en' ? 'am' : 'en');
-                      setIsMenuOpen(false);
-                    }}
-                    className="text-xs font-black tracking-wider uppercase px-4 py-2 rounded-xl"
-                    style={{ color: t.activeColor || '#3a5b32', backgroundColor: `${t.activeColor || '#3a5b32'}15`, border: `1px solid ${t.activeColor || '#3a5b32'}25` }}
-                  >
-                    {lang === 'en' ? 'አማርኛ' : 'English'}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsDark(!isDark)}
+                      className="p-2 bg-stone-50 hover:bg-stone-100 border border-stone-200/60 rounded-lg flex items-center justify-center transition-all active:scale-95 text-stone-700 dark:text-stone-300 cursor-pointer"
+                    >
+                      {isDark ? <Sun size={15} /> : <Moon size={15} />}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setLang(lang === 'en' ? 'am' : 'en');
+                        setIsMenuOpen(false);
+                      }}
+                      className="text-xs font-black tracking-wider uppercase px-4 py-2 rounded-xl cursor-pointer"
+                      style={{ color: t.activeColor || '#3a5b32', backgroundColor: `${t.activeColor || '#3a5b32'}15`, border: `1px solid ${t.activeColor || '#3a5b32'}25` }}
+                    >
+                      {lang === 'en' ? 'አማርኛ' : 'English'}
+                    </button>
+                  </div>
                 </div>
                 <Link to="/login" className="w-full text-center text-white font-bold font-display rounded-full px-6 py-2.5 text-sm shadow-[0_4px_15px_rgba(58,91,50,0.2)]" style={{ backgroundColor: t.activeColor || '#3a5b32' }} onClick={() => setIsMenuOpen(false)}>
                   {t.login}

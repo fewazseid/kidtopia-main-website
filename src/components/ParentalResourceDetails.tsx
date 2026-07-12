@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import { useContent } from '../ContentContext';
 
 interface ParentalResourceDetailsProps {
   actionType: string;
@@ -291,52 +292,10 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
   const [handbookSearch, setHandbookSearch] = useState('');
   const [bookmarked, setBookmarked] = useState<number[]>([]);
 
-  const handbookChapters = [
-    {
-      title: lang === 'en' ? '1. Welcome & Philosophy' : '1. እንኳን ደህና መጡ እና ፍልስፍና',
-      content: lang === 'en' 
-        ? 'Welcome to Kidtopia International Daycare! Our philosophy is centered around providing a holistic, safe, and stimulating environment that fosters intellectual growth, physical coordination, and socio-emotional wellness. We operate under rigorous global childcare excellence policies and ensure small staff-to-child ratios.'
-        : 'ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እንኳን ደህና መጡ! የእኛ ፍልስፍና አእምሯዊ እድገትን ፣ አካላዊ ቅንጅትን እና ማህበራዊ-ስሜታዊ ደህንነትን የሚያጎለብት አጠቃላይ ፣ ደህንነቱ የተጠበቀ እና አነቃቂ ሁኔታን በመስጠት ላይ ያተኮረ ነው። የምንሰራው ጥብቅ በሆኑ አለም አቀፍ የህፃናት እንክብካቤ ፖሊሲዎች ስር ነው ።'
-    },
-    {
-      title: lang === 'en' ? '2. Strict Health & Screenings' : '2. ጥብቅ የጤና እና ምርመራዎች',
-      content: lang === 'en'
-        ? 'To maintain a clean and disease-free environment for all children, we enforce mandatory medical screening. All children must submit fully updated immunization charts, TB clearance certificate, HIV, and Hepatitis screening results. Children exhibiting active fevers or contagious symptoms must remain home for at least 24 hours fever-free.'
-        : 'ለሁሉም ህፃናት ንጹህ እና ከበሽታ ነፃ የሆነ አካባቢን ለመጠበቅ አስገዳጅ የህክምና ምርመራዎችን እናስፈጽማለን። ሁሉም ህጻናት ሙሉ በሙሉ የተዘመኑ የክትባት ሰንጠረዦችን፣ የቲቢ ምርመራ የምስክር ወረቀት፣ የኤችአይቪ እና የሄፐታይተስ ምርመራ ውጤቶችን ማቅረብ አለባቸው። ንቁ ትኩሳት ወይም ተላላፊ ምልክቶች የሚታዩባቸው ልጆች ቢያንስ ለ24 ሰዓታት ትኩሳት ሳይኖራቸው እቤት መቆየት አለባቸው።'
-    },
-    {
-      title: lang === 'en' ? '3. Drop-off & Digital Security Check-out' : '3. የልጆች አወሳሰድ እና ዲጂታል ደህንነት',
-      content: lang === 'en'
-        ? 'Security is our utmost priority. Our digital check-in and check-out terminal registers the verified identity of authorized parents/guardians. Fingerprint registration is highly recommended. Only individuals pre-registered in our system with valid government ID card approval can check out a child. No exceptions can be made.'
-        : 'ደህንነት ለእኛ ዋነኛ ተግባራችን ነው። የእኛ ዲጂታል መግቢያ እና መውጫ ተርሚናል የተፈቀደላቸውን ወላጆች/አሳዳጊዎችን የተረጋገጠ ማንነት ይመዘግባል። የጣት አሻራ ምዝገባ በጣም ይመከራል። በስርዓታችን ውስጥ በህጋዊ የመንግስት መታወቂያ ቀድሞ የተመዘገቡ ግለሰቦች ብቻ ህፃኑን ማውጣት ይችላሉ። ምንም አይነት ልዩ ሁኔታዎች አይፈቀዱም።'
-    },
-    {
-      title: lang === 'en' ? '4. Daily Schedules & Naptime' : '4. ዕለታዊ መርሃ ግብር እና የእንቅልፍ ሰዓት',
-      content: lang === 'en'
-        ? 'Our days are filled with structured balance: free play, cognitive group studies, healthy meals, and a dedicated afternoon nap (13:00 to 15:00). Blankets and daycare sheets are clean and laundered internally using our commercial hygienic laundry system.'
-        : 'ቀናቶቻችን የተዋቀሩ ሚዛኖች የተሞሉ ናቸው-ነፃ ጨዋታ ፣ የእውቀት ቡድን ጥናቶች ፣ ጤናማ ምግቦች እና ከሰዓት በኋላ እንቅልፍ (ከ 13:00 እስከ 15:00)። ብርድ ልብሶች እና አንሶላዎች በንግድ ንፅህና ማጠቢያ ስርዓታችን በመጠቀም በቤት ውስጥ ይታጠባሉ።'
-    },
-    {
-      title: lang === 'en' ? '5. Financial Terms & Tuition Fees' : '5. የክፍያ መዋቅር፣ የክፍያ ውሎች እና ደንቦች',
-      content: lang === 'en'
-        ? 'Parents agree to make tuition payments on or before the 1st of each calendar month. A late payment fee of 10% is applied to outstanding balances after the 5th. Written withdrawal notification must be provided at least 30 calendar days in advance; failure to do so will result in forfeiture of the registration security deposit. Regular attendance ensures continuity of educational milestones.'
-        : 'ወላጆች በየወሩ በ1ኛው ቀን ወይም ከዚያ በፊት የትምህርት ክፍያዎችን ለመክፈል ይስማማሉ። ከ5ኛው ቀን በኋላ ባልተከፈሉ ክፍያዎች ላይ የ10% የዘግይቶ መክፈያ ክፍያ ይተገበራል። ልጆችን ለማውጣት ቢያንስ ከ30 የቀን መቁጠሪያ ቀናት በፊት የጽሁፍ ማስታወቂያ መቅረብ አለበት፤ ይህ ካልሆነ ግን የመመዝገቢያ ማስያዣ ገንዘብ ይወረሳል። አዘውትሮ መገኘት የትምህርት እድገት ቀጣይነትን ያረጋግጣል።'
-    },
-    {
-      title: lang === 'en' ? '6. Emergency Medical Authorization' : '6. የድንገተኛ ጊዜ የህክምና ፍቃድ እና ስምምነት',
-      content: lang === 'en'
-        ? 'In the event of a medical emergency, Kidtopia staff will make every reasonable effort to contact the parents immediately. If parents cannot be reached, the parent hereby authorizes Kidtopia to obtain emergency medical treatment, hospitalize, secure anesthesia, or order injections/surgery for the child under licensed medical direction. All families must keep emergency contact information 100% updated.'
-        : 'በድንገተኛ የህክምና ጊዜ የኪድቶፒያ ሰራተኞች ወላጆችን ለማግኘት የተቻለውን ሁሉ ጥረት ያደርጋሉ። ወላጆችን ማግኘት ካልተቻለ፣ ወላጅ በህጋዊ የህክምና መመሪያ ስር ለልጁ ድንገተኛ ህክምና ለማግኘት፣ ሆስፒታል ለማስገባት፣ ማደንዘዣ ለመስጠት ወይም መርፌዎችን/ቀዶ ጥገናዎችን ለማዘዝ ለኪድቶፒያ ፈቃድ ይሰጣሉ። ሁሉም ቤተሰቦች የድንገተኛ አደጋ መገናኛ መረጃዎችን 100% ወቅታዊ ማድረግ አለባቸው።'
-    },
-    {
-      title: lang === 'en' ? '7. Code of Parental Conduct & Respect' : '7. የወላጅ ባህሪ እና የጋራ መከባበር መመሪያ',
-      content: lang === 'en'
-        ? 'We believe in a mutual relationship of respect and collaboration. Parents are expected to communicate respectfully with all teachers, care professionals, and administrative coordinators. Aggressive behavior, derogatory remarks, or physical/verbal harassment of any form will result in immediate termination of daycare enrollment with zero refund of any current monthly balances.'
-        : 'እኛ የምናምነው በጋራ መከባበር እና ትብብር ላይ ነው። ወላጆች ከሁሉም አስተማሪዎች፣ የእንክብካቤ ባለሙያዎች እና የአስተዳደር አስተባባሪዎች ጋር በአክብሮት እንዲገናኙ ይጠበቅባቸዋል። አስገዳጅ ወይም ጨካኝ ባህሪ፣ አጸያፊ አስተያየቶች፣ ወይም አካላዊ/የቃል ትንኮሳ ምንም አይነት ክፍያ ሳይመለስ ወዲያውኑ የልጁን ምዝገባ እንዲቋረጥ ያደርጋል።'
-    }
-  ];
+  const contentResources = useContent(lang).resources;
+  const handbookChapters = contentResources.handbookChapters || [];
 
-  const filteredChapters = handbookChapters.filter(ch => 
+  const filteredChapters = handbookChapters.filter((ch: any) => 
     ch.title.toLowerCase().includes(handbookSearch.toLowerCase()) || 
     ch.content.toLowerCase().includes(handbookSearch.toLowerCase())
   );
@@ -346,43 +305,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
   // ==========================================
   const [allergyFilter, setAllergyFilter] = useState<string[]>([]);
   
-  const menuDays = [
-    {
-      day: lang === 'en' ? 'Monday' : 'ሰኞ',
-      breakfast: 'Organic Oat Porridge with fresh bananas and raw honey',
-      lunch: 'Lentil Stew (Misir Wot) with high-fiber Injera & steamed spinach',
-      snack: 'Assorted fruit skewers with low-fat organic yogurt',
-      allergens: ['gluten', 'dairy']
-    },
-    {
-      day: lang === 'en' ? 'Tuesday' : 'ማክሰኞ',
-      breakfast: 'Scrambled organic eggs with whole wheat toast',
-      lunch: 'Mild chicken breast cubes with mashed sweet potatoes and carrots',
-      snack: 'Pumpkin seed kernels and sliced local red apples',
-      allergens: ['egg', 'gluten']
-    },
-    {
-      day: lang === 'en' ? 'Wednesday' : 'ረቡዕ',
-      breakfast: 'Barley Besso shake with dairy-free almond milk',
-      lunch: 'Mixed vegetable and chickpea Shiro stew with soft wheat Injera',
-      snack: 'Toasted whole grain crackers with avocado puree spread',
-      allergens: ['gluten']
-    },
-    {
-      day: lang === 'en' ? 'Thursday' : 'ሐሙስ',
-      breakfast: 'Whole wheat pancakes with natural organic maple syrup',
-      lunch: 'Steamed local white fish with brown rice and sauteed green beans',
-      snack: 'Dehydrated banana chips and organic orange slices',
-      allergens: ['fish', 'gluten']
-    },
-    {
-      day: lang === 'en' ? 'Friday' : 'አርብ',
-      breakfast: 'Mashed avocado toast with organic soft cheese crumble',
-      lunch: 'Traditional beef stew (Siga Alicha) with fluffy teff Injera',
-      snack: 'Baked sweet potato chips with honey cinnamon drizzle',
-      allergens: ['dairy', 'gluten']
-    }
-  ];
+  const menuDays = contentResources.menuDays || [];
 
   const toggleAllergy = (allergy: string) => {
     setAllergyFilter(prev => 
@@ -391,146 +314,16 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
   };
 
   // ==========================================
-  // 5. AUGMENTED REALITY SIMULATOR
-  // ==========================================
-  // ==========================================
-  // 6. DEVELOPMENT MILESTONES TRACKER
+  // 5. DEVELOPMENT MILESTONES TRACKER
   // ==========================================
   const [milestoneAge, setMilestoneAge] = useState<'toddler' | 'preschool' | 'kinder'>('toddler');
   const [checkedMilestones, setCheckedMilestones] = useState<string[]>([]);
 
-  const milestonesData = {
-    toddler: {
-      title: lang === 'en' ? 'Toddlers (12 - 24 Months)' : 'ታዳጊዎች (ከ12 - 24 ወራት)',
-      items: [
-        { id: 't1', text: lang === 'en' ? 'Walks independently and starts to run' : 'በራሱ ይራመዳል እና መሮጥ ይጀምራል' },
-        { id: 't2', text: lang === 'en' ? 'Says several single words and simple 2-word phrases' : 'በርካታ ነጠላ ቃላትን እና ቀላል ባለ 2-ቃል ሀረጎችን ይናገራል' },
-        { id: 't3', text: lang === 'en' ? 'Points to objects or pictures when they are named' : 'ዕቃዎች ወይም ስዕሎች ሲጠሩ ይጠቁማል' },
-        { id: 't4', text: lang === 'en' ? 'Begins to sort shapes and colors' : 'ቅርጾችን እና ቀለሞችን መለየት ይጀምራል' },
-        { id: 't5', text: lang === 'en' ? 'Plays simple pretend games (e.g., feeding a doll)' : 'ቀላል የማስመስል ጨዋታዎችን ይጫወታል (ለምሳሌ አሻንጉሊት መመገብ)' },
-        { id: 't6', text: lang === 'en' ? 'Follows simple one-step verbal instructions' : 'ቀላል የአንድ-ደረጃ የቃል መመሪያዎችን ይከተላል' }
-      ]
-    },
-    preschool: {
-      title: lang === 'en' ? 'Preschoolers (2 - 4 Years)' : 'ቅድመ ትምህርት ቤት (ከ2 - 4 ዓመታት)',
-      items: [
-        { id: 'p1', text: lang === 'en' ? 'Climbs well and runs easily' : 'በጥሩ ሁኔታ ይወጣል እና በቀላሉ ይሮጣል' },
-        { id: 'p2', text: lang === 'en' ? 'Speaks in sentences of 3-4 words' : 'ከ3-4 ቃላት ባሉት ዓረፍተ ነገሮች ይናገራል' },
-        { id: 'p3', text: lang === 'en' ? 'Can work toys with buttons, levers, and moving parts' : 'አዝራሮች፣ ማንሻዎች እና ተንቀሳቃሽ ክፍሎች ያሏቸውን መጫወቻዎች ማንቀሳቀስ ይችላል' },
-        { id: 'p4', text: lang === 'en' ? 'Copies a circle with crayon or pencil' : 'በቀለም እርሳስ ወይም እርሳስ ክብ መቅዳት ይችላል' },
-        { id: 'p5', text: lang === 'en' ? 'Shows affection for friends and expresses wide range of emotions' : 'ለጓደኞቹ ፍቅር ያሳያል እና ሰፊ ስሜቶችን ይገልጻል' },
-        { id: 'p6', text: lang === 'en' ? 'Takes turns in games and understands "mine" and "theirs"' : 'በጨዋታዎች ውስጥ ተራ ይይዛል እና "የእኔ" እና "የእነሱ" የሚለውን ይረዳል' }
-      ]
-    },
-    kinder: {
-      title: lang === 'en' ? 'Kindergarten (4 - 5 Years)' : 'ኪንደርጋርተን (ከ4 - 5 ዓመታት)',
-      items: [
-        { id: 'k1', text: lang === 'en' ? 'Speaks very clearly and tells simple stories' : 'በጣም ግልጽ በሆነ ሁኔታ ይናገራል እና ቀላል ታሪኮችን ይነግራል' },
-        { id: 'k2', text: lang === 'en' ? 'Can count 10 or more objects' : '10 ወይም ከዚያ በላይ እቃዎችን መቁጠር ይችላል' },
-        { id: 'k3', text: lang === 'en' ? 'Draws a person with at least 6 body parts' : 'ቢያንስ 6 የሰውነት ክፍሎች ያሉት ሰው ይስላል' },
-        { id: 'k4', text: lang === 'en' ? 'Writes some letters or numbers, and copies triangle' : 'አንዳንድ ፊደላትን ወይም ቁጥሮችን ይጽፋል፣ እና ሶስት ማዕዘን ይገለብጣል' },
-        { id: 'k5', text: lang === 'en' ? 'Stands on one foot for 10 seconds or longer' : 'በአንድ እግሩ ለ10 ሰከንድ ወይም ከዚያ በላይ ይቆማል' },
-        { id: 'k6', text: lang === 'en' ? 'Understands the difference between real and make-believe' : 'በእውነተኛ እና በማስመስል መካከል ያለውን ልዩነት ይረዳል' }
-      ]
-    }
+  const milestonesData = contentResources.milestonesData || {
+    toddler: { title: '', items: [] },
+    preschool: { title: '', items: [] },
+    kinder: { title: '', items: [] }
   };
-
-  const [arTheme, setArTheme] = useState<'animals' | 'alphabet' | 'space'>('animals');
-  const [selectedArItem, setSelectedArItem] = useState(0);
-  const [arRotation, setArRotation] = useState(180); // Exact degrees
-  const [arScale, setArScale] = useState(1.0);
-  const [arFeedback, setArFeedback] = useState<string | null>(null);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [gameScore, setGameScore] = useState(0);
-  const [gamePrompt, setGamePrompt] = useState('');
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; color: string; size: number }>>([]);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Confetti generator
-  const triggerConfetti = () => {
-    const colors = ['#3a5b32', '#ea580c', '#eab308', '#06b6d4', '#ec4899', '#10b981'];
-    const pArray = Array.from({ length: 45 }).map((_, i) => ({
-      id: Math.random(),
-      x: 30 + Math.random() * 40,
-      y: 30 + Math.random() * 40,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      size: 5 + Math.random() * 10
-    }));
-    setParticles(pArray);
-    setTimeout(() => setParticles([]), 3000);
-  };
-
-  // AR Catalog Items
-  const arCatalog = {
-    animals: [
-      { name: 'Simba the Lion Cub', emoji: '🦁', sound: 'Roar!', fact: 'Lions live in family groups called prides.' },
-      { name: 'Gary the Giraffe', emoji: '🦒', sound: 'Hummm!', fact: 'Giraffes have the same number of neck bones as humans!' },
-      { name: 'Ellie the Elephant', emoji: '🐘', sound: 'Trumpet!', fact: 'Elephants communicate using low-frequency vibrations.' }
-    ],
-    alphabet: [
-      { name: 'Letter A', emoji: '🍎', sound: 'A is for Apple!', fact: 'Apples float in water because they are 25% air!' },
-      { name: 'Letter B', emoji: '🐝', sound: 'B is for Bee!', fact: 'Bees pollinate 1/3 of all food crops!' },
-      { name: 'Letter C', emoji: '🐱', sound: 'C is for Cat!', fact: 'Cats can jump up to six times their height!' }
-    ],
-    space: [
-      { name: 'Planet Mars', emoji: '🔴', sound: 'Swoosh!', fact: 'Mars is called the Red Planet because of iron oxide rust.' },
-      { name: 'The Moon', emoji: '🌙', sound: 'Beep!', fact: 'The Moon does not make its own light; it reflects the Sun.' },
-      { name: 'Golden Rocket', emoji: '🚀', sound: 'Blastoff!', fact: 'Rockets reach speeds over 17,800 miles per hour.' }
-    ]
-  };
-
-  // Start Camera
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
-      setCameraActive(true);
-      triggerFeedback('success', 'Camera initialized successfully!');
-    } catch (err) {
-      console.warn('Camera failed/blocked, using interactive default backdrop:', err);
-      setCameraActive(false);
-      triggerFeedback('error', 'Camera blocked. Using beautiful interactive vector nursery backdrop.');
-    }
-  };
-
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    setCameraActive(false);
-  };
-
-  // Start AR Game
-  const startArGame = () => {
-    const items = arCatalog[arTheme];
-    const target = items[Math.floor(Math.random() * items.length)];
-    setGamePrompt(lang === 'en' ? `Place the matching card for "${target.name}" into the center viewport!` : `ለ "${target.name}" የሚስማማውን ካርድ መሃል ላይ ያስቀምጡ!`);
-    setSelectedArItem(items.indexOf(target));
-  };
-
-  const verifyArMatch = () => {
-    triggerConfetti();
-    setGameScore(prev => prev + 10);
-    setArFeedback(lang === 'en' ? 'Excellent Match! Sparkles and Fact unlocked!' : 'ድንቅ ግጥጥም! እውነታው ተከፍቷል!');
-    setTimeout(() => {
-      setArFeedback(null);
-      startArGame();
-    }, 4000);
-  };
-
-  // Cleanup Camera on unmount
-  useEffect(() => {
-    if (actionType === 'ar_activities') {
-      startCamera();
-      startArGame();
-    }
-    return () => stopCamera();
-  }, [actionType, arTheme]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -1003,236 +796,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
 
           {/* 5. INTERACTIVE AR SIMULATOR */}
           {actionType === 'ar_activities' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
-              {/* Left Column: AR Viewport */}
-              <div className="lg:col-span-2 flex flex-col justify-between">
-                
-                {/* AR Canvas Window */}
-                <div className="relative aspect-video bg-stone-950 rounded-2.5xl overflow-hidden border border-stone-800 shadow-inner group">
-                  {/* Confetti canvas overlay */}
-                  <div className="absolute inset-0 pointer-events-none z-30">
-                    {particles.map((p) => (
-                      <motion.div
-                        key={p.id}
-                        initial={{ opacity: 1, scale: 1, x: `${p.x}%`, y: `${p.y}%` }}
-                        animate={{ 
-                          opacity: 0, 
-                          scale: 0.2, 
-                          x: `${p.x + (Math.random() - 0.5) * 30}%`, 
-                          y: `${p.y + (Math.random() * 50) + 10}%` 
-                        }}
-                        transition={{ duration: 1.5, ease: 'easeOut' }}
-                        style={{ 
-                          position: 'absolute',
-                          width: `${p.size}px`, 
-                          height: `${p.size}px`, 
-                          backgroundColor: p.color,
-                          borderRadius: '50%'
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Camera view */}
-                  <video 
-                    ref={videoRef}
-                    className="absolute inset-0 w-full h-full object-cover z-0 filter contrast-[1.05] brightness-95"
-                    playsInline
-                    muted
-                  />
-
-                  {/* Fallback Parallax nursery background */}
-                  {!cameraActive && (
-                    <div className="absolute inset-0 bg-gradient-to-b from-blue-100 via-sky-50 to-orange-50 z-0 flex items-center justify-center overflow-hidden">
-                      {/* Sun */}
-                      <div className="absolute top-8 right-12 w-16 h-16 rounded-full bg-yellow-300 blur-sm animate-pulse" />
-                      {/* Floating nursery toys */}
-                      <div className="absolute -bottom-8 left-1/4 w-[250px] h-[140px] bg-emerald-100 rounded-t-[120px] opacity-70" />
-                      <div className="absolute -bottom-10 right-1/4 w-[200px] h-[100px] bg-teal-100 rounded-t-[100px] opacity-70" />
-                      {/* Grid Lines simulation */}
-                      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:32px_32px]" />
-                    </div>
-                  )}
-
-                  {/* Educational object rendered with exactly 1-degree rotation controls */}
-                  <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                    <motion.div 
-                      style={{ 
-                        rotateY: `${arRotation}deg`, 
-                        scale: arScale 
-                      }}
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                      className="text-8xl select-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.25)] relative"
-                    >
-                      {arCatalog[arTheme][selectedArItem]?.emoji}
-                      
-                      {/* Fact popup or speech balloon */}
-                      <AnimatePresence>
-                        {arFeedback && (
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: -45 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            className="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-stone-900 border border-stone-100 px-4 py-2 rounded-2xl shadow-xl text-xs font-bold max-w-xs whitespace-nowrap z-20 pointer-events-auto"
-                          >
-                            <Sparkles size={12} className="inline mr-1 text-yellow-500 animate-spin" />
-                            {arFeedback}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  </div>
-
-                  {/* UI Overlays */}
-                  <div className="absolute top-4 left-4 z-20 bg-black/50 text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full uppercase flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span>Live {cameraActive ? 'Camera AR' : 'Simulated AR'}</span>
-                  </div>
-
-                  <div className="absolute top-4 right-4 z-20 bg-brand-green text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
-                    <Award size={14} />
-                    <span>Score: {gameScore}</span>
-                  </div>
-
-                  {/* Prompt Banner */}
-                  {gamePrompt && (
-                    <div className="absolute bottom-4 left-4 right-4 z-20 bg-white/95 backdrop-blur-md text-stone-900 text-xs md:text-sm font-bold p-3.5 rounded-2xl shadow-lg border border-white/60 text-center flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Sparkles size={16} className="text-yellow-500 animate-bounce" />
-                        <span>{gamePrompt}</span>
-                      </div>
-                      <button 
-                        onClick={verifyArMatch}
-                        className="px-3.5 py-1.5 bg-brand-green text-white rounded-xl text-xs font-black shadow-md hover:scale-102 transition"
-                      >
-                        Place Card
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Exact 1-degree rotation calibration dashboard */}
-                <div className="mt-4 p-4 border border-stone-200 rounded-2.5xl bg-stone-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <Sliders size={18} className="text-brand-green" />
-                    <div>
-                      <h4 className="font-bold text-stone-900 text-sm">1:1 Gyroscope & Fine Calibration</h4>
-                      <p className="text-xs text-stone-500">Fine-tune object rotation in real-time down to exactly 1-degree.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 w-full md:w-auto">
-                    <div className="flex-1 md:flex-initial flex items-center gap-2">
-                      <button 
-                        onClick={() => setArRotation(prev => (prev - 1) % 360)}
-                        className="p-1.5 bg-white border border-stone-200 text-stone-700 rounded-lg hover:bg-stone-100 shadow-sm active:scale-95"
-                        title="Rotate Left 1 Degree"
-                      >
-                        -1°
-                      </button>
-                      <div className="px-3 py-1 bg-stone-900 text-stone-100 font-mono text-xs rounded-lg min-w-[50px] text-center font-bold shadow-sm">
-                        {arRotation}°
-                      </div>
-                      <button 
-                        onClick={() => setArRotation(prev => (prev + 1) % 360)}
-                        className="p-1.5 bg-white border border-stone-200 text-stone-700 rounded-lg hover:bg-stone-100 shadow-sm active:scale-95"
-                        title="Rotate Right 1 Degree"
-                      >
-                        +1°
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-stone-500">Scale:</span>
-                      <input 
-                        type="range" 
-                        min="0.5" 
-                        max="2.0" 
-                        step="0.05"
-                        value={arScale} 
-                        onChange={(e) => setArScale(parseFloat(e.target.value))}
-                        className="w-24 accent-brand-green cursor-pointer"
-                      />
-                      <span className="text-xs font-mono text-stone-650 min-w-[30px] font-bold">{arScale.toFixed(2)}x</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Right Column: Catalog List & Learning Facts */}
-              <div className="lg:col-span-1 border-l border-stone-100 lg:pl-6 flex flex-col justify-between h-full">
-                
-                {/* Theme Selector */}
-                <div className="mb-6">
-                  <h4 className="block text-xs font-black uppercase tracking-wider text-stone-500 mb-2.5">Category Theme</h4>
-                  <div className="flex gap-2">
-                    {['animals', 'alphabet', 'space'].map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => { setArTheme(t as any); setSelectedArItem(0); }}
-                        className={`flex-1 py-2 border rounded-xl text-xs font-bold capitalize transition ${
-                          arTheme === t 
-                            ? 'bg-brand-green/10 text-brand-green border-brand-green/40 shadow-sm' 
-                            : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Cards Catalog */}
-                <div className="flex-1 overflow-y-auto max-h-[300px] mb-6 space-y-2.5 pr-2">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-stone-500">Educational Cards</h4>
-                  {arCatalog[arTheme].map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedArItem(idx)}
-                      className={`w-full text-left p-3.5 border rounded-2xl flex items-center gap-3 transition-all ${
-                        selectedArItem === idx 
-                          ? 'bg-stone-50 border-brand-green shadow-sm' 
-                          : 'border-stone-150 hover:bg-stone-50/50'
-                      }`}
-                    >
-                      <span className="text-3xl">{item.emoji}</span>
-                      <div className="flex-1 truncate">
-                        <h5 className="font-bold text-stone-900 text-sm">{item.name}</h5>
-                        <p className="text-xs text-stone-500 truncate">{item.sound}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Fact Spotlight Card */}
-                <div className="p-5 bg-brand-green/10 border border-brand-green/20 rounded-2.5xl text-left">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-green mb-1.5 flex items-center gap-1">
-                    <Sparkles size={12} />
-                    <span>Learning Spotlight Fact</span>
-                  </h4>
-                  <h5 className="font-editorial text-stone-950 font-bold mb-2 leading-tight">
-                    {arCatalog[arTheme][selectedArItem]?.name}
-                  </h5>
-                  <p className="text-xs text-stone-650 leading-relaxed font-sans mb-3 font-medium">
-                    {arCatalog[arTheme][selectedArItem]?.fact}
-                  </p>
-                  <button 
-                    onClick={() => {
-                      const sound = arCatalog[arTheme][selectedArItem]?.sound;
-                      const u = new SpeechSynthesisUtterance(sound);
-                      u.rate = 0.9;
-                      window.speechSynthesis?.speak(u);
-                      triggerFeedback('success', `Sound activated: "${sound}"`);
-                    }}
-                    className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-brand-green"
-                  >
-                    <Volume2 size={12} />
-                    <span>Play Voice Guide</span>
-                  </button>
-                </div>
-
-              </div>
-            </div>
+            <div className="text-stone-500 p-8 text-center">AR activities have been removed.</div>
           )}
 
           {/* 6. DEVELOPMENT MILESTONES TRACKER */}

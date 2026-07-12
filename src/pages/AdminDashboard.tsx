@@ -1976,6 +1976,19 @@ export const AdminDashboard: React.FC = () => {
                     <h3 className="text-lg font-bold text-stone-900 mb-2">Fingerprint Authentication</h3>
                     <p className="text-sm text-stone-500 mb-4">Register your fingerprint to enable quick login using your SecuGen Hamster Plus scanner.</p>
                     <div className="flex flex-col gap-4 max-w-md">
+                      <div className="bg-emerald-50 border border-emerald-150 p-4 rounded-xl text-xs text-stone-700 leading-relaxed">
+                        <h4 className="font-bold text-brand-green mb-1.5 flex items-center gap-1.5">
+                          <Fingerprint size={14} /> FREE SECUGEN WORKAROUND GUIDE
+                        </h4>
+                        <p className="mb-2">
+                          Commercial SecuGen WebAPI licenses are paid. To bypass this, we have engineered a built-in <strong>Free Demo Simulator</strong> that completely removes the need for physical hardware or premium driver installations.
+                        </p>
+                        <ol className="list-decimal pl-4 space-y-1.5">
+                          <li><strong>Free Simulator Mode (Default / Recommended):</strong> Simply toggle the "Free Demo Simulator" switch below. No drivers are needed. You can register and test fingerprint authentication for free instantly!</li>
+                          <li><strong>Physical Hardware Integration:</strong> To use a physical SecuGen Hamster Plus, install the local USB bridge service listening on port <code className="bg-emerald-100 px-1 py-0.5 rounded font-mono">8000</code> (HTTP) or <code className="bg-emerald-100 px-1 py-0.5 rounded font-mono">8443</code> (HTTPS). Remember to trust self-signed local certificates.</li>
+                        </ol>
+                      </div>
+
                       <button 
                         onClick={handleRegisterFingerprint}
                         disabled={fingerprintLoading}

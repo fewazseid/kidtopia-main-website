@@ -41,6 +41,14 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
     }));
   };
 
+  const [activeTab, setActiveTab] = useState<'rules' | 'handbook' | 'nutrition' | 'milestones'>('rules');
+
+  // Load parent resources data from synced translations
+  const resData = t.resources || {};
+  const handbookChapters = resData.handbookChapters || [];
+  const menuDays = resData.menuDays || [];
+  const milestonesData = resData.milestonesData || {};
+
   return (
     <main className="pt-28 pb-20 bg-transparent min-h-screen">
       <div className="max-w-4xl mx-auto px-4">
@@ -236,7 +244,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           </div>
         </motion.div>
 
-        {/* Enrollment Terms and Conditions Card */}
+        {/* Enrollment Terms and Conditions Card with Parent Resources Integration */}
         <motion.div 
           id="terms-section"
           initial={{ opacity: 0, y: 20 }}
@@ -246,47 +254,190 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
             showWarning && !termsAccepted ? 'border-brand-orange/50 bg-brand-orange/3 ring-2 ring-brand-orange/10' : 'border-white/40'
           }`}
         >
-          <h3 className="font-serif font-bold text-stone-900 text-xl mb-4 flex items-center gap-2">
+          <h3 className="font-serif font-bold text-stone-900 text-xl mb-2 flex items-center gap-2">
             <FileCheck className="text-brand-green" size={24} />
-            <span>{lang === 'am' ? 'የምዝገባ ደንቦች እና ሁኔታዎች' : 'Enrollment Terms & Conditions'}</span>
+            <span>{lang === 'am' ? 'የምዝገባ ደንቦች እና የወላጅ መመሪያዎች' : 'Enrollment Terms, Policies & Parent Guides'}</span>
           </h3>
+          <p className="text-stone-500 text-xs mb-6 leading-relaxed">
+            {lang === 'am'
+              ? 'እባክዎ ከመመዝገብዎ በፊት እያንዳንዱን ትር ጠቅ በማድረግ ሁሉንም መመሪያዎች፣ የወላጅ መመሪያ ምዕራፎችን፣ ሳምንታዊ ምግቦችን እና የልጅ እድገት ደረጃዎችን ያንብቡ።'
+              : 'Please review all information, parent handbook chapters, nutritional guides, and milestones by clicking each tab before checking the acceptance box.'}
+          </p>
 
-          <div className="bg-stone-50 rounded-2xl p-4 md:p-5 text-sm text-stone-600 space-y-3 mb-6 max-h-48 overflow-y-auto border border-stone-150 scrollbar-thin scrollbar-thumb-stone-200">
-            <p className="font-bold text-stone-800">
-              {lang === 'am' ? '1. የጤና እና የክትባት ማረጋገጫ' : '1. Health & Custom Screenings'}
-            </p>
-            <p className="leading-relaxed">
-              {lang === 'am'
-                ? 'ወላጅ ወይም ህጋዊ አሳዳጊ ሁሉም የላብራቶሪ ምርመራ ሰነዶች (ቲቢ፣ ኤችአይቪ፣ ሄፓታይተስ) እና የክትባት መረጃዎች ትክክለኛ እና በኪድቶፒያ የተረጋገጡ መሆናቸውን መስማማት አለባቸው።'
-                : 'All laboratory screening documents (Tuberculosis, HIV, and Hepatitis B) must be genuine and certified by a recognized laboratory. Immunizations must be up to date.'}
-            </p>
+          {/* Navigation Tabs */}
+          <div className="flex flex-wrap gap-1.5 mb-5 border-b border-stone-200/60 pb-3">
+            <button
+              type="button"
+              onClick={() => setActiveTab('rules')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer ${
+                activeTab === 'rules'
+                  ? 'bg-brand-green text-white shadow-md'
+                  : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
+              }`}
+            >
+              ⚖️ {lang === 'am' ? 'ዋና ደንቦች' : 'Core Rules'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('handbook')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer ${
+                activeTab === 'handbook'
+                  ? 'bg-brand-green text-white shadow-md'
+                  : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
+              }`}
+            >
+              📖 {lang === 'am' ? 'የወላጅ መመሪያ ምዕራፎች' : 'Handbook Chapters'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('nutrition')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer ${
+                activeTab === 'nutrition'
+                  ? 'bg-brand-green text-white shadow-md'
+                  : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
+              }`}
+            >
+              🥗 {lang === 'am' ? 'የምግብ መመሪያ' : 'Nutrition & Meals'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('milestones')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer ${
+                activeTab === 'milestones'
+                  ? 'bg-brand-green text-white shadow-md'
+                  : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
+              }`}
+            >
+              📈 {lang === 'am' ? 'የእድገት ደረጃዎች' : 'Development Milestones'}
+            </button>
+          </div>
 
-            <p className="font-bold text-stone-800">
-              {lang === 'am' ? '2. የደህንነት እና የልጅ መውሰጃ መመሪያ' : '2. Security & Authorized Pickup'}
-            </p>
-            <p className="leading-relaxed">
-              {lang === 'am'
-                ? 'በደህንነት ስርዓታችን መሰረተ፣ በፎቶ መግለጫ መዝገብ ላይ ያልተጠቀሰ ሌላ ሰው ህፃናትን መውሰድ አይችልም። በድንገተኛ ጊዜ አስቀድሞ ለትምህርት ቤቱ መታወቅ አለበት።'
-                : 'Only recognized individuals with approved photo identification on record are authorized to pick up children. Emergency changes must be filed formally.'}
-            </p>
+          {/* Dynamic Content Container */}
+          <div className="bg-stone-50 rounded-2xl p-5 text-sm text-stone-600 mb-6 max-h-[350px] overflow-y-auto border border-stone-200/60 scrollbar-thin scrollbar-thumb-stone-200">
+            {activeTab === 'rules' && (
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-bold text-stone-800 mb-1">
+                    {lang === 'am' ? '1. የጤና እና የክትባት ማረጋገጫ' : '1. Health & Custom Screenings'}
+                  </h4>
+                  <p className="leading-relaxed">
+                    {lang === 'am'
+                      ? 'ወላጅ ወይም ህጋዊ አሳዳጊ ሁሉም የላብራቶሪ ምርመራ ሰነዶች (ቲቢ፣ ኤችአይቪ፣ ሄፓታይተስ) እና የክትባት መረጃዎች ትክክለኛ እና በኪድቶፒያ የተረጋገጡ መሆናቸውን መስማማት አለባቸው።'
+                      : 'All laboratory screening documents (Tuberculosis, HIV, and Hepatitis B) must be genuine and certified by a recognized laboratory. Immunizations must be up to date.'}
+                  </p>
+                </div>
 
-            <p className="font-bold text-stone-800">
-              {lang === 'am' ? '3. የድንገተኛ ህክምና ስልጣን' : '3. Emergency Medical Consent'}
-            </p>
-            <p className="leading-relaxed">
-              {lang === 'am'
-                ? 'አስቸኳይ አደጋ ሲያጋጥም እና ወላጅ በስልክ በማይገኝበት ጊዜ፣ በትምህርት ቤቱ ነርስ ውሳኔ ልጅዎ ወደ ህክምና ተቋም እንዲወሰድ እና የመጀመሪያ እርዳታ እንዲያገኝ ፍቃድ ይሰጣሉ።'
-                : 'In real emergency situations where natural parents cannot be reached, you grant Kidtopia’s registered nurse and staff the authority to seek immediate professional medical treatment.'}
-            </p>
+                <div>
+                  <h4 className="font-bold text-stone-800 mb-1">
+                    {lang === 'am' ? '2. የደህንነት እና የልጅ መውሰጃ መመሪያ' : '2. Security & Authorized Pickup'}
+                  </h4>
+                  <p className="leading-relaxed">
+                    {lang === 'am'
+                      ? 'በደህንነት ስርዓታችን መሰረተ፣ በፎቶ መግለጫ መዝገብ ላይ ያልተጠቀሰ ሌላ ሰው ህፃናትን መውሰድ አይችልም። በድንገተኛ ጊዜ አስቀድሞ ለትምህርት ቤቱ መታወቅ አለበት።'
+                      : 'Only recognized individuals with approved photo identification on record are authorized to pick up children. Emergency changes must be filed formally.'}
+                  </p>
+                </div>
 
-            <p className="font-bold text-stone-800">
-              {lang === 'am' ? '4. የክፍያ ስምምነት' : '4. Payment & Refund Policies'}
-            </p>
-            <p className="leading-relaxed">
-              {lang === 'am'
-                ? 'ምዝገባውን ለማጠናቀቅ የሚከፈሉ ክፍያዎች አስቀድሞ መከፈል ያለባቸው ሲሆን፣ ሁሉም ክፍያዎች የማይመለሱ መሆናቸውን እና በየወቅቱ መከፈል አለባቸው።'
-                : 'Tuition fees must be paid in advance according to the chosen package. All paid registration fees are non-refundable and late pick-ups are subject to penalty clauses.'}
-            </p>
+                <div>
+                  <h4 className="font-bold text-stone-800 mb-1">
+                    {lang === 'am' ? '3. የድንገተኛ ህክምና ስልጣን' : '3. Emergency Medical Consent'}
+                  </h4>
+                  <p className="leading-relaxed">
+                    {lang === 'am'
+                      ? 'አስቸኳይ አደጋ ሲያጋጥም እና ወላጅ በስልክ በማይገኝበት ጊዜ፣ በትምህርት ቤቱ ነርስ ውሳኔ ልጅዎ ወደ ህክምና ተቋም እንዲወሰድ እና የመጀመሪያ እርዳታ እንዲያገኝ ፍቃድ ይሰጣሉ።'
+                      : 'In real emergency situations where natural parents cannot be reached, you grant Kidtopia’s registered nurse and staff the authority to seek immediate professional medical treatment.'}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-stone-800 mb-1">
+                    {lang === 'am' ? '4. የክፍያ ስምምነት' : '4. Payment & Refund Policies'}
+                  </h4>
+                  <p className="leading-relaxed">
+                    {lang === 'am'
+                      ? 'ምዝገባውን ለማጠናቀቅ የሚከፈሉ ክፍያዎች አስቀድሞ መከፈል ያለባቸው ሲሆን፣ ሁሉም ክፍያዎች የማይመለሱ መሆናቸውን እና በየወቅቱ መከፈል አለባቸው።'
+                      : 'Tuition fees must be paid in advance according to the chosen package. All paid registration fees are non-refundable and late pick-ups are subject to penalty clauses.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'handbook' && (
+              <div className="space-y-4">
+                {handbookChapters.length === 0 ? (
+                  <p className="text-stone-400 text-center py-4">{lang === 'am' ? 'ምንም ምዕራፎች አልተገኙም።' : 'No chapters available.'}</p>
+                ) : (
+                  handbookChapters.map((ch: any, i: number) => (
+                    <div key={i} className="pb-3 border-b border-stone-200/50 last:border-0 last:pb-0">
+                      <h4 className="font-bold text-stone-850 mb-1">{ch.title}</h4>
+                      <p className="leading-relaxed text-xs text-stone-600">{ch.content}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {activeTab === 'nutrition' && (
+              <div className="space-y-4">
+                <p className="text-xs font-medium text-stone-500 mb-3">
+                  {lang === 'am' 
+                    ? 'ለልጅዎ የተመጣጠነ ምግብ ለማቅረብ የምንከተለው ሳምንታዊ የምግብ እቅድ የሚከተለው ነው።'
+                    : 'Our daily meal layout focused on optimal nutrition and balanced dietary intake:'}
+                </p>
+                {menuDays.length === 0 ? (
+                  <p className="text-stone-400 text-center py-4">{lang === 'am' ? 'ምንም የምግብ እቅድ አልተገኘም።' : 'No menu planner days found.'}</p>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3">
+                    {menuDays.map((d: any, i: number) => (
+                      <div key={i} className="p-3 bg-white border border-stone-150 rounded-xl">
+                        <h4 className="font-bold text-brand-green text-sm mb-1.5">{d.day}</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <span className="font-bold text-stone-700 block">{lang === 'am' ? 'ቁርስ:' : 'Breakfast:'}</span>
+                            <span className="text-stone-500">{d.breakfast}</span>
+                          </div>
+                          <div>
+                            <span className="font-bold text-stone-700 block">{lang === 'am' ? 'ምሳ:' : 'Lunch:'}</span>
+                            <span className="text-stone-500">{d.lunch}</span>
+                          </div>
+                          <div>
+                            <span className="font-bold text-stone-700 block">{lang === 'am' ? 'ትኩስ መክሰስ:' : 'Snack:'}</span>
+                            <span className="text-stone-500">{d.snack}</span>
+                          </div>
+                        </div>
+                        {d.allergens && d.allergens.length > 0 && (
+                          <div className="mt-2 text-[10px] text-brand-orange font-bold uppercase tracking-wider">
+                            ⚠️ {lang === 'am' ? 'አለርጂዎች:' : 'Allergens:'} {d.allergens.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'milestones' && (
+              <div className="space-y-5">
+                {Object.keys(milestonesData).length === 0 ? (
+                  <p className="text-stone-400 text-center py-4">{lang === 'am' ? 'ምንም የልጅ እድገት ደረጃዎች አልተገኙም።' : 'No milestones data available.'}</p>
+                ) : (
+                  Object.keys(milestonesData).map((catKey) => {
+                    const category = milestonesData[catKey];
+                    return (
+                      <div key={catKey} className="p-3 bg-white border border-stone-150 rounded-xl">
+                        <h4 className="font-bold text-stone-850 text-sm mb-2 pb-1.5 border-b border-stone-100">{category.title}</h4>
+                        <ul className="list-disc list-inside space-y-1 text-xs text-stone-600">
+                          {category.items?.map((item: any, idx: number) => (
+                            <li key={item.id || idx}>{item.text}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-3">
@@ -303,8 +454,8 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
               />
               <span className="text-stone-700 text-sm font-medium leading-relaxed group-hover:text-stone-900 transition-colors">
                 {lang === 'am'
-                  ? 'ሁሉንም የምዝገባ ደንቦች እና ሁኔታዎች አንብቤያለሁ፣ በተገለጹት መመሪያዎችም ሙሉ በሙሉ ተስማምቻለሁ።'
-                  : 'I have read, understood, and voluntarily accept all of the enrollment Terms & Conditions of Kidtopia.'}
+                  ? 'ሁሉንም የምዝገባ ደንቦች፣ የወላጅ መመሪያ ምዕራፎችን፣ የጤና እና የምግብ መግለጫዎችን አንብቤያለሁ፣ በተገለጹት መመሪያዎችም ሙሉ በሙሉ ተስማምቻለሁ።'
+                  : 'I have read, understood, and voluntarily accept all of the enrollment Terms & Conditions, Parent Handbook chapters, health guidelines, and milestones policies of Kidtopia.'}
               </span>
             </label>
 

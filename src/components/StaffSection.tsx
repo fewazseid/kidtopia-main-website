@@ -101,6 +101,10 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
               <div className="px-2">
                 <h3 className="text-xl font-editorial font-bold text-stone-900 mb-1 tracking-tight group-hover:text-brand-green transition-colors duration-300">{member.name}</h3>
                 <p className="text-brand-green font-black text-[11px] uppercase tracking-wider font-accent">{member.role}</p>
+                {/* Mobile description fallback */}
+                <p className="text-stone-600 dark:text-stone-400 text-xs mt-2.5 leading-relaxed block sm:hidden max-w-xs mx-auto italic bg-stone-100/60 dark:bg-stone-800/40 p-2.5 rounded-xl border border-stone-200/40">
+                  "{member.desc}"
+                </p>
               </div>
             </motion.div>
           ))}

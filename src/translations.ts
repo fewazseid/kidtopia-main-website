@@ -228,11 +228,112 @@ export const translations = {
       items: [
         { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
         { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
-        { title: "AR Simulator Game", description: "Interactive Augmented Reality simulator for fun and creative learning.", type: "Interactive Game", image: "", actionType: "ar_activities", link: "" },
         { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
         { title: "Profile Avatar Creator", description: "Design a unique custom character avatar for you and your child's portal profile.", type: "Interactive Tool", image: "", actionType: "avatar", link: "" },
         { title: "Development Milestones", description: "Track your child's age-appropriate developmental stages, cognitive and motor skills.", type: "Milestone Tracker", image: "", actionType: "milestones", link: "" }
-      ]
+      ],
+      handbookChapters: [
+        {
+          title: "1. Welcome & Philosophy",
+          content: "Welcome to Kidtopia International Daycare! Our philosophy is centered around providing a holistic, safe, and stimulating environment that fosters intellectual growth, physical coordination, and socio-emotional wellness. We operate under rigorous childcare excellence policies."
+        },
+        {
+          title: "2. Health & Screenings",
+          content: "To maintain a clean and disease-free environment for all children, we enforce mandatory medical screening. All children must submit fully updated immunization charts, TB clearance certificates, and Hepatitis/HIV screening results. Contagious children must stay home."
+        },
+        {
+          title: "3. Digital Security Check-out",
+          content: "Security is our utmost priority. Our digital check-in/out registers authorized parents. Fingerprint registration is highly recommended. Only pre-registered individuals with approved government IDs can check out a child. No exceptions can be made."
+        },
+        {
+          title: "4. Daily Schedules & Naptime",
+          content: "Our days are filled with structured balance: free play, studies, healthy meals, and an afternoon nap (13:00 to 15:00). Blankets and sheets are laundered internally using our commercial hygienic laundry system."
+        },
+        {
+          title: "5. Financial Terms & Withdrawals",
+          content: "Parents agree to pay tuition on or before the 1st of each month. Late fees apply after the 5th. 30 days written advance notice is required for withdrawals; failure to do so results in forfeiture of security deposit."
+        },
+        {
+          title: "6. Emergency Medical Authorization",
+          content: "In a medical emergency, we make every effort to contact parents. If unreachable, parents authorize Kidtopia to secure emergency medical treatment, hospitalize, or order injection/surgery for the child under medical direction."
+        },
+        {
+          title: "7. Parental Code of Conduct",
+          content: "We believe in a relationship of respect. Parents must communicate respectfully with teachers and staff. Aggressive behavior or harassment will result in immediate termination of daycare enrollment with zero refund."
+        }
+      ],
+      menuDays: [
+        {
+          day: "Monday",
+          breakfast: "Organic Oat Porridge with fresh bananas and raw honey",
+          lunch: "Lentil Stew (Misir Wot) with high-fiber Injera & steamed spinach",
+          snack: "Assorted fruit skewers with low-fat organic yogurt",
+          allergens: ["gluten", "dairy"]
+        },
+        {
+          day: "Tuesday",
+          breakfast: "Scrambled organic eggs with whole wheat toast",
+          lunch: "Mild chicken breast cubes with mashed sweet potatoes and carrots",
+          snack: "Pumpkin seed kernels and sliced local red apples",
+          allergens: ["egg", "gluten"]
+        },
+        {
+          day: "Wednesday",
+          breakfast: "Barley Besso shake with dairy-free almond milk",
+          lunch: "Mixed vegetable and chickpea Shiro stew with soft wheat Injera",
+          snack: "Toasted whole grain crackers with avocado puree spread",
+          allergens: ["gluten"]
+        },
+        {
+          day: "Thursday",
+          breakfast: "Whole wheat pancakes with natural organic maple syrup",
+          lunch: "Steamed local white fish with brown rice and sauteed green beans",
+          snack: "Dehydrated banana chips and organic orange slices",
+          allergens: ["fish", "gluten"]
+        },
+        {
+          day: "Friday",
+          breakfast: "Mashed avocado toast with organic soft cheese crumble",
+          lunch: "Traditional beef stew (Siga Alicha) with fluffy teff Injera",
+          snack: "Baked sweet potato chips with honey cinnamon drizzle",
+          allergens: ["dairy", "gluten"]
+        }
+      ],
+      milestonesData: {
+        toddler: {
+          title: "Toddlers (12 - 24 Months)",
+          items: [
+            { id: "t1", text: "Walks independently and starts to run" },
+            { id: "t2", text: "Says several single words and simple 2-word phrases" },
+            { id: "t3", text: "Points to objects or pictures when they are named" },
+            { id: "t4", text: "Begins to sort shapes and colors" },
+            { id: "t5", text: "Plays simple pretend games (e.g., feeding a doll)" },
+            { id: "t6", text: "Follows simple one-step verbal instructions" }
+          ]
+        },
+        preschool: {
+          title: "Preschoolers (2 - 4 Years)",
+          items: [
+            { id: "p1", text: "Climbs well and runs easily" },
+            { id: "p2", text: "Speaks in sentences of 3-4 words" },
+            { id: "p3", text: "Can work toys with buttons, levers, and moving parts" },
+            { id: "p4", text: "Copies a circle with crayon or pencil" },
+            { id: "p5", text: "Shows affection for friends and expresses wide range of emotions" },
+            { id: "p6", text: "Takes turns in games and understands 'mine' and 'theirs'" }
+          ]
+        },
+        kinder: {
+          title: "Kindergarten (4 - 5 Years)",
+          items: [
+            { id: "k1", text: "Speaks very clearly and tells simple stories" },
+            { id: "k2", text: "Can count 10 or more objects" },
+            { id: "k3", text: "Draws a person with at least 6 body parts" },
+            { id: "k4", text: "Writes some letters or numbers, and copies triangle" },
+            { id: "k5", text: "Stands on one foot for 10 seconds or longer" },
+            { id: "k6", text: "Understands the difference between real and make-believe" }
+          ]
+        }
+      }
     },
     leadCapture: {
       title: "Would you like to schedule a tour?",
@@ -508,11 +609,112 @@ export const translations = {
       items: [
         { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
         { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
-        { title: "ኤአር አስመሳይ ጨዋታ", description: "በይነተገናኝ የተጨመረው እውነታ (AR) አስመሳይ ለአስደሳች እና ፈጠራዊ ትምህርት።", type: "በይነተገናኝ ጨዋታ", image: "", actionType: "ar_activities", link: "" },
         { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
         { title: "የአቫታር መፍጠሪያ", description: "ለእርስዎ እና ለልጅዎ የሚሆን ልዩ መገለጫ አቫታር ይንደፉ።", type: "በይነተገናኝ መሣሪያ", image: "", actionType: "avatar", link: "" },
         { title: "የልጅ እድገት ደረጃዎች", description: "የልጅዎን የእድገት ደረጃዎች፣ የዕውቀት እና የአካል ክህሎቶች ይከታተሉ።", type: "ደረጃ መከታተያ", image: "", actionType: "milestones", link: "" }
-      ]
+      ],
+      handbookChapters: [
+        {
+          title: "1. እንኳን ደህና መጡ እና ፍልስፍና",
+          content: "ወደ ኪድቶፒያ ዓለም አቀፍ የህጻናት ማቆያ እንኳን ደህና መጡ! የእኛ ፍልስፍና ህጻናት የአእምሮ እድገትን፣ የአካል ቅንጅትን እና ማህበራዊ-ስሜታዊ ደህንነትን የሚያዳብሩበትን ምቹ እና አስተማማኝ አካባቢ ማቅረብ ነው። እኛ በከፍተኛ የ childcare ፖሊሲዎች ስር እንሰራለን።"
+        },
+        {
+          title: "2. የጤና ምርመራዎች",
+          content: "ለንጹህ እና ከበሽታ ነጻ የሆነ አካባቢ ለመጠበቅ፣ አስገዳጅ የህክምና ምርመራዎችን እናስፈጽማለን። ሁሉም ልጆች የተሟላ የክትባት ሰነድ፣ የቲቢ ምርመራ፣ የሄፓታይተስ እና የኤችአይቪ ምርመራ ውጤቶችን ማቅረብ አለባቸው። ተላላፊ በሽታ ያለባቸው ህጻናት ቤት መቆየት አለባቸው።"
+        },
+        {
+          title: "3. የዲጂታል ደህንነት መውጫ",
+          content: "ደህንነት የላቀ ቅድሚያ የምንሰጠው ጉዳይ ነው። የዲጂታል መግቢያ/መውጫ ተርሚናላችን የተፈቀደላቸውን ወላጆች ይመዘግባል። የጣት አሻራ ምዝገባ በጣም ይመከራል። ህጋዊ የመታወቂያ ካርድ ያላቸው ቀድመው የተመዘገቡ ወላጆች ብቻ ህጻናትን መውሰድ ይችላሉ። ምንም ልዩ ሁኔታ አይፈቀድም።"
+        },
+        {
+          title: "4. ዕለታዊ መርሃግብር እና የእንቅልፍ ሰዓት",
+          content: "ዕለታችን ሚዛናዊ በሆኑ ተግባራት የተሞላ ነው፡ ነጻ ጨዋታ፣ ትምህርት፣ ጤናማ ምግቦች እና ከሰዓት በኋላ እንቅልፍ (ከ13:00 እስከ 15:00)። ብርድ ልብሶች እና አንሶላዎች በራሳችን የልብስ ማጠቢያ ስርዓት በንጽህና ይታጠባሉ።"
+        },
+        {
+          title: "5. የክፍያ ውሎች እና ምዝገባ ስረዛ",
+          content: "ወላጆች በየወሩ ከ1ኛው ቀን በፊት ክፍያዎችን ለመፈጸም ይስማማሉ። ከ5ኛው ቀን በኋላ ላለፉ ክፍያዎች የ10% ቅጣት ይታሰባል። ምዝገባ ለመሰረዝ ቢያንስ የ30 ቀናት ቅድመ ማስጠንቀቂያ በጽሁፍ መቅረብ አለበት፤ ያለበለዚያ የያዙት የዋስትና ክፍያ አይመለስም።"
+        },
+        {
+          title: "6. አስቸኳይ የህክምና ፈቃድ",
+          content: "በድንገተኛ የህክምና ሁኔታ ወላጆችን ለማግኘት የተቻለንን ሁሉ እናደርጋለን። ማግኘት ካልተቻለ ግን፣ ወላጆች ኪድቶፒያ ለልጁ አስፈላጊውን አስቸኳይ የህክምና እርዳታ፣ ሆስፒታል መተኛት፣ ማደንዘዣ ወይም ቀዶ чуገና እንዲያዝ ፈቃድ ይሰጣሉ።"
+        },
+        {
+          title: "7. የወላጅ የስነ-ምግባር ደንብ",
+          content: "እኛ የምናምነው በመከባበር ላይ በተመሰረተ ግንኙነት ነው። ወላጆች ከመምህራን እና ከሰራተኞች ጋር በአክብሮት መነጋገር አለባቸው። አስገዳጅ ወይም ተሳዳቢ የሆኑ ባህሪያት ያለ ምንም የክፍያ ተመላሽ ወዲያውኑ ከምዝገባ እንዲሰረዙ ያደርጋል።"
+        }
+      ],
+      menuDays: [
+        {
+          day: "ሰኞ",
+          breakfast: "ኦርጋኒክ የአጃ ገንፎ ከአዲስ ሙዝ እና ንጹህ ማር ጋር",
+          lunch: "የምስር ወጥ በከፍተኛ ፋይበር እንጀራ እና በእንፋሎት የበሰለ ጎመን",
+          snack: "የተለያዩ የፍራፍሬ ቁርጥራጮች ከኦርጋኒክ እርጎ ጋር",
+          allergens: ["gluten", "dairy"]
+        },
+        {
+          day: "ማክሰኞ",
+          breakfast: "ኦርጋኒክ የተጠበሰ እንቁላል በሙቅ የስንዴ ቶስት",
+          lunch: "ቀላል የዶሮ ስጋ ከድንች እና ካሮት ጋር",
+          snack: "የዱባ ፍሬዎች እና ቀይ ፖም",
+          allergens: ["egg", "gluten"]
+        },
+        {
+          day: "ረቡዕ",
+          breakfast: "የገብስ በሶ በለውዝ ወተት",
+          lunch: "አትክልት እና የሽንብራ ሽሮ ወጥ በስንዴ እንጀራ",
+          snack: "የተጠበሰ ብስኩት ከአቮካዶ ፑሪ ጋር",
+          allergens: ["gluten"]
+        },
+        {
+          day: "ሐሙስ",
+          breakfast: "የሙሉ ስንዴ ፓንኬክ በሜፕል ሲረፕ",
+          lunch: "የአሳ ወጥ በቡናማ ሩዝ እና በአትክልት",
+          snack: "የደረቀ የሙዝ ቺፕስ እና የብርቱካን ቁርጥራጮች",
+          allergens: ["fish", "gluten"]
+        },
+        {
+          day: "አርብ",
+          breakfast: "አቮካዶ ቶስት ከኦርጋኒክ አይብ ጋር",
+          lunch: "የበሬ ስጋ አልጫ ወጥ በጤፍ እንጀራ",
+          snack: "የተጠበሰ የድንች ቺፕስ በማር",
+          allergens: ["dairy", "gluten"]
+        }
+      ],
+      milestonesData: {
+        toddler: {
+          title: "ታዳጊዎች (ከ12 - 24 ወራት)",
+          items: [
+            { id: "t1", text: "በራሱ ይራመዳል እና መሮጥ ይጀምራል" },
+            { id: "t2", text: "በርካታ ነጠላ ቃላትን እና ቀላል ባለ 2-ቃል ሀረጎችን ይናገራል" },
+            { id: "t3", text: "ዕቃዎች ወይም ስዕሎች ሲጠሩ ይጠቁማል" },
+            { id: "t4", text: "ቅርጾችን እና ቀለሞችን መለየት ይጀምራል" },
+            { id: "t5", text: "ቀላል የማስመስል ጨዋታዎችን ይጫወታል (ለምሳሌ አሻንጉሊት መመገብ)" },
+            { id: "t6", text: "ቀላል የአንድ-ደረጃ የቃል መመሪያዎችን ይከተላል" }
+          ]
+        },
+        preschool: {
+          title: "ቅድመ ትምህርት ቤት (ከ2 - 4 ዓመታት)",
+          items: [
+            { id: "p1", text: "በጥሩ ሁኔታ ይወጣል እና በቀላሉ ይሮጣል" },
+            { id: "p2", text: "ከ3-4 ቃላት ባሉት ዓረፍተ ነገሮች ይናገራል" },
+            { id: "p3", text: "አዝራሮች፣ ማንሻዎች እና ተንቀሳቃሽ ክፍሎች ያሏቸውን መጫወቻዎች ማንቀሳቀስ ይችላል" },
+            { id: "p4", text: "በቀለም እርሳስ ወይም እርሳስ ክብ መቅዳት ይችላል" },
+            { id: "p5", text: "ለጓደኞቹ ፍቅር ያሳያል እና ሰፊ ስሜቶችን ይገልጻል" },
+            { id: "p6", text: "በጨዋታዎች ውስጥ ተራ ይይዛል እና 'የእኔ' እና 'የእነሱ' የሚለውን ይረዳል" }
+          ]
+        },
+        kinder: {
+          title: "ኪንደርጋርተን (ከ4 - 5 ዓመታት)",
+          items: [
+            { id: "k1", text: "በበለጠ ግልጽ በሆነ ሁኔታ ይናገራል እና ቀላል ታሪኮችን ይነግራል" },
+            { id: "k2", text: "10 ወይም ከዚያ በላይ እቃዎችን መቁጠር ይችላል" },
+            { id: "k3", text: "ቢያንስ 6 የሰውነት ክፍሎች ያሉት ሰው ይስላል" },
+            { id: "k4", text: "አንዳንድ ፊደላትን ወይም ቁጥሮችን ይጽፋል፣ እና ሶስት ማዕዘን ይገለብጣል" },
+            { id: "k5", text: "በአንድ እግሩ ለ10 ሰከንድ ወይም ከዚያ በላይ ይቆማል" },
+            { id: "k6", text: "በእውነተኛ እና በማስመስል መካከል ያለውን ልዩነት ይረዳል" }
+          ]
+        }
+      }
     },
     leadCapture: {
       title: "የጉብኝት ቀጠሮ መያዝ ይፈልጋሉ?",
