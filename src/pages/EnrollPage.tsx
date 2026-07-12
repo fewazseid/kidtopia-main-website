@@ -275,7 +275,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
                   : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
               }`}
             >
-              ⚖️ {lang === 'am' ? 'ዋና ደንቦች' : 'Core Rules'}
+              {lang === 'am' ? 'ዋና ደንቦች' : 'Core Rules'}
             </button>
             <button
               type="button"
@@ -286,7 +286,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
                   : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
               }`}
             >
-              📖 {lang === 'am' ? 'የወላጅ መመሪያ ምዕራፎች' : 'Handbook Chapters'}
+              {lang === 'am' ? 'የወላጅ መመሪያ ምዕራፎች' : 'Handbook Chapters'}
             </button>
             <button
               type="button"
@@ -297,7 +297,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
                   : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
               }`}
             >
-              🥗 {lang === 'am' ? 'የምግብ መመሪያ' : 'Nutrition & Meals'}
+              {lang === 'am' ? 'የምግብ መመሪያ' : 'Nutrition & Meals'}
             </button>
             <button
               type="button"
@@ -308,7 +308,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
                   : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
               }`}
             >
-              📈 {lang === 'am' ? 'የእድገት ደረጃዎች' : 'Development Milestones'}
+              {lang === 'am' ? 'የእድገት ደረጃዎች' : 'Development Milestones'}
             </button>
           </div>
 

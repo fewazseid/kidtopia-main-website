@@ -3,7 +3,8 @@ import * as THREE from 'three';
 import { 
   ArrowRight, ArrowUp, ArrowDown, ArrowLeft, Plus, Trash2, Camera, Move, Settings, Check, X, 
   RotateCcw, ZoomIn, ZoomOut, Maximize2, Minimize2, Edit2, Save, 
-  Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle, MapPin, Info
+  Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle, MapPin, Info,
+  Pointer
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -81,27 +82,27 @@ export function getLowResAndHighResUrls(url: string): { low: string; high: strin
 // Onboarding Walkthrough Steps for customers
 const GUIDE_STEPS = [
   {
-    title: "Welcome to Kidtopia 360° Virtual Tour! 🎒",
+    title: "Welcome to Kidtopia 360° Virtual Tour!",
     description: "Step inside our modern nursery school! Click and drag your mouse, or swipe on your screen in any direction to explore this room in 360 degrees.",
     highlight: "three-sixty-tour-container"
   },
   {
-    title: "Navigation & Floor Portals 🚪",
+    title: "Navigation & Floor Portals",
     description: "Look around for floating direction indicators. Clicking or tapping on them will instantly transition you into another playroom or classroom!",
     highlight: "hotspots"
   },
   {
-    title: "Interactive Compass 🧭",
+    title: "Interactive Compass",
     description: "The middle compass at the top rotates dynamically as you look around. Use it to keep track of North and see your exact heading direction!",
     highlight: "compass"
   },
   {
-    title: "D-pad & Zoom Controls 🎮",
+    title: "D-pad & Zoom Controls",
     description: "Use the glassmorphic control console in the bottom corner to look around, reset your view, zoom in/out, or toggle immersive Fullscreen mode.",
     highlight: "dpad"
   },
   {
-    title: "Horizontal Room Selector 🏫",
+    title: "Horizontal Room Selector",
     description: "Quickly browse and jump to any classroom or campus space by clicking on the thumbnails in this horizontal side-scrolling room selector!",
     highlight: "side-scroll"
   }
@@ -277,9 +278,9 @@ const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing, step = 'horizon
           duration: 2.0,
           ease: "easeInOut"
         }}
-        className="relative text-5xl sm:text-6xl drop-shadow-[0_12px_24px_rgba(0,0,0,0.5)] select-none pointer-events-none"
+        className="relative text-5xl sm:text-6xl drop-shadow-[0_12px_24px_rgba(0,0,0,0.5)] select-none pointer-events-none flex items-center justify-center"
       >
-        👆
+        <Pointer size={48} className="text-brand-orange fill-brand-orange/20 rotate-[15deg]" />
       </motion.div>
     </div>
   );
@@ -398,7 +399,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const getCompassHeading = (lon: number) => {
     let deg = (-lon) % 360;
     if (deg < 0) deg += 360;
-    const directions = ['N 🧭', 'NE 🧭', 'E 🧭', 'SE 🧭', 'S 🧭', 'SW 🧭', 'W 🧭', 'NW 🧭'];
+    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
     const index = Math.round(deg / 45) % 8;
     return directions[index];
   };
@@ -2015,7 +2016,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 }`}
               >
                 <Settings className={`w-4 h-4 ${editMode ? 'animate-spin' : ''}`} />
-                <span>{editMode ? 'Exit Layout Editor' : '🛠️ Edit 360 Tour'}</span>
+                <span>{editMode ? 'Exit Layout Editor' : 'Edit 360 Tour'}</span>
               </button>
             )}
           </div>
@@ -2696,7 +2697,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     }}
                     className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
                   >
-                    <span>📥 Select from Drive</span>
+                    <span>Select from Drive</span>
                   </button>
                 </label>
                 <input
@@ -2713,7 +2714,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
                 <p className="mt-1 text-[11px] text-stone-500 dark:text-stone-400 leading-normal">
-                  💡 <strong>Google Drive links supported!</strong> Simply copy & paste any shared Drive file link (e.g., <code>https://drive.google.com/file/d/.../view</code>) and it will automatically convert to a direct high-speed image.
+                  <strong>Google Drive links supported!</strong> Simply copy & paste any shared Drive file link (e.g., <code>https://drive.google.com/file/d/.../view</code>) and it will automatically convert to a direct high-speed image.
                 </p>
               </div>
 
@@ -2827,7 +2828,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                     }}
                     className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
                   >
-                    <span>📥 Select from Drive</span>
+                    <span>Select from Drive</span>
                   </button>
                 </label>
                 <input
@@ -2844,7 +2845,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
                 <p className="mt-1 text-[11px] text-stone-500 dark:text-stone-400 leading-normal">
-                  💡 <strong>Google Drive links supported!</strong> Simply copy & paste any shared Drive file link and it will automatically convert to a direct high-speed image.
+                  <strong>Google Drive links supported!</strong> Simply copy & paste any shared Drive file link and it will automatically convert to a direct high-speed image.
                 </p>
               </div>
 
@@ -2944,7 +2945,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                         : 'text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
                     }`}
                   >
-                    🔗 Room Transition Link
+                    Room Transition Link
                   </button>
                   <button
                     type="button"
@@ -2955,7 +2956,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                         : 'text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
                     }`}
                   >
-                    ℹ️ Information Beacon
+                    Information Beacon
                   </button>
                 </div>
               </div>

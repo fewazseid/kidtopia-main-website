@@ -112,7 +112,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
         const parentEmailHtml = `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
             <div style="text-align: center; margin-bottom: 24px;">
-              <span style="font-size: 32px;">🏫</span>
+              <span style="font-size: 16px; font-weight: bold; color: #10b981; text-transform: uppercase; letter-spacing: 1px;">Kidtopia Campus</span>
               <h2 style="color: #10b981; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">Kidtopia Tour Received</h2>
             </div>
             <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Dear ${formData.name},</p>
@@ -120,17 +120,17 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
             <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Here are your request details:</p>
             
             <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981; font-size: 14px; color: #44403c; line-height: 1.6;">
-              <p style="margin: 0 0 8px 0;"><strong>📍 Campus Location:</strong> ${selectedBranchName}</p>
-              <p style="margin: 0 0 8px 0;"><strong>📅 Date:</strong> ${dayName}, ${selectedDate}</p>
-              <p style="margin: 0 0 16px 0;"><strong>⏰ Time:</strong> ${selectedTime}</p>
-
+              <p style="margin: 0 0 8px 0;"><strong>Campus Location:</strong> ${selectedBranchName}</p>
+              <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${dayName}, ${selectedDate}</p>
+              <p style="margin: 0 0 16px 0;"><strong>Time:</strong> ${selectedTime}</p>
+ 
               <!-- Map Directions Card -->
               <div style="margin-top: 16px; border: 1px solid #e7e5e4; border-radius: 10px; background: white; padding: 16px; text-align: center;">
-                <p style="font-size: 13px; font-weight: bold; color: #1c1917; margin: 0 0 6px 0; text-align: left;">📍 Interactive Campus Map</p>
+                <p style="font-size: 13px; font-weight: bold; color: #1c1917; margin: 0 0 6px 0; text-align: left;">Interactive Campus Map</p>
                 <p style="font-size: 12px; color: #78716c; margin: 0 0 14px 0; text-align: left; line-height: 1.4;">
-                  Need directions to this campus? You can open driving directions, check walking distances, or view public transit routes on Google Maps.
+                   Need directions to this campus? You can open driving directions, check walking distances, or view public transit routes on Google Maps.
                 </p>
-                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(234,88,12,0.15);">🧭 Open in Google Maps</a>
+                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(234,88,12,0.15);">Open in Google Maps</a>
               </div>
             </div>
             
@@ -145,10 +145,10 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
             <p style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0;">Kidtopia International Daycare and Preschool<br/>Providing top-tier bilingual early childhood education.</p>
           </div>
         `;
-
+ 
         // Send confirmation to the parent
         sendEmail(formData.email, 'Kidtopia Tour Booking Request Received', parentEmailHtml).catch(console.error);
-
+ 
         // Fetch central operations email to send admin notification
         getAdminConfig().then((config) => {
           const opsEmail = config.operationsEmail;
@@ -156,18 +156,18 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
             const adminEmailHtml = `
               <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
                 <div style="text-align: center; margin-bottom: 24px;">
-                  <span style="font-size: 32px;">🔔</span>
+                  <span style="font-size: 14px; font-weight: bold; color: #f59e0b; text-transform: uppercase;">Notification Alert</span>
                   <h2 style="color: #f59e0b; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">New Pending Tour Booking</h2>
                 </div>
                 <p style="font-size: 15px; color: #44403c; line-height: 1.6;">A new physical tour booking request has been submitted and is pending review in the admin dashboard.</p>
                 
                 <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #f59e0b; font-size: 14px; color: #44403c; line-height: 1.6;">
-                  <p style="margin: 0 0 8px 0;"><strong>👤 Parent Name:</strong> ${formData.name}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>📧 Parent Email:</strong> ${formData.email}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>📞 Parent Phone:</strong> ${formData.phone}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>📍 Campus Location:</strong> ${selectedBranchName}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>📅 Date:</strong> ${dayName}, ${selectedDate}</p>
-                  <p style="margin: 0;"><strong>⏰ Time:</strong> ${selectedTime}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>Parent Name:</strong> ${formData.name}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>Parent Email:</strong> ${formData.email}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>Parent Phone:</strong> ${formData.phone}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>Campus Location:</strong> ${selectedBranchName}</p>
+                  <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${dayName}, ${selectedDate}</p>
+                  <p style="margin: 0;"><strong>Time:</strong> ${selectedTime}</p>
                 </div>
                 
                 <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Please log in to your admin panel to approve or reject this tour request.</p>

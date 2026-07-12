@@ -1124,14 +1124,14 @@ export const AdminDashboard: React.FC = () => {
     const mapSection = `
       <div style="margin-top: 30px; border: 1px solid #e7e5e4; border-radius: 16px; background-color: #fafaf9; padding: 24px;">
         <h4 style="margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #1c1917;">
-          📍 Campus Location Details
+          Campus Location Details
         </h4>
         <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #10b981;">${resolvedBranchName}</p>
         <p style="margin: 0 0 18px 0; font-size: 13px; line-height: 1.4; color: #78716c;">
           We have embedded the direct link to get driving directions, walking pathways, or public transit routes to this campus on Google Maps. Tap the button below to get directions:
         </p>
         <div style="text-align: center;">
-          <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 12px 24px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(234,88,12,0.15); font-family: sans-serif;">🧭 Open Campus in Google Maps</a>
+          <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 12px 24px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(234,88,12,0.15); font-family: sans-serif;">Open Campus in Google Maps</a>
         </div>
       </div>
     `;
@@ -1408,7 +1408,7 @@ export const AdminDashboard: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      ✨ Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
+                      Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
                     </>
                   )}
                 </button>
@@ -1524,7 +1524,7 @@ export const AdminDashboard: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    ✨ Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
+                    Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
                   </>
                 )}
               </button>
@@ -1556,7 +1556,7 @@ export const AdminDashboard: React.FC = () => {
               />
               <div className="bg-lime-50/50 p-3 rounded-xl border border-brand-green/10">
                 <span className="text-[11px] font-bold text-brand-green uppercase tracking-wider block mb-2">
-                  ✨ Tap to Insert Friendly Tags (Automatically replaced with actual booking details):
+                  Tap to Insert Friendly Tags (Automatically replaced with actual booking details):
                 </span>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -1568,7 +1568,7 @@ export const AdminDashboard: React.FC = () => {
                     }}
                     className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
                   >
-                    👤 Parent Name
+                    Parent Name
                   </button>
                   <button
                     type="button"
@@ -1579,7 +1579,7 @@ export const AdminDashboard: React.FC = () => {
                     }}
                     className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
                   >
-                    📅 Date
+                    Date
                   </button>
                   <button
                     type="button"
@@ -1590,7 +1590,7 @@ export const AdminDashboard: React.FC = () => {
                     }}
                     className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
                   >
-                    ⏰ Time
+                    Time
                   </button>
                   <button
                     type="button"
@@ -1601,7 +1601,7 @@ export const AdminDashboard: React.FC = () => {
                     }}
                     className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
                   >
-                    📆 Day
+                    Day
                   </button>
                 </div>
               </div>
@@ -2472,21 +2472,21 @@ export const AdminDashboard: React.FC = () => {
                       onClick={() => setPreviewDevice('desktop')}
                       className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${previewDevice === 'desktop' ? 'bg-brand-green text-white shadow-sm' : 'text-stone-600 hover:bg-stone-200/40'}`}
                     >
-                      💻 Desktop
+                      Desktop
                     </button>
                     <button
                       type="button"
                       onClick={() => setPreviewDevice('tablet')}
                       className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${previewDevice === 'tablet' ? 'bg-brand-green text-white shadow-sm' : 'text-stone-600 hover:bg-stone-200/40'}`}
                     >
-                      📟 Tablet
+                      Tablet
                     </button>
                     <button
                       type="button"
                       onClick={() => setPreviewDevice('mobile')}
                       className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${previewDevice === 'mobile' ? 'bg-brand-green text-white shadow-sm' : 'text-stone-600 hover:bg-stone-200/40'}`}
                     >
-                      📱 Mobile
+                      Mobile
                     </button>
                   </div>
 
@@ -2529,7 +2529,7 @@ export const AdminDashboard: React.FC = () => {
                         Interactive 360° Virtual Tour Layout Builder
                       </h3>
                       <p className="text-sm text-stone-600 dark:text-stone-400 mb-6 font-sans">
-                        Drag to look around the virtual room, and use the "🛠️ Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
+                        Drag to look around the virtual room, and use the "Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
                       </p>
                       <ThreeSixtyViewer isAdminMode={true} />
                     </div>

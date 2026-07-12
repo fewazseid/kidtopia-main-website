@@ -77,7 +77,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                     
                     {/* Floating Age Tag inside Image */}
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-white/45 text-stone-900 px-3.5 py-1.5 rounded-2xl text-[11px] font-black uppercase tracking-wider shadow-md">
-                      🍼 {card.age}
+                      {card.age}
                     </div>
                   </div>
 
