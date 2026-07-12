@@ -80,11 +80,18 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
     
     setSubmitting(true);
     try {
-      const selectedBranchName = branches[selectedBranchIdx]
-        ? (typeof branches[selectedBranchIdx] === 'string' 
-            ? branches[selectedBranchIdx] 
-            : branches[selectedBranchIdx].locationName)
-        : 'Main Branch';
+      const branchObj = branches[selectedBranchIdx];
+      let selectedBranchName = 'Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia';
+      let mapQuery = '9.0054,38.8475';
+
+      if (branchObj) {
+        selectedBranchName = typeof branchObj === 'string' ? branchObj : branchObj.locationName;
+        mapQuery = typeof branchObj === 'string' ? branchObj : (branchObj.googleMapsCoordinates || branchObj.locationName);
+      } else if (branches.length > 0) {
+        const firstBranch = branches[0];
+        selectedBranchName = typeof firstBranch === 'string' ? firstBranch : firstBranch.locationName;
+        mapQuery = typeof firstBranch === 'string' ? firstBranch : (firstBranch.googleMapsCoordinates || firstBranch.locationName);
+      }
 
       const bookingId = await createBooking({
         ...formData,
@@ -101,8 +108,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
 
         const rescheduleLink = `${window.location.origin}/reschedule/${bookingId}`;
         
-        const googleMapsQuery = encodeURIComponent(selectedBranchName);
-        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}`;
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
         const parentEmailHtml = `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">

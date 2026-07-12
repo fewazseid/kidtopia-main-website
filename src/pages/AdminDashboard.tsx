@@ -1019,24 +1019,47 @@ export const AdminDashboard: React.FC = () => {
       .map(p => `<p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.6; color: #44403c;">${p}</p>`)
       .join('');
 
-    let mapSection = '';
-    if (branchName) {
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branchName)}`;
-      mapSection = `
-        <div style="margin-top: 30px; border: 1px solid #e7e5e4; border-radius: 16px; background-color: #fafaf9; padding: 24px;">
-          <h4 style="margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #1c1917;">
-            📍 Campus Location Details
-          </h4>
-          <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #10b981;">${branchName}</p>
-          <p style="margin: 0 0 18px 0; font-size: 13px; line-height: 1.4; color: #78716c;">
-            We have embedded the direct link to get driving directions, walking pathways, or public transit routes to this campus on Google Maps. Tap the button below to get directions:
-          </p>
-          <div style="text-align: center;">
-            <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 12px 24px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(234,88,12,0.15); font-family: sans-serif;">🧭 Open Campus in Google Maps</a>
-          </div>
-        </div>
-      `;
+    // Dynamically retrieve addresses from the footer configuration
+    const footerT = content[activeLang]?.footer || content['en']?.footer;
+    const branches = footerT?.addresses || [];
+
+    let resolvedBranchName = 'Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia';
+    let resolvedCoordinates = '9.0054,38.8475';
+
+    if (branchName && branchName !== 'Main Branch' && branchName !== 'Campus Branch') {
+      const match = branches.find((b: any) => {
+        const name = typeof b === 'string' ? b : b.locationName;
+        return name.toLowerCase().includes(branchName.toLowerCase()) || branchName.toLowerCase().includes(name.toLowerCase());
+      });
+      if (match) {
+        resolvedBranchName = typeof match === 'string' ? match : match.locationName;
+        resolvedCoordinates = typeof match === 'string' ? '' : match.googleMapsCoordinates;
+      } else {
+        resolvedBranchName = branchName;
+      }
+    } else if (branches.length > 0) {
+      const firstBranch = branches[0];
+      resolvedBranchName = typeof firstBranch === 'string' ? firstBranch : firstBranch.locationName;
+      resolvedCoordinates = typeof firstBranch === 'string' ? '' : firstBranch.googleMapsCoordinates;
     }
+
+    const mapQuery = resolvedCoordinates || resolvedBranchName;
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+
+    const mapSection = `
+      <div style="margin-top: 30px; border: 1px solid #e7e5e4; border-radius: 16px; background-color: #fafaf9; padding: 24px;">
+        <h4 style="margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #1c1917;">
+          📍 Campus Location Details
+        </h4>
+        <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #10b981;">${resolvedBranchName}</p>
+        <p style="margin: 0 0 18px 0; font-size: 13px; line-height: 1.4; color: #78716c;">
+          We have embedded the direct link to get driving directions, walking pathways, or public transit routes to this campus on Google Maps. Tap the button below to get directions:
+        </p>
+        <div style="text-align: center;">
+          <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 12px 24px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(234,88,12,0.15); font-family: sans-serif;">🧭 Open Campus in Google Maps</a>
+        </div>
+      </div>
+    `;
 
     return `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #fafaf9; padding: 40px 20px; text-align: center;">
@@ -2282,7 +2305,7 @@ export const AdminDashboard: React.FC = () => {
                                             .replace(/\{time\}/g, b.time || '')
                                             .replace(/\{dayName\}/g, dayName);
 
-                                        const emailHtml = formatEmailWithTheme(subject, processedBody);
+                                        const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch);
                                         sendEmail(b.email, subject, emailHtml).catch(console.error);
                                       }
                                     }}

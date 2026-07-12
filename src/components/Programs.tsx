@@ -57,7 +57,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
               <GlassCard 
                 layout
                 animateOnLoad={false}
-                className="overflow-hidden flex flex-col group w-full h-full shadow-[0_15px_35px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_25px_50px_-20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300"
+                className="overflow-hidden flex flex-col group w-full h-full shadow-[0_15px_35px_-15px_rgba(0,0,0,0.03)]"
                 delay={0}
               >
                 <div className="flex flex-col md:flex-row h-full">
@@ -68,7 +68,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                       <img 
                         src={card.image} 
                         alt={card.name} 
-                        className="absolute inset-0 w-full h-full object-cover scale-102 group-hover:scale-110 transition-transform duration-700 ease-out"
+                        className="absolute inset-0 w-full h-full object-cover scale-102"
                         referrerPolicy="no-referrer"
                       />
                     )}
