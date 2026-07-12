@@ -16,9 +16,9 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => navigate(-1)}
-            className="p-2 hover:bg-brand-green/5 rounded-full transition-colors text-brand-green"
-            title="Go Back"
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-brand-green/5 rounded-full transition-colors text-brand-green cursor-pointer"
+            title="Go Back to Main Website"
           >
             <ArrowLeft size={24} />
           </button>
