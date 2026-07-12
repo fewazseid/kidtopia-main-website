@@ -58,6 +58,7 @@ export const translations = {
       ]
     },
     safety: {
+      trustSafetyBadge: "Your Peace of Mind is Our Priority",
       title: "Your Child’s Safety is Our Priority",
       cards: [
         { title: "Health Screening", desc: "All children must provide immunization, TB, HIV, and hepatitis screening before enrollment.", image: "" },
@@ -102,6 +103,9 @@ export const translations = {
     },
     virtualTour: {
       title: "Explore Our Daycare",
+      welcome: "Welcome to Kidtopia 360° Virtual Tour!",
+      instructions: "Click and drag to explore",
+      editButton: "Edit 360 Tour",
       watchFull: "Watch Full Virtual Tour",
       schedule: "Schedule a Physical Visit",
       collageImage1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop",
@@ -229,6 +233,9 @@ export const translations = {
         { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
         { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
+        { title: "International Act of Child Care", description: "Learn about international child care standards and regulations.", type: "PDF Document", image: "", actionType: "intl_act", link: "" },
+        { title: "International Daycare Guidelines", description: "Guidelines for maintaining high quality childcare standards.", type: "Guide", image: "", actionType: "intl_guidelines", link: "" },
+        { title: "Daycare Communication Software", description: "Access our daycare control and communication software for parents.", type: "Web Portal", image: "", actionType: "comms", link: "" },
         { title: "Profile Avatar Creator", description: "Design a unique custom character avatar for you and your child's portal profile.", type: "Interactive Tool", image: "", actionType: "avatar", link: "" },
         { title: "Development Milestones", description: "Track your child's age-appropriate developmental stages, cognitive and motor skills.", type: "Milestone Tracker", image: "", actionType: "milestones", link: "" }
       ],
@@ -460,6 +467,7 @@ export const translations = {
       ]
     },
     safety: {
+      trustSafetyBadge: "የልጅዎ ሰላም ቅድሚያ የምንሰጠው ጉዳይ ነው",
       title: "የልጅዎ ደህንነት ቅድሚያ የምንሰጠው ጉዳይ ነው",
       cards: [
         { title: "የጤና ምርመራ", desc: "ሁሉም ህፃናት ከመመዝገባቸው በፊት የክትባት፣ የቲቢ፣ የኤችአይቪ እና የሄፓታይተስ ምርመራ ማቅረብ አለባቸው።", image: "" },
@@ -504,6 +512,9 @@ export const translations = {
     },
     virtualTour: {
       title: "የህፃናት ማቆያችንን ይጎብኙ",
+      welcome: "ወደ ኪድቶፒያ 360° ቪርቹዋል ጉብኝት እንኳን በደህና መጡ!",
+      instructions: "ለመቃኘት ጠቅ ያድርጉ እና ይጎትቱ",
+      editButton: "360 ጉብኝትን ያርትዑ",
       watchFull: "ሙሉ ቪርቹዋል ጉብኝቱን ይመልከቱ",
       schedule: "የአካል ጉብኝት ቀጠሮ ይያዙ",
       collageImage1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop",
@@ -631,6 +642,9 @@ export const translations = {
         { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
         { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
+        { title: "ዓለም አቀፍ የህፃናት እንክብካቤ ህግ", description: "ስለ ዓለም አቀፍ የህፃናት እንክብካቤ ደረጃዎች እና ደንቦች ይወቁ።", type: "PDF ሰነድ", image: "", actionType: "intl_act", link: "" },
+        { title: "ዓለም አቀፍ የህፃናት ማቆያ መመሪያዎች", description: "ከፍተኛ ጥራት ያላቸውን የህፃናት እንክብካቤ ደረጃዎችን ለመጠበቅ መመሪያዎች።", type: "መመሪያ", image: "", actionType: "intl_guidelines", link: "" },
+        { title: "የህፃናት ማቆያ መገናኛ ሶፍትዌር", description: "ለወላጆች የህፃናት ማቆያ መቆጣጠሪያ እና መገናኛ ሶፍትዌራችንን ያግኙ።", type: "የድር ፖርታል", image: "", actionType: "comms", link: "" },
         { title: "የአቫታር መፍጠሪያ", description: "ለእርስዎ እና ለልጅዎ የሚሆን ልዩ መገለጫ አቫታር ይንደፉ።", type: "በይነተገናኝ መሣሪያ", image: "", actionType: "avatar", link: "" },
         { title: "የልጅ እድገት ደረጃዎች", description: "የልጅዎን የእድገት ደረጃዎች፣ የዕውቀት እና የአካል ክህሎቶች ይከታተሉ።", type: "ደረጃ መከታተያ", image: "", actionType: "milestones", link: "" }
       ],

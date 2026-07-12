@@ -240,29 +240,7 @@ export const ParentDashboard: React.FC = () => {
             {/* Educational Activities & Avatar Creation Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-              {/* Augmented Reality Card */}
-              <GlassCard className="p-8 text-left border-l-4 border-brand-green/40 relative overflow-hidden" delay={0.25}>
-                <div className="absolute top-1/2 right-[-10%] w-[150px] h-[150px] rounded-full bg-brand-green/5 blur-[50px] pointer-events-none" />
-                <Compass size={36} className="text-brand-green mb-4 animate-spin" style={{ animationDuration: '15s' }} />
-                <span className="text-[9px] font-black uppercase tracking-widest text-brand-green bg-brand-green/10 px-2.5 py-1 rounded-full font-accent">
-                  Augmented Reality Active
-                </span>
-                <h3 className="text-xl font-editorial font-bold text-stone-900 mt-3 mb-2">
-                  AR Educational Activities Playground
-                </h3>
-                <p className="text-sm text-stone-550 leading-relaxed font-sans font-medium mb-6">
-                  Immerse your children in interactive simulated AR learnings. Place virtual animals, celestial planets, and letters on your screen, rotate them precisely, and play matching games!
-                </p>
-                <button
-                  onClick={() => setActiveAction('ar_activities')}
-                  className="px-5 py-2.5 bg-brand-green hover:bg-brand-green/95 text-white font-black uppercase tracking-wider text-xs rounded-xl shadow-md transition font-accent flex items-center gap-1.5"
-                >
-                  <Compass size={14} />
-                  Launch AR Activities
-                </button>
-              </GlassCard>
-
-              {/* Character Avatar Creation Card */}
+            {/* Character Avatar Creation Card */}
               <GlassCard className="p-8 text-left border-l-4 border-brand-orange/40 relative overflow-hidden" delay={0.3}>
                 <div className="absolute top-1/2 right-[-10%] w-[150px] h-[150px] rounded-full bg-brand-orange/5 blur-[50px] pointer-events-none" />
                 <Smile size={36} className="text-brand-orange mb-4" />

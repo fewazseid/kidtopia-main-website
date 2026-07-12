@@ -1735,6 +1735,12 @@ export const AdminDashboard: React.FC = () => {
       {/* Mobile Header Overlay */}
       <div className="md:hidden fixed top-20 left-0 right-0 z-30 bg-white border-b border-stone-200 px-4 py-3 flex items-center justify-between shadow-sm">
         <button 
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-stone-700 font-medium"
+        >
+          <span className="text-xs font-bold uppercase">Back Home</span>
+        </button>
+        <button 
           onClick={() => setIsSidebarOpen(true)}
           className="flex items-center gap-2 text-stone-700 font-medium"
         >

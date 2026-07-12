@@ -795,9 +795,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
           )}
 
           {/* 5. INTERACTIVE AR SIMULATOR */}
-          {actionType === 'ar_activities' && (
-            <div className="text-stone-500 p-8 text-center">AR activities have been removed.</div>
-          )}
+          {/* AR activities have been removed as requested. */}
 
           {/* 6. DEVELOPMENT MILESTONES TRACKER */}
           {actionType === 'milestones' && (

@@ -41,7 +41,7 @@ export const TrustSafety: React.FC<TrustSafetyProps> = ({ lang }) => {
             className="inline-flex items-center gap-1.5 bg-brand-orange/10 text-brand-orange text-xs font-black tracking-widest uppercase font-accent px-4 py-1.5 rounded-full mb-4"
           >
             <ShieldCheck size={14} className="stroke-[2.5]" />
-            Your Peace of Mind is Our Priority
+            {t.trustSafetyBadge}
           </motion.div>
           
           <motion.h2 
