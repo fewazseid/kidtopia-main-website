@@ -9,6 +9,7 @@ interface GlassCardProps {
   delay?: number;
   layout?: boolean | 'x' | 'y' | 'size' | 'position';
   animateOnLoad?: boolean;
+  disableHover?: boolean;
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -19,6 +20,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   delay = 0,
   layout,
   animateOnLoad = true,
+  disableHover = false,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -125,14 +127,14 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         viewport={animateOnLoad ? { once: true, margin: '-60px' } : undefined}
         transition={animateOnLoad ? { duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] } : undefined}
         style={{
-          rotateX,
-          rotateY,
-          scale,
-          z: translateZ,
+          rotateX: disableHover ? 0 : rotateX,
+          rotateY: disableHover ? 0 : rotateY,
+          scale: disableHover ? 1 : scale,
+          z: disableHover ? 0 : translateZ,
           transformStyle: 'preserve-3d',
           boxShadow: useTransform(
             shadowOpacity,
-            (opacity) => `0 ${isHovered ? '24px' : '10px'} ${isHovered ? '48px' : '20px'} rgba(0, 0, 0, ${opacity}), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)`
+            (opacity) => `0 ${!disableHover && isHovered ? '24px' : '10px'} ${!disableHover && isHovered ? '48px' : '20px'} rgba(0, 0, 0, ${opacity}), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)`
           ),
           background: 'rgba(255, 255, 255, 0.65)',
           backdropFilter: 'blur(28px) saturate(210%)',
@@ -144,7 +146,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         <motion.div
           className="absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           style={{
-            opacity: isHovered ? 0.35 : 0,
+            opacity: !disableHover && isHovered ? 0.35 : 0,
             background: useTransform(
               [glareX, glareY],
               ([gx, gy]) => `radial-gradient(circle 280px at ${gx}% ${gy}%, rgba(255, 255, 255, 0.65), transparent)`

@@ -82,16 +82,15 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
     try {
       const branchObj = branches[selectedBranchIdx];
       let selectedBranchName = 'Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia';
-      let mapQuery = '9.0054,38.8475';
 
       if (branchObj) {
         selectedBranchName = typeof branchObj === 'string' ? branchObj : branchObj.locationName;
-        mapQuery = typeof branchObj === 'string' ? branchObj : (branchObj.googleMapsCoordinates || branchObj.locationName);
       } else if (branches.length > 0) {
         const firstBranch = branches[0];
         selectedBranchName = typeof firstBranch === 'string' ? firstBranch : firstBranch.locationName;
-        mapQuery = typeof firstBranch === 'string' ? firstBranch : (firstBranch.googleMapsCoordinates || firstBranch.locationName);
       }
+      
+      const mapQuery = selectedBranchName;
 
       const bookingId = await createBooking({
         ...formData,

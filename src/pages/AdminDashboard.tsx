@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useContentRefresh } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
 import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail } from '../firebase';
-import { captureFingerprint, isSecuGenAvailable } from '../services/fingerprintService';
+import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
@@ -56,6 +56,7 @@ export const AdminDashboard: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<string | null>(null);
   const [fingerprintLoading, setFingerprintLoading] = useState(false);
   const [fingerprintStatus, setFingerprintStatus] = useState<string | null>(null);
+  const [isSimulated, setIsSimulated] = useState(isFingerprintSimulatorEnabled());
 
   const [tourSchedule, setTourSchedule] = useState<any>(null);
   const [scheduleViewDay, setScheduleViewDay] = useState('Default');
@@ -1043,7 +1044,7 @@ export const AdminDashboard: React.FC = () => {
       resolvedCoordinates = typeof firstBranch === 'string' ? '' : firstBranch.googleMapsCoordinates;
     }
 
-    const mapQuery = resolvedCoordinates || resolvedBranchName;
+    const mapQuery = resolvedBranchName;
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
     const mapSection = `
@@ -1983,6 +1984,31 @@ export const AdminDashboard: React.FC = () => {
                         <Fingerprint size={20} />
                         {fingerprintLoading ? 'Processing...' : 'Register Fingerprint'}
                       </button>
+
+                      <div className="flex items-center justify-between bg-stone-50 p-3 rounded-xl border border-stone-100">
+                        <div className="flex items-center gap-2">
+                          <Fingerprint size={16} className={isSimulated ? "text-amber-500" : "text-emerald-500"} />
+                          <div>
+                            <span className="text-xs text-stone-700 font-bold block">Free Demo Simulator</span>
+                            <span className="text-[10px] text-stone-400 block">Bypasses commercial driver licenses</span>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={isSimulated}
+                            onChange={(e) => {
+                              const val = e.target.checked;
+                              setIsSimulated(val);
+                              setFingerprintSimulator(val);
+                              setFingerprintStatus(val ? 'Switched to free Demo Simulator.' : 'Switched to physical hardware scanner.');
+                            }}
+                          />
+                          <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green"></div>
+                        </label>
+                      </div>
+
                       {fingerprintStatus && (
                         <div className={`p-3 rounded-xl text-sm ${fingerprintStatus.includes('Error') ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-stone-50 text-stone-700 border border-stone-100'}`}>
                           {fingerprintStatus}

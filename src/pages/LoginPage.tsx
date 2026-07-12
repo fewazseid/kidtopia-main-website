@@ -5,7 +5,7 @@ import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginWithGoogle, getUserRole, setUserRole, loginWithEmail, registerWithEmail, getAdminConfig, updateCurrentUserPassword } from '../firebase';
-import { captureFingerprint, matchFingerprints, isSecuGenAvailable } from '../services/fingerprintService';
+import { captureFingerprint, matchFingerprints, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
 
 interface LoginPageProps {
   lang: Language;
@@ -22,6 +22,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [fingerprintLoading, setFingerprintLoading] = useState(false);
+  const [isSimulated, setIsSimulated] = useState(isFingerprintSimulatorEnabled());
 
   const [isAdminSelect, setIsAdminSelect] = useState(false);
 
@@ -389,6 +390,26 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
                   <Fingerprint size={20} />
                   {fingerprintLoading ? 'Scanning...' : 'Login with Fingerprint'}
                 </button>
+
+                <div className="flex items-center justify-between bg-stone-50/80 backdrop-blur-sm p-3 rounded-xl border border-stone-100">
+                  <div className="flex items-center gap-2">
+                    <Fingerprint size={16} className={isSimulated ? "text-amber-500" : "text-emerald-500"} />
+                    <span className="text-xs text-stone-600 font-medium">Free Demo Simulator</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={isSimulated}
+                      onChange={(e) => {
+                        const val = e.target.checked;
+                        setIsSimulated(val);
+                        setFingerprintSimulator(val);
+                      }}
+                    />
+                    <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green"></div>
+                  </label>
+                </div>
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">

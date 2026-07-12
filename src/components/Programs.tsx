@@ -57,6 +57,7 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
               <GlassCard 
                 layout
                 animateOnLoad={false}
+                disableHover={true}
                 className="overflow-hidden flex flex-col group w-full h-full shadow-[0_15px_35px_-15px_rgba(0,0,0,0.03)]"
                 delay={0}
               >
