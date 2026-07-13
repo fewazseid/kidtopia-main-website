@@ -21,7 +21,7 @@ import { CTASection } from '../components/CTASection';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { EnrollPage } from './EnrollPage';
-import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail } from '../firebase';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -1087,7 +1087,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // Formats email template text with a beautiful Kidtopia header/wrapper and Map section
-  const formatEmailWithTheme = (title: string, bodyText: string, branchName?: string): string => {
+  const formatEmailWithTheme = (title: string, bodyText: string, branchName?: string, hideMap = false): string => {
     const paragraphs = bodyText
       .split('\n')
       .filter(p => p.trim() !== '')
@@ -1118,10 +1118,10 @@ export const AdminDashboard: React.FC = () => {
       resolvedCoordinates = typeof firstBranch === 'string' ? '' : firstBranch.googleMapsCoordinates;
     }
 
-    const mapQuery = resolvedBranchName;
+    const mapQuery = resolvedCoordinates || resolvedBranchName;
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
-    const mapSection = `
+    const mapSection = hideMap ? '' : `
       <div style="margin-top: 30px; border: 1px solid #e7e5e4; border-radius: 16px; background-color: #fafaf9; padding: 24px;">
         <h4 style="margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #1c1917;">
           Campus Location Details
@@ -2390,70 +2390,93 @@ export const AdminDashboard: React.FC = () => {
                               </td>
                               <td className="py-4 text-sm">
                                 <div className="flex gap-2">
-                                  <button
-                                    onClick={async () => {
-                                      await updateBookingStatus(b.id, 'approved');
-                                      setFeedback({ type: 'success', message: 'Booking approved!' });
-                                      const updated = await getAllBookings();
-                                      setBookings(updated.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
+                                  {b.status === 'pending' ? (
+                                    <>
+                                      <button
+                                        onClick={async () => {
+                                          await updateBookingStatus(b.id, 'approved');
+                                          setFeedback({ type: 'success', message: 'Booking approved!' });
+                                          const updated = await getAllBookings();
+                                          setBookings(updated.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
 
-                                      // Send approval email
-                                      if (b.email) {
-                                        const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
-                                        const templateHeader = content[activeLang]?.emailTemplates?.approval?.subject || 'Kidtopia Tour Booking - Confirmed';
-                                        const templateBody = content[activeLang]?.emailTemplates?.approval?.body || `Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.`;
-                                        const subject = templateHeader
-                                            .replace(/\{name\}/g, b.name || '')
-                                            .replace(/\{date\}/g, b.date || '')
-                                            .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName);
+                                          // Send approval email
+                                          if (b.email) {
+                                            const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+                                            const templateHeader = content[activeLang]?.emailTemplates?.approval?.subject || 'Kidtopia Tour Booking - Confirmed';
+                                            const templateBody = content[activeLang]?.emailTemplates?.approval?.body || `Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.`;
+                                            const subject = templateHeader
+                                                .replace(/\{name\}/g, b.name || '')
+                                                .replace(/\{date\}/g, b.date || '')
+                                                .replace(/\{time\}/g, b.time || '')
+                                                .replace(/\{dayName\}/g, dayName);
 
-                                        const processedBody = templateBody
-                                            .replace(/\{name\}/g, b.name || '')
-                                            .replace(/\{date\}/g, b.date || '')
-                                            .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName);
+                                            const processedBody = templateBody
+                                                .replace(/\{name\}/g, b.name || '')
+                                                .replace(/\{date\}/g, b.date || '')
+                                                .replace(/\{time\}/g, b.time || '')
+                                                .replace(/\{dayName\}/g, dayName);
 
-                                        const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch);
-                                        sendEmail(b.email, subject, emailHtml).catch(console.error);
-                                      }
-                                    }}
-                                    className="text-brand-green hover:underline font-medium"
-                                  >
-                                    Approve
-                                  </button>
-                                  <button
-                                    onClick={async () => {
-                                      await updateBookingStatus(b.id, 'rejected');
-                                      setFeedback({ type: 'success', message: 'Booking rejected' });
-                                      const updated = await getAllBookings();
-                                      setBookings(updated.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
+                                            const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch);
+                                            sendEmail(b.email, subject, emailHtml).catch(console.error);
+                                          }
+                                        }}
+                                        className="text-brand-green hover:underline font-medium"
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        onClick={async () => {
+                                          await updateBookingStatus(b.id, 'rejected');
+                                          setFeedback({ type: 'success', message: 'Booking rejected' });
+                                          const updated = await getAllBookings();
+                                          setBookings(updated.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
 
-                                      // Send rejection email
-                                      if (b.email) {
-                                        const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
-                                        const templateHeader = content[activeLang]?.emailTemplates?.rejection?.subject || 'Tour Booking Update';
-                                        const templateBody = content[activeLang]?.emailTemplates?.rejection?.body || `Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.`;
-                                        const subject = templateHeader
-                                            .replace(/\{name\}/g, b.name || '')
-                                            .replace(/\{date\}/g, b.date || '')
-                                            .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName);
+                                          // Send rejection email
+                                          if (b.email) {
+                                            const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+                                            const templateHeader = content[activeLang]?.emailTemplates?.rejection?.subject || 'Tour Booking Update';
+                                            const templateBody = content[activeLang]?.emailTemplates?.rejection?.body || `Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.`;
+                                            const subject = templateHeader
+                                                .replace(/\{name\}/g, b.name || '')
+                                                .replace(/\{date\}/g, b.date || '')
+                                                .replace(/\{time\}/g, b.time || '')
+                                                .replace(/\{dayName\}/g, dayName);
 
-                                        const processedBody = templateBody
-                                            .replace(/\{name\}/g, b.name || '')
-                                            .replace(/\{date\}/g, b.date || '')
-                                            .replace(/\{time\}/g, b.time || '')
-                                            .replace(/\{dayName\}/g, dayName);
+                                            const processedBody = templateBody
+                                                .replace(/\{name\}/g, b.name || '')
+                                                .replace(/\{date\}/g, b.date || '')
+                                                .replace(/\{time\}/g, b.time || '')
+                                                .replace(/\{dayName\}/g, dayName);
 
-                                        const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch);
-                                        sendEmail(b.email, subject, emailHtml).catch(console.error);
-                                      }
-                                    }}
-                                    className="text-red-500 hover:underline font-medium ml-2"
-                                  >
-                                    Reject
-                                  </button>
+                                            const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch, true);
+                                            sendEmail(b.email, subject, emailHtml).catch(console.error);
+                                          }
+                                        }}
+                                        className="text-red-500 hover:underline font-medium ml-2"
+                                      >
+                                        Reject
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <button
+                                      onClick={async () => {
+                                        if (window.confirm('Are you sure you want to permanently delete this booking?')) {
+                                          try {
+                                            await deleteBooking(b.id);
+                                            setFeedback({ type: 'success', message: 'Booking deleted successfully!' });
+                                            const updated = await getAllBookings();
+                                            setBookings(updated.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
+                                          } catch (error) {
+                                            console.error("Failed to delete booking", error);
+                                            setFeedback({ type: 'error', message: 'Failed to delete booking.' });
+                                          }
+                                        }
+                                      }}
+                                      className="text-red-600 hover:text-red-800 hover:underline font-medium"
+                                    >
+                                      Delete Booking
+                                    </button>
+                                  )}
                                 </div>
                               </td>
                             </tr>

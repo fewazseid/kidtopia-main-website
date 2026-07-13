@@ -408,6 +408,16 @@ export const updateBookingStatus = async (id: string, status: string) => {
     }
   };
 
+export const deleteBooking = async (id: string) => {
+  try {
+    const docRef = doc(db, 'bookings', id);
+    await deleteDoc(docRef);
+  } catch (err) {
+    console.error("Failed to delete booking:", err);
+    throw err;
+  }
+};
+
 export const updateBookingReminderStatus = async (id: string, reminderSent: boolean) => {
   try {
     const docRef = doc(db, 'bookings', id);
