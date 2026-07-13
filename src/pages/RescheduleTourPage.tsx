@@ -8,9 +8,10 @@ import { useContent } from '../ContentContext';
 
 interface RescheduleTourPageProps {
   lang: Language;
+  setLang?: (lang: Language) => void;
 }
 
-export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang }) => {
+export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, setLang }) => {
   const content = useContent(lang);
   const t = content.reschedule;
   const footerT = content.footer;
@@ -47,6 +48,11 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang }) 
         if (bookData.status !== 'pending') {
           setError(t.alreadyProcessed);
           return;
+        }
+
+        // Synchronize interface language with email booking language
+        if (bookData.lang && setLang) {
+          setLang(bookData.lang as Language);
         }
 
         setBooking(bookData);

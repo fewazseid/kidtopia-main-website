@@ -99,6 +99,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
         date: selectedDate,
         time: selectedTime,
         branch: selectedBranchName,
+        lang: lang,
       });
 
       // Send confirmation emails (to parent and admin notification)
@@ -108,86 +109,102 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
 
         const rescheduleLink = `${window.location.origin}/reschedule/${bookingId}`;
-        
         const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
         const isAmharic = lang === 'am';
-        const parentSubject = isAmharic 
-          ? 'የኪድቶፒያ የጉብኝት ቀጠሮ ጥያቄ ደርሶናል' 
-          : 'Kidtopia Tour Booking Request Received';
+        
+        // Retrieve template from database content or fall back to native templates
+        const templateSubject = content.emailTemplates?.received?.subject || 
+          (isAmharic ? 'የኪድቶፒያ የጉብኝት ቀጠሮ ጥያቄ ደርሶናል' : 'Kidtopia Tour Booking Request Received');
+        
+        const templateBody = content.emailTemplates?.received?.body || 
+          (isAmharic 
+            ? 'የጉብኝት ጥያቄው ደርሶናል\n\nውድ {name}፣\n\nበኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት የአካል ጉብኝት ለማድረግ ቀጠሮ ስላስያዙ እናመሰግናለን! የእኛን ካምፓስ ለእርስዎ ለማሳየት በጉጉት እንጠብቃለን።\n\nየቀጠሮዎ ዝርዝር እንደሚከተለው ነው፡\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nየምዝገባ ቡድናችን ጥያቄዎን በቅርቡ ገምግሞ ጉብኝትዎ ሲረጋገጥ የኢሜል መልዕክት ይልክልዎታል።\n\nጉብኝቱ ከመረጋገጡ በፊት የቀጠሮ ሰዓትዎን መቀየር ከፈለጉ ከታች ያለውን ቁልፍ ይጫኑ፡'
+            : 'Kidtopia Tour Received\n\nDear {name},\n\nThank you for booking a physical tour at Kidtopia International Daycare and Preschool! We are excited to show you our campus.\n\nHere are your request details:\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nOur admissions team will review your request shortly and send you an email once your tour is confirmed.\n\nIf you need to change your requested time before it is finalized, click the button below:');
 
-        const parentEmailHtml = isAmharic ? `
-          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left; direction: ltr;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <span style="font-size: 16px; font-weight: bold; color: #10b981; text-transform: uppercase; letter-spacing: 1px;">ኪድቶፒያ ካምፓስ</span>
-              <h2 style="color: #10b981; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">የጉብኝት ጥያቄው ደርሶናል</h2>
-            </div>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">ውድ ${formData.name}፣</p>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">በ <strong>ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት</strong> የአካል ጉብኝት ለማድረግ ቀጠሮ ስላስያዙ እናመሰግናለን! የእኛን ካምፓስ ለእርስዎ ለማሳየት በጉጉት እንጠብቃለን።</p>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">የቀጠሮዎ ዝርዝር እንደሚከተለው ነው፡</p>
-            
-            <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981; font-size: 14px; color: #44403c; line-height: 1.6;">
-              <p style="margin: 0 0 8px 0;"><strong>የካምፓስ አድራሻ:</strong> ${selectedBranchName}</p>
-              <p style="margin: 0 0 8px 0;"><strong>ቀን:</strong> ${dayName}, ${selectedDate}</p>
-              <p style="margin: 0 0 16px 0;"><strong>ሰዓት:</strong> ${selectedTime}</p>
- 
-              <!-- Map Directions Card -->
-              <div style="margin-top: 16px; border: 1px solid #e7e5e4; border-radius: 10px; background: white; padding: 16px; text-align: center;">
-                <p style="font-size: 13px; font-weight: bold; color: #1c1917; margin: 0 0 6px 0; text-align: left;">በይነተገናኝ የካምፓስ ካርታ</p>
-                <p style="font-size: 12px; color: #78716c; margin: 0 0 14px 0; text-align: left; line-height: 1.4;">
-                   ወደዚህ ካምፓስ ለመድረስ አቅጣጫ ይፈልጋሉ? የመኪና አቅጣጫዎችን መክፈት፣ የእግር ጉዞ ርቀቶችን ማረጋገጥ ወይም በጎግል ካርታ ላይ የትራፊክ መንገዶችን ማየት ይችላሉ።
-                </p>
-                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(234,88,12,0.15);">በጎግል ካርታዎች ላይ ክፈት</a>
-              </div>
-            </div>
-            
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">የምዝገባ ቡድናችን ጥያቄዎን በቅርቡ ገምግሞ ጉብኝትዎ ሲረጋገጥ የኢሜል መልዕክት ይልክልዎታል።</p>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">ጉብኝቱ ከመረጋገጡ በፊት የቀጠሮ ሰዓትዎን መቀየር ከፈለጉ ከታች ያለውን ቁልፍ ይጫኑ፡</p>
-            
-            <div style="text-align: center; margin: 24px 0;">
-              <a href="${rescheduleLink}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">የጉብኝት ቀጠሮውን ይቀይሩ</a>
-            </div>
-            
-            <hr style="border: 0; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
-            <p style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0;">ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት<br/>ከፍተኛ ጥራት ያለው ባለሁለት ቋንቋ የቅድመ ልጅነት ትምህርት መስጠት።</p>
-          </div>
-        ` : `
-          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <span style="font-size: 16px; font-weight: bold; color: #10b981; text-transform: uppercase; letter-spacing: 1px;">Kidtopia Campus</span>
-              <h2 style="color: #10b981; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">Kidtopia Tour Received</h2>
-            </div>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Dear ${formData.name},</p>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Thank you for booking a physical tour at <strong>Kidtopia International Daycare and Preschool</strong>! We are excited to show you our campus.</p>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Here are your request details:</p>
-            
-            <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981; font-size: 14px; color: #44403c; line-height: 1.6;">
-              <p style="margin: 0 0 8px 0;"><strong>Campus Location:</strong> ${selectedBranchName}</p>
-              <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${dayName}, ${selectedDate}</p>
-              <p style="margin: 0 0 16px 0;"><strong>Time:</strong> ${selectedTime}</p>
- 
-              <!-- Map Directions Card -->
-              <div style="margin-top: 16px; border: 1px solid #e7e5e4; border-radius: 10px; background: white; padding: 16px; text-align: center;">
-                <p style="font-size: 13px; font-weight: bold; color: #1c1917; margin: 0 0 6px 0; text-align: left;">Interactive Campus Map</p>
-                <p style="font-size: 12px; color: #78716c; margin: 0 0 14px 0; text-align: left; line-height: 1.4;">
-                   Need directions to this campus? You can open driving directions, check walking distances, or view public transit routes on Google Maps.
-                </p>
-                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(234,88,12,0.15);">Open in Google Maps</a>
-              </div>
-            </div>
-            
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Our admissions team will review your request shortly and send you an email once your tour is confirmed.</p>
-            <p style="font-size: 15px; color: #44403c; line-height: 1.6;">If you need to change your requested time before it is finalized, click the button below:</p>
-            
-            <div style="text-align: center; margin: 24px 0;">
-              <a href="${rescheduleLink}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; shadow: 0 4px 6px rgba(0,0,0,0.05);">Reschedule Your Tour</a>
-            </div>
-            
-            <hr style="border: 0; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
-            <p style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0;">Kidtopia International Daycare and Preschool<br/>Providing top-tier bilingual early childhood education.</p>
+        // Parse and replace both curly braces and standard bracket placeholders
+        const replacePlaceholders = (text: string) => {
+          if (!text) return '';
+          return text
+            .replace(/\{name\}/g, formData.name || '')
+            .replace(/\[Parent Name\]/g, formData.name || '')
+            .replace(/\{date\}/g, selectedDate || '')
+            .replace(/\[Date\]/g, selectedDate || '')
+            .replace(/\{time\}/g, selectedTime || '')
+            .replace(/\[Time\]/g, selectedTime || '')
+            .replace(/\{dayName\}/g, dayName)
+            .replace(/\[Day\]/g, dayName)
+            .replace(/\{branch\}/g, selectedBranchName)
+            .replace(/\[Branch\]/g, selectedBranchName);
+        };
+
+        const parentSubject = replacePlaceholders(templateSubject);
+        const parentProcessedBody = replacePlaceholders(templateBody);
+
+        const bodyParagraphs = parentProcessedBody
+          .split('\n')
+          .map(p => p.trim())
+          .filter(p => p !== '')
+          .map(p => `<p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #44403c; text-align: left;">${p}</p>`)
+          .join('');
+
+        // Map component
+        const mapCardHtml = `
+          <div style="margin-top: 16px; border: 1px solid #e7e5e4; border-radius: 12px; background: #fafaf9; padding: 20px; text-align: center; font-family: sans-serif;">
+            <p style="font-size: 14px; font-weight: bold; color: #1c1917; margin: 0 0 6px 0; text-align: left;">
+              ${isAmharic ? 'በይነተገናኝ የካምፓስ ካርታ' : 'Interactive Campus Map'}
+            </p>
+            <p style="font-size: 12px; color: #78716c; margin: 0 0 14px 0; text-align: left; line-height: 1.45;">
+              ${isAmharic 
+                ? 'ወደዚህ ካምፓስ ለመድረስ አቅጣጫ ይፈልጋሉ? የመኪና አቅጣጫዎችን መክፈት፣ የእግር ጉዞ ርቀቶችን ማረጋገጥ ወይም በጎግል ካርታ ላይ የትራፊክ መንገዶችን ማየት ይችላሉ።' 
+                : 'Need directions to this campus? You can open driving directions, check walking distances, or view public transit routes on Google Maps.'}
+            </p>
+            <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(234,88,12,0.15);">${isAmharic ? 'በጎግል ካርታዎች ላይ ክፈት' : 'Open in Google Maps'}</a>
           </div>
         `;
- 
+
+        // Reschedule button
+        const rescheduleButtonHtml = `
+          <div style="text-align: center; margin: 24px 0;">
+            <a href="${rescheduleLink}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+              ${isAmharic ? 'የጉብኝት ቀጠሮውን ይቀይሩ' : 'Reschedule Your Tour'}
+            </a>
+          </div>
+        `;
+
+        // Wrap the dynamic template in a stunning premium email wrap
+        const parentEmailHtml = `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left; direction: ltr;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 16px; font-weight: bold; color: #10b981; text-transform: uppercase; letter-spacing: 1px;">
+                ${isAmharic ? 'ኪድቶፒያ ካምፓስ' : 'Kidtopia Campus'}
+              </span>
+              <h2 style="color: #10b981; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">
+                ${isAmharic ? 'የጉብኝት ጥያቄው ደርሶናል' : 'Kidtopia Tour Received'}
+              </h2>
+            </div>
+            
+            ${bodyParagraphs}
+
+            <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981; font-size: 14px; color: #44403c; line-height: 1.6;">
+              <p style="margin: 0 0 8px 0;"><strong>${isAmharic ? 'የካምፓስ አድራሻ:' : 'Campus Location:'}</strong> ${selectedBranchName}</p>
+              <p style="margin: 0 0 8px 0;"><strong>${isAmharic ? 'ቀን:' : 'Date:'}</strong> ${dayName}, ${selectedDate}</p>
+              <p style="margin: 0 0 16px 0;"><strong>${isAmharic ? 'ሰዓት:' : 'Time:'}</strong> ${selectedTime}</p>
+              
+              ${mapCardHtml}
+            </div>
+
+            ${rescheduleButtonHtml}
+
+            <hr style="border: 0; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
+            <p style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0;">
+              ${isAmharic 
+                ? 'ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት<br/>ከፍተኛ ጥራት ያለው ባለሁለት ቋንቋ የቅድመ ልጅነት ትምህርት መስጠት።'
+                : 'Kidtopia International Daycare and Preschool<br/>Providing top-tier bilingual early childhood education.'}
+            </p>
+          </div>
+        `;
+
         // Send confirmation to the parent
         sendEmail(formData.email, parentSubject, parentEmailHtml).catch(console.error);
  

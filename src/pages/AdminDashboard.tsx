@@ -70,7 +70,7 @@ export const AdminDashboard: React.FC = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [newUserUsername, setNewUserUsername] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
-  const [newUserRole, setNewUserRole] = useState('parent');
+  const [newUserRole, setNewUserRole] = useState('admin');
   const [addingUser, setAddingUser] = useState(false);
   const [apiStatus, setApiStatus] = useState<string | null>(null);
   const [fingerprintLoading, setFingerprintLoading] = useState(false);
@@ -343,7 +343,14 @@ export const AdminDashboard: React.FC = () => {
           whyChoose: { ...defaultTranslations.en.whyChoose, ...(enDocData.whyChoose || {}) },
           faq: { ...defaultTranslations.en.faq, ...(enDocData.faq || {}) },
           hero: { ...defaultTranslations.en.hero, ...(enDocData.hero || {}) },
-          resources: { ...defaultTranslations.en.resources, ...(enDocData.resources || {}) },
+          resources: { 
+            ...defaultTranslations.en.resources, 
+            ...(enDocData.resources || {}),
+            intlActTitle: enDocData.resources?.intlActTitle !== undefined ? enDocData.resources.intlActTitle : defaultTranslations.en.resources.intlActTitle,
+            intlActBody: enDocData.resources?.intlActBody !== undefined ? enDocData.resources.intlActBody : defaultTranslations.en.resources.intlActBody,
+            intlGuidelinesTitle: enDocData.resources?.intlGuidelinesTitle !== undefined ? enDocData.resources.intlGuidelinesTitle : defaultTranslations.en.resources.intlGuidelinesTitle,
+            intlGuidelinesBody: enDocData.resources?.intlGuidelinesBody !== undefined ? enDocData.resources.intlGuidelinesBody : defaultTranslations.en.resources.intlGuidelinesBody,
+          },
           nav: { ...defaultTranslations.en.nav, ...(enDocData.nav || {}) }
         };
         
@@ -356,9 +363,39 @@ export const AdminDashboard: React.FC = () => {
           whyChoose: { ...defaultTranslations.am.whyChoose, ...(amDocData.whyChoose || {}) },
           faq: { ...defaultTranslations.am.faq, ...(amDocData.faq || {}) },
           hero: { ...defaultTranslations.am.hero, ...(amDocData.hero || {}) },
-          resources: { ...defaultTranslations.am.resources, ...(amDocData.resources || {}) },
+          resources: { 
+            ...defaultTranslations.am.resources, 
+            ...(amDocData.resources || {}),
+            intlActTitle: amDocData.resources?.intlActTitle !== undefined ? amDocData.resources.intlActTitle : defaultTranslations.am.resources.intlActTitle,
+            intlActBody: amDocData.resources?.intlActBody !== undefined ? amDocData.resources.intlActBody : defaultTranslations.am.resources.intlActBody,
+            intlGuidelinesTitle: amDocData.resources?.intlGuidelinesTitle !== undefined ? amDocData.resources.intlGuidelinesTitle : defaultTranslations.am.resources.intlGuidelinesTitle,
+            intlGuidelinesBody: amDocData.resources?.intlGuidelinesBody !== undefined ? amDocData.resources.intlGuidelinesBody : defaultTranslations.am.resources.intlGuidelinesBody,
+          },
           nav: { ...defaultTranslations.am.nav, ...(amDocData.nav || {}) }
         };
+
+        // Deep merge resources items by actionType to guarantee new regulatory card items exist
+        if (enDocData.resources?.items) {
+          const mergedItems = [...enDocData.resources.items];
+          defaultTranslations.en.resources.items.forEach((defaultItem: any) => {
+            const exists = mergedItems.some((item: any) => item.actionType === defaultItem.actionType);
+            if (!exists) {
+              mergedItems.push(defaultItem);
+            }
+          });
+          enData.resources.items = mergedItems;
+        }
+
+        if (amDocData.resources?.items) {
+          const mergedItems = [...amDocData.resources.items];
+          defaultTranslations.am.resources.items.forEach((defaultItem: any) => {
+            const exists = mergedItems.some((item: any) => item.actionType === defaultItem.actionType);
+            if (!exists) {
+              mergedItems.push(defaultItem);
+            }
+          });
+          amData.resources.items = mergedItems;
+        }
 
         // Ensure media array exists in virtualTour
         if (!enData.virtualTour.media) enData.virtualTour.media = defaultTranslations.en.virtualTour.media;
@@ -1932,7 +1969,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 mb-6">
-                  <h3 className="text-sm font-bold text-stone-800 mb-3">Add New User</h3>
+                  <h3 className="text-sm font-bold text-stone-800 mb-3">Add New Admin User</h3>
                   <form onSubmit={handleAddUser} className="flex flex-col md:flex-row gap-3">
                     <input
                       type="text"
@@ -1950,21 +1987,12 @@ export const AdminDashboard: React.FC = () => {
                       required
                       className="flex-1 px-3 py-2 border border-stone-200 rounded-lg outline-none focus:border-brand-green text-sm"
                     />
-                    <select
-                      value={newUserRole}
-                      onChange={(e) => setNewUserRole(e.target.value)}
-                      className="px-3 py-2 border border-stone-200 rounded-lg outline-none focus:border-brand-green text-sm bg-white"
-                    >
-                      <option value="parent">Parent</option>
-                      <option value="staff">Staff</option>
-                      <option value="admin">Admin</option>
-                    </select>
                     <button
                       type="submit"
                       disabled={addingUser}
                       className="bg-brand-green text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
                     >
-                      {addingUser ? 'Adding...' : 'Add User'}
+                      {addingUser ? 'Adding...' : 'Add Admin'}
                     </button>
                   </form>
                 </div>
@@ -1997,16 +2025,7 @@ export const AdminDashboard: React.FC = () => {
                               </span>
                             </td>
                             <td className="py-4 flex items-center gap-2">
-                              <select 
-                                value={user.role}
-                                onChange={(e) => handleUpdateUserRole(user.uid, e.target.value)}
-                                className="text-sm border border-stone-200 rounded-lg px-2 py-1 outline-none focus:border-brand-green"
-                                disabled={user.email === 'admin@kidtopiaet.com' || (adminConfig && user.email === adminConfig.email)}
-                              >
-                                <option value="parent">Parent</option>
-                                <option value="staff">Staff</option>
-                                <option value="admin">Admin</option>
-                              </select>
+                              <span className="text-xs text-stone-500 font-medium">Administrator</span>
                               <button
                                 onClick={() => handleDeleteUser(user.uid)}
                                 disabled={user.email === 'admin@kidtopiaet.com' || (adminConfig && user.email === adminConfig.email)}
@@ -2401,9 +2420,12 @@ export const AdminDashboard: React.FC = () => {
 
                                           // Send approval email
                                           if (b.email) {
+                                            const bookingLang = (b.lang === 'am' ? 'am' : 'en') as 'en' | 'am';
                                             const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
-                                            const templateHeader = content[activeLang]?.emailTemplates?.approval?.subject || 'Kidtopia Tour Booking - Confirmed';
-                                            const templateBody = content[activeLang]?.emailTemplates?.approval?.body || `Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.`;
+                                            const templateHeader = content[bookingLang]?.emailTemplates?.approval?.subject || (bookingLang === 'am' ? 'የኪድቶፒያ የጉብኝት ቀጠሮ - ተረጋግጧል' : 'Kidtopia Tour Booking - Confirmed');
+                                            const templateBody = content[bookingLang]?.emailTemplates?.approval?.body || (bookingLang === 'am' 
+                                                ? 'የጉብኝት ቀጠሮዎ ተረጋግጧል!\n\nሰላም {name}፣\n\nበኪድቶፒያ የሚያደርጉት ጉብኝት መረጋገጡን ስናበስርዎ በደስታ ነው!\n\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nእርስዎን ለማግኘት በጉጉት እንጠብቃለን! ማንኛውም ጥያቄ ካለዎት እባክዎን ያነጋግሩን።'
+                                                : `Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.`);
                                             const subject = templateHeader
                                                 .replace(/\{name\}/g, b.name || '')
                                                 .replace(/\{date\}/g, b.date || '')
@@ -2433,9 +2455,12 @@ export const AdminDashboard: React.FC = () => {
 
                                           // Send rejection email
                                           if (b.email) {
+                                            const bookingLang = (b.lang === 'am' ? 'am' : 'en') as 'en' | 'am';
                                             const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
-                                            const templateHeader = content[activeLang]?.emailTemplates?.rejection?.subject || 'Tour Booking Update';
-                                            const templateBody = content[activeLang]?.emailTemplates?.rejection?.body || `Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.`;
+                                            const templateHeader = content[bookingLang]?.emailTemplates?.rejection?.subject || (bookingLang === 'am' ? 'የጉብኝት ቀጠሮ ዝመና' : 'Tour Booking Update');
+                                            const templateBody = content[bookingLang]?.emailTemplates?.rejection?.body || (bookingLang === 'am'
+                                                ? 'የጉብኝት ቀጠሮ ዝመና\n\nሰላም {name}፣\n\nአዝናለን፣ በ{dayName}, {date} በ{time} ያቀረቡትን የአካል ጉብኝት ጥያቄ ለማስተናገድ አንችልም።\n\nእባክዎን በሌላ ጊዜ አዲስ ጥያቄ ያቅርቡልን ወይም ለተጨማሪ መረጃ የእኛን ቢሮ ያነጋግሩ።'
+                                                : `Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.`);
                                             const subject = templateHeader
                                                 .replace(/\{name\}/g, b.name || '')
                                                 .replace(/\{date\}/g, b.date || '')
