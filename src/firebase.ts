@@ -445,3 +445,15 @@ export const sendEmail = async (to: string, subject: string, html: string, reply
     throw err;
   }
 };
+
+export const updateContentInDb = async (lang: 'en' | 'am', data: any) => {
+  try {
+    const docRef = doc(db, 'content', lang);
+    await setDoc(docRef, data, { merge: true });
+    console.log(`Content for ${lang} updated successfully in Firestore!`);
+  } catch (err) {
+    console.error(`Failed to update content for ${lang}:`, err);
+    throw err;
+  }
+};
+

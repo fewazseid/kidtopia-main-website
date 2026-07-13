@@ -230,6 +230,7 @@ export const translations = {
       title: "Parent Resources",
       desc: "Helpful materials and guides to support you and your child's journey with us.",
       items: [
+        { title: "Daycare Policies & Terms", description: "Review our daycare terms, operational guidelines, health policies, and security frameworks.", type: "Policies & Terms", image: "", actionType: "policies", link: "" },
         { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
         { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
@@ -338,6 +339,116 @@ export const translations = {
             { id: "k4", text: "Writes some letters or numbers, and copies triangle" },
             { id: "k5", text: "Stands on one foot for 10 seconds or longer" },
             { id: "k6", text: "Understands the difference between real and make-believe" }
+          ]
+        }
+      },
+      policies: {
+        terms: {
+          title: "Contractual Agreement & Enrollment Terms",
+          subtitle: "By enrolling your child at Kidtopia Daycare, you enter into a legally binding agreement in strict alignment with local directives.",
+          sections: [
+            {
+              title: "1. Tuition & Late Fees",
+              items: [
+                "Tuition payments are strictly due on the 1st day of each calendar month.",
+                "A 10% late payment fee will be automatically added to outstanding balances on the 6th day of the month.",
+                "Non-payment of tuition by the 10th of the month will result in immediate suspension of child care services.",
+                "We do not offer credits or refunds for sick days, vacation days, or holidays."
+              ]
+            },
+            {
+              title: "2. Hours & Late Pick-ups",
+              items: [
+                "Operating hours are strictly from 7:30 AM to 6:00 PM, Monday through Friday.",
+                "A late pick-up penalty of $1 (or equivalent local rate) per minute is strictly applied for any pickups after 6:00 PM.",
+                "Late fees will be added directly to the following month’s invoice and must be cleared prior to attendance.",
+                "Repeated late pick-ups (more than 3 times in a term) may result in enrollment termination."
+              ]
+            },
+            {
+              title: "3. Withdrawal & Security Deposit",
+              items: [
+                "Parents must provide a minimum of 30 days written withdrawal notice to the Administration.",
+                "Failure to provide a full 30 days notice will result in the complete forfeiture of the security deposit.",
+                "The final month's tuition will not be prorated.",
+                "The center reserves the right to terminate enrollment immediately for severe non-compliance or safety concerns."
+              ]
+            },
+            {
+              title: "4. Security & Pick-up Permissions",
+              items: [
+                "Children will ONLY be released to individuals listed as Authorized Pick-up Persons in our registration database.",
+                "All pick-up persons must register their fingerprint and present a valid government-issued photo ID upon entry.",
+                "No children will be released to individuals under the age of 18 or anyone suspected of being under the influence.",
+                "Ad-hoc pickup authorizations must be submitted in writing via the parent portal software at least 2 hours in advance."
+              ]
+            }
+          ]
+        },
+        guidelines: {
+          title: "Daily Guidelines & Parent Expectations",
+          subtitle: "Operational guidelines based on our Kidtopia Parent Handbook to maintain premium care standards.",
+          sections: [
+            {
+              title: "1. Daily Routine & Napping",
+              content: "A restorative rest/nap period is enforced daily from 1:00 PM to 3:00 PM for all toddler and preschool classes. Kidtopia provides customized, age-appropriate sanitized bedding which is laundered daily in-house. No outside toys, heavy blankets, or personal pillows are permitted to minimize allergy risks."
+            },
+            {
+              title: "2. Parent-Teacher Communication",
+              content: "Every child has an interactive digital Communication Log inside our Daycare Control Software. Teachers log diaper changes, toilet training, food intake, naps, and educational milestone progress daily. Parents are highly encouraged to check these logs daily and leave active comments."
+            },
+            {
+              title: "3. Standard Clothing & Personal Care",
+              content: "Please dress your child in comfortable, play-friendly clothes that can withstand arts/crafts. Parents must provide at least two complete changes of extra clothes, labeled clearly with the child's name, to be kept in their individual locker cubby. For children in diapers, a weekly stock of diapers and wipes must be replenished."
+            },
+            {
+              title: "4. Positive Guidance Policy",
+              content: "Consistent with our policy, Kidtopia operates a strict Zero Corporal Punishment Policy. We guide child behaviors through positive reinforcement, logical redirection, and structured emotional coaching. Physical discipline, isolation, or verbal shaming of any child is strictly prohibited by all staff members."
+            }
+          ]
+        },
+        health: {
+          title: "Mandatory Medical Screenings & Illness Policy",
+          subtitle: "Rigid medical screening criteria to safeguard your child's well-being.",
+          screeningTitle: "Mandatory Pre-Admission Medical Screenings",
+          screeningDesc: "In compliance with our health policies, all children must provide official, stamped laboratory test certificates before they can attend their first day. No exceptions:",
+          screenings: [
+            { title: "TB Clearance", desc: "Tuberculosis medical clearance" },
+            { title: "Immunization", desc: "Up-to-date vaccine chart" },
+            { title: "HIV Screening", desc: "Certified laboratory result" },
+            { title: "Hepatitis B", desc: "Hep B screening report" }
+          ],
+          sections: [
+            {
+              title: "When a Child Must Stay Home",
+              content: "Children exhibiting any of the following symptoms will not be admitted to the facility: Fever over 38°C (100.4°F), diarrhea or vomiting within the past 24 hours, unexplained skin rashes, raw sores, conjunctivitis (pink eye), or active continuous coughing. Children must be entirely symptom-free for 24 hours without fever-reducing medication before returning."
+            },
+            {
+              title: "Medication Administration Rules",
+              content: "Daycare nurses will only administer medications if a completed, signed Medication Authorization Form is submitted by the parent. Prescription drugs must be in their original pharmaceutical container, labeled clearly with the child's name, prescription number, dosage, and date. Over-the-counter medicine must be new and accompanied by a pediatrician's printed instruction letter."
+            }
+          ]
+        },
+        privacy: {
+          title: "Biometrics, Data Protection & Privacy Standard",
+          subtitle: "Secure framework designed under international data and local security standards.",
+          sections: [
+            {
+              title: "1. Biometric Security",
+              content: "Kidtopia utilizes an encrypted Fingerprint Registry System to coordinate child pick-ups. No raw fingerprint images are stored; instead, they are instantly converted into encrypted digital hashes which reside on a isolated, secure on-premise server. All biometric logs are permanently destroyed once your child graduates or withdraws from the center."
+            },
+            {
+              title: "2. Media Consent & Safety",
+              content: "Photos or videos of children are captured solely to document educational milestones and update parents inside the secure Parent Portal. No photos or videos of any child will be used for marketing, public social media, or website updates without an explicit, signed Bilingual Media Consent Waiver from the parent. Staff cellphones are strictly banned inside playrooms."
+            },
+            {
+              title: "3. Health Records Privacy",
+              content: "All mandatory medical screening reports (TB, HIV, Hep B) are treated as highly confidential. These records are only accessible to the on-site Daycare Nurse, Director, and verified auditing officials from the Ministry of Health. Health records are kept in a dual-locked safe cabinet and are returned to the family upon departure."
+            },
+            {
+              title: "4. Security Log Audits",
+              content: "Activity logs, including check-in/check-out times, authorized picking person names, and communication entries, are compiled for regulatory compliance. These database logs are reviewed weekly by our Security Compliance team. No parent data, emails, or phone numbers are shared or sold to third-party marketing services under any circumstances."
+            }
           ]
         }
       }
@@ -639,6 +750,7 @@ export const translations = {
       title: "የወላጅ መርጃዎች",
       desc: "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።",
       items: [
+        { title: "የቀን እንክብካቤ ፖሊሲዎች እና ደንቦች", description: "የቀን ማቆያ ደንቦቻችንን፣ የጤና እና የደህንነት ፖሊሲዎችን እዚህ ይመልከቱ።", type: "ፖሊሲዎች እና ደንቦች", image: "", actionType: "policies", link: "" },
         { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
         { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
@@ -747,6 +859,116 @@ export const translations = {
             { id: "k4", text: "አንዳንድ ፊደላትን ወይም ቁጥሮችን ይጽፋል፣ እና ሶስት ማዕዘን ይገለብጣል" },
             { id: "k5", text: "በአንድ እግሩ ለ10 ሰከንድ ወይም ከዚያ በላይ ይቆማል" },
             { id: "k6", text: "በእውነተኛ እና በማስመስል መካከል ያለውን ልዩነት ይረዳል" }
+          ]
+        }
+      },
+      policies: {
+        terms: {
+          title: "ውል ስምምነት እና የምዝገባ ሁኔታዎች",
+          subtitle: "ልጅዎን በኪድቶፒያ የህጻናት ማቆያ ውስጥ ሲያስመዘግቡ፣ በአገር ውስጥ መመሪያዎች መሰረት ህጋዊ አስገዳጅነት ባለው ስምምነት ውስጥ ይገባሉ።",
+          sections: [
+            {
+              title: "1. ክፍያዎች እና የቅጣት ውሎች",
+              items: [
+                "የወርሃዊ ክፍያ የሚጠናቀቀው በየወሩ 1ኛው ቀን ላይ ብቻ ነው።",
+                "ከእያንዳንዱ ወር 5ኛ ቀን በኋላ ላልተከፈሉ እዳዎች የ10% የዘግይቶ መክፈያ ቅጣት በራስ-ሰር ይታሰባል።",
+                "እስከ እያንዳንዱ ወር 10ኛው ቀን ድረስ ካልተከፈለ አገልግሎት ለጊዜው ይቋረጣል።",
+                "ልጁ በታመመባቸው፣ ፈቃድ በወሰደባቸው ወይም በበዓላት ቀናት ክፍያ ተመላሽ አይደረግም።"
+              ]
+            },
+            {
+              title: "2. የስራ ሰዓት እና ዘግይቶ መረከብ",
+              items: [
+                "የስራ ሰዓት ከሰኞ እስከ አርብ ከጠዋቱ 1:30 (7:30 AM) እስከ ማታ 12:00 (6:00 PM) ነው።",
+                "ከምሽቱ 12:00 (6:00 PM) በኋላ ለሚደረጉ መረከቦች በደቂቃ $1 (ወይም በየቀኑ በኢትዮጵያ ብር ተመጣጣኝ ዋጋ) ቅጣት በጥብቅ ተፈጻሚ ይሆናል።",
+                "ዘግይቶ የመውሰጃ ቅጣት በሚቀጥለው ወር ደረሰኝ ላይ በቀጥታ የሚታከል ሲሆን አገልግሎቱ ከመቀጠሉ በፊት መከፈል አለበት።",
+                "በተደጋጋሚ (ከ3 ጊዜ በላይ) ዘግይቶ መረከብ ከማቆያው መሰረዝን ያስከትላል።"
+              ]
+            },
+            {
+              title: "3. ምዝገባ ስረዛ እና የዋስትና ተቀማጭ",
+              items: [
+                "ወላጆች ምዝገባ ለመሰረዝ ቢያንስ የ30 ቀናት ቅድመ የጽሁፍ ማስጠንቀቂያ ለአስተዳደሩ ማቅረብ አለባቸው።",
+                "የ30 ቀናት ቅድመ ማስጠንቀቂያ ሳያቀርቡ ሲቀሩ የያዙት የዋስትና ክፍያ (Security Deposit) ሙሉ በሙሉ አይመለስም።",
+                "የመጨረሻው ወር ክፍያ በተናጠል አይሰላም።",
+                "ከባድ ደንብ መተላለፍ ወይም የደህንነት ስጋት በሚኖርበት ጊዜ ማቆያው ወዲያውኑ ምዝገባ የመሰረዝ መብቱ የተጠበቀ ነው።"
+              ]
+            },
+            {
+              title: "4. የደህንነት እና የልጅ መረከቢያ ፈቃድ",
+              items: [
+                "ልጆች የሚለቀቁት በምዝገባ ዳታቤዛችን ውስጥ በስም ለተመዘገቡ ፈቃድ ላላቸው ሰዎች ብቻ ነው።",
+                "ሁሉም ልጁን የሚረከቡ ሰዎች የጣት አሻራ መመዝገብ እና ህጋዊ መታወቂያ ማቅረብ አለባቸው።",
+                "ዕድሜያቸው ከ18 ዓመት በታች ለሆኑ ወይም የአእምሮ ዝግጁነት ለሌላቸው ሰዎች ልጆች ተላልፈው አይሰጡም።",
+                "ድንገተኛ የልጅ መረከቢያ ጥያቄዎች ቢያንስ ከ2 ሰዓት በፊት በወላጆች መገናኛ ሶፍትዌር በኩል መላክ አለባቸው።"
+              ]
+            }
+          ]
+        },
+        guidelines: {
+          title: "ዕለታዊ መመሪያዎች እና የወላጆች ግዴታ",
+          subtitle: "የኪድቶፒያ የወላጅ መመሪያን መሠረት ያደረጉ ዕለታዊ የስራ መመሪያዎች።",
+          sections: [
+            {
+              title: "1. ዕለታዊ ፕሮግራም እና የእንቅልፍ ሰዓት",
+              content: "ለሁሉም ታዳጊዎች እና የቅድመ ትምህርት ቤት ህጻናት በየቀኑ ከቀኑ ከ7:00 (1:00 PM) እስከ 9:00 (3:00 PM) ሰዓት የእንቅልፍ እና የጸጥታ ሰዓት ነው። ኪድቶፒያ በየቀኑ በማቆያው ውስጥ በንጽህና የታጠቡ አልጋዎችን እና አንሶላዎችን ያቀርባል። ከአለርጂ ስጋቶች ለመከላከል የውጭ መጫወቻዎች፣ የግል ብርድ ልብሶች ወይም ትራሶች አይፈቀዱም።"
+            },
+            {
+              title: "2. የወላጅ እና አስተማሪ መገናኛ መጻሕፍት",
+              content: "እያንዳንዱ ህጻን በማቆያ መቆጣጠሪያ ሶፍትዌራችን ውስጥ ዲጂታል የመገናኛ ደብተር አለው። አስተማሪዎች የሽንት ጨርቅ መቀየርን፣ የምግብ ፍጆታን፣ የእንቅልፍ ሰዓትን እና የልጁን የእለት ተእለት የእውቀት ደረጃ መዝገብ እዚህ ያሰፍራሉ። ወላጆች ይህንን በየቀኑ እንዲያዩ እና አስተያየት እንዲለግሱ በጥብቅ እናበረታታለን።"
+            },
+            {
+              title: "3. የልብስ እና የግል ንጽህና ደንብ",
+              content: "እባክዎን ለልጅዎ ምቹ፣ ለመጫወት እና ለስዕል ስራዎች የሚሆኑ ልብሶችን ያለብሷቸው። ወላጆች ቢያንስ ሁለት ጥንድ ትርፍ ልብሶችን በልጁ ስም ምልክት ተደርጎባቸው በማቆያው የግል መቆለፊያ ውስጥ ማስቀመጥ አለባቸው። የሽንት ጨርቅ ለሚጠቀሙ ህጻናት፣ በየሳምንቱ የሽንት ጨርቅ እና የጽዳት ጥቅል ማቅረብ አለባቸው።"
+            },
+            {
+              title: "4. አዎንታዊ የስነ-ምግባር መመሪያዎች",
+              content: "ከኪድቶፒያ ደንቦች ጋር በተገናኘ፣ ኪድቶፒያ ጥብቅ የአካል ቅጣት ክልከላ (Zero Corporal Punishment) ፖሊሲ ይከተላል። የልጆችን ባህሪ የምንመራው በአዎንታዊ ማበረታቻ፣ በስነ-ልቦናዊ ትምህርት እና ትኩረታቸውን በመቀየር ብቻ ነው። በልጆች ላይ የአካል ወይም የስሜት ቅጣት እንዲሁም ማግለል በሰራተኞች ዘንድ ፈጽሞ አይፈቀድም።"
+            }
+          ]
+        },
+        health: {
+          title: "አስገዳጅ የጤና ምርመራዎች እና የታመሙ ልጆች ደንብ",
+          subtitle: "የልጅዎን ጤንነት ለመጠበቅ የተቀመጡ አስገዳጅ የህክምና ደንቦች።",
+          screeningTitle: "ቅድመ ምዝገባ አስገዳጅ የህክምና ምርመራዎች",
+          screeningDesc: "በደንቦቻችን መሰረት፣ ሁሉም ልጆች ከመጀመሪያው ቀን በፊት ህጋዊ የላብራቶሪ ምርመራ ማረጋገጫ ማቅረብ አለባቸው። ምንም ልዩ ሁኔታ አይፈቀድም፦",
+          screenings: [
+            { title: "የቲቢ ምርመራ", desc: "ሳንባ ነቀርሳ (TB) ነጻ መሆን" },
+            { title: "የክትባት ካርድ", desc: "የተሟላ የክትባት ሰነድ" },
+            { title: "የኤችአይቪ ምርመራ", desc: "የኤችአይቪ ደህንነት ምርመራ" },
+            { title: "የሄፓታይተስ ምርመራ", desc: "ሄፓታይተስ ቢ (Hepatitis B) ምርመራ" }
+          ],
+          sections: [
+            {
+              title: "ልጆች ቤት መቆየት ያለባቸው መቼ ነው?",
+              content: "የሚከተሉት ምልክቶች የሚታዩባቸው ልጆች ወደ ማቆያው መግባት አይችሉም፦ ትኩሳት ከ 38°C (100.4°F) በላይ ሲሆን፣ ተቅማጥ ወይም ማስመለስ ባለፉት 24 ሰዓታት ውስጥ ሲኖር፣ ያልታወቁ ሽፍታዎች፣ ቁስሎች ወይም የአይን በሽታ ሲከሰት፣ ከባድ እና የማያቋርጥ ሳል ወይም የትንፋሽ መጥበብ። ልጆች ትኩሳት ማስታገሻ ሳይወስዱ ለ24 ሰዓታት ሙሉ በሙሉ ከምልክት ነጻ መሆናቸው መረጋገጥ አለበት።"
+            },
+            {
+              title: "የመድሃኒት አሰጣጥ ደንቦች",
+              content: "የማቆያው ነርሶች መድሃኒት የሚሰጡት የሚከተሉት ሲሟሉ ብቻ ነው፦ በወላጅ የተፈረመ የመድሃኒት አስተዳደር ፈቃድ ቅጽ ሲቀርብ፣ መድሃኒቶች በታዘዙበት ኦሪጅናል ማሸጊያ ላይ ሆነው የልጁ ስም፣ የመጠን መመሪያ እና ቀኑ በግልጽ ሲቀመጥ፣ ያለ ሃኪም ትዕዛዝ የሚወሰዱ መድሃኒቶች አዲስ መሆን አለባቸው እና ከህጻናት ሀኪም የተጻፈ ደብዳቤ መያዝ አለባቸው።"
+            }
+          ]
+        },
+        privacy: {
+          title: "የጣት አሻራ፣ የውሂብ ጥበቃ እና ሚስጥራዊነት ደረጃ",
+          subtitle: "በአገር ውስጥ እና በዓለም አቀፍ የደህንነት ደረጃዎች መሰረት የተዘጋጀ ጥበቃ።",
+          sections: [
+            {
+              title: "1. የጣት አሻራ ደህንነት",
+              content: "ኪድቶፒያ ልጆችን ደህንነቱ በተጠበቀ ሁኔታ ለመረከብ ምስጠራ የተደረገበት የጣት አሻራ መዝገብ ስርዓት ይጠቀማል። የጣት አሻራ ምስሎች በኦሪጅናልነት አይቀመጡም፤ ይልቁንም በተናጠል አገልጋይ (Server) ላይ ወደ ሚስጥራዊ ኮድ ይቀየራሉ። ልጁ ከማቆያው በሚወጣበት ጊዜ ሁሉም የጣት አሻራ ውሂብ በቋሚነት ይሰረዛል።"
+            },
+            {
+              title: "2. የምስል እና የሚዲያ ፈቃድ",
+              content: "የልጆች ፎቶዎች ወይም ቪዲዮዎች የሚቀረጹት ለትምህርታዊ ክንዋኔዎች እና ለወላጆች በዲጂታል ፖርታል በኩል መረጃ ለመስጠት ብቻ ነው። ያለ ወላጆች ፈቃድ ማናቸውም ምስሎች ለማስታወቂያ ወይም ለማህበራዊ ሚዲያ ፍጆታ አይውሉም። የሰራተኞች የግል ስልኮች በክፍሎች ውስጥ በጥብቅ የተከለከሉ ናቸው።"
+            },
+            {
+              title: "3. የጤና መዛግብት ሚስጥራዊነት",
+              content: "ሁሉም አስገዳጅ የጤና ምርመራዎች (የሳንባ ነቀርሳ፣ ኤችአይቪ፣ ሄፓታይተስ) እጅግ ሚስጥራዊ ሆነው ይያዛሉ። እነዚህን ሰነዶች ማየት የሚችሉት የማቆያው ነርስ፣ አስተዳዳሪው እና የጤና ጥበቃ ሚኒስቴር ተቆጣጣሪዎች ብቻ ናቸው። ሁሉም የጤና መዛግብት በጥብቅ ቁልፍ ስር የሚቀመጡ ሲሆን ልጁ በሚሰረዝበት ጊዜ ለቤተሰቡ ይመለሳሉ።"
+            },
+            {
+              title: "4. የደህንነት መዝገብ ቁጥጥር",
+              content: "የመግቢያ/መውጫ ሰዓት፣ ህጻናትን የተረከቡ ወላጆች ስም እና የመገናኛ ደብተር መዝገብ ለቁጥጥር ሲባል ይቀመጣሉ። እነዚህ የደህንነት ምዝግቦች በየሳምንቱ በደህንነት ቁጥጥር ክፍላችን ይገመገማሉ። የወላጆች የግል መረጃ፣ ኢሜይል ወይም የስልክ ቁጥሮች ለማንኛውም ሌላ አካል ተላልፈው አይሰጡም።"
+            }
           ]
         }
       }

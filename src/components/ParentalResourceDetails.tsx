@@ -1307,6 +1307,17 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {isPolicyOpen && (
+          <PolicyModal 
+            isOpen={isPolicyOpen} 
+            onClose={() => setIsPolicyOpen(false)} 
+            lang={lang}
+            initialTab={policyTab}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -20,13 +20,15 @@ import { BookTourPage } from './pages/BookTourPage';
 import { RescheduleTourPage } from './pages/RescheduleTourPage';
 import { LoginPage } from './pages/LoginPage';
 import { EnrollPage } from './pages/EnrollPage';
+import { AdminPage } from './pages/AdminPage';
 import { ContentProvider } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
 import { useLocation } from 'react-router-dom';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
-  const isMinimalLayout = ['/login'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
+  const isMinimalLayout = ['/login', '/admin'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
+
 
   return (
     <div className="min-h-screen selection:bg-brand-green/20 relative">
@@ -56,6 +58,7 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/reschedule/:id" element={<RescheduleTourPage lang={lang} />} />
         <Route path="/login" element={<LoginPage lang={lang} />} />
         <Route path="/enroll" element={<EnrollPage lang={lang} />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
 
       {!isMinimalLayout && <Footer lang={lang} />}
