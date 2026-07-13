@@ -4,7 +4,7 @@ import {
   X, Book, FileText, CheckCircle2, Download, Upload, AlertCircle, 
   Trash2, ShieldAlert, Award, Compass, RotateCw, Smile, 
   Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart, CheckSquare,
-  Scale, Laptop, MessageSquare, ShieldCheck
+  Scale, Laptop, MessageSquare, ShieldCheck, DollarSign, Clock
 } from 'lucide-react';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
@@ -363,6 +363,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
               {actionType === 'intl_act' && <Scale size={20} />}
               {actionType === 'intl_guidelines' && <ShieldCheck size={20} />}
               {actionType === 'comms' && <Laptop size={20} />}
+              {actionType === 'policies' && <ShieldCheck size={20} />}
             </div>
             <div>
               <h2 className="text-xl font-editorial font-bold text-stone-900 capitalize">
@@ -375,6 +376,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                 {actionType === 'intl_act' && (lang === 'en' ? 'Ethiopian Child Care Standards (Directive 1084/2025)' : 'የኢትዮጵያ የህፃናት ማቆያ ደረጃዎች (መመሪያ 1084/2025)')}
                 {actionType === 'intl_guidelines' && (lang === 'en' ? 'Daycare Parent Handbook Guidelines' : 'የማቆያ መመሪያዎች እና ደንቦች')}
                 {actionType === 'comms' && (lang === 'en' ? 'Daycare Control & Communication Software' : 'የማቆያ መቆጣጠሪያ እና መገናኛ ሶፍትዌር')}
+                {actionType === 'policies' && (lang === 'en' ? 'Policies & Terms' : 'ፖሊሲዎች እና ደንቦች')}
               </h2>
               <p className="text-xs text-stone-500">Kidtopia Parent Portal</p>
             </div>
@@ -1144,7 +1146,33 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
             </div>
           )}
 
-          {/* 9. DAYCARE COMMUNICATION SOFTWARE MOCK INTERACTIVE PANEL */}
+          {/* 9. POLICIES SECTION */}
+          {actionType === 'policies' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full content-start">
+              <button onClick={() => openPolicy('terms')} className="p-8 bg-white border border-stone-200 rounded-3xl hover:border-brand-green shadow-sm hover:shadow-md transition text-left flex flex-col gap-2">
+                <ShieldCheck size={32} className="text-brand-green" />
+                <span className="text-lg font-bold">Terms</span>
+                <span className="text-xs text-stone-500">View our terms and conditions.</span>
+              </button>
+              <button onClick={() => openPolicy('guidelines')} className="p-8 bg-white border border-stone-200 rounded-3xl hover:border-brand-green shadow-sm hover:shadow-md transition text-left flex flex-col gap-2">
+                <Book size={32} className="text-brand-orange" />
+                <span className="text-lg font-bold">Guidelines</span>
+                <span className="text-xs text-stone-500">View our daycare guidelines.</span>
+              </button>
+              <button onClick={() => openPolicy('health')} className="p-8 bg-white border border-stone-200 rounded-3xl hover:border-brand-green shadow-sm hover:shadow-md transition text-left flex flex-col gap-2">
+                <Heart size={32} className="text-red-500" />
+                <span className="text-lg font-bold">Health</span>
+                <span className="text-xs text-stone-500">View our health policies.</span>
+              </button>
+              <button onClick={() => openPolicy('privacy')} className="p-8 bg-white border border-stone-200 rounded-3xl hover:border-brand-green shadow-sm hover:shadow-md transition text-left flex flex-col gap-2">
+                <ShieldCheck size={32} className="text-brand-teal" />
+                <span className="text-lg font-bold">Privacy</span>
+                <span className="text-xs text-stone-500">View our privacy policy.</span>
+              </button>
+            </div>
+          )}
+
+          {/* 10. DAYCARE COMMUNICATION SOFTWARE MOCK INTERACTIVE PANEL */}
           {actionType === 'comms' && (
             <div className="max-w-4xl mx-auto h-full text-left space-y-6">
               <div className="p-5 bg-brand-teal/5 border border-brand-teal/10 rounded-2.5xl flex items-start gap-4 mb-4">
