@@ -1540,6 +1540,8 @@ export const AdminDashboard: React.FC = () => {
               <option value="forms">forms (Enrollment Forms & Uploads)</option>
               <option value="ar_activities">ar_activities (Educational AR Activities)</option>
               <option value="nutrition">nutrition (Nutrition & Meal Guide)</option>
+              <option value="intl_act">intl_act (Ethiopian Childcare Directive No. 1084/2025)</option>
+              <option value="intl_guidelines">intl_guidelines (Consolidated Daycare Policies & Guidelines)</option>
               <option value="url">url (Custom External URL Link)</option>
             </select>
           ) : isEmailBody ? (

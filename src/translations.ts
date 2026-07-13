@@ -233,8 +233,8 @@ export const translations = {
         { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
         { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
-        { title: "International Act of Child Care", description: "Learn about international child care standards and regulations.", type: "PDF Document", image: "", actionType: "intl_act", link: "" },
-        { title: "International Daycare Guidelines", description: "Guidelines for maintaining high quality childcare standards.", type: "Guide", image: "", actionType: "intl_guidelines", link: "" },
+        { title: "Ethiopian Childcare Directive No. 1084/2025", description: "Official criteria, procedures, licensing, spatial, and hygienic regulations for childcare centers in Ethiopia.", type: "Regulatory Directive", image: "", actionType: "intl_act", link: "" },
+        { title: "Consolidated Daycare Policies & Guidelines", description: "Review our comprehensive daycare terms and conditions, refund policies, illness rules, and parental codes of conduct.", type: "Parent Handbook Policy", image: "", actionType: "intl_guidelines", link: "" },
         { title: "Daycare Communication Software", description: "Access our daycare control and communication software for parents.", type: "Web Portal", image: "", actionType: "comms", link: "" },
         { title: "Profile Avatar Creator", description: "Design a unique custom character avatar for you and your child's portal profile.", type: "Interactive Tool", image: "", actionType: "avatar", link: "" },
         { title: "Development Milestones", description: "Track your child's age-appropriate developmental stages, cognitive and motor skills.", type: "Milestone Tracker", image: "", actionType: "milestones", link: "" }
@@ -340,7 +340,76 @@ export const translations = {
             { id: "k6", text: "Understands the difference between real and make-believe" }
           ]
         }
-      }
+      },
+      intlActTitle: "Ethiopian Childcare Directive No. 1084/2025 Criteria",
+      intlActBody: `OVERVIEW OF ETHIOPIAN CHILD-CARE CENTERS DIRECTIVE NO. 1084/2025
+
+Kidtopia International Daycare fully complies with the safety, structural, educational, and hygienic requirements set by the Ethiopian Ministry of Justice (under Directive No. 1084/2025). Below are the core regulatory criteria and standard operational procedures enforced at our center:
+
+1. LICENSING & REGULATORY STANDARDS (Articles 4 & 7)
+• Licensing Authority: Any childcare center in Ethiopia must obtain official registration and undergo annual inspections from the competent municipal/regional regulatory bureaus.
+• Operating License: Kidtopia holds a valid operating certificate, meeting all technical, environmental, and spatial safety benchmarks.
+
+2. PHYSICAL SPACE & INFRASTRUCTURE (Articles 10 & 11)
+• Space Requirements: Childcare centers are required to provide a minimum of 2.5 square meters of clean indoor space per child.
+• Classroom Safety: Classrooms must have adequate natural ventilation, bright light, kid-friendly furniture with rounded edges, and no exposure to sharp materials or hazardous substances.
+• Outdoor Play Space: Fenced, safe playground area is mandatory to ensure children have active daily recreation without exposure to external traffic.
+
+3. CAREGIVER STAFF-TO-CHILD RATIOS (Article 14)
+To ensure high-quality individual attention, caregiver ratios are legally mandated by age groups:
+• Infants (under 1 year): 1 Caregiver per 3 Infants (1:3 Ratio)
+• Toddlers (1 to 2 years): 1 Caregiver per 5 Toddlers (1:5 Ratio)
+• Preschoolers (3 to 5 years): 1 Caregiver per 8 Children (1:8 Ratio)
+Kidtopia strictly adheres to or exceeds these ratios to maintain safety.
+
+4. STAFF CREDENTIALS & HEALTH (Articles 15 & 16)
+• Certification: Lead educators and care staff must hold validated certifications in Early Childhood Education (ECE) or equivalent training.
+• Background Checks: All employees undergo absolute criminal background screening to ensure student protection.
+• Medical Clearance: Staff must obtain physical health clearances, showing they are free of contagious, mental, or physical conditions that could impede children’s well-being.
+
+5. HEALTH, HYGIENE & MEDICAL CHECKS (Article 18)
+• Children’s Health Cards: All children must submit a certified health record, including an up-to-date vaccination chart (Measles, Polio, BCG, DPT) and infectious disease clearance.
+• Daily Health Inspection: Upon daily arrival, children are screened for visible symptoms of illness.
+• Cleaning Routines: Routine disinfection of toys, sanitizing of toilets, and commercial washing of sleeping linens are performed daily.
+
+6. SAFETY, EMERGENCY & UTILITY SECURITY
+• Evacuation Plans: Emergency fire drills are conducted twice a year.
+• Controlled Ingress/Egress: Access gates are securely locked. Only pre-authorized administrative staff and verified guardians with fingerprint biometric validation can enter the premises.
+• First Aid: Fully stocked medical boxes are present in every classroom, and staff are trained in child CPR.`,
+      intlGuidelinesTitle: "Consolidated Daycare Policies & Terms",
+      intlGuidelinesBody: `KIDTOPIA INTERNATIONAL DAYCARE - CONSOLIDATED OPERATIONAL POLICIES
+
+Welcome to the Kidtopia parent community! By enrolling your child, you enter into a partnership with us. Below are our consolidated operational terms, payment systems, safety protocols, and behavioral rules:
+
+1. ADMISSION, HOURS & LATE PICK-UP
+• Operational Hours: The center is open Monday through Friday from 7:30 AM to 6:00 PM.
+• Prompt Arrival: We recommend arriving before 8:30 AM so children can participate in our morning circle activities.
+• Late Pick-Up Fee: Children must be picked up by 6:00 PM. A late pick-up fee of 200 ETB is charged for every 15 minutes of delay, payable directly to the administration.
+
+2. FINANCIAL TERMS & PAYMENT SYSTEMS
+• Monthly Tuition: Tuition is paid monthly in advance. Invoice statements are sent on the 25th of the preceding month.
+• Payment Deadline: Tuition is due on or before the 1st of each month. A late payment penalty of 10% is applied on the 6th.
+• Withdrawal Policy: To withdraw your child, you must submit a 30-day written advance notice. Failure to do so will result in the forfeiture of the security deposit.
+
+3. HEALTH, ILLNESS & MEDICATION POLICY
+• Sick Child Rule: To protect other students, children must stay home if they have:
+  - Fever greater than 38°C
+  - Vomiting or diarrhea within the last 24 hours
+  - Unexplained skin rashes or contagious infections
+• Return to Care: Children may return to the center only when fever-free and symptom-free for at least 24 hours without the use of fever-reducing medication.
+• Prescribed Medication: Center staff will administer prescribed medication only if accompanied by a signed doctor’s note and in its original pharmaceutical bottle.
+
+4. PICK-UP SECURITY & BIOMETRICS
+• Authorized Pick-Up: Only guardians registered in the portal with authorized government photo IDs or registered fingerprints can pick up a child.
+• Emergency Contact Update: If someone else needs to pick up your child, you must submit written notice in the portal or call the office at least 2 hours in advance. No child will be released to an unverified individual.
+
+5. BEHAVIORAL CODE & DISCIPLINE
+• Positive Guidance: We use positive reinforcement, redirection, and active conflict resolution. Physical punishment or shouting is strictly prohibited.
+• Parent Conduct: Kidtopia enforces a zero-tolerance policy for verbal abuse, shouting, threats, or harassment of our teachers and administrative staff. Aggressive parental behavior will lead to the immediate expulsion of the child with zero refund.
+
+6. MOBILE & DIGITAL DEVICE POLICY
+• No Personal Screens: Personal tablets, cell phones, or electronic gaming devices are not allowed in classrooms.
+• Focus: We promote cognitive development and social bonding through hands-on play, books, and interactive educational workshops.`
     },
     leadCapture: {
       title: "Would you like to schedule a tour?",
@@ -642,8 +711,8 @@ export const translations = {
         { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
         { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
-        { title: "ዓለም አቀፍ የህፃናት እንክብካቤ ህግ", description: "ስለ ዓለም አቀፍ የህፃናት እንክብካቤ ደረጃዎች እና ደንቦች ይወቁ።", type: "PDF ሰነድ", image: "", actionType: "intl_act", link: "" },
-        { title: "ዓለም አቀፍ የህፃናት ማቆያ መመሪያዎች", description: "ከፍተኛ ጥራት ያላቸውን የህፃናት እንክብካቤ ደረጃዎችን ለመጠበቅ መመሪያዎች።", type: "መመሪያ", image: "", actionType: "intl_guidelines", link: "" },
+        { title: "የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025", description: "በኢትዮጵያ ውስጥ ለህፃናት ማቆያ ማዕከላት የሚወጡ ይፋዊ መስፈርቶች፣ የአሠራር ሂደቶች፣ የቦታ እና የፈቃድ አሰጣጥ ደንቦች።", type: "ህጋዊ መመሪያ", image: "", actionType: "intl_act", link: "" },
+        { title: "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች እና መመሪያዎች", description: "የእኛን አጠቃላይ የህፃናት ማቆያ ደንቦች፣ የአገልግሎት ክፍያዎችን፣ የበሽታ ፖሊሲዎችን እና የወላጅ የስነ-ምግባር ደንቦችን እዚህ ያንብቡ።", type: "የወላጅ ፖሊሲ", image: "", actionType: "intl_guidelines", link: "" },
         { title: "የህፃናት ማቆያ መገናኛ ሶፍትዌር", description: "ለወላጆች የህፃናት ማቆያ መቆጣጠሪያ እና መገናኛ ሶፍትዌራችንን ያግኙ።", type: "የድር ፖርታል", image: "", actionType: "comms", link: "" },
         { title: "የአቫታር መፍጠሪያ", description: "ለእርስዎ እና ለልጅዎ የሚሆን ልዩ መገለጫ አቫታር ይንደፉ።", type: "በይነተገናኝ መሣሪያ", image: "", actionType: "avatar", link: "" },
         { title: "የልጅ እድገት ደረጃዎች", description: "የልጅዎን የእድገት ደረጃዎች፣ የዕውቀት እና የአካል ክህሎቶች ይከታተሉ።", type: "ደረጃ መከታተያ", image: "", actionType: "milestones", link: "" }
@@ -749,7 +818,75 @@ export const translations = {
             { id: "k6", text: "በእውነተኛ እና በማስመስል መካከል ያለውን ልዩነት ይረዳል" }
           ]
         }
-      }
+      },
+      intlActTitle: "የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025 መስፈርቶች",
+      intlActBody: `የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025 ዝርዝር
+
+ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ በኢትዮጵያ ፍትህ ሚኒስቴር (በመመሪያ ቁጥር 1084/2025 መሠረት) የወጡትን የደህንነት፣ የቦታ፣ የትምህርት እና የንጽህና መስፈርቶች ሙሉ በሙሉ ያከብራል። በማዕከላችን ውስጥ ተግባራዊ የሚደረጉት ዋና ዋና የቁጥጥር መስፈርቶች እና ደረጃዎች የሚከተሉት ናቸው፡-
+
+1. ፈቃድ እና የቁጥጥር ደረጃዎች (አንቀጽ 4 እና 7)
+• የፈቃድ ሰጪ አካል፡ በኢትዮጵያ ውስጥ የሚገኝ ማንኛውም የህፃናት ማቆያ ማዕከል ከሚመለከተው የማዘጋጃ ቤት/የክልል የቁጥጥር ቢሮዎች ኦፊሴላዊ ምዝገባ ማግኘት እና አመታዊ ምርመራ ማድረግ አለበት።
+• የሥራ ፈቃድ፡ ኪድቶፒያ ሁሉንም ቴክኒካዊ፣ አካባቢያዊ እና የቦታ ደህንነት መስፈርቶችን የሚያሟላ ህጋዊ የሥራ ፈቃድ አለው።
+
+2. አካላዊ ቦታ እና መሰረተ ልማት (አንቀጽ 10 እና 11)
+• የቦታ መስፈርቶች፡ የእያንዳንዱ ህጻን ማቆያ ለአንድ ህጻን ቢያንስ 2.5 ካሬ ሜትር ንጹህ የውስጥ ክፍል ማቅረብ አለበት።
+• የክፍል ደህንነት፡ የመማሪያ ክፍሎች በቂ የተፈጥሮ አየር ዝውውር፣ ደማቅ ብርሃን፣ ለህፃናት ምቹ የሆኑ የጠርዝ ክብ የቤት ዕቃዎች ሊኖሯቸው የሚገባ ሲሆን ከሹል እቃዎች ወይም አደገኛ ንጥረ ነገሮች የጸዱ መሆን አለባቸው።
+• የውጭ መጫወቻ ቦታ፡ ህጻናት ያለ ምንም የትራፊክ አደጋ በየቀኑ ንቁ መዝናኛ እንዲያገኙ የታጠረ፣ አስተማማኝ የመጫወቻ ቦታ መኖር ግዴታ ነው።
+
+3. የአሳዳጊ ሰራተኛ እና የህፃናት ጥምርታ (አንቀጽ 14)
+ከፍተኛ ጥራት ያለው የግል እንክብካቤን ለማረጋገጥ የአሳዳጊ ሰራተኞች እና የህፃናት ጥምርታ በህግ ተደንግጓል፡-
+• ህፃናት (ከ 1 አመት በታች)፡ 1 አሳዳጊ ለ 3 ህፃናት (የ 1:3 ጥምርታ)
+• ታዳጊዎች (ከ 1 እስከ 2 ዓመት)፡ 1 አሳዳጊ ለ 5 ታዳጊዎች (የ 1:5 ጥምርታ)
+• የቅድመ ትምህርት ቤት ህጻናት (ከ 3 እስከ 5 ዓመት)፡ 1 አሳዳጊ ለ 8 ህጻናት (የ 1:8 ጥምርታ)
+ኪድቶፒያ ደህንነትን ለመጠበቅ እነዚህን ጥምርታዎች በጥብቅ ያከብራል ወይም ከእነሱ በተሻለ ሁኔታ ያደራጃል።
+
+4. የሰራተኞች ምስክር ወረቀት እና ጤና (አንቀጽ 15 እና 16)
+• የምስክር ወረቀት፡ መሪ አስተማሪዎች እና የእንክብካቤ ሰራተኞች በቅድመ ልጅነት ትምህርት (ECE) ወይም በተመሳሳይ የሰለጠኑ መሆን አለባቸው።
+• የበስተጀርባ ታሪክ ምርመራ፡ ሁሉም ሰራተኞች የህጻናትን ደህንነት ለማረጋገጥ የወንጀል ታሪክ ምርመራ ይደረግባቸዋል።
+• የጤና ማረጋገጫ፡ ሰራተኞች በህጻናት ደህንነት ላይ ጉዳት ሊያደርሱ ከሚችሉ ተላላፊ፣ አእምሯዊ ወይም አካላዊ በሽታዎች የጸዱ መሆናቸውን የሚገልጽ የጤና ማረጋገጫ ማቅረብ አለባቸው።
+
+5. ጤና، ንጽህና እና የህክምና ምርመራዎች (አንቀጽ 18)
+• የህፃናት የጤና ካርዶች፡ ሁሉም ህጻናት ወቅታዊ የክትባት ሰነድ (ኩፍኝ፣ ፖሊዮ፣ ቢሲጂ፣ ዲፒቲ) እና ከተላላፊ በሽታዎች ነጻ መሆናቸውን የሚገልጽ የህክምና ማስረጃ ማቅረብ አለባቸው።
+• የእለት ተእለት የጤና ምርመራ፡ ህጻናት በየቀኑ ሲገቡ የሚታዩ የበሽታ ምልክቶች ካሉ ይመረመራሉ።
+• የጽዳት ስራዎች፡ የመጫወቻ እቃዎች፣ የመጸዳጃ ቤቶች እና የመኝታ ልብሶች በየቀኑ በፀረ-ተባይ ይጸዳሉ።
+
+6. ደህንነት፣ የአደጋ ጊዜ እና የደህንነት ጥበቃ
+• የአደጋ ጊዜ እቅዶች፡ በዓመት ሁለት ጊዜ የአደጋ ጊዜ የእሳት አደጋ ልምምዶች ይካሄዳሉ።
+• ጥብቅ መግቢያ/መውጫ፡ የመግቢያ በሮች ሁልጊዜ የተቆለፉ ናቸው። የጣት አሻራ ባዮሜትሪክ ማረጋገጫ ያላቸው የተመዘገቡ ወላጆች ብቻ ወደ ግቢው መግባት ይችላሉ።`,
+      intlGuidelinesTitle: "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች እና ውሎች",
+      intlGuidelinesBody: `ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ - የተዋሃዱ የአሠራር ፖሊሲዎች
+
+ወደ ኪድቶፒያ ወላጆች ማህበረሰብ እንኳን በደህና መጡ! ልጅዎን በማስመዝገብ ከእኛ ጋር አጋርነት ውስጥ ይገባሉ። የእኛ የተዋሃዱ የአሠራር ደንቦች፣ የክፍያ ሥርዓቶች፣ የደህንነት ፕሮቶኮሎች እና የስነ-ምግባር ደንቦች የሚከተሉት ናቸው፡-
+
+1. ምዝገባ፣ የሥራ ሰዓት እና የዘግይቶ መውጫ ክፍያ
+• የሥራ ሰዓት፡ ማዕከሉ ከሰኞ እስከ አርብ ከጠዋቱ 1:30 እስከ ምሽቱ 12:00 ሰዓት ክፍት ነው።
+• በሰዓቱ መድረስ፡ ህጻናት በጠዋቱ የቡድን እንቅስቃሴዎች ላይ እንዲሳተፉ ከጠዋቱ 2:30 በፊት እንዲደርሱ እንመክራለን።
+• የዘግይቶ መውጫ ክፍያ፡ ህጻናት እስከ ምሽቱ 12:00 ሰዓት መወሰድ አለባቸው። ከዚያ በኋላ ለሚዘገይ ለእያንዳንዱ 15 ደቂቃ 200 የኢትዮጵያ ብር የቅጣት ክፍያ ይታሰባል።
+
+2. የክፍያ ውሎች እና የአሠራር ሥርዓቶች
+• የወር ክፍያ፡ የትምህርት ክፍያ በየወሩ አስቀድሞ ይከፈላል። የክፍያ መጠየቂያ ደረሰኞች በየወሩ በ25ኛው ቀን ይላካሉ።
+• የክፍያ የመጨረሻ ቀን፡ የትምህርት ክፍያ በየወሩ ከ1ኛው ቀን በፊት መከፈል አለበት። ከ6ኛው ቀን በኋላ ክፍያው ካልተፈጸመ የ10% ቅጣት ይታሰባል።
+• ምዝገባ የመሰረዝ ፖሊሲ፡ ልጅዎን ለማስወጣት የ30 ቀናት የጽሁፍ ቅድመ ማስጠንቀቂያ መስጠት አለብዎት። ይህ ካልሆነ የያዙት የዋስትና ክፍያ አይመለስም።
+
+3. የጤና፣ የበሽታ እና የመድኃኒት አሰጣጥ ፖሊሲ
+• የታመመ ልጅ መመሪያ፡ ሌሎችን ለመጠበቅ፣ ህጻናት የሚከተሉት ምልክቶች ካሏቸው ቤት መቆየት አለባቸው፡-
+  - ትኩሳት ከ 38 ዲግሪ ሴልሺየስ በላይ ከሆነ
+  - ባለፉት 24 ሰዓታት ውስጥ ማስታወክ ወይም ተቅማጥ ካጋጠማቸው
+  - ያልታወቀ የቆዳ ሽፍታ ወይም ተላላፊ በሽታዎች ካሉ
+• ወደ ማቆያ መመለስ፡ ህጻናት ትኩሳትን የሚቀንሱ መድኃኒቶችን ሳይጠቀሙ ቢያንስ ለ24 ሰዓታት ከትኩሳት እና ከምልክቶች ነጻ መሆናቸው ሲረጋገጥ ብቻ ይመለሳሉ።
+• የታዘዘ መድኃኒት፡ ሰራተኞች መድኃኒት የሚሰጡት በሐኪም የታዘዘ ማስታወሻ ከዋናው የመድኃኒት መያዣ ጋር ሲቀርብ ብቻ ነው።
+
+4. የደህንነት እና የጣት አሻራ ባዮሜትሪክስ
+• የተፈቀደለት ሰው፡ በፖርታሉ ላይ የተመዘገቡ እና ህጋዊ መታወቂያ ያላቸው ወይም የጣት አሻራ ያስመዘገቡ ወላጆች ብቻ ህጻናትን መውሰድ ይችላሉ።
+• የአደጋ ጊዜ እውቂያ፡ ሌላ ሰው ልጅዎን እንዲወስድ ከፈለጉ ቢያንስ ከ2 ሰዓታት በፊት በጽሁፍ ማሳወቅ ወይም መደወል አለብዎት።
+
+5. የስነ-ምግባር ደንብ እና ዲሲፕሊን
+• አዎንታዊ መመሪያ፡ እኛ የምንጠቀመው አዎንታዊ ማበረታቻን፣ ትኩረትን ማዞር እና ንቁ ግጭት መፍታትን ነው። የአካል ቅጣት ወይም መጮህ በጥብቅ የተከለከለ ነው።
+• የወላጆች ባህሪ፡ ኪድቶፒያ በአስተማሪዎች እና በሰራተኞች ላይ ለሚሰነዘሩ ጩኸቶች፣ ዛቻዎች ወይም ትንኮሳዎች ምንም አይነት መቻቻል የለውም። ይህንን የሚጥሱ ወላጆች ያለ ምንም የክፍያ ተመላሽ ልጅ ከተቋሙ ወዲያውኑ እንዲሰረዝ ይደረጋል።
+
+6. የሞባይል እና ዲጂታል መሳሪያዎች ፖሊሲ
+• የኤሌክትሮኒክስ መጫወቻዎች ክልክል ናቸው፡ ታብሌቶች፣ ሞባይል ስል科ች ወይም የኤሌክትሮኒክስ መጫወቻዎች ወደ መማሪያ ክፍል ይዞ መግባት በጥብቅ የተከለከለ ነው።
+• ዓላማ፡ በንቃት መጫወት፣ መጽሐፍትን ማንበብ እና ማህበራዊ ግንኙነትን ማሳደግ ላይ እናተኩራለን።`
     },
     leadCapture: {
       title: "የጉብኝት ቀጠሮ መያዝ ይፈልጋሉ?",

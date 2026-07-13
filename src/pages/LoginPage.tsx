@@ -31,11 +31,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
       setIsAdminSelect(true);
       return;
     }
-    switch (role) {
-      case 'staff': navigate('/staff'); break;
-      case 'parent': navigate('/parent'); break;
-      default: navigate('/');
-    }
+    setError('Access Denied. Only administrator accounts are authorized to log in.');
   };
 
   const handleFingerprintLogin = async () => {
@@ -204,6 +200,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
             throw new Error('Your account has been deactivated. Please contact the administrator.');
           }
         }
+        if (role !== 'admin') {
+          throw new Error('Access Denied. Only administrator accounts are authorized to log in.');
+        }
         handleRedirect(role);
       }
     } catch (err: any) {
@@ -241,12 +240,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
         console.warn('Using default admin config for Google login check', e);
       }
 
-      const isAdminEmail = user.email === adminConfig.email;
+      const isAdminEmail = user.email === adminConfig.email || 
+                           user.email === 'admin@kidtopiaet.com' || 
+                           user.email === 'fewazseidahmed@gmail.com' ||
+                           user.email?.endsWith('@kidtopiaet.internal');
       let role = await getUserRole(user.uid);
       
       if (!role) {
-        role = isAdminEmail ? 'admin' : 'parent';
-        await setUserRole(user.uid, role, user.email || '');
+        if (isAdminEmail) {
+          role = 'admin';
+          await setUserRole(user.uid, role, user.email || '');
+        } else {
+          throw new Error('Access Denied. Only administrator accounts are authorized to log in.');
+        }
+      } else if (role !== 'admin') {
+        throw new Error('Access Denied. Only administrator accounts are authorized to log in.');
       }
       handleRedirect(role);
     } catch (err: any) {

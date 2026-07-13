@@ -21,8 +21,6 @@ import { RescheduleTourPage } from './pages/RescheduleTourPage';
 import { LoginPage } from './pages/LoginPage';
 import { EnrollPage } from './pages/EnrollPage';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { StaffDashboard } from './pages/StaffDashboard';
-import { ParentDashboard } from './pages/ParentDashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ContentProvider } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
@@ -30,7 +28,7 @@ import { useLocation } from 'react-router-dom';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
-  const isMinimalLayout = ['/login', '/admin', '/staff', '/parent'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
+  const isMinimalLayout = ['/login', '/admin'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
 
   return (
     <div className="min-h-screen selection:bg-brand-green/20 relative">
@@ -61,8 +59,6 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/login" element={<LoginPage lang={lang} />} />
         <Route path="/enroll" element={<EnrollPage lang={lang} />} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/staff" element={<ProtectedRoute><StaffDashboard /></ProtectedRoute>} />
-        <Route path="/parent" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />
       </Routes>
 
       {!isMinimalLayout && <Footer lang={lang} />}

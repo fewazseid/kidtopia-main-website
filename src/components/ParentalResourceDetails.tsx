@@ -350,6 +350,8 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
               {actionType === 'ar_activities' && <Compass size={20} />}
               {actionType === 'avatar' && <Smile size={20} />}
               {actionType === 'milestones' && <CheckSquare size={20} />}
+              {actionType === 'intl_act' && <FileText size={20} />}
+              {actionType === 'intl_guidelines' && <Award size={20} />}
             </div>
             <div>
               <h2 className="text-xl font-editorial font-bold text-stone-900 capitalize">
@@ -359,6 +361,8 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                 {actionType === 'ar_activities' && (lang === 'en' ? 'Interactive AR Activities' : 'ኤአር ትምህርታዊ ጨዋታ')}
                 {actionType === 'avatar' && (lang === 'en' ? 'Create Your Avatar' : 'አቫታር መፍጠሪያ')}
                 {actionType === 'milestones' && (lang === 'en' ? 'Development Milestones Tracker' : 'የልጅ እድገት ደረጃዎች መከታተያ')}
+                {actionType === 'intl_act' && (lang === 'en' ? 'Ethiopian Childcare Directive No. 1084/2025' : 'የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025')}
+                {actionType === 'intl_guidelines' && (lang === 'en' ? 'Consolidated Daycare Policies & Guidelines' : 'የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች እና መመሪያዎች')}
               </h2>
               <p className="text-xs text-stone-500">Kidtopia Parent Portal</p>
             </div>
@@ -925,6 +929,70 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                   <Printer size={14} />
                   <span>{lang === 'en' ? 'Print Report' : 'ሪፖርት አትም'}</span>
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* 7. ETHIOPIAN CHILDCARE DIRECTIVE */}
+          {actionType === 'intl_act' && (
+            <div className="max-w-3xl mx-auto py-4 px-6 overflow-y-auto max-h-[70vh]">
+              <div className="flex justify-between items-center mb-6 border-b border-stone-200 pb-4">
+                <div>
+                  <h3 className="text-2xl font-serif font-bold text-stone-900">
+                    {useContent(lang).resources.intlActTitle || 'Ethiopian Childcare Directive No. 1084/2025 Criteria'}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-1">Official Criteria & Regulatory Procedures for Daycares in Ethiopia</p>
+                </div>
+                <button 
+                  onClick={() => window.print()}
+                  className="p-2 text-stone-400 hover:text-brand-green rounded-lg transition-colors"
+                  title="Print Document"
+                >
+                  <Printer size={20} />
+                </button>
+              </div>
+              <div className="prose prose-stone max-w-none text-stone-700 leading-relaxed font-sans text-base whitespace-pre-wrap bg-stone-50 p-6 md:p-8 rounded-2xl border border-stone-150">
+                {useContent(lang).resources.intlActBody}
+              </div>
+              <div className="mt-6 flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-150 rounded-xl text-xs text-stone-700 leading-relaxed mb-6">
+                <Award size={18} className="text-brand-green shrink-0" />
+                <p className="font-semibold">
+                  {lang === 'en' 
+                    ? 'Kidtopia is fully licensed and strictly adheres to all safety, spatial, and hygienic requirements outlined in Directive No. 1084/2025.'
+                    : 'ኪድቶፒያ ሙሉ ህጋዊ ፈቃድ ያለው ሲሆን በመመሪያ ቁጥር 1084/2025 የተደነገጉትን ሁሉንም የደህንነት፣ የቦታ እና የንጽህና መስፈርቶች በጥብቅ ያከብራል።'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* 8. CONSOLIDATED DAYCARE POLICIES & GUIDELINES */}
+          {actionType === 'intl_guidelines' && (
+            <div className="max-w-3xl mx-auto py-4 px-6 overflow-y-auto max-h-[70vh]">
+              <div className="flex justify-between items-center mb-6 border-b border-stone-200 pb-4">
+                <div>
+                  <h3 className="text-2xl font-serif font-bold text-stone-900">
+                    {useContent(lang).resources.intlGuidelinesTitle || 'Consolidated Daycare Policies & Guidelines'}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-1">Legal Agreements, Operational Terms, and Parental Conduct Policies</p>
+                </div>
+                <button 
+                  onClick={() => window.print()}
+                  className="p-2 text-stone-400 hover:text-brand-green rounded-lg transition-colors"
+                  title="Print Document"
+                >
+                  <Printer size={20} />
+                </button>
+              </div>
+              <div className="prose prose-stone max-w-none text-stone-700 leading-relaxed font-sans text-base whitespace-pre-wrap bg-stone-50 p-6 md:p-8 rounded-2xl border border-stone-150">
+                {useContent(lang).resources.intlGuidelinesBody}
+              </div>
+              <div className="mt-6 flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-150 rounded-xl text-xs text-stone-700 leading-relaxed mb-6">
+                <Award size={18} className="text-brand-green shrink-0" />
+                <p className="font-semibold">
+                  {lang === 'en'
+                    ? 'By enrolling your child at Kidtopia, you agree to comply with all consolidated terms, fee schedules, and codes of conduct.'
+                    : 'ልጅዎን በኪድቶፒያ በመመዝገብ፣ ሁሉንም የተዋሃዱ ደንቦችን፣ የክፍያ ሰንጠረዦችን እና የስነ-ምግባር ደንቦችን ለማክበር ይስማማሉ።'}
+                </p>
               </div>
             </div>
           )}
