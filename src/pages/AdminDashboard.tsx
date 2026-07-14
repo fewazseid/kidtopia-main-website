@@ -350,6 +350,7 @@ export const AdminDashboard: React.FC = () => {
             intlActBody: enDocData.resources?.intlActBody !== undefined ? enDocData.resources.intlActBody : defaultTranslations.en.resources.intlActBody,
             intlGuidelinesTitle: enDocData.resources?.intlGuidelinesTitle !== undefined ? enDocData.resources.intlGuidelinesTitle : defaultTranslations.en.resources.intlGuidelinesTitle,
             intlGuidelinesBody: enDocData.resources?.intlGuidelinesBody !== undefined ? enDocData.resources.intlGuidelinesBody : defaultTranslations.en.resources.intlGuidelinesBody,
+            policiesAndRegulations: enDocData.resources?.policiesAndRegulations !== undefined ? enDocData.resources.policiesAndRegulations : defaultTranslations.en.resources.policiesAndRegulations,
           },
           nav: { ...defaultTranslations.en.nav, ...(enDocData.nav || {}) }
         };
@@ -370,6 +371,7 @@ export const AdminDashboard: React.FC = () => {
             intlActBody: amDocData.resources?.intlActBody !== undefined ? amDocData.resources.intlActBody : defaultTranslations.am.resources.intlActBody,
             intlGuidelinesTitle: amDocData.resources?.intlGuidelinesTitle !== undefined ? amDocData.resources.intlGuidelinesTitle : defaultTranslations.am.resources.intlGuidelinesTitle,
             intlGuidelinesBody: amDocData.resources?.intlGuidelinesBody !== undefined ? amDocData.resources.intlGuidelinesBody : defaultTranslations.am.resources.intlGuidelinesBody,
+            policiesAndRegulations: amDocData.resources?.policiesAndRegulations !== undefined ? amDocData.resources.policiesAndRegulations : defaultTranslations.am.resources.policiesAndRegulations,
           },
           nav: { ...defaultTranslations.am.nav, ...(amDocData.nav || {}) }
         };

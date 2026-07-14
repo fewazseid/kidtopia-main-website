@@ -409,7 +409,29 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
 
 6. MOBILE & DIGITAL DEVICE POLICY
 • No Personal Screens: Personal tablets, cell phones, or electronic gaming devices are not allowed in classrooms.
-• Focus: We promote cognitive development and social bonding through hands-on play, books, and interactive educational workshops.`
+• Focus: We promote cognitive development and social bonding through hands-on play, books, and interactive educational workshops.`,
+      policiesAndRegulations: [
+        {
+          title: "1. Health & Custom Screenings",
+          content: "All laboratory screening documents (Tuberculosis, HIV, and Hepatitis B) must be genuine and certified by a recognized laboratory. Immunizations must be up to date."
+        },
+        {
+          title: "2. Security & Authorized Pickup",
+          content: "Only recognized individuals with approved photo identification on record are authorized to pick up children. Emergency changes must be filed formally."
+        },
+        {
+          title: "3. Emergency Medical Consent",
+          content: "In real emergency situations where natural parents cannot be reached, you grant Kidtopia’s registered nurse and staff the authority to seek immediate professional medical treatment."
+        },
+        {
+          title: "4. Payment & Refund Policies",
+          content: "Tuition fees must be paid in advance according to the chosen package. All paid registration fees are non-refundable and late pick-ups are subject to penalty clauses."
+        },
+        {
+          title: "5. Licensing & Regulatory Standards",
+          content: "Kidtopia holds a valid operating certificate and strictly adheres to all safety, spatial, and hygienic requirements outlined in Ethiopian Childcare Directive No. 1084/2025."
+        }
+      ]
     },
     leadCapture: {
       title: "Would you like to schedule a tour?",
@@ -886,7 +908,29 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
 
 6. የሞባይል እና ዲጂታል መሳሪያዎች ፖሊሲ
 • የኤሌክትሮኒክስ መጫወቻዎች ክልክል ናቸው፡ ታብሌቶች፣ ሞባይል ስል科ች ወይም የኤሌክትሮኒክስ መጫወቻዎች ወደ መማሪያ ክፍል ይዞ መግባት በጥብቅ የተከለከለ ነው።
-• ዓላማ፡ በንቃት መጫወት፣ መጽሐፍትን ማንበብ እና ማህበራዊ ግንኙነትን ማሳደግ ላይ እናተኩራለን።`
+• ዓላማ፡ በንቃት መጫወት፣ መጽሐፍትን ማንበብ እና ማህበራዊ ግንኙነትን ማሳደግ ላይ እናተኩራለን።`,
+      policiesAndRegulations: [
+        {
+          title: "1. የጤና እና የክትባት ማረጋገጫ",
+          content: "ወላጅ ወይም ህጋዊ አሳዳጊ ሁሉም የላብራቶሪ ምርመራ ሰነዶች (ቲቢ፣ ኤችአይቪ፣ ሄፓታይተስ) እና የክትባት መረጃዎች ትክክለኛ እና በኪድቶፒያ የተረጋገጡ መሆናቸውን መስማማት አለባቸው።"
+        },
+        {
+          title: "2. የደህንነት እና የልጅ መውሰጃ መመሪያ",
+          content: "በደህንነት ስርዓታችን መሰረተ፣ በፎቶ መግለጫ መዝገብ ላይ ያልተጠቀሰ ሌላ ሰው ህፃናትን መውሰድ አይችልም። በድንገተኛ ጊዜ አስቀድሞ ለትምህርት ቤቱ መታወቅ አለበት።"
+        },
+        {
+          title: "3. የድንገተኛ ህክምና ስልጣን",
+          content: "አስቸኳይ አደጋ ሲያጋጥም እና ወላጅ በስልክ በማይገኝበት ጊዜ፣ በትምህርት ቤቱ ነርስ ውሳኔ ልጅዎ ወደ ህክምና ተቋም እንዲወሰድ እና የመጀመሪያ እርዳታ እንዲያገኝ ፍቃድ ይሰጣል።"
+        },
+        {
+          title: "4. የክፍያ ስምምነት",
+          content: "ምዝገባውን ለማጠናቀቅ የሚከፈሉ ክፍያዎች አስቀድሞ መከፈል ያለባቸው ሲሆን፣ ሁሉም ክፍያዎች የማይመለሱ መሆናቸውን እና በየወቅቱ መከፈል አለባቸው።"
+        },
+        {
+          title: "5. ህጋዊ ፈቃድ እና የደህንነት ደረጃዎች",
+          content: "ኪድቶፒያ ሙሉ ህጋዊ ፈቃድ ያለው ሲሆን በመመሪያ ቁጥር 1084/2025 የተደነገጉትን ሁሉንም የደህንነት፣ የቦታ እና የንጽህና መስፈርቶች በጥብቅ ያከብራል።"
+        }
+      ]
     },
     leadCapture: {
       title: "የጉብኝት ቀጠሮ መያዝ ይፈልጋሉ?",

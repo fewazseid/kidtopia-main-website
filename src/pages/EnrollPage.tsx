@@ -48,6 +48,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
   const handbookChapters = resData.handbookChapters || [];
   const menuDays = resData.menuDays || [];
   const milestonesData = resData.milestonesData || {};
+  const policiesAndRegulations = resData.policiesAndRegulations || [];
 
   return (
     <main className="pt-28 pb-20 bg-transparent min-h-screen">
@@ -275,7 +276,7 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
                   : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200/60'
               }`}
             >
-              {lang === 'am' ? 'ዋና ደንቦች' : 'Core Rules'}
+              {lang === 'am' ? 'ፖሊሲዎች እና ደንቦች' : 'Policies & Regulations'}
             </button>
             <button
               type="button"
@@ -316,49 +317,18 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           <div className="bg-stone-50 rounded-2xl p-5 text-sm text-stone-600 mb-6 max-h-[350px] overflow-y-auto border border-stone-200/60 scrollbar-thin scrollbar-thumb-stone-200">
             {activeTab === 'rules' && (
               <div className="space-y-4">
-                <div>
-                  <h4 className="font-bold text-stone-800 mb-1">
-                    {lang === 'am' ? '1. የጤና እና የክትባት ማረጋገጫ' : '1. Health & Custom Screenings'}
-                  </h4>
-                  <p className="leading-relaxed">
-                    {lang === 'am'
-                      ? 'ወላጅ ወይም ህጋዊ አሳዳጊ ሁሉም የላብራቶሪ ምርመራ ሰነዶች (ቲቢ፣ ኤችአይቪ፣ ሄፓታይተስ) እና የክትባት መረጃዎች ትክክለኛ እና በኪድቶፒያ የተረጋገጡ መሆናቸውን መስማማት አለባቸው።'
-                      : 'All laboratory screening documents (Tuberculosis, HIV, and Hepatitis B) must be genuine and certified by a recognized laboratory. Immunizations must be up to date.'}
+                {policiesAndRegulations.length === 0 ? (
+                  <p className="text-stone-400 text-center py-4">
+                    {lang === 'am' ? 'ምንም ፖሊሲዎች እና ደንቦች አልተገኙም።' : 'No policies or regulations found.'}
                   </p>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-stone-800 mb-1">
-                    {lang === 'am' ? '2. የደህንነት እና የልጅ መውሰጃ መመሪያ' : '2. Security & Authorized Pickup'}
-                  </h4>
-                  <p className="leading-relaxed">
-                    {lang === 'am'
-                      ? 'በደህንነት ስርዓታችን መሰረተ፣ በፎቶ መግለጫ መዝገብ ላይ ያልተጠቀሰ ሌላ ሰው ህፃናትን መውሰድ አይችልም። በድንገተኛ ጊዜ አስቀድሞ ለትምህርት ቤቱ መታወቅ አለበት።'
-                      : 'Only recognized individuals with approved photo identification on record are authorized to pick up children. Emergency changes must be filed formally.'}
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-stone-800 mb-1">
-                    {lang === 'am' ? '3. የድንገተኛ ህክምና ስልጣን' : '3. Emergency Medical Consent'}
-                  </h4>
-                  <p className="leading-relaxed">
-                    {lang === 'am'
-                      ? 'አስቸኳይ አደጋ ሲያጋጥም እና ወላጅ በስልክ በማይገኝበት ጊዜ፣ በትምህርት ቤቱ ነርስ ውሳኔ ልጅዎ ወደ ህክምና ተቋም እንዲወሰድ እና የመጀመሪያ እርዳታ እንዲያገኝ ፍቃድ ይሰጣሉ።'
-                      : 'In real emergency situations where natural parents cannot be reached, you grant Kidtopia’s registered nurse and staff the authority to seek immediate professional medical treatment.'}
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-stone-800 mb-1">
-                    {lang === 'am' ? '4. የክፍያ ስምምነት' : '4. Payment & Refund Policies'}
-                  </h4>
-                  <p className="leading-relaxed">
-                    {lang === 'am'
-                      ? 'ምዝገባውን ለማጠናቀቅ የሚከፈሉ ክፍያዎች አስቀድሞ መከፈል ያለባቸው ሲሆን፣ ሁሉም ክፍያዎች የማይመለሱ መሆናቸውን እና በየወቅቱ መከፈል አለባቸው።'
-                      : 'Tuition fees must be paid in advance according to the chosen package. All paid registration fees are non-refundable and late pick-ups are subject to penalty clauses.'}
-                  </p>
-                </div>
+                ) : (
+                  policiesAndRegulations.map((policy: any, i: number) => (
+                    <div key={i} className="pb-3 border-b border-stone-200/50 last:border-0 last:pb-0">
+                      <h4 className="font-bold text-stone-850 mb-1">{policy.title}</h4>
+                      <p className="leading-relaxed text-xs text-stone-600">{policy.content}</p>
+                    </div>
+                  ))
+                )}
               </div>
             )}
 
