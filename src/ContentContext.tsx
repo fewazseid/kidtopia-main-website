@@ -59,8 +59,25 @@ function deepMergeAmharic(target: any, source: any, referenceEn: any): any {
   return deepMerge(target, source);
 }
 
+function cleanResources(data: any): any {
+  if (!data) return data;
+  const cleaned = { ...data };
+  if (cleaned.resources && Array.isArray(cleaned.resources.items)) {
+    cleaned.resources = {
+      ...cleaned.resources,
+      items: cleaned.resources.items.filter(
+        (item: any) => item && !['ar_activities', 'forms', 'avatar'].includes(item.actionType)
+      )
+    };
+  }
+  return cleaned;
+}
+
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [content, setContent] = useState<any>(defaultTranslations);
+  const [content, setContent] = useState<any>(() => ({
+    en: cleanResources(defaultTranslations.en),
+    am: cleanResources(defaultTranslations.am)
+  }));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,7 +94,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (snapshot.exists()) {
         setContent((prev: any) => ({
           ...prev,
-          en: deepMerge(defaultTranslations.en, snapshot.data())
+          en: cleanResources(deepMerge(defaultTranslations.en, snapshot.data()))
         }));
       }
       enLoaded = true;
@@ -101,7 +118,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (snapshot.exists()) {
         setContent((prev: any) => ({
           ...prev,
-          am: deepMergeAmharic(defaultTranslations.am, snapshot.data(), defaultTranslations.en)
+          am: cleanResources(deepMergeAmharic(defaultTranslations.am, snapshot.data(), defaultTranslations.en))
         }));
       }
       amLoaded = true;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Music2, ExternalLink } from 'lucide-react';
+import { Facebook, Instagram, Send, Youtube, Mail, Phone, MapPin, Music2, ExternalLink } from 'lucide-react';
 
 interface FooterProps {
   lang: Language;
@@ -100,6 +100,11 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               {t.social.instagram && (
                 <a href={t.social.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all">
                   <Instagram size={18} />
+                </a>
+              )}
+              {t.social.telegram && (
+                <a href={t.social.telegram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all">
+                  <Send size={18} />
                 </a>
               )}
               {t.social.youtube && (

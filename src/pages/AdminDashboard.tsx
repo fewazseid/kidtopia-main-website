@@ -352,7 +352,15 @@ export const AdminDashboard: React.FC = () => {
             intlGuidelinesBody: enDocData.resources?.intlGuidelinesBody !== undefined ? enDocData.resources.intlGuidelinesBody : defaultTranslations.en.resources.intlGuidelinesBody,
             policiesAndRegulations: enDocData.resources?.policiesAndRegulations !== undefined ? enDocData.resources.policiesAndRegulations : defaultTranslations.en.resources.policiesAndRegulations,
           },
-          nav: { ...defaultTranslations.en.nav, ...(enDocData.nav || {}) }
+          nav: { ...defaultTranslations.en.nav, ...(enDocData.nav || {}) },
+          footer: {
+            ...defaultTranslations.en.footer,
+            ...(enDocData.footer || {}),
+            social: {
+              ...defaultTranslations.en.footer.social,
+              ...(enDocData.footer?.social || {})
+            }
+          }
         };
         
         const amData = { 
@@ -373,12 +381,22 @@ export const AdminDashboard: React.FC = () => {
             intlGuidelinesBody: amDocData.resources?.intlGuidelinesBody !== undefined ? amDocData.resources.intlGuidelinesBody : defaultTranslations.am.resources.intlGuidelinesBody,
             policiesAndRegulations: amDocData.resources?.policiesAndRegulations !== undefined ? amDocData.resources.policiesAndRegulations : defaultTranslations.am.resources.policiesAndRegulations,
           },
-          nav: { ...defaultTranslations.am.nav, ...(amDocData.nav || {}) }
+          nav: { ...defaultTranslations.am.nav, ...(amDocData.nav || {}) },
+          footer: {
+            ...defaultTranslations.am.footer,
+            ...(amDocData.footer || {}),
+            social: {
+              ...defaultTranslations.am.footer.social,
+              ...(amDocData.footer?.social || {})
+            }
+          }
         };
 
         // Deep merge resources items by actionType to guarantee new regulatory card items exist
         if (enDocData.resources?.items) {
-          const mergedItems = [...enDocData.resources.items];
+          const mergedItems = enDocData.resources.items.filter(
+            (item: any) => item && !['ar_activities', 'forms', 'avatar'].includes(item.actionType)
+          );
           defaultTranslations.en.resources.items.forEach((defaultItem: any) => {
             const exists = mergedItems.some((item: any) => item.actionType === defaultItem.actionType);
             if (!exists) {
@@ -389,7 +407,9 @@ export const AdminDashboard: React.FC = () => {
         }
 
         if (amDocData.resources?.items) {
-          const mergedItems = [...amDocData.resources.items];
+          const mergedItems = amDocData.resources.items.filter(
+            (item: any) => item && !['ar_activities', 'forms', 'avatar'].includes(item.actionType)
+          );
           defaultTranslations.am.resources.items.forEach((defaultItem: any) => {
             const exists = mergedItems.some((item: any) => item.actionType === defaultItem.actionType);
             if (!exists) {
@@ -1576,8 +1596,6 @@ export const AdminDashboard: React.FC = () => {
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white font-medium"
             >
               <option value="handbook">handbook (Interactive Handbook Reader)</option>
-              <option value="forms">forms (Enrollment Forms & Uploads)</option>
-              <option value="ar_activities">ar_activities (Educational AR Activities)</option>
               <option value="nutrition">nutrition (Nutrition & Meal Guide)</option>
               <option value="intl_act">intl_act (Ethiopian Childcare Directive No. 1084/2025)</option>
               <option value="intl_guidelines">intl_guidelines (Consolidated Daycare Policies & Guidelines)</option>

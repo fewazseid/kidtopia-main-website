@@ -231,12 +231,10 @@ export const translations = {
       desc: "Helpful materials and guides to support you and your child's journey with us.",
       items: [
         { title: "Parent Handbook", description: "Everything you need to know about our policies, daily schedules, and what to expect.", type: "PDF Document", image: "", actionType: "handbook", link: "" },
-        { title: "Enrollment Forms", description: "Download and print the necessary forms to begin the enrollment process.", type: "PDF Forms", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "Nutrition Guide", description: "Learn about our healthy meal plans and get tips for nutritious eating at home.", type: "Guide", image: "", actionType: "nutrition", link: "" },
         { title: "Ethiopian Childcare Directive No. 1084/2025", description: "Official criteria, procedures, licensing, spatial, and hygienic regulations for childcare centers in Ethiopia.", type: "Regulatory Directive", image: "", actionType: "intl_act", link: "" },
         { title: "Consolidated Daycare Policies & Guidelines", description: "Review our comprehensive daycare terms and conditions, refund policies, illness rules, and parental codes of conduct.", type: "Parent Handbook Policy", image: "", actionType: "intl_guidelines", link: "" },
         { title: "Daycare Communication Software", description: "Access our daycare control and communication software for parents.", type: "Web Portal", image: "", actionType: "comms", link: "" },
-        { title: "Profile Avatar Creator", description: "Design a unique custom character avatar for you and your child's portal profile.", type: "Interactive Tool", image: "", actionType: "avatar", link: "" },
         { title: "Development Milestones", description: "Track your child's age-appropriate developmental stages, cognitive and motor skills.", type: "Milestone Tracker", image: "", actionType: "milestones", link: "" }
       ],
       handbookChapters: [
@@ -731,12 +729,10 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       desc: "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።",
       items: [
         { title: "የወላጅ መመሪያ", description: "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።", type: "PDF ሰነድ", image: "", actionType: "handbook", link: "" },
-        { title: "የምዝገባ ቅጾች", description: "የምዝገባ ሂደቱን ለመጀመር አስፈላጊዎቹን ቅጾች ያውርዱ እና ያትሙ።", type: "PDF ቅጾች", image: "", actionType: "forms", link: "https://example.com/forms/enrollment-form.pdf" },
         { title: "የተመጣጠነ ምግብ መመሪያ", description: "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።", type: "መመሪያ", image: "", actionType: "nutrition", link: "" },
         { title: "የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025", description: "በኢትዮጵያ ውስጥ ለህፃናት ማቆያ ማዕከላት የሚወጡ ይፋዊ መስፈርቶች፣ የአሠራር ሂደቶች፣ የቦታ እና የፈቃድ አሰጣጥ ደንቦች።", type: "ህጋዊ መመሪያ", image: "", actionType: "intl_act", link: "" },
         { title: "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች እና መመሪያዎች", description: "የእኛን አጠቃላይ የህፃናት ማቆያ ደንቦች፣ የአገልግሎት ክፍያዎችን፣ የበሽታ ፖሊሲዎችን እና የወላጅ የስነ-ምግባር ደንቦችን እዚህ ያንብቡ።", type: "የወላጅ ፖሊሲ", image: "", actionType: "intl_guidelines", link: "" },
         { title: "የህፃናት ማቆያ መገናኛ ሶፍትዌር", description: "ለወላጆች የህፃናት ማቆያ መቆጣጠሪያ እና መገናኛ ሶፍትዌራችንን ያግኙ።", type: "የድር ፖርታል", image: "", actionType: "comms", link: "" },
-        { title: "የአቫታር መፍጠሪያ", description: "ለእርስዎ እና ለልጅዎ የሚሆን ልዩ መገለጫ አቫታር ይንደፉ።", type: "በይነተገናኝ መሣሪያ", image: "", actionType: "avatar", link: "" },
         { title: "የልጅ እድገት ደረጃዎች", description: "የልጅዎን የእድገት ደረጃዎች፣ የዕውቀት እና የአካል ክህሎቶች ይከታተሉ።", type: "ደረጃ መከታተያ", image: "", actionType: "milestones", link: "" }
       ],
       handbookChapters: [
