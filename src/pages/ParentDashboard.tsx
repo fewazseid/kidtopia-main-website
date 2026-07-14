@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LogOut, Heart, Activity, FileText, Camera, Smile, 
-  Sparkles, Compass, Book, Utensils, Clipboard, Clock, CheckCircle2
+  Sparkles, Compass, Book, Utensils, Clipboard, Clock, CheckCircle2,
+  X, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { auth, logout, db } from '../firebase';
@@ -15,6 +16,38 @@ export const ParentDashboard: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'portal' | 'health' | 'timeline' | 'gallery'>('portal');
+  const [activeMediaIndex, setActiveMediaIndex] = useState<number | null>(null);
+
+  const galleryItems = [
+    { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&auto=format&fit=crop", title: "Indoor Creative Painting Class" },
+    { url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1200&auto=format&fit=crop", title: "Circle Play & Storytelling time" },
+    { url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop", title: "Nursery Block Building Workshop" }
+  ];
+
+  const handleNextMedia = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setActiveMediaIndex((prev) => (prev !== null && prev < galleryItems.length - 1) ? prev + 1 : 0);
+  };
+
+  const handlePrevMedia = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setActiveMediaIndex((prev) => (prev !== null && prev > 0) ? prev - 1 : galleryItems.length - 1);
+  };
+
+  useEffect(() => {
+    if (activeMediaIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        handleNextMedia();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevMedia();
+      } else if (e.key === 'Escape') {
+        setActiveMediaIndex(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeMediaIndex]);
   
   // Health updates form state
   const [allergies, setAllergies] = useState('');
@@ -453,12 +486,12 @@ export const ParentDashboard: React.FC = () => {
             <p className="text-xs text-stone-500 mb-6">See snapshots of your child's learning and group plays</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=600&auto=format&fit=crop", title: "Indoor Creative Painting Class" },
-                { url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=600&auto=format&fit=crop", title: "Circle Play & Storytelling time" },
-                { url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=600&auto=format&fit=crop", title: "Nursery Block Building Workshop" }
-              ].map((img, i) => (
-                <div key={i} className="group rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-md transition">
+              {galleryItems.map((img, i) => (
+                <div 
+                  key={i} 
+                  onClick={() => setActiveMediaIndex(i)}
+                  className="group rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-md transition cursor-pointer"
+                >
                   <div className="aspect-video relative overflow-hidden bg-stone-100">
                     <img 
                       src={img.url} 
@@ -469,14 +502,12 @@ export const ParentDashboard: React.FC = () => {
                   </div>
                   <div className="p-3.5 bg-stone-50 border-t border-stone-150 flex justify-between items-center">
                     <span className="font-bold text-stone-800 text-xs truncate max-w-[200px]">{img.title}</span>
-                    <a 
-                      href={img.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveMediaIndex(i); }}
                       className="text-[10px] font-black uppercase text-brand-green hover:underline shrink-0"
                     >
                       View Full
-                    </a>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -485,6 +516,82 @@ export const ParentDashboard: React.FC = () => {
         )}
 
       </div>
+
+      {/* Lightbox / Full Screen Modal Viewer */}
+      <AnimatePresence>
+        {activeMediaIndex !== null && galleryItems[activeMediaIndex] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveMediaIndex(null)}
+            className="fixed inset-0 z-50 bg-stone-950/98 backdrop-blur-md flex flex-col items-center justify-center select-none"
+          >
+            {/* Top Controls Bar */}
+            <div className="absolute top-0 inset-x-0 p-4 md:p-6 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
+              <div className="text-left">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-yellow font-sans block mb-0.5">
+                  FULL SCREEN VIEWER
+                </span>
+                <span className="text-xs font-mono text-stone-400">
+                  {activeMediaIndex + 1} / {galleryItems.length}
+                </span>
+              </div>
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setActiveMediaIndex(null)}
+                className="w-12 h-12 bg-white/5 border border-white/10 hover:bg-red-500 hover:border-red-500 flex items-center justify-center rounded-2xl text-white transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                title="Close"
+              >
+                <X size={20} className="stroke-[2.5]" />
+              </button>
+            </div>
+
+            {/* Main Content Area */}
+            <div 
+              onClick={(e) => e.stopPropagation()} 
+              className="relative max-w-5xl w-[90vw] aspect-video flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-stone-950"
+            >
+              <img
+                src={galleryItems[activeMediaIndex].url}
+                alt={galleryItems[activeMediaIndex].title}
+                className="w-full h-full object-contain rounded-2xl select-none"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Bottom Caption Area */}
+            <div className="absolute bottom-0 inset-x-0 p-6 text-center z-50 bg-gradient-to-t from-black/90 to-transparent">
+              {galleryItems[activeMediaIndex].title && (
+                <p className="text-white text-base md:text-xl font-editorial font-bold max-w-3xl mx-auto px-4 leading-relaxed tracking-tight text-center">
+                  {galleryItems[activeMediaIndex].title}
+                </p>
+              )}
+              <p className="text-[10px] text-stone-500 font-sans mt-2 tracking-wide">
+                Use Left/Right arrow keys or click the side navigation controls to browse
+              </p>
+            </div>
+
+            {/* Next/Previous Floating Side Buttons */}
+            <button
+              onClick={handlePrevMedia}
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-white/5 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-2xl hover:text-white hover:scale-105 active:scale-95 transition-all text-white/80 cursor-pointer z-50"
+              title="Previous"
+            >
+              <ChevronLeft size={24} className="stroke-[2.5]" />
+            </button>
+
+            <button
+              onClick={handleNextMedia}
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-white/5 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-2xl hover:text-white hover:scale-105 active:scale-95 transition-all text-white/80 cursor-pointer z-50"
+              title="Next"
+            >
+              <ChevronRight size={24} className="stroke-[2.5]" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Parental Interactive Features Modal */}
       <AnimatePresence>

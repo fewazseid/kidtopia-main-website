@@ -1,17 +1,135 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
-import { motion } from 'motion/react';
-import { Play, Video, Calendar, Shield, Compass } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Play, Video, Calendar, Shield, Compass, X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import { ThreeSixtyViewer } from './ThreeSixtyViewer';
 
 interface VirtualTourProps {
   lang: Language;
 }
 
+const VideoPlayer: React.FC<{ url: string; title?: string }> = ({ url, title }) => {
+  const getYouTubeId = (urlStr: string) => {
+    if (!urlStr) return null;
+    if (urlStr.includes('/shorts/')) {
+      const parts = urlStr.split('/shorts/');
+      if (parts[1]) {
+        return parts[1].split(/[?#&]/)[0];
+      }
+    }
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = urlStr.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  const getGoogleDriveEmbedUrl = (urlStr: string) => {
+    if (!urlStr) return null;
+    if (!urlStr.includes('drive.google.com') && !urlStr.includes('docs.google.com')) return null;
+    
+    let id = '';
+    const fileDMatch = urlStr.match(/\/file\/d\/([^/]+)/);
+    if (fileDMatch && fileDMatch[1]) {
+      id = fileDMatch[1];
+    } else {
+      const idParamMatch = urlStr.match(/[?&]id=([^&]+)/);
+      if (idParamMatch && idParamMatch[1]) {
+        id = idParamMatch[1];
+      }
+    }
+    
+    if (id) {
+      return `https://drive.google.com/file/d/${id}/preview`;
+    }
+    return null;
+  };
+
+  const isFacebookVideoUrl = (urlStr: string) => {
+    if (!urlStr) return false;
+    return urlStr.includes('facebook.com') || urlStr.includes('fb.watch') || urlStr.includes('fb.com');
+  };
+
+  const getFacebookEmbedUrl = (urlStr: string) => {
+    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(urlStr)}&show_text=0&width=560`;
+  };
+
+  const isInstagramUrl = (urlStr: string) => {
+    if (!urlStr) return false;
+    return urlStr.includes('instagram.com') || urlStr.includes('instagr.am');
+  };
+
+  const getInstagramEmbedUrl = (urlStr: string) => {
+    if (!urlStr) return null;
+    const baseUrl = urlStr.split(/[?#]/)[0];
+    const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    return `${cleanBase}embed/`;
+  };
+
+  const ytId = getYouTubeId(url);
+  if (ytId) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`}
+        title={title || "YouTube video player"}
+        className="w-full h-full border-0 rounded-2xl"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  }
+
+  const driveEmbed = getGoogleDriveEmbedUrl(url);
+  if (driveEmbed) {
+    return (
+      <iframe
+        src={`${driveEmbed}?autoplay=1`}
+        title={title || "Google Drive video player"}
+        className="w-full h-full border-0 rounded-2xl bg-stone-950"
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+      />
+    );
+  }
+
+  if (isFacebookVideoUrl(url)) {
+    return (
+      <iframe
+        src={getFacebookEmbedUrl(url)}
+        title={title || "Facebook video player"}
+        className="w-full h-full border-0 rounded-2xl bg-stone-950"
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  }
+
+  if (isInstagramUrl(url)) {
+    return (
+      <iframe
+        src={getInstagramEmbedUrl(url) || url}
+        title={title || "Instagram video player"}
+        className="w-full h-full border-0 rounded-2xl bg-white"
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  }
+
+  return (
+    <video
+      src={url}
+      className="w-full h-full object-contain rounded-2xl bg-stone-950"
+      controls
+      autoPlay
+      playsInline
+    />
+  );
+};
+
 export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
   const t = useContent(lang).virtualTour;
+  const [activeMediaIndex, setActiveMediaIndex] = useState<number | null>(null);
 
   const getYouTubeId = (url: string) => {
     if (!url) return null;
@@ -19,6 +137,50 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
+
+  const getThumbnailUrl = (item: any) => {
+    if (item.type === 'image') return item.url;
+    const ytId = getYouTubeId(item.url);
+    if (ytId) {
+      return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+    }
+    return "https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=800";
+  };
+
+  const handleNext = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!t.media || t.media.length === 0) return;
+    setActiveMediaIndex((prev) => (prev !== null && prev < t.media.length - 1) ? prev + 1 : 0);
+  };
+
+  const handlePrev = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!t.media || t.media.length === 0) return;
+    setActiveMediaIndex((prev) => (prev !== null && prev > 0) ? prev - 1 : t.media.length - 1);
+  };
+
+  const handleClose = () => {
+    setActiveMediaIndex(null);
+  };
+
+  useEffect(() => {
+    if (activeMediaIndex === null) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        handleNext();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeMediaIndex, t.media]);
 
   return (
     <section id="virtual-tour" className="py-24 bg-stone-900 text-white overflow-hidden relative">
@@ -131,7 +293,8 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
         <div className="relative max-w-6xl mx-auto">
           <div className="flex flex-wrap justify-center gap-8 lg:gap-12 items-stretch">
             {t.media && t.media.map((item: any, index: number) => {
-              const ytId = item.type === 'video' ? getYouTubeId(item.url) : null;
+              const isVideo = item.type === 'video';
+              const thumbUrl = getThumbnailUrl(item);
               
               return (
                 <motion.div 
@@ -140,43 +303,37 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex flex-col gap-5 w-full md:w-[calc(50%-1.5rem)] max-w-2xl group"
+                  onClick={() => setActiveMediaIndex(index)}
+                  className="flex flex-col gap-5 w-full md:w-[calc(50%-1.5rem)] max-w-2xl group cursor-pointer"
                 >
-                  <div className="aspect-video rounded-[32px] overflow-hidden relative shadow-2xl bg-stone-950 border-4 border-stone-800 transition-all duration-500 group-hover:border-brand-green/30">
-                    {item.type === 'video' ? (
-                      ytId ? (
-                        <iframe
-                          src={`https://www.youtube.com/embed/${ytId}`}
-                          title={`Virtual Tour Video ${index + 1}`}
-                          className="w-full h-full border-0 rounded-[28px]"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
-                      ) : (
-                        <video 
-                          src={item.url || undefined} 
-                          className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 ease-out"
-                          controls
-                        />
-                      )
-                    ) : (
-                      <img 
-                        src={item.url || undefined} 
-                        alt={`Virtual Tour ${index + 1}`} 
-                        className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 ease-out"
-                        referrerPolicy="no-referrer"
-                      />
-                    )}
-                    {item.type === 'image' && (
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/10">
-                        <div className="w-16 h-16 bg-brand-orange/90 rounded-full flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform duration-350">
-                          <Play size={22} fill="white" className="stroke-none" />
+                  <div className="aspect-video rounded-[32px] overflow-hidden relative shadow-2xl bg-stone-950 border-4 border-stone-800 transition-all duration-500 group-hover:border-brand-green/35 group-hover:scale-[1.015]">
+                    <img 
+                      src={thumbUrl} 
+                      alt={item.description || `Virtual Tour ${index + 1}`} 
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700 ease-out"
+                      referrerPolicy="no-referrer"
+                    />
+                    
+                    {/* Centered button */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors duration-350">
+                      {isVideo ? (
+                        <div className="w-16 h-16 bg-brand-green/95 rounded-full flex items-center justify-center text-white shadow-xl group-hover:scale-110 group-hover:bg-brand-green transition-all duration-300">
+                          <Play size={22} fill="white" className="stroke-none ml-1 animate-pulse" />
                         </div>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="w-16 h-16 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-xl group-hover:scale-110 group-hover:bg-brand-green transition-all duration-300 border border-white/25">
+                          <Maximize2 size={20} className="stroke-[2.5]" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Left corner badge */}
+                    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-stone-200 border border-white/10">
+                      {isVideo ? (lang === 'am' ? 'ቪዲዮ' : 'Video') : (lang === 'am' ? 'ፎቶ' : 'Photo')}
+                    </div>
                   </div>
                   {item.description && (
-                    <p className="text-stone-350 text-center text-base font-medium px-4 leading-relaxed group-hover:text-stone-200 transition-colors">
+                    <p className="text-stone-350 text-center text-base font-medium px-4 leading-relaxed group-hover:text-stone-100 transition-colors font-sans">
                       {item.description}
                     </p>
                   )}
@@ -186,7 +343,12 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
           </div>
 
           <div className="mt-16 flex flex-wrap justify-center gap-5">
-            <button className="btn-primary px-10 py-4.5 text-base font-black tracking-wider uppercase hover:scale-105 active:scale-95 duration-350 shadow-lg">{t.watchFull}</button>
+            <button 
+              onClick={() => t.media && t.media.length > 0 && setActiveMediaIndex(0)}
+              className="btn-primary px-10 py-4.5 text-base font-black tracking-wider uppercase hover:scale-105 active:scale-95 duration-350 shadow-lg cursor-pointer"
+            >
+              {t.watchFull}
+            </button>
             <Link 
               to="/book-tour" 
               className="btn-yellow px-10 py-4.5 text-base font-black tracking-wider uppercase inline-flex items-center justify-center gap-2 hover:scale-105 active:scale-95 duration-350 shadow-lg shadow-brand-yellow/10"
@@ -196,6 +358,86 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             </Link>
           </div>
         </div>
+
+        {/* Lightbox / Full Screen Modal Viewer */}
+        <AnimatePresence>
+          {activeMediaIndex !== null && t.media && t.media[activeMediaIndex] && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleClose}
+              className="fixed inset-0 z-50 bg-stone-950/98 backdrop-blur-md flex flex-col items-center justify-center select-none"
+            >
+              {/* Top Controls Bar */}
+              <div className="absolute top-0 inset-x-0 p-4 md:p-6 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
+                <div className="text-left">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-brand-yellow font-sans block mb-0.5">
+                    {lang === 'am' ? 'ሙሉ ማሳያ' : 'FULL SCREEN VIEWER'}
+                  </span>
+                  <span className="text-xs font-mono text-stone-400">
+                    {activeMediaIndex + 1} / {t.media.length}
+                  </span>
+                </div>
+                
+                {/* Close Button */}
+                <button
+                  onClick={handleClose}
+                  className="w-12 h-12 bg-white/5 border border-white/10 hover:bg-red-500 hover:border-red-500 flex items-center justify-center rounded-2xl text-white transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  title={lang === 'am' ? 'ዝጋ' : 'Close'}
+                >
+                  <X size={20} className="stroke-[2.5]" />
+                </button>
+              </div>
+
+              {/* Main Content Area */}
+              <div 
+                onClick={(e) => e.stopPropagation()} 
+                className="relative max-w-5xl w-[90vw] aspect-video flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-stone-950"
+              >
+                {t.media[activeMediaIndex].type === 'video' ? (
+                  <VideoPlayer url={t.media[activeMediaIndex].url} title={t.media[activeMediaIndex].description} />
+                ) : (
+                  <img
+                    src={t.media[activeMediaIndex].url}
+                    alt={t.media[activeMediaIndex].description || "Lightbox View"}
+                    className="w-full h-full object-contain rounded-2xl select-none"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+              </div>
+
+              {/* Bottom Caption Area */}
+              <div className="absolute bottom-0 inset-x-0 p-6 text-center z-50 bg-gradient-to-t from-black/90 to-transparent">
+                {t.media[activeMediaIndex].description && (
+                  <p className="text-white text-base md:text-xl font-editorial font-bold max-w-3xl mx-auto px-4 leading-relaxed tracking-tight text-center">
+                    {t.media[activeMediaIndex].description}
+                  </p>
+                )}
+                <p className="text-[10px] text-stone-500 font-sans mt-2 tracking-wide">
+                  {lang === 'am' ? 'ለማሰስ የቀስት ቁልፎችን መጠቀም ይችላሉ' : 'Use Left/Right arrow keys or click the side navigation controls to browse'}
+                </p>
+              </div>
+
+              {/* Next/Previous Floating Side Buttons */}
+              <button
+                onClick={handlePrev}
+                className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-white/5 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-2xl hover:text-white hover:scale-105 active:scale-95 transition-all text-white/80 cursor-pointer z-50"
+                title={lang === 'am' ? 'ቀደመ' : 'Previous'}
+              >
+                <ChevronLeft size={24} className="stroke-[2.5]" />
+              </button>
+
+              <button
+                onClick={handleNext}
+                className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-white/5 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-2xl hover:text-white hover:scale-105 active:scale-95 transition-all text-white/80 cursor-pointer z-50"
+                title={lang === 'am' ? 'ቀጣይ' : 'Next'}
+              >
+                <ChevronRight size={24} className="stroke-[2.5]" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
