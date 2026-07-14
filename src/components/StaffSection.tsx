@@ -12,6 +12,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
   const t = useContent(lang).staff;
   const [showAll, setShowAll] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showSticky, setShowSticky] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -21,6 +22,25 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (!showAll) {
+      setShowSticky(false);
+      return;
+    }
+    const handleScroll = () => {
+      const element = document.getElementById('staff');
+      if (!element) return;
+      const rect = element.getBoundingClientRect();
+      const isPastTop = rect.top < 0;
+      const isBeforeBottom = rect.bottom > window.innerHeight;
+      setShowSticky(isPastTop && isBeforeBottom);
+    };
+    
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showAll]);
 
   const limit = isMobile ? 3 : 4;
   const displayedMembers = showAll ? t.members : t.members.slice(0, limit);
@@ -101,8 +121,8 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
               <div className="px-2">
                 <h3 className="text-xl font-editorial font-bold text-stone-900 mb-1 tracking-tight group-hover:text-brand-green transition-colors duration-300">{member.name}</h3>
                 <p className="text-brand-green font-black text-[11px] uppercase tracking-wider font-accent">{member.role}</p>
-                {/* Mobile description fallback */}
-                <p className="text-stone-600 dark:text-stone-400 text-xs mt-2.5 leading-relaxed block sm:hidden max-w-xs mx-auto italic bg-stone-100/60 dark:bg-stone-800/40 p-2.5 rounded-xl border border-stone-200/40">
+                {/* Tablet and Mobile description fallback */}
+                <p className="text-stone-600 dark:text-stone-400 text-xs mt-2.5 leading-relaxed block lg:hidden max-w-xs mx-auto italic bg-stone-100/60 dark:bg-stone-800/40 p-2.5 rounded-xl border border-stone-200/40">
                   "{member.desc}"
                 </p>
               </div>
@@ -124,7 +144,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
 
         {/* Sticky/Floating collapse button when list is expanded */}
         <AnimatePresence>
-          {showAll && (
+          {showSticky && (
             <motion.div 
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

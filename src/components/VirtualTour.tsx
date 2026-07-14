@@ -10,7 +10,7 @@ interface VirtualTourProps {
   lang: Language;
 }
 
-const VideoPlayer: React.FC<{ url: string; title?: string }> = ({ url, title }) => {
+const VideoPlayer: React.FC<{ url: string; title?: string; autoplay?: boolean }> = ({ url, title, autoplay = false }) => {
   const getYouTubeId = (urlStr: string) => {
     if (!urlStr) return null;
     if (urlStr.includes('/shorts/')) {
@@ -28,20 +28,18 @@ const VideoPlayer: React.FC<{ url: string; title?: string }> = ({ url, title }) 
     if (!urlStr) return null;
     if (!urlStr.includes('drive.google.com') && !urlStr.includes('docs.google.com')) return null;
     
-    let id = '';
-    const fileDMatch = urlStr.match(/\/file\/d\/([^/]+)/);
-    if (fileDMatch && fileDMatch[1]) {
-      id = fileDMatch[1];
-    } else {
-      const idParamMatch = urlStr.match(/[?&]id=([^&]+)/);
-      if (idParamMatch && idParamMatch[1]) {
-        id = idParamMatch[1];
-      }
+    // Match /d/<id> where <id> is only word chars, hyphens, and underscores
+    const dMatch = urlStr.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (dMatch && dMatch[1]) {
+      return `https://drive.google.com/file/d/${dMatch[1]}/preview`;
     }
     
-    if (id) {
-      return `https://drive.google.com/file/d/${id}/preview`;
+    // Match id=<id>
+    const idParamMatch = urlStr.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (idParamMatch && idParamMatch[1]) {
+      return `https://drive.google.com/file/d/${idParamMatch[1]}/preview`;
     }
+    
     return null;
   };
 
@@ -70,7 +68,7 @@ const VideoPlayer: React.FC<{ url: string; title?: string }> = ({ url, title }) 
   if (ytId) {
     return (
       <iframe
-        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`}
+        src={`https://www.youtube.com/embed/${ytId}?autoplay=${autoplay ? 1 : 0}&mute=${autoplay ? 0 : 1}&rel=0`}
         title={title || "YouTube video player"}
         className="w-full h-full border-0 rounded-2xl"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -83,7 +81,7 @@ const VideoPlayer: React.FC<{ url: string; title?: string }> = ({ url, title }) 
   if (driveEmbed) {
     return (
       <iframe
-        src={`${driveEmbed}?autoplay=1`}
+        src={driveEmbed}
         title={title || "Google Drive video player"}
         className="w-full h-full border-0 rounded-2xl bg-stone-950"
         allow="autoplay; encrypted-media"
@@ -120,8 +118,9 @@ const VideoPlayer: React.FC<{ url: string; title?: string }> = ({ url, title }) 
     <video
       src={url}
       className="w-full h-full object-contain rounded-2xl bg-stone-950"
-      controls
-      autoPlay
+      controls={autoplay}
+      autoPlay={autoplay}
+      muted={!autoplay}
       playsInline
     />
   );
@@ -181,6 +180,17 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [activeMediaIndex, t.media]);
+
+  useEffect(() => {
+    if (activeMediaIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeMediaIndex]);
 
   return (
     <section id="virtual-tour" className="py-24 bg-stone-900 text-white overflow-hidden relative">
@@ -294,11 +304,11 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
           <div className="flex flex-wrap justify-center gap-8 lg:gap-12 items-stretch">
             {t.media && t.media.map((item: any, index: number) => {
               const isVideo = item.type === 'video';
-              const thumbUrl = getThumbnailUrl(item);
               
               return (
                 <motion.div 
                   key={index}
+                  layoutId={`media-card-container-${index}`}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -306,29 +316,29 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                   onClick={() => setActiveMediaIndex(index)}
                   className="flex flex-col gap-5 w-full md:w-[calc(50%-1.5rem)] max-w-2xl group cursor-pointer"
                 >
-                  <div className="aspect-video rounded-[32px] overflow-hidden relative shadow-2xl bg-stone-950 border-4 border-stone-800 transition-all duration-500 group-hover:border-brand-green/35 group-hover:scale-[1.015]">
-                    <img 
-                      src={thumbUrl} 
-                      alt={item.description || `Virtual Tour ${index + 1}`} 
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700 ease-out"
-                      referrerPolicy="no-referrer"
-                    />
+                  <div className="aspect-video rounded-[32px] overflow-hidden relative shadow-2xl bg-stone-950 border-4 border-stone-800 transition-all duration-500 group-hover:border-brand-yellow/35 group-hover:scale-[1.015]">
+                    {isVideo ? (
+                      <div className="w-full h-full pointer-events-none select-none">
+                        <VideoPlayer url={item.url} title={item.description} autoplay={false} />
+                      </div>
+                    ) : (
+                      <img 
+                        src={item.url} 
+                        alt={item.description || `Virtual Tour ${index + 1}`} 
+                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 ease-out"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
                     
-                    {/* Centered button */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors duration-350">
-                      {isVideo ? (
-                        <div className="w-16 h-16 bg-brand-green/95 rounded-full flex items-center justify-center text-white shadow-xl group-hover:scale-110 group-hover:bg-brand-green transition-all duration-300">
-                          <Play size={22} fill="white" className="stroke-none ml-1 animate-pulse" />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-xl group-hover:scale-110 group-hover:bg-brand-green transition-all duration-300 border border-white/25">
-                          <Maximize2 size={20} className="stroke-[2.5]" />
-                        </div>
-                      )}
+                    {/* Centered button overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/25 transition-colors duration-350">
+                      <div className="w-14 h-14 bg-brand-yellow/90 hover:bg-brand-yellow rounded-full flex items-center justify-center text-stone-900 shadow-xl group-hover:scale-110 transition-all duration-300">
+                        <Maximize2 size={18} className="stroke-[3]" />
+                      </div>
                     </div>
 
                     {/* Left corner badge */}
-                    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-stone-200 border border-white/10">
+                    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-stone-200 border border-white/10 pointer-events-none">
                       {isVideo ? (lang === 'am' ? 'ቪዲዮ' : 'Video') : (lang === 'am' ? 'ፎቶ' : 'Photo')}
                     </div>
                   </div>
@@ -390,22 +400,34 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                 </button>
               </div>
 
-              {/* Main Content Area */}
-              <div 
+              {/* Main Content Area - True expansion transition container! */}
+              <motion.div 
+                layoutId={`media-card-container-${activeMediaIndex}`}
                 onClick={(e) => e.stopPropagation()} 
-                className="relative max-w-5xl w-[90vw] aspect-video flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-stone-950"
+                className="relative max-w-5xl w-[92vw] sm:w-[90vw] aspect-video flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-stone-950 z-10"
               >
-                {t.media[activeMediaIndex].type === 'video' ? (
-                  <VideoPlayer url={t.media[activeMediaIndex].url} title={t.media[activeMediaIndex].description} />
-                ) : (
-                  <img
-                    src={t.media[activeMediaIndex].url}
-                    alt={t.media[activeMediaIndex].description || "Lightbox View"}
-                    className="w-full h-full object-contain rounded-2xl select-none"
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-              </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeMediaIndex}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full h-full flex items-center justify-center"
+                  >
+                    {t.media[activeMediaIndex].type === 'video' ? (
+                      <VideoPlayer url={t.media[activeMediaIndex].url} title={t.media[activeMediaIndex].description} autoplay={true} />
+                    ) : (
+                      <img
+                        src={t.media[activeMediaIndex].url}
+                        alt={t.media[activeMediaIndex].description || "Lightbox View"}
+                        className="w-full h-full object-contain rounded-2xl select-none"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
 
               {/* Bottom Caption Area */}
               <div className="absolute bottom-0 inset-x-0 p-6 text-center z-50 bg-gradient-to-t from-black/90 to-transparent">
