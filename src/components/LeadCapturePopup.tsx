@@ -65,7 +65,7 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-            className={`glass-panel p-8 shadow-2xl border ${styles.borderClass} max-w-sm w-full pointer-events-auto relative rounded-3xl`}
+            className={`bg-white p-8 shadow-2xl border ${styles.borderClass} max-w-sm w-full pointer-events-auto relative rounded-3xl`}
           >
             <button 
               onClick={() => setIsVisible(false)}
