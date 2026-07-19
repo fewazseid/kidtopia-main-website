@@ -146,7 +146,52 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
    return (
     <ContentContext.Provider value={{ content, loading, refresh: async () => {} }}>
-      {children}
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="simple-dot-loader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-brand-cream flex flex-col items-center justify-center font-sans z-[9999]"
+          >
+            <div className="flex flex-col items-center gap-4">
+              <div className="font-display font-black text-3xl tracking-tighter text-brand-green uppercase select-none">
+                Kidtopia
+              </div>
+              <div className="flex items-center gap-1.5 text-stone-600 font-medium text-sm">
+                <span>Loading</span>
+                <span className="flex items-center gap-1 ml-1">
+                  <motion.span
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1.2, delay: 0 }}
+                    className="w-2.5 h-2.5 rounded-full bg-brand-green"
+                  />
+                  <motion.span
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }}
+                    className="w-2.5 h-2.5 rounded-full bg-brand-orange"
+                  />
+                  <motion.span
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }}
+                    className="w-2.5 h-2.5 rounded-full bg-brand-yellow"
+                  />
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="app-content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </ContentContext.Provider>
   );
 };
