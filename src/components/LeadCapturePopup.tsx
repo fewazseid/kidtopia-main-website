@@ -58,6 +58,7 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang, forceV
       }
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isDashboard, t, forceVisible]);

@@ -22,6 +22,7 @@ import { CTASection } from '../components/CTASection';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { EnrollPage } from './EnrollPage';
+import { IframePreview } from '../components/IframePreview';
 import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -339,6 +340,7 @@ export const AdminDashboard: React.FC = () => {
           ...defaultTranslations.en, 
           ...enDocData,
           announcement: { ...defaultTranslations.en.announcement, ...(enDocData.announcement || {}) },
+          leadCapture: { ...defaultTranslations.en.leadCapture, ...(enDocData.leadCapture || {}) },
           virtualTour: { ...defaultTranslations.en.virtualTour, ...(enDocData.virtualTour || {}) },
           enrollmentPage: { ...defaultTranslations.en.enrollmentPage, ...(enDocData.enrollmentPage || {}) },
           whyChoose: { ...defaultTranslations.en.whyChoose, ...(enDocData.whyChoose || {}) },
@@ -368,6 +370,7 @@ export const AdminDashboard: React.FC = () => {
           ...defaultTranslations.am, 
           ...amDocData,
           announcement: { ...defaultTranslations.am.announcement, ...(amDocData.announcement || {}) },
+          leadCapture: { ...defaultTranslations.am.leadCapture, ...(amDocData.leadCapture || {}) },
           virtualTour: { ...defaultTranslations.am.virtualTour, ...(amDocData.virtualTour || {}) },
           enrollmentPage: { ...defaultTranslations.am.enrollmentPage, ...(amDocData.enrollmentPage || {}) },
           whyChoose: { ...defaultTranslations.am.whyChoose, ...(amDocData.whyChoose || {}) },
@@ -2592,11 +2595,13 @@ export const AdminDashboard: React.FC = () => {
                       ? 'max-w-[768px] mx-auto border-[10px] border-stone-800 rounded-3xl h-[650px] overflow-y-auto bg-white shadow-lg relative'
                       : 'w-full border border-stone-200 rounded-2xl overflow-hidden bg-white shadow-sm p-1'
                   }`}>
-                    {/* Inner scaled viewport */}
-                    <div className="w-full h-full text-left">
-                      <ContentContext.Provider value={{ content, loading: false, refresh: async () => {} }}>
-                        {renderPreviewComponent()}
-                      </ContentContext.Provider>
+                    {/* Inner scaled viewport via real Iframe for accurate viewport media queries */}
+                    <div className="w-full h-full text-left min-h-[500px]">
+                      <IframePreview>
+                        <ContentContext.Provider value={{ content, loading: false, refresh: async () => {} }}>
+                          {renderPreviewComponent()}
+                        </ContentContext.Provider>
+                      </IframePreview>
                     </div>
                   </div>
                 </div>

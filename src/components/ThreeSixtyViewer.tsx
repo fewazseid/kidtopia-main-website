@@ -691,8 +691,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     // Stage 1: Fast fly-forward/zoom transition in 3D Space (zoom in above the direction)
     targetFovRef.current = 15; // Zoom in very close to look like flying forward
     if (hotspot) {
-      // Use shortest path to prevent 360 spin
-      let deltaLon = hotspot.yaw - (cameraLonRef.current % 360);
+      // Use robust shortest angular path calculation to prevent any 360 spin (works with positive & negative angles)
+      const normCurrent = ((cameraLonRef.current % 360) + 360) % 360;
+      const normTarget = ((hotspot.yaw % 360) + 360) % 360;
+      let deltaLon = normTarget - normCurrent;
       if (deltaLon > 180) deltaLon -= 360;
       if (deltaLon < -180) deltaLon += 360;
       
@@ -724,9 +726,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         
         // Normalize landingLon relative to current camera rotation to minimize spin
         // We want the shortest rotation path to reach the new "forward" heading
-        let deltaLanding = landingLon - (targetLonRef.current % 360);
-        while (deltaLanding > 180) deltaLanding -= 360;
-        while (deltaLanding < -180) deltaLanding += 360;
+        const normLanding = ((landingLon % 360) + 360) % 360;
+        const normTargetLon = ((targetLonRef.current % 360) + 360) % 360;
+        let deltaLanding = normLanding - normTargetLon;
+        if (deltaLanding > 180) deltaLanding -= 360;
+        if (deltaLanding < -180) deltaLanding += 360;
         
         landingLon = targetLonRef.current + deltaLanding;
         landingLat = 0; // Keep horizon level on entry
