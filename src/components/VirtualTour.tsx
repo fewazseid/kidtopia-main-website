@@ -129,6 +129,7 @@ const VideoPlayer: React.FC<{ url: string; title?: string; autoplay?: boolean }>
 export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
   const t = useContent(lang).virtualTour;
   const [activeMediaIndex, setActiveMediaIndex] = useState<number | null>(null);
+  const [initialIndex, setInitialIndex] = useState<number | null>(null);
 
   const getYouTubeId = (url: string) => {
     if (!url) return null;
@@ -313,7 +314,10 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => setActiveMediaIndex(index)}
+                  onClick={() => {
+                    setInitialIndex(index);
+                    setActiveMediaIndex(index);
+                  }}
                   className="flex flex-col gap-5 w-full md:w-[calc(50%-1.5rem)] max-w-2xl group cursor-pointer"
                 >
                   <div className="aspect-video rounded-[32px] overflow-hidden relative shadow-2xl bg-stone-950 border-4 border-stone-800 transition-all duration-500 group-hover:border-brand-yellow/35 group-hover:scale-[1.015]">
@@ -354,7 +358,12 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
 
           <div className="mt-16 flex flex-wrap justify-center gap-5">
             <button 
-              onClick={() => t.media && t.media.length > 0 && setActiveMediaIndex(0)}
+              onClick={() => {
+                if (t.media && t.media.length > 0) {
+                  setInitialIndex(0);
+                  setActiveMediaIndex(0);
+                }
+              }}
               className="btn-primary px-10 py-4.5 text-base font-black tracking-wider uppercase hover:scale-105 active:scale-95 duration-350 shadow-lg cursor-pointer"
             >
               {t.watchFull}
@@ -402,9 +411,9 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
 
               {/* Main Content Area - True expansion transition container! */}
               <motion.div 
-                layoutId={`media-card-container-${activeMediaIndex}`}
+                layoutId={`media-card-container-${initialIndex}`}
                 onClick={(e) => e.stopPropagation()} 
-                className="relative max-w-5xl w-[92vw] sm:w-[90vw] aspect-video flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-stone-950 z-10"
+                className="relative max-w-4xl lg:max-w-5xl w-[84vw] xs:w-[80vw] sm:w-[84vw] md:w-[88vw] aspect-video flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-stone-950 z-10"
               >
                 <AnimatePresence mode="wait">
                   <motion.div
