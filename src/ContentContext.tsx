@@ -144,6 +144,17 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, []);
 
+  const letters = [
+    { char: 'K', color: 'text-brand-orange' },
+    { char: 'I', color: 'text-brand-yellow' },
+    { char: 'D', color: 'text-brand-green' },
+    { char: 'T', color: 'text-brand-teal' },
+    { char: 'O', color: 'text-brand-tan' },
+    { char: 'P', color: 'text-brand-orange' },
+    { char: 'I', color: 'text-brand-yellow' },
+    { char: 'A', color: 'text-brand-green' },
+  ];
+
    return (
     <ContentContext.Provider value={{ content, loading, refresh: async () => {} }}>
       <AnimatePresence mode="wait">
@@ -155,27 +166,64 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             transition={{ duration: 0.3 }}
             className="fixed inset-0 bg-brand-cream flex flex-col items-center justify-center font-sans z-[9999]"
           >
-            <div className="flex flex-col items-center gap-4">
-              <div className="font-display font-black text-3xl tracking-tighter text-brand-green uppercase select-none">
-                Kidtopia
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="flex flex-col items-center select-none cursor-default">
+                {/* Logo with playful bouncing/wave motion */}
+                <div className="font-display font-black text-4xl sm:text-5xl tracking-tighter flex items-center justify-center mb-1">
+                  {letters.map((letter, idx) => (
+                    <motion.span
+                      key={idx}
+                      className={letter.color}
+                      animate={{
+                        y: [0, -10, 0],
+                      }}
+                      transition={{
+                        duration: 1.2,
+                        repeat: Infinity,
+                        delay: idx * 0.1,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      {letter.char}
+                    </motion.span>
+                  ))}
+                  <motion.span
+                    className="ml-1.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-brand-orange animate-bounce"
+                    animate={{
+                      y: [0, -15, 0],
+                      scale: [1, 1.25, 1],
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      delay: letters.length * 0.1,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </div>
+                <span className="text-[8px] sm:text-[10px] font-display font-bold tracking-[0.18em] text-brand-green uppercase opacity-90 text-center">
+                  International Daycare & Preschool
+                </span>
               </div>
-              <div className="flex items-center gap-1.5 text-stone-600 font-medium text-sm">
+
+              {/* Dot-dot-dot Loading indicator */}
+              <div className="flex items-center gap-1 text-stone-500 font-semibold text-xs mt-6">
                 <span>Loading</span>
-                <span className="flex items-center gap-1 ml-1">
+                <span className="flex items-center gap-1.5 ml-1">
                   <motion.span
-                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.9, 1.1, 0.9] }}
                     transition={{ repeat: Infinity, duration: 1.2, delay: 0 }}
-                    className="w-2.5 h-2.5 rounded-full bg-brand-green"
+                    className="w-2 h-2 rounded-full bg-brand-green"
                   />
                   <motion.span
-                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.9, 1.1, 0.9] }}
                     transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }}
-                    className="w-2.5 h-2.5 rounded-full bg-brand-orange"
+                    className="w-2 h-2 rounded-full bg-brand-orange"
                   />
                   <motion.span
-                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.9, 1.1, 0.9] }}
                     transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }}
-                    className="w-2.5 h-2.5 rounded-full bg-brand-yellow"
+                    className="w-2 h-2 rounded-full bg-brand-yellow"
                   />
                 </span>
               </div>

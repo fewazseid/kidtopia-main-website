@@ -42,8 +42,8 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
-            {/* Dark overlay for text readability, only if background image is active */}
-            <div className="absolute inset-0 bg-black/45" />
+            {/* Smooth gradient transition to the page's brand-cream background color at the bottom */}
+            <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-brand-cream via-brand-cream/60 to-transparent pointer-events-none" />
           </div>
         ) : null}
 
