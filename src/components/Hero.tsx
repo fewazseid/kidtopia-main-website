@@ -21,7 +21,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
-      {/* Background decoration with optional image/video */}
+      {/* Background decoration with optional video */}
       <div className="absolute inset-0 z-0 bg-brand-cream/20">
         {t.backgroundType === 'video' && t.heroVideo ? (
           <div className="absolute inset-0 overflow-hidden">
@@ -32,15 +32,6 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               loop 
               muted 
               playsInline
-            />
-          </div>
-        ) : t.backgroundType === 'image' && t.heroImage ? (
-          <div className="absolute inset-0">
-            <img 
-              src={t.heroImage} 
-              alt="Kidtopia background" 
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
             />
           </div>
         ) : null}

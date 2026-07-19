@@ -57,6 +57,15 @@ export const AdminDashboard: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [activeLang, setActiveLang] = useState<'en' | 'am'>('en');
   const [activeSection, setActiveSection] = useState('hero');
+  const [resourcesSubTab, setResourcesSubTab] = useState<'general' | 'rules' | 'policies' | 'handbook' | 'directive' | 'nutrition_milestones'>('general');
+  
+  // AI Policy Assistant state
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiTone, setAiTone] = useState('professional');
+  const [aiAction, setAiAction] = useState<'generate' | 'rephrase' | 'add_clause'>('add_clause');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState('');
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -635,6 +644,48 @@ export const AdminDashboard: React.FC = () => {
     } finally {
       setTranslatingFields(prev => ({ ...prev, [pathKey]: false }));
     }
+  };
+
+  const handleRunAiAssistant = async (targetField: 'intlGuidelinesBody' | 'intlActBody') => {
+    if (!aiPrompt.trim()) {
+      alert('Please describe what you want the AI to do.');
+      return;
+    }
+    setAiLoading(true);
+    setAiResult('');
+    try {
+      const currentText = content[activeLang]['resources'][targetField] || '';
+      const response = await fetch('/api/ai-helper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          context: currentText,
+          action: aiAction,
+          lang: activeLang,
+          tone: aiTone
+        })
+      });
+      const data = await response.json();
+      if (data.success && data.text) {
+        setAiResult(data.text);
+      } else {
+        alert('AI helper failed: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert('An error occurred while contacting the AI helper.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleApplyAiResult = (targetField: 'intlGuidelinesBody' | 'intlActBody') => {
+    if (!aiResult) return;
+    handleChange(['resources', targetField], aiResult);
+    setAiResult('');
+    setAiPrompt('');
+    setFeedback({ type: 'success', message: 'AI suggestion applied successfully to policy text!' });
   };
 
   interface TranslationJob {
@@ -2621,20 +2672,347 @@ export const AdminDashboard: React.FC = () => {
                       </ul>
                     </div>
                   )}
-                  {activeSection === 'virtualTour' && (
-                    <div className="mb-10 p-6 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm">
-                      <h3 className="font-bold text-stone-800 dark:text-stone-100 text-base mb-2 flex items-center gap-2 font-sans">
-                        <Compass size={20} className="text-brand-green animate-spin" style={{ animationDuration: '12s' }} />
-                        Interactive 360° Virtual Tour Layout Builder
-                      </h3>
-                      <p className="text-sm text-stone-600 dark:text-stone-400 mb-6 font-sans">
-                        Drag to look around the virtual room, and use the "Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
-                      </p>
-                      <ThreeSixtyViewer isAdminMode={true} />
+                  {activeSection === 'resources' ? (
+                    <div className="space-y-6">
+                      {/* Section Info */}
+                      <div className="bg-emerald-50/40 p-5 rounded-2xl border border-brand-green/10 mb-2">
+                        <h4 className="font-bold text-stone-900 mb-1 flex items-center gap-2">
+                          <Shield size={18} className="text-brand-green" />
+                          Policies, Handbooks & Guidelines Customizer
+                        </h4>
+                        <p className="text-xs text-stone-600 leading-relaxed">
+                          Organize and manage parent-facing resources, code of conduct, nutrition meal planners, developmental trackers, and legal directives. Use the sub-tabs below to navigate sections and use our AI Assistant to draft perfect policies.
+                        </p>
+                      </div>
+
+                      {/* Sub-Tabs Sidebar/Header */}
+                      <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-4 mb-6">
+                        <button
+                          type="button"
+                          onClick={() => { setResourcesSubTab('general'); setAiResult(''); }}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+                            resourcesSubTab === 'general'
+                              ? 'bg-brand-green text-white border-brand-green shadow-sm font-black'
+                              : 'bg-white text-stone-600 hover:bg-stone-50 border-stone-200'
+                          }`}
+                        >
+                          <Layout size={14} />
+                          <span>General Info & Cards</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setResourcesSubTab('rules'); setAiResult(''); }}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+                            resourcesSubTab === 'rules'
+                              ? 'bg-brand-green text-white border-brand-green shadow-sm font-black'
+                              : 'bg-white text-stone-600 hover:bg-stone-50 border-stone-200'
+                          }`}
+                        >
+                          <FileText size={14} />
+                          <span>Enrollment Checklist (Rules)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setResourcesSubTab('policies'); setAiResult(''); }}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+                            resourcesSubTab === 'policies'
+                              ? 'bg-brand-green text-white border-brand-green shadow-sm font-black'
+                              : 'bg-white text-stone-600 hover:bg-stone-50 border-stone-200'
+                          }`}
+                        >
+                          <Shield size={14} />
+                          <span>Consolidated Daycare Policies</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setResourcesSubTab('handbook'); setAiResult(''); }}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+                            resourcesSubTab === 'handbook'
+                              ? 'bg-brand-green text-white border-brand-green shadow-sm font-black'
+                              : 'bg-white text-stone-600 hover:bg-stone-50 border-stone-200'
+                          }`}
+                        >
+                          <FileText size={14} />
+                          <span>Parent Handbook Chapters</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setResourcesSubTab('directive'); setAiResult(''); }}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+                            resourcesSubTab === 'directive'
+                              ? 'bg-brand-green text-white border-brand-green shadow-sm font-black'
+                              : 'bg-white text-stone-600 hover:bg-stone-50 border-stone-200'
+                          }`}
+                        >
+                          <FileText size={14} />
+                          <span>Ethiopian Care Directive</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setResourcesSubTab('nutrition_milestones'); setAiResult(''); }}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+                            resourcesSubTab === 'nutrition_milestones'
+                              ? 'bg-brand-green text-white border-brand-green shadow-sm font-black'
+                              : 'bg-white text-stone-600 hover:bg-stone-50 border-stone-200'
+                          }`}
+                        >
+                          <Settings size={14} />
+                          <span>Nutrition & Milestones</span>
+                        </button>
+                      </div>
+
+                      {/* Rendering of Sub-Tab Content */}
+                      <div className="space-y-6 animate-in fade-in duration-200">
+                        {resourcesSubTab === 'general' && (
+                          <>
+                            {renderField('title', content[activeLang].resources.title, ['resources', 'title'])}
+                            {renderField('desc', content[activeLang].resources.desc, ['resources', 'desc'])}
+                            {renderField('items', content[activeLang].resources.items, ['resources', 'items'])}
+                          </>
+                        )}
+
+                        {resourcesSubTab === 'rules' && (
+                          <>
+                            {renderField('policiesAndRegulations', content[activeLang].resources.policiesAndRegulations, ['resources', 'policiesAndRegulations'])}
+                          </>
+                        )}
+
+                        {resourcesSubTab === 'policies' && (
+                          <>
+                            {renderField('intlGuidelinesTitle', content[activeLang].resources.intlGuidelinesTitle, ['resources', 'intlGuidelinesTitle'])}
+                            {renderField('intlGuidelinesBody', content[activeLang].resources.intlGuidelinesBody, ['resources', 'intlGuidelinesBody'])}
+                            
+                            {/* AI Policy Assistant Card */}
+                            <div className="bg-gradient-to-br from-lime-50/50 to-emerald-50/30 p-6 rounded-2xl border border-brand-green/20 shadow-sm mt-8">
+                              <h5 className="font-bold text-stone-900 text-sm flex items-center gap-2 mb-2 font-accent uppercase tracking-wider">
+                                <Settings size={16} className="text-brand-green animate-spin" style={{ animationDuration: '8s' }} />
+                                ✨ AI Policy Assistant & Clause Generator
+                              </h5>
+                              <p className="text-xs text-stone-600 mb-4 leading-relaxed">
+                                Need custom updates to your policies? Describe your new rules or specifies rephrasing, and our built-in Gemini AI model will write polished clauses instantly.
+                              </p>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                  <label className="block text-[11px] font-black uppercase tracking-wider text-stone-500 mb-1">What should AI do?</label>
+                                  <select
+                                    value={aiAction}
+                                    onChange={(e) => setAiAction(e.target.value as any)}
+                                    className="w-full text-xs font-semibold p-2.5 bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green text-stone-700"
+                                  >
+                                    <option value="add_clause">Add/Integrate New Clause</option>
+                                    <option value="rephrase">Rephrase & Improve Current Text</option>
+                                    <option value="generate">Generate Standalone Paragraph</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-[11px] font-black uppercase tracking-wider text-stone-500 mb-1">Writing Tone</label>
+                                  <select
+                                    value={aiTone}
+                                    onChange={(e) => setAiTone(e.target.value)}
+                                    className="w-full text-xs font-semibold p-2.5 bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green text-stone-700"
+                                  >
+                                    <option value="professional">Professional & Authoritative</option>
+                                    <option value="welcoming">Polite & Welcoming</option>
+                                    <option value="regulatory">Formal, Legal & Regulatory</option>
+                                  </select>
+                                </div>
+                                <div className="flex items-end">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRunAiAssistant('intlGuidelinesBody')}
+                                    disabled={aiLoading}
+                                    className="w-full py-2.5 bg-brand-green hover:bg-brand-green/95 text-white text-xs font-black rounded-xl shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                                  >
+                                    {aiLoading ? (
+                                      <>
+                                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                        <span>Drafting...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span>✨ Query Gemini AI</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="mb-4">
+                                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-500 mb-1">Instructions for AI (Describe details, changes or clause values)</label>
+                                <textarea
+                                  value={aiPrompt}
+                                  onChange={(e) => setAiPrompt(e.target.value)}
+                                  placeholder="e.g., Add a late fee penalty of 500 ETB for late pickup after 6:00 PM, payable directly to the administrator on duty."
+                                  className="w-full p-3 text-xs border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green bg-white font-medium text-stone-800"
+                                  rows={2}
+                                />
+                              </div>
+
+                              {aiResult && (
+                                <div className="mt-4 p-4 bg-white border border-brand-green/20 rounded-2xl animate-in slide-in-from-bottom-2 duration-300">
+                                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-stone-100">
+                                    <span className="text-xs font-black uppercase tracking-wider text-brand-green">Gemini AI Draft Suggestion</span>
+                                    <div className="flex gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleApplyAiResult('intlGuidelinesBody')}
+                                        className="px-3 py-1.5 bg-brand-green hover:bg-brand-green/95 text-white text-[10px] font-black rounded-lg shadow-sm transition cursor-pointer"
+                                      >
+                                        Apply changes
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setAiResult('')}
+                                        className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 text-[10px] font-black rounded-lg transition cursor-pointer"
+                                      >
+                                        Discard
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <pre className="text-xs text-stone-800 leading-relaxed font-sans whitespace-pre-wrap max-h-[250px] overflow-y-auto bg-stone-50/50 p-3 rounded-xl border border-stone-100">
+                                    {aiResult}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+
+                        {resourcesSubTab === 'handbook' && (
+                          <>
+                            {renderField('handbookChapters', content[activeLang].resources.handbookChapters, ['resources', 'handbookChapters'])}
+                          </>
+                        )}
+
+                        {resourcesSubTab === 'directive' && (
+                          <>
+                            {renderField('intlActTitle', content[activeLang].resources.intlActTitle, ['resources', 'intlActTitle'])}
+                            {renderField('intlActBody', content[activeLang].resources.intlActBody, ['resources', 'intlActBody'])}
+                            
+                            {/* AI Policy Assistant Card for directive */}
+                            <div className="bg-gradient-to-br from-blue-50/30 to-emerald-50/30 p-6 rounded-2xl border border-blue-200/40 shadow-sm mt-8">
+                              <h5 className="font-bold text-stone-900 text-sm flex items-center gap-2 mb-2 font-accent uppercase tracking-wider">
+                                <Settings size={16} className="text-blue-500 animate-spin" style={{ animationDuration: '8s' }} />
+                                ✨ AI Directive Customizer & Editor
+                              </h5>
+                              <p className="text-xs text-stone-600 mb-4 leading-relaxed">
+                                Need to align this directive text with recent municipal codes or regulatory adjustments? Describe the exact rules to add or update below.
+                              </p>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                  <label className="block text-[11px] font-black uppercase tracking-wider text-stone-500 mb-1">What should AI do?</label>
+                                  <select
+                                    value={aiAction}
+                                    onChange={(e) => setAiAction(e.target.value as any)}
+                                    className="w-full text-xs font-semibold p-2.5 bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green text-stone-700"
+                                  >
+                                    <option value="add_clause">Add/Integrate New Clause</option>
+                                    <option value="rephrase">Rephrase & Improve Current Text</option>
+                                    <option value="generate">Generate Standalone Paragraph</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-[11px] font-black uppercase tracking-wider text-stone-500 mb-1">Writing Tone</label>
+                                  <select
+                                    value={aiTone}
+                                    onChange={(e) => setAiTone(e.target.value)}
+                                    className="w-full text-xs font-semibold p-2.5 bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green text-stone-700"
+                                  >
+                                    <option value="professional">Professional & Authoritative</option>
+                                    <option value="welcoming">Polite & Welcoming</option>
+                                    <option value="regulatory">Formal, Legal & Regulatory</option>
+                                  </select>
+                                </div>
+                                <div className="flex items-end">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRunAiAssistant('intlActBody')}
+                                    disabled={aiLoading}
+                                    className="w-full py-2.5 bg-brand-green hover:bg-brand-green/95 text-white text-xs font-black rounded-xl shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                                  >
+                                    {aiLoading ? (
+                                      <>
+                                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                        <span>Drafting...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span>✨ Query Gemini AI</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="mb-4">
+                                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-500 mb-1">Instructions for AI (Describe details, changes or clause values)</label>
+                                <textarea
+                                  value={aiPrompt}
+                                  onChange={(e) => setAiPrompt(e.target.value)}
+                                  placeholder="e.g., Update the physical space requirements to mandate a minimum indoor space of 3 square meters instead of 2.5."
+                                  className="w-full p-3 text-xs border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green bg-white font-medium text-stone-800"
+                                  rows={2}
+                                />
+                              </div>
+
+                              {aiResult && (
+                                <div className="mt-4 p-4 bg-white border border-blue-200/40 rounded-2xl animate-in slide-in-from-bottom-2 duration-300">
+                                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-stone-100">
+                                    <span className="text-xs font-black uppercase tracking-wider text-blue-600">Gemini AI Draft Suggestion</span>
+                                    <div className="flex gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleApplyAiResult('intlActBody')}
+                                        className="px-3 py-1.5 bg-brand-green hover:bg-brand-green/95 text-white text-[10px] font-black rounded-lg shadow-sm transition cursor-pointer"
+                                      >
+                                        Apply changes
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setAiResult('')}
+                                        className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 text-[10px] font-black rounded-lg transition cursor-pointer"
+                                      >
+                                        Discard
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <pre className="text-xs text-stone-800 leading-relaxed font-sans whitespace-pre-wrap max-h-[250px] overflow-y-auto bg-stone-50/50 p-3 rounded-xl border border-stone-100">
+                                    {aiResult}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+
+                        {resourcesSubTab === 'nutrition_milestones' && (
+                          <>
+                            {renderField('menuDays', content[activeLang].resources.menuDays, ['resources', 'menuDays'])}
+                            {renderField('milestonesData', content[activeLang].resources.milestonesData, ['resources', 'milestonesData'])}
+                          </>
+                        )}
+                      </div>
                     </div>
-                  )}
-                  {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 
-                    renderField(key, content[activeLang][activeSection][key], [activeSection, key])
+                  ) : (
+                    <>
+                      {activeSection === 'virtualTour' && (
+                        <div className="mb-10 p-6 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm">
+                          <h3 className="font-bold text-stone-800 dark:text-stone-100 text-base mb-2 flex items-center gap-2 font-sans">
+                            <Compass size={20} className="text-brand-green animate-spin" style={{ animationDuration: '12s' }} />
+                            Interactive 360° Virtual Tour Layout Builder
+                          </h3>
+                          <p className="text-sm text-stone-600 dark:text-stone-400 mb-6 font-sans">
+                            Drag to look around the virtual room, and use the "Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
+                          </p>
+                          <ThreeSixtyViewer isAdminMode={true} />
+                        </div>
+                      )}
+                      {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 
+                        renderField(key, content[activeLang][activeSection][key], [activeSection, key])
+                      )}
+                    </>
                   )}
                 </>
               )

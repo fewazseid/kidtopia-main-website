@@ -29,7 +29,16 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang, forceV
       return;
     }
 
+    let timeoutId: any = null;
+
     const handleScroll = () => {
+      const triggerWithDelay = () => {
+        window.removeEventListener('scroll', handleScroll);
+        timeoutId = setTimeout(() => {
+          setIsVisible(true);
+        }, 3000);
+      };
+
       // Find the sticky announcement container
       const container = document.getElementById('announcement-container');
       if (container) {
@@ -39,28 +48,30 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang, forceV
           const wrapperRect = wrapper.getBoundingClientRect();
           // when wrapper bottom goes below 100, the announcement panel is scrolled out / gone
           if (wrapperRect.bottom <= 100) {
-            setIsVisible(true);
-            window.removeEventListener('scroll', handleScroll);
+            triggerWithDelay();
           }
         } else {
           const rect = container.getBoundingClientRect();
           if (rect.bottom < 0) {
-            setIsVisible(true);
-            window.removeEventListener('scroll', handleScroll);
+            triggerWithDelay();
           }
         }
       } else {
         // Fallback: trigger after scrolling past approx 500px if no active announcement is found on page load or scroll
         if (window.scrollY > 500) {
-          setIsVisible(true);
-          window.removeEventListener('scroll', handleScroll);
+          triggerWithDelay();
         }
       }
     };
 
     handleScroll();
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [isDashboard, t, forceVisible]);
 
   if (!isVisible || (!forceVisible && (isDashboard || !t || t.enabled === 'false'))) return null;
