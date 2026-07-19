@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh, ContentContext } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -1767,27 +1767,36 @@ export const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-stone-100 flex flex-col md:flex-row pt-20">
       {/* Desktop & Mobile Fixed Sticky Save & Notification Header Panel aligned parallel with Kidtopia Logo */}
       <div className="fixed top-0 left-0 right-0 h-20 z-[60] pointer-events-none">
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-end gap-2 md:gap-4 pointer-events-auto">
+        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-2 md:gap-4 pointer-events-auto">
           <button 
-            onClick={() => setActiveSection('bookings')}
-            className={`relative p-2 md:p-2.5 text-stone-600 bg-white/80 hover:bg-white border border-stone-200/60 rounded-full transition-colors shadow-sm cursor-pointer flex items-center justify-center ${activeSection === 'bookings' ? 'ring-2 ring-brand-green bg-white' : ''}`}
-            title="View Tour Bookings"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-stone-600 hover:text-brand-green transition-colors font-medium text-sm"
           >
-            <Bell size={18} className="text-stone-700 md:w-5 md:h-5" />
-            {bookings.filter(b => b.status === 'pending').length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] md:text-[10px] rounded-full w-4.5 h-4.5 md:w-5 md:h-5 flex items-center justify-center font-bold border-2 border-white">
-                {bookings.filter(b => b.status === 'pending').length}
-              </span>
-            )}
+            <ArrowLeft size={18} />
+            Back to Site
           </button>
-          <button 
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-1.5 md:gap-2 bg-brand-green text-white px-3.5 py-2 md:px-5 md:py-2.5 rounded-full font-semibold hover:opacity-95 active:scale-98 transition-all disabled:opacity-50 shadow-md shadow-brand-green/10 cursor-pointer text-xs md:text-sm animate-pulse-once"
-          >
-            <Save size={16} className="md:w-[18px] md:h-[18px]" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
+          <div className="flex items-center gap-2 md:gap-4">
+            <button 
+              onClick={() => setActiveSection('bookings')}
+              className={`relative p-2 md:p-2.5 text-stone-600 bg-white/80 hover:bg-white border border-stone-200/60 rounded-full transition-colors shadow-sm cursor-pointer flex items-center justify-center ${activeSection === 'bookings' ? 'ring-2 ring-brand-green bg-white' : ''}`}
+              title="View Tour Bookings"
+            >
+              <Bell size={18} className="text-stone-700 md:w-5 md:h-5" />
+              {bookings.filter(b => b.status === 'pending').length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] md:text-[10px] rounded-full w-4.5 h-4.5 md:w-5 md:h-5 flex items-center justify-center font-bold border-2 border-white">
+                  {bookings.filter(b => b.status === 'pending').length}
+                </span>
+              )}
+            </button>
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-1.5 md:gap-2 bg-brand-green text-white px-3.5 py-2 md:px-5 md:py-2.5 rounded-full font-semibold hover:opacity-95 active:scale-98 transition-all disabled:opacity-50 shadow-md shadow-brand-green/10 cursor-pointer text-xs md:text-sm animate-pulse-once"
+            >
+              <Save size={16} className="md:w-[18px] md:h-[18px]" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
 
