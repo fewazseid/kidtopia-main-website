@@ -29,6 +29,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
 import { ThreeSixtyViewer } from '../components/ThreeSixtyViewer';
+import { GoogleDrivePicker } from '../components/GoogleDrivePicker';
 
 export function convertGoogleDriveUrl(url: string): string {
   if (!url) return '';
@@ -93,6 +94,11 @@ export const AdminDashboard: React.FC = () => {
   const daysOfWeek = ['Default', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const [bookings, setBookings] = useState<any[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
+
+  // Google Drive Picker State
+  const [drivePickerOpen, setDrivePickerOpen] = useState(false);
+  const [drivePickerPath, setDrivePickerPath] = useState<string[]>([]);
+  const [drivePickerIsImage, setDrivePickerIsImage] = useState(true);
 
   const checkApiHealth = async () => {
     let apiBase = (import.meta as any).env.VITE_API_URL || '';
@@ -1602,12 +1608,9 @@ export const AdminDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      const link = prompt(`Please paste your shared Google Drive ${isImage ? 'image' : 'video'} link:\n(Make sure sharing in Drive is set to 'Anyone with the link can view')`);
-                      if (link) {
-                        const converted = convertGoogleDriveUrl(link);
-                        handleChange(path, converted);
-                        alert('Google Drive file successfully imported & converted to direct high-speed link!');
-                      }
+                      setDrivePickerPath(path);
+                      setDrivePickerIsImage(isImage);
+                      setDrivePickerOpen(true);
                     }}
                     className="flex items-center gap-1.5 text-xs text-blue-600 font-semibold hover:text-blue-800 transition"
                   >
@@ -3083,6 +3086,17 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <GoogleDrivePicker
+        isOpen={drivePickerOpen}
+        onClose={() => setDrivePickerOpen(false)}
+        isImageOnly={drivePickerIsImage}
+        onSelect={(url) => {
+          handleChange(drivePickerPath, url);
+          setFeedback({ type: 'success', message: 'Successfully selected file from Google Drive!' });
+          setTimeout(() => setFeedback(null), 3000);
+        }}
+      />
     </div>
   );
 };
