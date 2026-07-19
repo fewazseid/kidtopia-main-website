@@ -20,11 +20,16 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
   useEffect(() => {
     if (isDashboard || !t || t.enabled === 'false') return;
 
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 30000); // 30 seconds
+    const handleScroll = () => {
+      // Trigger after scrolling past the announcement panel (approx 500px)
+      if (window.scrollY > 500) {
+        setIsVisible(true);
+        window.removeEventListener('scroll', handleScroll);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [isDashboard, t]);
 
   if (!isVisible || isDashboard || !t || t.enabled === 'false') return null;
@@ -43,6 +48,30 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang }) => {
           iconBg: 'bg-brand-teal/10 text-brand-teal',
           btnClass: 'bg-brand-teal hover:bg-brand-teal/95 text-white font-bold rounded-xl shadow-lg shadow-brand-teal/20 transition-all transform hover:scale-[1.02]',
           borderClass: 'border-brand-teal/30'
+        };
+      case 'danger':
+        return {
+          iconBg: 'bg-rose-500/10 text-rose-500',
+          btnClass: 'bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-rose-500/30'
+        };
+      case 'royal':
+        return {
+          iconBg: 'bg-violet-500/10 text-violet-500',
+          btnClass: 'bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-violet-500/30'
+        };
+      case 'sunset':
+        return {
+          iconBg: 'bg-orange-500/10 text-orange-500',
+          btnClass: 'bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-orange-500/30'
+        };
+      case 'teal':
+        return {
+          iconBg: 'bg-teal-600/10 text-teal-600',
+          btnClass: 'bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-600/20 transition-all transform hover:scale-[1.02]',
+          borderClass: 'border-teal-600/30'
         };
       case 'info':
       default:
