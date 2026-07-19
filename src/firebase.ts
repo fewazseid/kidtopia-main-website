@@ -19,7 +19,7 @@ export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()
   })
-}, (firebaseConfig as any).firestoreDatabaseId);
+}, firebaseConfig.firestoreDatabaseId);
 
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
