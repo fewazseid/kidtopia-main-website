@@ -1836,14 +1836,7 @@ export const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-stone-100 flex flex-col md:flex-row pt-20">
       {/* Desktop & Mobile Fixed Sticky Save & Notification Header Panel aligned parallel with Kidtopia Logo */}
       <div className="fixed top-0 left-0 right-0 h-20 z-[60] pointer-events-none">
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-2 md:gap-4 pointer-events-auto">
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="flex items-center gap-2 text-stone-600 hover:text-brand-green transition-colors font-medium text-sm"
-          >
-            <ArrowLeft size={18} />
-            Back to Site
-          </button>
+        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-end gap-2 md:gap-4 pointer-events-auto">
           <div className="flex items-center gap-2 md:gap-4">
             <button 
               onClick={() => setActiveSection('bookings')}
