@@ -8,6 +8,7 @@ import { AnimatePresence } from 'motion/react';
 // Live Preview Components
 import { Hero } from '../components/Hero';
 import { Announcement } from '../components/Announcement';
+import { LeadCapturePopup } from '../components/LeadCapturePopup';
 import { TrustSafety } from '../components/TrustSafety';
 import { Programs } from '../components/Programs';
 import { WhyChoose } from '../components/WhyChoose';
@@ -1026,7 +1027,8 @@ export const AdminDashboard: React.FC = () => {
   const previewableSections = [
     'hero', 'announcement', 'safety', 'programs', 'whyChoose', 
     'staff', 'virtualTour', 'dailyExperience', 'resources', 
-    'testimonials', 'faq', 'cta', 'footer', 'nav', 'enrollmentPage'
+    'testimonials', 'faq', 'cta', 'footer', 'nav', 'enrollmentPage',
+    'leadCapture'
   ];
   const canPreview = previewableSections.includes(activeSection);
 
@@ -1058,6 +1060,15 @@ export const AdminDashboard: React.FC = () => {
         return <CTASection lang={activeLang} />;
       case 'footer':
         return <Footer lang={activeLang} />;
+      case 'leadCapture':
+        return (
+          <div className="p-8 flex flex-col items-center justify-center bg-stone-100 border border-stone-200 rounded-3xl shadow-inner min-h-[350px]">
+            <LeadCapturePopup lang={activeLang} forceVisible={true} />
+            <div className="mt-6 text-center text-xs text-stone-500 font-medium">
+              Live Interactive Preview of the customized Lead Capture Popup
+            </div>
+          </div>
+        );
       case 'nav':
         return (
           <div className="relative pt-24 pb-8 bg-stone-100">
@@ -1279,6 +1290,10 @@ export const AdminDashboard: React.FC = () => {
               <option value="info">Primary (Green Accent)</option>
               <option value="warning">Attention (Orange Accent)</option>
               <option value="success">Nurturing (Teal Accent)</option>
+              <option value="danger">Urgent / Danger (Rose-Red)</option>
+              <option value="royal">Royal (Purple)</option>
+              <option value="sunset">Sunset (Orange)</option>
+              <option value="teal">Calm (Teal)</option>
             </select>
           </div>
         );
@@ -1295,7 +1310,7 @@ export const AdminDashboard: React.FC = () => {
               onChange={(e) => handleChange(path, e.target.value)}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
-              <option value="true">Active (Show Popup after 30 seconds)</option>
+              <option value="true">Active (Show Popup after scrolling past Announcement)</option>
               <option value="false">Disabled (Do Not Show)</option>
             </select>
           </div>
@@ -1769,7 +1784,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="fixed top-0 left-0 right-0 h-20 z-[60] pointer-events-none">
         <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-2 md:gap-4 pointer-events-auto">
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => window.location.href = '/'}
             className="flex items-center gap-2 text-stone-600 hover:text-brand-green transition-colors font-medium text-sm"
           >
             <ArrowLeft size={18} />

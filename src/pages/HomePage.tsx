@@ -25,7 +25,7 @@ export const HomePage: React.FC<HomePageProps> = ({ lang, onScrollTo }) => {
       <Hero lang={lang} onScrollTo={onScrollTo} />
       
       {/* Wrapper to control stickiness duration */}
-      <div className="relative">
+      <div id="announcement-wrapper" className="relative">
         <Announcement lang={lang} />
         
         <motion.div
