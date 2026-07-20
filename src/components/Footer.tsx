@@ -199,15 +199,15 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
             </div>
           </div>
           <div className="flex flex-col items-center md:items-end">
-            <p className="text-xs font-medium text-stone-500 mb-1">© 2026 Kidtopia International Daycare and Preschool. All rights reserved.</p>
+            <p className="text-xs font-medium text-stone-500 mb-1">{t.copyright || "© 2026 Kidtopia International Daycare and Preschool. All rights reserved."}</p>
             <a 
-              href="https://arhotechnology.com" 
+              href={t.developerUrl || "https://arhotechnology.com"} 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => console.log('Arho Technology link clicked')}
               className="text-[10px] font-bold text-stone-600 hover:text-brand-orange transition-all cursor-pointer inline-block py-1 px-2 -mx-2"
             >
-              Developed by Arho Technology
+              {t.developedBy || "Developed by Arho Technology"}
             </a>
           </div>
         </div>

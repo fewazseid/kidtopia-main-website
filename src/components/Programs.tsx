@@ -49,18 +49,20 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
 
         {/* Programs Grid */}
         <div className="flex flex-wrap justify-center gap-10">
-          {t.cards.map((card: any, idx: number) => (
-            <div 
-              key={idx} 
-              className="w-full lg:w-[calc(50%-20px)] flex h-full"
-            >
-              <GlassCard 
-                layout
-                animateOnLoad={false}
-                disableHover={true}
-                className="overflow-hidden flex flex-col group w-full h-full shadow-[0_15px_35px_-15px_rgba(0,0,0,0.03)]"
-                delay={0}
+          {t.cards.map((card: any, idx: number) => {
+            const isLastAndOdd = t.cards.length % 2 !== 0 && idx === t.cards.length - 1;
+            return (
+              <div 
+                key={idx} 
+                className={`w-full ${isLastAndOdd ? 'lg:w-full' : 'lg:w-[calc(50%-20px)]'} flex h-full`}
               >
+                <GlassCard 
+                  layout
+                  animateOnLoad={false}
+                  disableHover={true}
+                  className="overflow-hidden flex flex-col group w-full h-full shadow-[0_15px_35px_-15px_rgba(0,0,0,0.03)]"
+                  delay={0}
+                >
                 <div className="flex flex-col md:flex-row h-full">
                   
                   {/* Left Column: Image with overlay */}
@@ -130,7 +132,8 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
                 </div>
               </GlassCard>
             </div>
-          ))}
+          );
+        })}
         </div>
 
       </div>

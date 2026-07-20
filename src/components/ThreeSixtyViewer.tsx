@@ -18,8 +18,10 @@ export interface Hotspot {
   yaw: number;   // longitude equivalent (X-axis rotation lookAt) -180 to 180
   targetSceneId: string;
   text: string;
+  textAm?: string; // Amharic translation
   type?: 'link' | 'info';
   description?: string;
+  descriptionAm?: string; // Amharic translation
   color?: string; // Optional custom color of direction / link hotspot icon
   linkedHotspotId?: string; // ID of the reciprocal return door in targetScene
 }
@@ -27,6 +29,7 @@ export interface Hotspot {
 export interface Scene {
   id: string;
   title: string;
+  titleAm?: string; // Amharic translation
   imageUrl: string;
   isStart: boolean;
   hotspots: Hotspot[];
@@ -113,6 +116,7 @@ const DEFAULT_SCENES: Scene[] = [
   {
     id: 'lobby',
     title: 'Welcome Reception & Lobby',
+    titleAm: 'የመቀበያ አዳራሽ እና ሎቢ',
     imageUrl: 'https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg',
     isStart: true,
     hotspots: [
@@ -121,20 +125,23 @@ const DEFAULT_SCENES: Scene[] = [
         pitch: -12,
         yaw: 45,
         targetSceneId: 'classroom',
-        text: 'Walk to Toddler Playroom'
+        text: 'Walk to Toddler Playroom',
+        textAm: 'ወደ ታዳጊዎች መጫወቻ ክፍል ይሂዱ'
       },
       {
         id: 'to_playground',
         pitch: -5,
         yaw: -130,
         targetSceneId: 'playground',
-        text: 'Go to Outdoor Playground'
+        text: 'Go to Outdoor Playground',
+        textAm: 'ወደ ውጭ መጫወቻ ስፍራ ይሂዱ'
       }
     ]
   },
   {
     id: 'classroom',
     title: 'Toddler Playroom & Learning Area',
+    titleAm: 'የታዳጊዎች መጫወቻ እና መማሪያ ክፍል',
     imageUrl: 'https://pannellum.org/images/cerebra.jpg',
     isStart: false,
     hotspots: [
@@ -143,13 +150,15 @@ const DEFAULT_SCENES: Scene[] = [
         pitch: -10,
         yaw: 180,
         targetSceneId: 'lobby',
-        text: 'Back to Reception'
+        text: 'Back to Reception',
+        textAm: 'ወደ መቀበያ አዳራሽ ይመለሱ'
       }
     ]
   },
   {
     id: 'playground',
     title: 'Secure Outdoor Play Area',
+    titleAm: 'አስተማማኝ የውጭ መጫወቻ ስፍራ',
     imageUrl: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/2294472375_24a3b8ef46_o.jpg',
     isStart: false,
     hotspots: [
@@ -158,7 +167,8 @@ const DEFAULT_SCENES: Scene[] = [
         pitch: 0,
         yaw: 0,
         targetSceneId: 'lobby',
-        text: 'Back to Main Lobby'
+        text: 'Back to Main Lobby',
+        textAm: 'ወደ ዋናው መቀበያ ይመለሱ'
       }
     ]
   }
@@ -289,11 +299,31 @@ const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing, step = 'horizon
 
 export interface ThreeSixtyViewerProps {
   isAdminMode?: boolean;
+  lang?: 'en' | 'am';
 }
 
-export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode = false }) => {
+export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode = false, lang = 'en' }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   
+  // Helpers for translation
+  const getSceneTitle = (s: Scene | null | undefined): string => {
+    if (!s) return '';
+    if (lang === 'am') return s.titleAm || s.title;
+    return s.title;
+  };
+
+  const getHotspotText = (h: Hotspot | null | undefined): string => {
+    if (!h) return '';
+    if (lang === 'am') return h.textAm || h.text;
+    return h.text;
+  };
+
+  const getHotspotDescription = (h: Hotspot | null | undefined): string => {
+    if (!h) return '';
+    if (lang === 'am') return h.descriptionAm || h.description || '';
+    return h.description || '';
+  };
+
   // State
   const [isThreeReady, setIsThreeReady] = useState(false);
   const [scenes, setScenes] = useState<Scene[]>([]);
@@ -336,7 +366,9 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [showAddRoomModal, setShowAddRoomModal] = useState(false);
   const [showEditRoomModal, setShowEditRoomModal] = useState(false);
   const [newRoomTitle, setNewRoomTitle] = useState('');
+  const [newRoomTitleAm, setNewRoomTitleAm] = useState('');
   const [editRoomTitle, setEditRoomTitle] = useState('');
+  const [editRoomTitleAm, setEditRoomTitleAm] = useState('');
   const [newRoomImageFile, setNewRoomImageFile] = useState<File | null>(null);
   const [newRoomImageUrl, setNewRoomImageUrl] = useState('');
   const [editRoomImageUrl, setEditRoomImageUrl] = useState('');
@@ -349,9 +381,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [editingHotspotPitch, setEditingHotspotPitch] = useState<number | null>(null);
   const [editingHotspotYaw, setEditingHotspotYaw] = useState<number | null>(null);
   const [newHotspotText, setNewHotspotText] = useState('');
+  const [newHotspotTextAm, setNewHotspotTextAm] = useState('');
   const [newHotspotTarget, setNewHotspotTarget] = useState('');
   const [newHotspotType, setNewHotspotType] = useState<'link' | 'info'>('link');
   const [newHotspotDescription, setNewHotspotDescription] = useState('');
+  const [newHotspotDescriptionAm, setNewHotspotDescriptionAm] = useState('');
   const [newHotspotLinkedId, setNewHotspotLinkedId] = useState(''); // Selected Return Door ID
   const [newHotspotColor, setNewHotspotColor] = useState('#10b981'); // Customizable direction color
   const [useGyroscope, setUseGyroscope] = useState(false); // Gyroscope sensor toggle
@@ -809,6 +843,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const newScene: Scene = {
       id: newId,
       title: newRoomTitle,
+      titleAm: newRoomTitleAm || undefined,
       imageUrl: finalImageUrl,
       isStart: scenes.length === 0, // Make start if it's the first scene
       hotspots: []
@@ -822,6 +857,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     // Reset Form
     setNewRoomTitle('');
+    setNewRoomTitleAm('');
     setNewRoomImageUrl('');
     setNewRoomImageFile(null);
     setShowAddRoomModal(false);
@@ -849,7 +885,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     const updated = scenes.map(s => {
       if (s.id === currentScene.id) {
-        return { ...s, title: editRoomTitle, imageUrl: finalImageUrl };
+        return { ...s, title: editRoomTitle, titleAm: editRoomTitleAm || undefined, imageUrl: finalImageUrl };
       }
       return s;
     });
@@ -857,7 +893,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     await saveScenesConfig(updated);
     
     // Update local state immediately
-    setCurrentScene({ ...currentScene, title: editRoomTitle, imageUrl: finalImageUrl });
+    setCurrentScene({ ...currentScene, title: editRoomTitle, titleAm: editRoomTitleAm || undefined, imageUrl: finalImageUrl });
     
     setShowEditRoomModal(false);
   };
@@ -938,9 +974,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     setEditingHotspotId(hs.id);
     setNewHotspotType(hs.type);
     setNewHotspotText(hs.text);
+    setNewHotspotTextAm(hs.textAm || '');
     setNewHotspotTarget(hs.targetSceneId || '');
     setNewHotspotLinkedId(hs.linkedHotspotId || '');
     setNewHotspotDescription(hs.description || '');
+    setNewHotspotDescriptionAm(hs.descriptionAm || '');
     setNewHotspotColor(hs.color || '#10b981');
     setEditingHotspotPitch(hs.pitch);
     setEditingHotspotYaw(hs.yaw);
@@ -950,10 +988,12 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const resetHotspotForm = () => {
     setEditingHotspotId(null);
     setNewHotspotText('');
+    setNewHotspotTextAm('');
     setNewHotspotTarget('');
     setNewHotspotLinkedId('');
     setNewHotspotType('link');
     setNewHotspotDescription('');
+    setNewHotspotDescriptionAm('');
     setNewHotspotColor('#10b981'); // Reset to default brand green
     setEditingHotspotPitch(null);
     setEditingHotspotYaw(null);
@@ -987,9 +1027,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 return {
                   ...h,
                   text: newHotspotText,
+                  textAm: newHotspotTextAm || undefined,
                   targetSceneId: newHotspotType === 'link' ? newHotspotTarget : '',
                   type: newHotspotType,
                   description: newHotspotType === 'info' ? newHotspotDescription : '',
+                  descriptionAm: newHotspotType === 'info' ? (newHotspotDescriptionAm || undefined) : undefined,
                   color: newHotspotColor,
                   pitch: editingHotspotPitch !== null ? editingHotspotPitch : h.pitch,
                   yaw: editingHotspotYaw !== null ? editingHotspotYaw : h.yaw,
@@ -1020,8 +1062,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       yaw: Math.round(cameraLon),
       targetSceneId: newHotspotType === 'link' ? newHotspotTarget : '',
       text: newHotspotText,
+      textAm: newHotspotTextAm || undefined,
       type: newHotspotType,
       description: newHotspotType === 'info' ? newHotspotDescription : '',
+      descriptionAm: newHotspotType === 'info' ? (newHotspotDescriptionAm || undefined) : undefined,
       color: newHotspotColor, // Save the custom direction color chosen by the user
       linkedHotspotId: (newHotspotType === 'link' && newHotspotLinkedId) ? newHotspotLinkedId : undefined
     };
@@ -1723,7 +1767,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   if (loading) {
     const startScene = scenes?.find(s => s.isStart) || scenes?.[0] || DEFAULT_SCENES[0];
     return (
-      <div className="w-full h-[320px] sm:h-[420px] md:h-[600px] flex flex-col items-center justify-center bg-stone-950 text-stone-200 rounded-2xl border border-stone-800 relative overflow-hidden p-6 shadow-2xl">
+      <div className="w-full h-[240px] sm:h-[315px] md:h-[450px] flex flex-col items-center justify-center bg-stone-950 text-stone-200 rounded-2xl border border-stone-800 relative overflow-hidden p-6 shadow-2xl">
         {/* Ambient blurred background */}
         <div className="absolute inset-0 opacity-20 filter blur-2xl scale-125 select-none pointer-events-none">
           <img 
@@ -1735,28 +1779,28 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         </div>
         
         {/* Sleek glassmorphic card */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-sm w-full flex flex-col items-center text-center gap-4 z-10">
-          <div className="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative border border-white/5 bg-stone-900 shadow-inner">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 shadow-2xl max-w-sm w-full flex flex-col items-center text-center gap-3 z-10">
+          <div className="w-full h-24 sm:h-28 rounded-2xl overflow-hidden relative border border-white/5 bg-stone-900 shadow-inner">
             <img 
               src={startScene.imageUrl} 
-              alt={startScene.title} 
+              alt={getSceneTitle(startScene)} 
               className="w-full h-full object-cover opacity-60"
               referrerPolicy="no-referrer"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
-            <div className="absolute bottom-3 left-3 text-left">
-              <span className="text-[8px] uppercase tracking-[0.2em] text-brand-orange font-black">Starting Room</span>
-              <h4 className="text-white text-xs sm:text-sm font-bold truncate leading-tight">{startScene.title}</h4>
+            <div className="absolute bottom-2 left-3 text-left">
+              <span className="text-[7px] uppercase tracking-[0.2em] text-brand-orange font-black">{lang === 'am' ? 'መጀመሪያ ክፍል' : 'Starting Room'}</span>
+              <h4 className="text-white text-[10px] sm:text-xs font-bold truncate leading-tight">{getSceneTitle(startScene)}</h4>
             </div>
           </div>
           
-          <div className="w-full flex flex-col gap-1">
-            <h3 className="font-sans font-black text-white text-sm sm:text-base tracking-wide">360° Kidtopia Campus Tour</h3>
-            <p className="text-[10px] text-stone-400 font-medium">Assembling interactive Virtual Environment...</p>
+          <div className="w-full flex flex-col gap-0.5">
+            <h3 className="font-sans font-black text-white text-xs sm:text-sm tracking-wide">{lang === 'am' ? '360° የኪድቶፒያ ካምፓስ ጉብኝት' : '360° Kidtopia Campus Tour'}</h3>
+            <p className="text-[9px] text-stone-400 font-medium">{lang === 'am' ? 'በይነተገናኝ አካባቢን በመገንባት ላይ...' : 'Assembling interactive Virtual Environment...'}</p>
           </div>
           
           {/* YouTube-like Linear Loading Bar */}
-          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-2 relative">
+          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-1 relative">
             <motion.div 
               initial={{ left: "-100%" }}
               animate={{ left: "100%" }}
@@ -1803,7 +1847,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           }
         }}
         className={`relative w-full rounded-2xl overflow-hidden shadow-2xl border bg-black transition-all duration-300 ${
-          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[320px] sm:h-[420px] md:h-[600px] border-stone-200/80 dark:border-stone-800'
+          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[240px] sm:h-[315px] md:h-[450px] border-stone-200/80 dark:border-stone-800'
         }`}
       >
         
@@ -1852,7 +1896,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   {/* Floating Description Label - glassy transparent */}
                   <div className="mt-2 px-3 py-1.5 bg-white/40 backdrop-blur-[24px] border border-white/50 rounded-xl text-stone-900 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-2xl flex items-center gap-1.5 opacity-90 group-hover/btn:opacity-100 transition-all duration-200">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                    <span>{hotspot.text}</span>
+                    <span>{getHotspotText(hotspot)}</span>
                   </div>
                 </button>
               ) : (
@@ -1888,7 +1932,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   <div 
                     className="mt-1 px-4 py-1.5 bg-white/40 backdrop-blur-[24px] border border-white/50 rounded-full text-stone-900 text-[10px] font-bold tracking-wide whitespace-nowrap shadow-2xl flex items-center gap-1.5 opacity-90 group-hover/btn:opacity-100 transition-all duration-200"
                   >
-                    <span>{hotspot.text}</span>
+                    <span>{getHotspotText(hotspot)}</span>
                     <ChevronRight className="w-3.5 h-3.5 text-stone-700" />
                   </div>
                 </button>
@@ -2054,10 +2098,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             {/* Room Title Tag - glassmorphic and elegant */}
             <div className="bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 px-3 sm:px-4 py-0.5 sm:py-1.5 rounded-full shadow-md pointer-events-auto flex flex-col items-center gap-0.5">
               <h3 className="text-stone-900 dark:text-stone-100 font-sans text-[9px] sm:text-sm font-bold tracking-wide flex items-center gap-1.5 whitespace-nowrap">
-                <span>{currentScene?.title}</span>
+                <span>{getSceneTitle(currentScene)}</span>
                 {currentScene?.isStart && (
                   <span className="px-1.5 py-0.5 bg-brand-orange/80 text-white text-[7px] sm:text-[9px] uppercase tracking-wider rounded font-mono font-bold">
-                    Entrance
+                    {lang === 'am' ? 'ዋና መግቢያ' : 'Entrance'}
                   </span>
                 )}
               </h3>
@@ -2077,7 +2121,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               <div className="flex justify-between items-start mb-4">
                 <h4 className="font-sans font-black text-stone-900 text-[11px] tracking-widest uppercase flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
-                  {activeInfoHotspot.text}
+                  {getHotspotText(activeInfoHotspot)}
                 </h4>
                 <button 
                   onClick={() => setActiveInfoHotspot(null)}
@@ -2087,7 +2131,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 </button>
               </div>
               <p className="text-stone-700 text-xs leading-relaxed font-semibold font-sans">
-                {activeInfoHotspot.description || "Discover more details about this area of our modern nursery school."}
+                {getHotspotDescription(activeInfoHotspot) || (lang === 'am' ? 'ስለዚህ ዘመናዊ የህፃናት ማቆያ ክፍል ተጨማሪ ዝርዝሮችን ያግኙ።' : 'Discover more details about this area of our modern nursery school.')}
               </p>
             </div>
           </div>
@@ -2120,7 +2164,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           : 'text-stone-300 hover:bg-white/10 hover:text-white'
                       }`}
                     >
-                      {s.title}
+                      {getSceneTitle(s)}
                     </button>
                   ))}
                 </div>
@@ -2133,13 +2177,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   className="bg-black/60 backdrop-blur-md border border-white/10 px-3 py-2 md:py-2.5 rounded-xl shadow-lg text-white hover:bg-black transition-all flex items-center gap-2 text-[10px] md:text-xs font-sans font-bold"
                 >
                   <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-brand-orange" />
-                  <span>Hotspots</span>
+                  <span>{lang === 'am' ? 'መድረሻዎች' : 'Hotspots'}</span>
                   <ChevronRight className={`w-3 h-3 transition-transform ${isHotspotsMenuOpen ? 'rotate-90' : ''}`} />
                 </button>
 
                 {isHotspotsMenuOpen && (
                   <div className="absolute bottom-full left-0 mb-2 w-56 bg-stone-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-1.5 animate-in slide-in-from-bottom-2 duration-200 z-50 max-h-[60vh] overflow-y-auto scrollbar-none">
-                    <div className="px-2 py-1 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">Current Scene Hotspots</div>
+                    <div className="px-2 py-1 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">{lang === 'am' ? 'የዚህ ክፍል መድረሻዎች' : 'Current Scene Hotspots'}</div>
                     {currentScene?.hotspots.map(h => (
                       <button
                         key={h.id}
@@ -2154,34 +2198,29 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                         className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] text-stone-300 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
                       >
                         {h.type === 'link' ? <ArrowRight className="w-3 h-3 text-brand-green" /> : <Info className="w-3 h-3 text-brand-orange" />}
-                        <span className="truncate">{h.text}</span>
+                        <span className="truncate">{getHotspotText(h)}</span>
                       </button>
                     ))}
                     {(!currentScene?.hotspots || currentScene.hotspots.length === 0) && (
-                      <div className="px-2.5 py-2 text-[10px] text-stone-500 italic">No hotspots in this scene.</div>
+                      <div className="px-2.5 py-2 text-[10px] text-stone-500 italic">{lang === 'am' ? 'ምንም መድረሻ አልተገኘም።' : 'No hotspots in this scene.'}</div>
                     )}
 
                     {/* Section for hotspots in other rooms */}
-                    <div className="px-2 py-1 mt-3 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">Hotspots in Other Rooms</div>
+                    <div className="px-2 py-1 mt-3 text-[8px] font-black uppercase tracking-widest text-stone-500 mb-1 border-b border-white/5">{lang === 'am' ? 'በሌሎች ክፍሎች ያሉ መድረሻዎች' : 'Hotspots in Other Rooms'}</div>
                     {scenes.filter(s => s.id !== currentScene?.id).map(scene => (
                       <div key={scene.id} className="mt-1">
-                        <div className="px-2 py-0.5 text-[7px] text-stone-600 font-bold uppercase">{scene.title}</div>
+                        <div className="px-2 py-0.5 text-[7px] text-stone-600 font-bold uppercase">{getSceneTitle(scene)}</div>
                         {scene.hotspots.map(h => (
                           <button
                             key={h.id}
                             onClick={() => {
                               handleSwitchRoom(scene.id);
-                              // After switching, if it's info, we can't easily trigger it immediately because scene hasn't loaded
-                              // but we navigate to the room at least.
-                              if (h.type === 'info') {
-                                // Optional: set a pending hotspot to open once scene loads
-                              }
                               setIsHotspotsMenuOpen(false);
                             }}
                             className="w-full text-left px-2.5 py-1 rounded-lg text-[9px] text-stone-400 hover:bg-white/5 hover:text-white transition-all flex items-center gap-2"
                           >
                             {h.type === 'link' ? <ArrowRight className="w-2.5 h-2.5 opacity-50" /> : <Info className="w-2.5 h-2.5 opacity-50" />}
-                            <span className="truncate">{h.text}</span>
+                            <span className="truncate">{getHotspotText(h)}</span>
                           </button>
                         ))}
                       </div>
@@ -2205,7 +2244,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   <ChevronRight className={`w-4 h-4 text-stone-900 dark:text-stone-100 transition-transform duration-200 ${isRoomsMenuOpen ? 'rotate-90' : ''}`} />
                   {isRoomsMenuOpen && (
                     <span className="truncate max-w-[100px] animate-in fade-in duration-200">
-                      {currentScene?.title || 'Rooms'}
+                      {getSceneTitle(currentScene) || (lang === 'am' ? 'ክፍሎች' : 'Rooms')}
                     </span>
                   )}
                 </button>
@@ -2223,7 +2262,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           currentScene?.id === s.id ? 'bg-brand-green text-white font-semibold' : 'text-stone-800 dark:text-stone-200 hover:bg-white/20'
                         }`}
                       >
-                        <span className="truncate">{s.title}</span>
+                        <span className="truncate">{getSceneTitle(s)}</span>
                       </button>
                     ))}
                   </div>
@@ -2241,7 +2280,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   className="bg-white/30 dark:bg-black/35 backdrop-blur-md border border-white/40 dark:border-white/10 px-3 py-2.5 rounded-xl shadow-2xl text-stone-900 dark:text-stone-100 text-xs font-sans font-bold flex items-center gap-2 hover:bg-white/40 transition active:scale-95"
                 >
                   <MapPin className="w-4 h-4 text-brand-orange" />
-                  {isHotspotsMenuOpen && <span className="animate-in fade-in">Points</span>}
+                  {isHotspotsMenuOpen && <span className="animate-in fade-in">{lang === 'am' ? 'መድረሻዎች' : 'Points'}</span>}
                 </button>
                 
                 {isHotspotsMenuOpen && (
@@ -2260,7 +2299,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                         className="w-full text-left px-3 py-2 rounded-xl text-xs font-sans text-stone-800 dark:text-stone-200 hover:bg-white/20 font-medium flex items-center gap-2"
                       >
                         {h.type === 'link' ? <ArrowRight className="w-3 h-3 text-brand-green" /> : <Info className="w-3 h-3 text-brand-orange" />}
-                        <span className="truncate">{h.text}</span>
+                        <span className="truncate">{getHotspotText(h)}</span>
                       </button>
                     ))}
                   </div>
@@ -2380,11 +2419,11 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           <div className="flex items-center gap-2">
             <Compass className="w-4 h-4 text-brand-green" />
             <h4 className="font-sans font-bold text-[10px] sm:text-xs tracking-wider text-stone-800 dark:text-stone-200 uppercase">
-              Explore Kidtopia Campus Rooms
+              {lang === 'am' ? 'የኪድቶፒያ ግቢ ክፍሎችን ያስሱ' : 'Explore Kidtopia Campus Rooms'}
             </h4>
           </div>
           <span className="text-[9px] font-sans text-stone-400 font-medium">
-            Swipe left/right to view rooms ({scenes.length})
+            {lang === 'am' ? `ክፍሎችን ለማየት ወደ ግራ/ቀኝ ያንሸራትቱ (${scenes.length})` : `Swipe left/right to view rooms (${scenes.length})`}
           </span>
         </div>
         
@@ -2409,7 +2448,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 <div className="w-full h-20 rounded-lg overflow-hidden relative bg-stone-900 select-none pointer-events-none">
                   <img
                     src={urls.low}
-                    alt={s.title}
+                    alt={getSceneTitle(s)}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
@@ -2417,14 +2456,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   
                   {s.isStart && (
                     <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-brand-green text-white font-mono font-black text-[7px] uppercase tracking-wider rounded-md shadow-xs">
-                      Start
+                      {lang === 'am' ? 'መጀመሪያ' : 'Start'}
                     </span>
                   )}
                   
                   {isActive && (
                     <div className="absolute inset-0 bg-brand-green/20 flex items-center justify-center backdrop-blur-[0.5px]">
                       <span className="px-2 py-0.5 bg-brand-green text-white font-sans font-bold text-[8px] uppercase tracking-wider rounded-full shadow-md animate-pulse">
-                        Viewing
+                        {lang === 'am' ? 'በመመልከት ላይ' : 'Viewing'}
                       </span>
                     </div>
                   )}
@@ -2435,7 +2474,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   <p className={`text-[10px] font-sans font-bold leading-tight line-clamp-2 ${
                     isActive ? 'text-brand-green' : 'text-stone-700 dark:text-stone-300'
                   }`}>
-                    {s.title}
+                    {getSceneTitle(s)}
                   </p>
                 </div>
               </button>
@@ -2478,6 +2517,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               <button
                 onClick={() => {
                   setEditRoomTitle(currentScene.title);
+                  setEditRoomTitleAm((currentScene as any).titleAm || '');
                   setEditRoomImageUrl(currentScene.imageUrl || '');
                   setEditRoomImageFile(null);
                   setShowEditRoomModal(true);
@@ -2514,7 +2554,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               <div className="flex items-center justify-between mb-3">
                 <h5 className="text-stone-800 dark:text-stone-200 text-xs font-mono uppercase tracking-wider font-semibold flex items-center gap-1.5">
                   <Compass className="w-4 h-4 text-brand-green" />
-                  Outgoing Hotspots in {currentScene.title}
+                  Outgoing Hotspots in {getSceneTitle(currentScene)}
                 </h5>
                 <button
                   onClick={() => setShowAddHotspotModal(true)}
@@ -2528,7 +2568,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
               {currentScene.hotspots && currentScene.hotspots.length > 0 ? (
                 <div className="space-y-2">
                   {currentScene.hotspots.map(hs => {
-                    const targetName = scenes.find(s => s.id === hs.targetSceneId)?.title || hs.targetSceneId;
+                    const targetScene = scenes.find(s => s.id === hs.targetSceneId);
+                    const targetName = targetScene ? getSceneTitle(targetScene) : hs.targetSceneId;
                     return (
                       <div 
                         key={hs.id}
@@ -2541,7 +2582,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                             title="Custom Accent Color"
                           />
                           <div>
-                            <p className="font-semibold text-stone-700 dark:text-stone-200">{hs.text}</p>
+                            <p className="font-semibold text-stone-700 dark:text-stone-200">{getHotspotText(hs)}</p>
                             <p className="text-stone-500 font-mono text-[10px]">
                               Links to: <span className="font-sans font-medium text-brand-green" style={{ color: hs.color || '#10b981' }}>{targetName}</span> (Lat: {hs.pitch}°, Lon: {hs.yaw}°)
                             </p>
@@ -2621,7 +2662,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             <form onSubmit={handleCreateRoom} className="space-y-4 font-sans text-sm">
               <div>
                 <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                  Room Title / Label
+                  Room Title / Label (English)
                 </label>
                 <input
                   type="text"
@@ -2630,6 +2671,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   onChange={(e) => setNewRoomTitle(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                   required
+                />
+              </div>
+
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                  Room Title / Label (Amharic)
+                </label>
+                <input
+                  type="text"
+                  placeholder="ለምሳሌ፡ የፈጠራ መጫወቻ ክፍል፣ የታዳጊዎች አሸዋ መጫወቻ"
+                  value={newRoomTitleAm}
+                  onChange={(e) => setNewRoomTitleAm(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
               </div>
 
@@ -2752,7 +2806,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
             <form onSubmit={handleEditRoomDetails} className="space-y-4 font-sans text-sm">
               <div>
                 <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                  Room Title / Label
+                  Room Title / Label (English)
                 </label>
                 <input
                   type="text"
@@ -2761,6 +2815,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   onChange={(e) => setEditRoomTitle(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                   required
+                />
+              </div>
+
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                  Room Title / Label (Amharic)
+                </label>
+                <input
+                  type="text"
+                  placeholder="ለምሳሌ፡ የፈጠራ መጫወቻ ክፍል፣ የታዳጊዎች አሸዋ መጫወቻ"
+                  value={editRoomTitleAm}
+                  onChange={(e) => setEditRoomTitleAm(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
               </div>
 
@@ -2956,7 +3023,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
               <div>
                 <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                  Hotspot Label / Text Title
+                  Hotspot Label / Text Title (English)
                 </label>
                 <input
                   type="text"
@@ -2965,6 +3032,19 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   onChange={(e) => setNewHotspotText(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                   required
+                />
+              </div>
+
+              <div>
+                <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                  Hotspot Label / Text Title (Amharic)
+                </label>
+                <input
+                  type="text"
+                  placeholder={newHotspotType === 'link' ? "ለምሳሌ፡ ወደ መዋለ ህጻናት ክፍል ግባ" : "ለምሳሌ፡ የንባብ ማዕዘን"}
+                  value={newHotspotTextAm}
+                  onChange={(e) => setNewHotspotTextAm(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
               </div>
 
@@ -3031,7 +3111,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                         .filter(s => s.id !== currentScene.id)
                         .map(s => (
                           <option key={s.id} value={s.id}>
-                            {s.title}
+                            {getSceneTitle(s)}
                           </option>
                         ))}
                     </select>
@@ -3056,7 +3136,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                           .filter(h => h.type !== 'info')
                           .map(h => (
                             <option key={h.id} value={h.id}>
-                              {h.text} (Yaw: {h.yaw}°)
+                              {getHotspotText(h)} (Yaw: {h.yaw}°)
                             </option>
                           ))}
                       </select>
@@ -3064,18 +3144,33 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                   )}
                 </div>
               ) : (
-                <div>
-                  <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
-                    Detailed Area Description
-                  </label>
-                  <textarea
-                    placeholder="Enter detailed description to show when visitors click this information beacon area..."
-                    value={newHotspotDescription}
-                    onChange={(e) => setNewHotspotDescription(e.target.value)}
-                    rows={3}
-                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
-                    required
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                      Detailed Area Description (English)
+                    </label>
+                    <textarea
+                      placeholder="Enter detailed description to show when visitors click this information beacon area..."
+                      value={newHotspotDescription}
+                      onChange={(e) => setNewHotspotDescription(e.target.value)}
+                      rows={2}
+                      className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-stone-700 dark:text-stone-300 font-medium mb-1.5">
+                      Detailed Area Description (Amharic)
+                    </label>
+                    <textarea
+                      placeholder="ስለዚህ ክፍል ተጨማሪ መግለጫ እዚህ ያስገቡ..."
+                      value={newHotspotDescriptionAm}
+                      onChange={(e) => setNewHotspotDescriptionAm(e.target.value)}
+                      rows={2}
+                      className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+                    />
+                  </div>
                 </div>
               )}
 

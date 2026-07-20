@@ -353,17 +353,6 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
           </div>
 
           <div className="mt-16 flex flex-wrap justify-center gap-5">
-            <button 
-              onClick={() => {
-                if (t.media && t.media.length > 0) {
-                  setInitialIndex(0);
-                  setActiveMediaIndex(0);
-                }
-              }}
-              className="btn-primary px-10 py-4.5 text-base font-black tracking-wider uppercase hover:scale-105 active:scale-95 duration-350 shadow-lg cursor-pointer"
-            >
-              {t.watchFull}
-            </button>
             <Link 
               to="/book-tour" 
               className="btn-yellow px-10 py-4.5 text-base font-black tracking-wider uppercase inline-flex items-center justify-center gap-2 hover:scale-105 active:scale-95 duration-350 shadow-lg shadow-brand-yellow/10"

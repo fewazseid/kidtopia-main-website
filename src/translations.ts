@@ -230,7 +230,10 @@ export const translations = {
         }
       ],
       phones: ["+251 911 000 000"],
-      emails: ["info@kidtopia.com"]
+      emails: ["info@kidtopia.com"],
+      copyright: "© 2026 Kidtopia International Daycare and Preschool. All rights reserved.",
+      developedBy: "Developed by Arho Technology",
+      developerUrl: "https://arhotechnology.com"
     },
     resources: {
       title: "Parent Resources",
@@ -734,7 +737,10 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
         }
       ],
       phones: ["+251 911 000 000"],
-      emails: ["info@kidtopia.com"]
+      emails: ["info@kidtopia.com"],
+      copyright: "© 2026 ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት። መብቱ በህግ የተጠበቀ ነው።",
+      developedBy: "በአርሆ ቴክኖሎጂ የተገነባ",
+      developerUrl: "https://arhotechnology.com"
     },
     resources: {
       title: "የወላጅ መርጃዎች",
