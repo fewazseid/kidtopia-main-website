@@ -42,7 +42,7 @@ export const translations = {
       badgeText: "Now Enrolling for 2026",
       title: "A Safe, Caring, and Inspiring Space for Your Child.",
       titleHighlight: "Safe, Caring",
-      subheadline: "Welcome to Kidtopia International Daycare and Preschool — fully managed by our custom Kidtopia OS software, from online registration to biometric kids' checkout, with a dedicated parent dashboard.",
+      subheadline: "Welcome to Kidtopia International Daycare and Preschool — fully managed by our custom web-based daycare system, from online registration to QR Code parent checkout, with a dedicated parent dashboard.",
       enroll: "Enroll Your Child",
       bookTour: "Book a Tour",
       virtualTour: "Take a Virtual Tour",
@@ -54,7 +54,7 @@ export const translations = {
       highlights: [
         { title: "Safe Environment", desc: "Strict health and security protocols", image: "" },
         { title: "Qualified Staff", desc: "Trained and carefully selected nannies", image: "" },
-        { title: "Kidtopia OS Portal", desc: "End-to-end software & Parent Dashboard", image: "" }
+        { title: "Kidtopia Web Portal", desc: "End-to-end software & Parent Dashboard", image: "" }
       ]
     },
     safety: {
@@ -97,7 +97,7 @@ export const translations = {
         "Comprehensive daily digital activity reports",
         "Healthy, sanitized and child-proof environments",
         "Small class sizes with certified loving caregivers",
-        "Secure biometric and verified child pickup system",
+        "Secure QR Code scanning and verified parent pickup system",
         "Transparent daycare operations & open communication",
         "Premium modern cognitive & motor skill development curriculum",
         "First aid & pediatric CPR certified staff members"
@@ -383,7 +383,7 @@ Kidtopia strictly adheres to or exceeds these ratios to maintain safety.
 
 6. SAFETY, EMERGENCY & UTILITY SECURITY
 • Evacuation Plans: Emergency fire drills are conducted twice a year.
-• Controlled Ingress/Egress: Access gates are securely locked. Only pre-authorized administrative staff and verified guardians with fingerprint biometric validation can enter the premises.
+• Controlled Ingress/Egress: Access gates are securely locked. Only pre-authorized administrative staff and verified guardians with secure QR Code scanning from parents' phones can enter the premises.
 • First Aid: Fully stocked medical boxes are present in every classroom, and staff are trained in child CPR.`,
       intlGuidelinesTitle: "Consolidated Daycare Policies & Terms",
       intlGuidelinesBody: `KIDTOPIA INTERNATIONAL DAYCARE - CONSOLIDATED OPERATIONAL POLICIES
@@ -408,8 +408,8 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
 • Return to Care: Children may return to the center only when fever-free and symptom-free for at least 24 hours without the use of fever-reducing medication.
 • Prescribed Medication: Center staff will administer prescribed medication only if accompanied by a signed doctor’s note and in its original pharmaceutical bottle.
 
-4. PICK-UP SECURITY & BIOMETRICS
-• Authorized Pick-Up: Only guardians registered in the portal with authorized government photo IDs or registered fingerprints can pick up a child.
+4. PICK-UP SECURITY & QR CODES
+• Authorized Pick-Up: Only guardians registered in the portal with authorized government photo IDs or registered secure QR Codes on their logged-in phones can pick up a child.
 • Emergency Contact Update: If someone else needs to pick up your child, you must submit written notice in the portal or call the office at least 2 hours in advance. No child will be released to an unverified individual.
 
 5. BEHAVIORAL CODE & DISCIPLINE
@@ -517,6 +517,11 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       ],
       proceedButton: "Proceed to Online Enrollment Form",
       externalEnrollmentUrl: "https://kidtopia-main-u5x6pj.laravel.cloud/enroll"
+    },
+    softwareShowcase: {
+      badge: "Web-Based Daycare System",
+      title: "From Registration to Kids' Checkout, Powered by Kidtopia's Web Portal",
+      subtitle: "We believe transparency is the ultimate foundation of trust. That's why we built our custom web-based daycare system to keep you connected, secured, and informed every single second."
     }
   },
   am: {
@@ -551,7 +556,7 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       badgeText: "ለ2026 ምዝገባ ላይ ነን",
       title: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
       titleHighlight: "ደህንነቱ የተጠበቀ፣ አሳቢ",
-      subheadline: "እንኳን ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት በደህና መጡ። ከበይነመረብ ምዝገባ እስከ የጣት አሻራ መውጫ ባለው ዘመናዊ የኪድቶፒያ ኦኤስ ሶፍትዌር እና ለእያንዳንዱ ወላጅ በተዘጋጀ የቀጥታ የክትትል ዳሽቦርድ ሙሉ በሙሉ የተደራጀ ምቹ የህፃናት ማቆያ።",
+      subheadline: "እንኳን ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት በደህና መጡ። ከበይነመረብ ምዝገባ እስከ QR ኮድ መውጫ ባለው ዘመናዊ የኪድቶፒያ የዌብ ሶፍትዌር እና ለእያንዳንዱ ወላጅ በተዘጋጀ የቀጥታ የክትትል ዳሽቦርድ ሙሉ በሙሉ የተደራጀ ምቹ የህፃናት ማቆያ።",
       enroll: "ልጅዎን ያስመዝግቡ",
       bookTour: "ጉብኝት ያስይዙ",
       virtualTour: "ቪርቹዋል ጉብኝት ያድርጉ",
@@ -563,7 +568,7 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       highlights: [
         { title: "ደህንነቱ የተጠበቀ አካባቢ", desc: "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች", image: "" },
         { title: "ብቁ ሰራተኞች", desc: "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች", image: "" },
-        { title: "የኪድቶፒያ ሶፍትዌር", desc: "ከምዝገባ እስከ መውጫ እና የወላጅ ዳሽቦርድ", image: "" }
+        { title: "የኪድቶፒያ ሶፍትዌር", desc: "ከምዝገባ እስከ QR መውጫ እና የወላጅ ዳሽቦርድ", image: "" }
       ]
     },
     safety: {
@@ -606,7 +611,7 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
         "አጠቃላይ ዕለታዊ ዲጂታል የእንቅስቃሴ ሪፖርቶች",
         "ጤናማ፣ ንጹህ እና ደህንነቱ የተጠበቀ አካባቢ",
         "አነስተኛ የክፍል መጠኖች ከአፍቃሪ ተንከባካቢዎች ጋር",
-        "ደህንነቱ የተጠበቀ የባዮሜትሪክ የህፃናት መውሰጃ ስርዓት",
+        "ደህንነቱ የተጠበቀ የQR ኮድ የህፃናት መውሰጃ ስርዓት",
         "ግልጽ የቀን እንክብካቤ ስራዎች እና ቀጥተኛ ግንኙነት",
         "ዘመናዊ የእውቀት እና የክህሎት ማሳደጊያ ስርዓተ ትምህርት",
         "የመጀመሪያ ደረጃ የህክምና እርዳታ (CPR) የሰለጠኑ ሰራተኞች"
@@ -768,7 +773,7 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
         },
         {
           title: "3. የዲጂታል ደህንነት መውጫ",
-          content: "ደህንነት የላቀ ቅድሚያ የምንሰጠው ጉዳይ ነው። የዲጂታል መግቢያ/መውጫ ተርሚናላችን የተፈቀደላቸውን ወላጆች ይመዘግባል። የጣት አሻራ ምዝገባ በጣም ይመከራል። ህጋዊ የመታወቂያ ካርድ ያላቸው ቀድመው የተመዘገቡ ወላጆች ብቻ ህጻናትን መውሰድ ይችላሉ። ምንም ልዩ ሁኔታ አይፈቀድም።"
+          content: "ደህንነት የላቀ ቅድሚያ የምንሰጠው ጉዳይ ነው። የዲጂታል መግቢያ/መውጫ ተርሚናላችን የተፈቀደላቸውን ወላጆች ይመዘግባል። በQR ኮድ መውሰድ በከፍተኛ ደረጃ ይመከራል። ህጋዊ የመታወቂያ ካርድ ያላቸው ቀድመው የተመዘገቡ ወላጆች ብቻ በስልካቸው የQR ኮድ በመጠቀም ህጻናትን መውሰድ ይችላሉ። ምንም ልዩ ሁኔታ አይፈቀድም።"
         },
         {
           title: "4. ዕለታዊ መርሃግብር እና የእንቅልፍ ሰዓት",
@@ -892,7 +897,7 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
 
 6. ደህንነት፣ የአደጋ ጊዜ እና የደህንነት ጥበቃ
 • የአደጋ ጊዜ እቅዶች፡ በዓመት ሁለት ጊዜ የአደጋ ጊዜ የእሳት አደጋ ልምምዶች ይካሄዳሉ።
-• ጥብቅ መግቢያ/መውጫ፡ የመግቢያ በሮች ሁልጊዜ የተቆለፉ ናቸው። የጣት አሻራ ባዮሜትሪክ ማረጋገጫ ያላቸው የተመዘገቡ ወላጆች ብቻ ወደ ግቢው መግባት ይችላሉ።`,
+• ጥብቅ መግቢያ/መውጫ፡ የመግቢያ በሮች ሁልጊዜ የተቆለፉ ናቸው። በስልካቸው ደህንነቱ የተጠበቀ የQR ኮድ ማረጋገጫ ያላቸው የተመዘገቡ ወላጆች ብቻ ወደ ግቢው መግባት ይችላሉ።`,
       intlGuidelinesTitle: "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች እና ውሎች",
       intlGuidelinesBody: `ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ - የተዋሃዱ የአሠራር ፖሊሲዎች
 
@@ -916,8 +921,8 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
 • ወደ ማቆያ መመለስ፡ ህጻናት ትኩሳትን የሚቀንሱ መድኃኒቶችን ሳይጠቀሙ ቢያንስ ለ24 ሰዓታት ከትኩሳት እና ከምልክቶች ነጻ መሆናቸው ሲረጋገጥ ብቻ ይመለሳሉ።
 • የታዘዘ መድኃኒት፡ ሰራተኞች መድኃኒት የሚሰጡት በሐኪም የታዘዘ ማስታወሻ ከዋናው የመድኃኒት መያዣ ጋር ሲቀርብ ብቻ ነው።
 
-4. የደህንነት እና የጣት አሻራ ባዮሜትሪክስ
-• የተፈቀደለት ሰው፡ በፖርታሉ ላይ የተመዘገቡ እና ህጋዊ መታወቂያ ያላቸው ወይም የጣት አሻራ ያስመዘገቡ ወላጆች ብቻ ህጻናትን መውሰድ ይችላሉ።
+4. የደህንነት እና የQR ኮድ አጠቃቀም
+• የተፈቀደለት ሰው፡ በፖርታሉ ላይ የተመዘገቡ እና ህጋዊ መታወቂያ ያላቸው ወይም ደህንነቱ የተጠበቀ የQR ኮድ ያሏቸው ወላጆች ብቻ ህጻናትን መውሰድ ይችላሉ።
 • የአደጋ ጊዜ እውቂያ፡ ሌላ ሰው ልጅዎን እንዲወስድ ከፈለጉ ቢያንስ ከ2 ሰዓታት በፊት በጽሁፍ ማሳወቅ ወይም መደወል አለብዎት።
 
 5. የስነ-ምግባር ደንብ እና ዲሲፕሊን
@@ -1025,6 +1030,11 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       ],
       proceedButton: "ወደ ኦንላይን የምዝገባ ቅጽ ይቀጥሉ",
       externalEnrollmentUrl: "https://kidtopia-main-u5x6pj.laravel.cloud/enroll"
+    },
+    softwareShowcase: {
+      badge: "የቀን ማቆያ ዌብ ሲስተም",
+      title: "ከምዝገባ እስከ ህፃናት መውጫ - በኪድቶፒያ ዌብ ፖርታል የተደገፈ",
+      subtitle: "ግልጽነት ለታማኝነት ዋናው መሠረት እንደሆነ እናምናለን። ለዚህም ነው በእያንዳንዱ ሰከንድ ደህንነትዎን ለመጠበቅ እና መረጃ ለማድረስ የእኛን ልዩ የሶፍትዌር ስርዓት የዘረጋነው።"
     }
   }
 };

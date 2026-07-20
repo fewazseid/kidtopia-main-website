@@ -1,94 +1,140 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Laptop, Smartphone, Upload, CheckCircle2, ShieldCheck, 
   Smile, Users, ClipboardList, LogIn, Heart, Camera, Activity, Info,
-  Utensils, Clock
+  Utensils, Clock, QrCode
 } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { useContent } from '../ContentContext';
 
 interface ScreenshotMap {
   registration: string | null;
   dashboard: string | null;
-  biometric: string | null;
+  qrcode: string | null;
 }
 
-export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
-  const [activeTab, setActiveTab] = useState<'registration' | 'dashboard' | 'biometric'>('dashboard');
+interface SoftwareShowcaseProps {
+  lang: 'en' | 'am';
+  isAdminView?: boolean;
+}
+
+export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdminView = false }) => {
+  const [activeTab, setActiveTab] = useState<'registration' | 'dashboard' | 'qrcode'>('dashboard');
   const [uploadedScreenshots, setUploadedScreenshots] = useState<ScreenshotMap>({
     registration: null,
     dashboard: null,
-    biometric: null,
+    qrcode: null,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Subscribe to real-time screenshot updates from Firestore settings
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'screenshots'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setUploadedScreenshots({
+          registration: data.registration || null,
+          dashboard: data.dashboard || null,
+          qrcode: data.qrcode || null,
+        });
+      }
+    }, (err) => {
+      console.warn("Firestore screenshots listen error (benign if offline):", err);
+    });
+    return () => unsub();
+  }, []);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
         setUploadedScreenshots(prev => ({
           ...prev,
-          [activeTab]: reader.result as string
+          [activeTab]: base64
         }));
+        try {
+          await setDoc(doc(db, 'settings', 'screenshots'), {
+            [activeTab]: base64
+          }, { merge: true });
+        } catch (error) {
+          console.error("Error persisting screenshot to Firestore:", error);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const removeScreenshot = (e: React.MouseEvent) => {
+  const removeScreenshot = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setUploadedScreenshots(prev => ({
       ...prev,
       [activeTab]: null
     }));
+    try {
+      await setDoc(doc(db, 'settings', 'screenshots'), {
+        [activeTab]: null
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error removing screenshot in Firestore:", error);
+    }
   };
 
-  // Translations for Software Showcase
-  const translations = {
+  // Static translations fallback if ContentProvider hasn't fully synced yet
+  const fallbackTranslations = {
     en: {
-      badge: "Proprietary Daycare Technology",
-      title: "From Registration to Kids' Checkout, Powered by Kidtopia OS",
-      subtitle: "We believe transparency is the ultimate foundation of trust. That's why we built our custom software ecosystem to keep you connected, secured, and informed every single second.",
+      badge: "Web-Based Daycare System",
+      title: "From Registration to Kids' Checkout, Powered by Kidtopia's Web Portal",
+      subtitle: "We believe transparency is the ultimate foundation of trust. That's why we built our custom web-based daycare system to keep you connected, secured, and informed every single second.",
       parentDashboardTitle: "Exclusive Parent Dashboard",
       parentDashboardDesc: "Parents get full access to a modern portal with real-time updates, child health logs, daily diet details, and direct communication with nannies.",
-      uploadLabel: "Drop your software screenshot here or click to browse",
+      uploadLabel: "Upload actual screenshot in Admin panel to replace this preview",
       uploadFormat: "Supports PNG, JPG or WebP. Replaces mock preview.",
       changeScreenshot: "Replace Custom Screenshot",
       useFallback: "Reset to Default Interface Preview",
       tabRegistration: "1. Online Registration",
       tabDashboard: "2. Parent Dashboard",
-      tabBiometric: "3. Biometric Checkout Terminal",
+      tabQrcode: "3. QR Code Checkout",
       regTitle: "Streamlined Online Registration Portal",
       regDesc: "Say goodbye to physical paper stacks. Register your child, sign secure medical declarations, upload immunizations, and select learning tracks in 5 minutes.",
       dashTitle: "Secure Parent Control Panel & Live Feed",
       dashDesc: "Real-time feeding updates, nap timers, and activity checklists. View exclusive daily photo streams of your children participating in cognitive activities.",
-      bioTitle: "SecuGen Fingerprint Kids Checkout Terminal",
-      bioDesc: "Industry-grade biometric verification. Nannies scan and authorize dismissals instantly, guaranteeing that kids are only released to verified parents and guardians.",
+      qrcodeTitle: "Secure QR Code Kids' Checkout & Analysis",
+      qrcodeDesc: "Checkout is facilitated by secure QR Code scanning from parents' phones based on their login credentials. Parents can also view automated analyzed reports of their child's daily habits, activity logs, and routine highlights.",
     },
     am: {
-      badge: "የልዩ ህፃናት ማቆያ ቴክኖሎጂ",
-      title: "ከምዝገባ እስከ ህፃናት መውጫ - በኪድቶፒያ ኦኤስ የተደገፈ",
+      badge: "የቀን ማቆያ ዌብ ሲስተም",
+      title: "ከምዝገባ እስከ ህፃናት መውጫ - በኪድቶፒያ ዌብ ፖርታል የተደገፈ",
       subtitle: "ግልጽነት ለታማኝነት ዋናው መሠረት እንደሆነ እናምናለን። ለዚህም ነው በእያንዳንዱ ሰከንድ ደህንነትዎን ለመጠበቅ እና መረጃ ለማድረስ የእኛን ልዩ የሶፍትዌር ስርዓት የዘረጋነው።",
       parentDashboardTitle: "የወላጆች መቆጣጠሪያ ሰሌዳ (Dashboard)",
       parentDashboardDesc: "ወላጆች የእውነተኛ ጊዜ ዝመናዎችን፣ የጤና ሁኔታዎችን፣ ዕለታዊ አመጋገብን እና ከተንከባካቢዎች ጋር ቀጥተኛ ግንኙነትን የሚያገኙበት ዘመናዊ ፖርታል አላቸው።",
-      uploadLabel: "እዚህ ላይ የሶፍትዌሩን ስክሪንሾት ያስገቡ ወይም ለመምረጥ ይጫኑ",
+      uploadLabel: "ለመቀየር በአድሚን ፓነል ውስጥ እውነተኛ ስክሪንሾት ይጫኑ",
       uploadFormat: "PNG፣ JPG ወይም WebP ይደግፋል። ነባሪውን ምስል ይቀይራል።",
       changeScreenshot: "አዲስ ስክሪንሾት ለመቀየር",
       useFallback: "ወደ ነባሪው የሶፍትዌር ንድፍ ይመለሱ",
       tabRegistration: "1. የኢንተርኔት ምዝገባ",
       tabDashboard: "2. የወላጅ ዳሽቦርድ",
-      tabBiometric: "3. የባዮሜትሪክ መውጫ ተርሚናል",
+      tabQrcode: "3. በQR ኮድ መውሰጃ",
       regTitle: "ቀላል እና ፈጣን የበይነመረብ ምዝገባ",
       regDesc: "የወረቀት ስራዎችን ያስቀሩ። በ 5 ደቂቃዎች ውስጥ ልጅዎን ይመዝግቡ፣ የህክምና መግለጫዎችን ይሙሉ፣ እና የክትባት ካርዶችን በቀላሉ ያስገቡ።",
       dashTitle: "የወላጅ መቆጣጠሪያ እና የቀጥታ መረጃ ፍሰት",
       dashDesc: "ምግብ፣ እንቅልፍ እና የእንቅስቃሴ ሪፖርቶች። ልጆችዎ በእውቀት ማሳደጊያ ስራዎች ላይ ሲሳተፉ የሚያሳዩ ልዩ የፎቶ ዝመናዎችን ያግኙ።",
-      bioTitle: "የሲኩጄን የጣት አሻራ የህፃናት መውሰጃ ስርዓት",
-      bioDesc: "ከፍተኛ ጥራት ያለው የጣት አሻራ ማረጋገጫ። ህፃናት ለተፈቀደላቸው ወላጆች ብቻ መለቀቃቸውን በከፍተኛ ጥንቃቄ ያረጋግጣል።"
+      qrcodeTitle: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ እና የዕለት ሪፖርት",
+      qrcodeDesc: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ። ወላጆች በስልካቸው የሚመነጨውን የQR ኮድ በመጠቀም ልጆቻቸውን በታማኝነት መውሰድ ይችላሉ። በተጨማሪም የልጃቸውን የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ትንተና ሪፖርቶች ማየት ይችላሉ።"
     }
   };
 
-  const t = translations[lang] || translations.en;
+  const dbContent = useContent(lang).softwareShowcase || {};
+  const fallback = fallbackTranslations[lang] || fallbackTranslations.en;
+
+  const t = {
+    ...fallback,
+    ...dbContent
+  };
 
   return (
     <section className="py-24 bg-gradient-to-b from-stone-50 via-white to-stone-50/70 overflow-hidden relative border-t border-stone-200/50">
@@ -116,7 +162,7 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-3.5xl sm:text-5xl font-editorial font-bold text-stone-900 mb-6 tracking-tight leading-tight"
+            className="text-3xl sm:text-5xl font-display font-bold text-stone-900 mb-6 tracking-tight leading-tight"
           >
             {t.title}
           </motion.h2>
@@ -137,7 +183,7 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
           {[
             { id: 'registration', label: t.tabRegistration, icon: ClipboardList },
             { id: 'dashboard', label: t.tabDashboard, icon: Laptop },
-            { id: 'biometric', label: t.tabBiometric, icon: Users },
+            { id: 'qrcode', label: t.tabQrcode, icon: QrCode },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -174,16 +220,16 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/5 rounded-bl-full pointer-events-none -z-10" />
 
-                <h3 className="text-2xl font-editorial font-bold text-stone-900 tracking-tight leading-tight">
+                <h3 className="text-2xl font-display font-bold text-stone-900 tracking-tight leading-tight">
                   {activeTab === 'registration' && t.regTitle}
                   {activeTab === 'dashboard' && t.dashTitle}
-                  {activeTab === 'biometric' && t.bioTitle}
+                  {activeTab === 'qrcode' && t.qrcodeTitle}
                 </h3>
 
                 <p className="text-stone-500 font-sans text-sm leading-relaxed font-medium">
                   {activeTab === 'registration' && t.regDesc}
                   {activeTab === 'dashboard' && t.dashDesc}
-                  {activeTab === 'biometric' && t.bioDesc}
+                  {activeTab === 'qrcode' && t.qrcodeDesc}
                 </p>
 
                 {/* Bullets */}
@@ -212,7 +258,7 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የቀጥታ የክፍል እንቅስቃሴ ፎቶዎች' : 'Secure Daily Classroom Photo streams'}</span>
+                        <span>{lang === 'am' ? 'የClassroom እንቅስቃሴዎች የቀጥታ ፎቶዎች' : 'Secure Daily Classroom Photo streams'}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
@@ -220,19 +266,19 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
                       </div>
                     </>
                   )}
-                  {activeTab === 'biometric' && (
+                  {activeTab === 'qrcode' && (
                     <>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የሲኩጄን (SecuGen) የጣት አሻራ አንባቢ ውህደት' : 'SecuGen Hardware fingerprint driver support'}</span>
+                        <span>{lang === 'am' ? 'ደህንነቱ የተጠበቀ የQR ኮድ መግቢያ' : 'Secure Dynamic QR Code generation for Parents'}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የተፈቀደላቸው ወላጆች ፎቶ ማረጋገጫ' : 'Nanny-verified face match terminal screens'}</span>
+                        <span>{lang === 'am' ? 'የልጁ ዕለታዊ መረጃ እና የባህሪ ትንተና' : 'Full Child Routine Status and analyzed report'}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'ፈጣን የኤስኤምኤስ (SMS) መውጫ ማሳወቂያ' : 'Instant Child Checkout SMS alert to mother/father'}</span>
+                        <span>{lang === 'am' ? 'የኤስኤምኤስ (SMS) መውጫ ማሳወቂያ' : 'Instant Child Checkout SMS alert to parents'}</span>
                       </div>
                     </>
                   )}
@@ -254,12 +300,14 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
           {/* Right: The Interactive Device Frame & Screenshot Upload Dropzone */}
           <div className="lg:col-span-7 flex flex-col items-center">
             
-            {/* Interactive Upload Playground Label */}
-            <div className="w-full max-w-xl text-center mb-4">
-              <span className="text-[10px] font-black uppercase tracking-widest bg-stone-100 text-stone-500 py-1.5 px-3 rounded-full border border-stone-200">
-                ⚡ {lang === 'am' ? 'የስርዓቱን ፎቶዎች ለመቀየር አፕሎድ ያድርጉ' : 'Interactive Playground: Upload Actual Screenshots!'}
-              </span>
-            </div>
+            {/* Interactive Upload Playground Label (Only show if Admin View) */}
+            {isAdminView && (
+              <div className="w-full max-w-xl text-center mb-4">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border border-amber-200/60 py-1.5 px-3 rounded-full">
+                  ⚡ Admin Panel: Upload Actual System Screenshots
+                </span>
+              </div>
+            )}
 
             {/* Hidden native input */}
             <input 
@@ -272,8 +320,14 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
 
             {/* device frame with dropzone triggers */}
             <div 
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full max-w-xl bg-stone-900 rounded-[32px] p-3 sm:p-4 shadow-2xl shadow-stone-900/30 border-4 border-stone-800 relative hover:scale-[1.01] hover:border-stone-700 transition-all duration-500 cursor-pointer group"
+              onClick={() => {
+                if (isAdminView) {
+                  fileInputRef.current?.click();
+                }
+              }}
+              className={`w-full max-w-xl bg-stone-900 rounded-[32px] p-3 sm:p-4 shadow-2xl shadow-stone-900/30 border-4 border-stone-800 relative transition-all duration-500 group ${
+                isAdminView ? 'hover:scale-[1.01] hover:border-stone-700 cursor-pointer' : 'cursor-default'
+              }`}
             >
               {/* Speaker / Notch bar */}
               <div className="absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 w-24 h-4.5 bg-black rounded-full z-20 flex items-center justify-center gap-1.5">
@@ -292,37 +346,39 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
                       alt="Custom Screenshot uploaded" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          fileInputRef.current?.click();
-                        }}
-                        className="p-2 bg-white text-stone-900 rounded-xl text-xs font-bold shadow-lg"
-                      >
-                        {lang === 'am' ? 'ምስል ቀይር' : 'Change Image'}
-                      </button>
-                      <button 
-                        onClick={removeScreenshot}
-                        className="p-2 bg-red-600 text-white rounded-xl text-xs font-bold shadow-lg"
-                      >
-                        {lang === 'am' ? 'አስወግድ' : 'Remove'}
-                      </button>
-                    </div>
+                    {isAdminView && (
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            fileInputRef.current?.click();
+                          }}
+                          className="p-2 bg-white text-stone-900 rounded-xl text-xs font-bold shadow-lg"
+                        >
+                          {lang === 'am' ? 'ምስል ቀይር' : 'Change Image'}
+                        </button>
+                        <button 
+                          onClick={removeScreenshot}
+                          className="p-2 bg-red-600 text-white rounded-xl text-xs font-bold shadow-lg"
+                        >
+                          {lang === 'am' ? 'አስወግድ' : 'Remove'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  /* High Fidelity CSS-designed Fallback Mockups (So it looks stunning natively!) */
+                  /* High Fidelity CSS-designed Fallback Mockups */
                   <div className="absolute inset-0 z-0 bg-stone-950 font-sans p-4 sm:p-6 flex flex-col justify-between">
                     
                     {/* Header bar */}
                     <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
                       <div className="flex items-center gap-2">
                         <div className="w-5.5 h-5.5 rounded-lg bg-brand-green flex items-center justify-center text-[10px] font-black font-accent">K</div>
-                        <span className="text-xs font-black tracking-wider uppercase text-white">Kidtopia OS v4.1</span>
+                        <span className="text-xs font-black tracking-wider uppercase text-white">Kidtopia Daycare System</span>
                       </div>
                       <div className="flex items-center gap-2 text-[10px] text-stone-400 font-semibold font-mono bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
                         <span className="w-1.5 h-1.5 bg-brand-green rounded-full animate-ping" />
-                        <span>LIVE TERMINAL</span>
+                        <span>LIVE PORTAL</span>
                       </div>
                     </div>
 
@@ -375,17 +431,17 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
                             <div className="grid grid-cols-3 gap-2">
                               <div className="bg-white/5 p-2 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
                                 <Utensils size={14} className="text-brand-orange mb-1.5" />
-                                <span className="text-[8px] text-stone-400 font-semibold uppercase">Lunch Time</span>
+                                <span className="text-[8px] text-stone-400 font-semibold uppercase font-mono">Lunch Time</span>
                                 <span className="text-[9px] text-white font-bold mt-0.5">Finished 100%</span>
                               </div>
                               <div className="bg-white/5 p-2 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
                                 <Clock size={14} className="text-brand-yellow mb-1.5" />
-                                <span className="text-[8px] text-stone-400 font-semibold uppercase">Nap Timer</span>
+                                <span className="text-[8px] text-stone-400 font-semibold uppercase font-mono">Nap Timer</span>
                                 <span className="text-[9px] text-white font-bold mt-0.5">1h 45m left</span>
                               </div>
                               <div className="bg-white/5 p-2 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
                                 <Camera size={14} className="text-brand-green mb-1.5" />
-                                <span className="text-[8px] text-stone-400 font-semibold uppercase">New Photos</span>
+                                <span className="text-[8px] text-stone-400 font-semibold uppercase font-mono">Photos</span>
                                 <span className="text-[9px] text-brand-green font-bold mt-0.5">3 Uploaded</span>
                               </div>
                             </div>
@@ -399,40 +455,66 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
                           </motion.div>
                         )}
 
-                        {activeTab === 'biometric' && (
+                        {activeTab === 'qrcode' && (
                           <motion.div
-                            key="bio-mock"
+                            key="qr-mock"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="space-y-3"
                           >
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-green">Biometric Security Clearance</span>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-green">Parent Mobile Check-out Terminal</span>
                             <div className="bg-white/5 p-3 rounded-xl border border-white/10 flex items-center gap-4">
-                              {/* Scanner Graphic */}
-                              <div className="w-14 h-14 bg-brand-green/10 border border-brand-green/30 rounded-full flex items-center justify-center text-brand-green text-xl relative shrink-0">
-                                <div className="absolute inset-0 rounded-full bg-brand-green/5 animate-ping" style={{ animationDuration: '2s' }} />
-                                🟢
+                              {/* QR Code Scan Mockup */}
+                              <div className="w-14 h-14 bg-white p-1 rounded-xl border border-white/20 flex flex-col items-center justify-center relative overflow-hidden shrink-0">
+                                {/* Scanning laser line */}
+                                <div className="absolute left-0 right-0 h-0.5 bg-brand-green shadow-[0_0_8px_#3a5b32] animate-bounce" style={{ top: '10%', animationDuration: '2.5s' }} />
+                                
+                                {/* QR Grid lines mockup */}
+                                <div className="w-full h-full border-2 border-stone-900 border-dashed opacity-85 grid grid-cols-4 grid-rows-4 p-0.5 gap-0.5">
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-transparent" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-transparent" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-transparent" />
+                                  <div className="bg-transparent" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-transparent" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                  <div className="bg-stone-900 rounded-sm" />
+                                </div>
                               </div>
-                              <div className="flex-1 space-y-1">
-                                <div className="text-[10px] text-stone-400 font-semibold">Terminal: MAIN CHECKOUT</div>
-                                <div className="text-[11px] text-white font-black font-mono">AUTHORIZED GUARDIAN MATCHED</div>
-                                <div className="text-[9px] text-brand-green font-bold">✓ SecuGen fingerprint driver matching parent record</div>
+                              <div className="flex-1 space-y-0.5">
+                                <div className="text-[10px] text-stone-400 font-semibold">Active Checkout Code</div>
+                                <div className="text-[11px] text-white font-black font-mono">AUTHORIZED PARENT MATCHED</div>
+                                <div className="text-[9px] text-brand-green font-bold">✓ QR scan matched with logged-in credentials</div>
                               </div>
                             </div>
-                            <div className="h-6 bg-brand-green/10 text-brand-green border border-brand-green/20 rounded-lg flex items-center justify-center text-[9px] font-bold">
-                              SMS notification dispatched automatically to parents
+                            <div className="bg-white/5 p-2 rounded-xl border border-white/10 space-y-1">
+                              <div className="text-[9px] uppercase tracking-wider text-brand-yellow font-bold">Analyzed Routine Report:</div>
+                              <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[8px] text-stone-300 font-semibold">
+                                <div>• Mood: <span className="text-white font-bold">Happy & Playful</span></div>
+                                <div>• Nap: <span className="text-white font-bold">1h 45m (Perfect)</span></div>
+                                <div>• Feeding: <span className="text-white font-bold">Lunch (100% finished)</span></div>
+                                <div>• Cognitive: <span className="text-white font-bold">High engagement</span></div>
+                              </div>
                             </div>
                           </motion.div>
                         )}
                       </AnimatePresence>
                     </div>
 
-                    {/* Upload Overlay/Instructions inside screen */}
-                    <div className="border-t border-white/5 pt-2.5 flex justify-between items-center text-[9px] text-stone-400">
+                    {/* Instruction inside screen */}
+                    <div className="border-t border-white/5 pt-2 flex justify-between items-center text-[9px] text-stone-400">
                       <div className="flex items-center gap-1.5">
-                        <Upload size={10} className="text-brand-orange animate-bounce" />
-                        <span>{t.uploadLabel}</span>
+                        <Smartphone size={10} className="text-brand-orange animate-pulse" />
+                        <span>{isAdminView ? "Click outer upload button to change screenshot" : "High fidelity portal terminal screen"}</span>
                       </div>
                       <span className="font-mono opacity-60">1280 x 960</span>
                     </div>
@@ -443,25 +525,27 @@ export const SoftwareShowcase: React.FC<{ lang: 'en' | 'am' }> = ({ lang }) => {
               </div>
             </div>
 
-            {/* Change/Reset Buttons */}
-            <div className="mt-4.5 flex gap-3 text-xs">
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-stone-55 border border-stone-300 font-bold text-stone-700 shadow-sm cursor-pointer transition flex items-center gap-1.5"
-              >
-                <Upload size={13} className="text-stone-500" />
-                <span>{uploadedScreenshots[activeTab] ? t.changeScreenshot : (lang === 'am' ? 'የሶፍትዌሩን ምስል አፕሎድ ያድርጉ' : 'Upload Real Screenshot')}</span>
-              </button>
-
-              {uploadedScreenshots[activeTab] && (
+            {/* Change/Reset Buttons (Only show if Admin View) */}
+            {isAdminView && (
+              <div className="mt-4.5 flex gap-3 text-xs">
                 <button 
-                  onClick={removeScreenshot}
-                  className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 font-bold text-stone-500 cursor-pointer transition"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 font-bold text-stone-700 shadow-sm cursor-pointer transition flex items-center gap-1.5"
                 >
-                  {t.useFallback}
+                  <Upload size={13} className="text-stone-500" />
+                  <span>{uploadedScreenshots[activeTab] ? t.changeScreenshot : (lang === 'am' ? 'የሶፍትዌሩን ምስል አፕሎድ ያድርጉ' : 'Upload Real Screenshot')}</span>
                 </button>
-              )}
-            </div>
+
+                {uploadedScreenshots[activeTab] && (
+                  <button 
+                    onClick={removeScreenshot}
+                    className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 font-bold text-stone-500 cursor-pointer transition"
+                  >
+                    {t.useFallback}
+                  </button>
+                )}
+              </div>
+            )}
 
           </div>
 

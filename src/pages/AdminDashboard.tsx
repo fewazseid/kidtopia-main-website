@@ -22,6 +22,7 @@ import { CTASection } from '../components/CTASection';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { EnrollPage } from './EnrollPage';
+import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { IframePreview } from '../components/IframePreview';
 import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
@@ -1069,6 +1070,7 @@ export const AdminDashboard: React.FC = () => {
     { id: 'testimonials', icon: <Users size={18} />, label: 'Testimonials' },
     { id: 'cta', icon: <Layout size={18} />, label: 'Call to Action' },
     { id: 'virtualTour', icon: <Layout size={18} />, label: 'Virtual Tour' },
+    { id: 'softwareShowcase', icon: <Layout size={18} />, label: 'Software Showcase' },
     { id: 'resources', icon: <Layout size={18} />, label: 'Resources' },
     { id: 'footer', icon: <Layout size={18} />, label: 'Footer' },
     { id: 'login', icon: <Users size={18} />, label: 'Login Page' },
@@ -1082,7 +1084,7 @@ export const AdminDashboard: React.FC = () => {
     'hero', 'announcement', 'safety', 'programs', 'whyChoose', 
     'staff', 'virtualTour', 'dailyExperience', 'resources', 
     'testimonials', 'faq', 'cta', 'footer', 'nav', 'enrollmentPage',
-    'leadCapture'
+    'leadCapture', 'softwareShowcase'
   ];
   const canPreview = previewableSections.includes(activeSection);
 
@@ -1106,6 +1108,8 @@ export const AdminDashboard: React.FC = () => {
         return <DailyExperience lang={activeLang} />;
       case 'resources':
         return <Resources lang={activeLang} />;
+      case 'softwareShowcase':
+        return <SoftwareShowcase lang={activeLang} isAdminView={true} />;
       case 'testimonials':
         return <Testimonials lang={activeLang} />;
       case 'faq':
