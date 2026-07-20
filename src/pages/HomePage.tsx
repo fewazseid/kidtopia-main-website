@@ -4,6 +4,7 @@ import { Announcement } from '../components/Announcement';
 import { TrustSafety } from '../components/TrustSafety';
 import { Programs } from '../components/Programs';
 import { WhyChoose } from '../components/WhyChoose';
+import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { StaffSection } from '../components/StaffSection';
 import { VirtualTour } from '../components/VirtualTour';
 import { DailyExperience } from '../components/DailyExperience';
@@ -41,6 +42,8 @@ export const HomePage: React.FC<HomePageProps> = ({ lang, onScrollTo }) => {
       <Programs lang={lang} />
       
       <WhyChoose lang={lang} />
+
+      <SoftwareShowcase lang={lang} />
 
       <StaffSection lang={lang} />
       

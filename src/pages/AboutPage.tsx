@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { TrustSafety } from '../components/TrustSafety';
 import { WhyChoose } from '../components/WhyChoose';
+import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { DailyExperience } from '../components/DailyExperience';
 import { StaffSection } from '../components/StaffSection';
 import { Language } from '../translations';
@@ -30,6 +31,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ lang }) => {
       <div id="company">
         <TrustSafety lang={lang} />
         <WhyChoose lang={lang} />
+        <SoftwareShowcase lang={lang} />
       </div>
       <StaffSection lang={lang} />
       <DailyExperience lang={lang} />

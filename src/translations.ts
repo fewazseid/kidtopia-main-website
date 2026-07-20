@@ -42,7 +42,7 @@ export const translations = {
       badgeText: "Now Enrolling for 2026",
       title: "A Safe, Caring, and Inspiring Space for Your Child.",
       titleHighlight: "Safe, Caring",
-      subheadline: "Welcome to Kidtopia International Daycare and Preschool — where children learn, play, and thrive in a secure and nurturing environment.",
+      subheadline: "Welcome to Kidtopia International Daycare and Preschool — fully managed by our custom Kidtopia OS software, from online registration to biometric kids' checkout, with a dedicated parent dashboard.",
       enroll: "Enroll Your Child",
       bookTour: "Book a Tour",
       virtualTour: "Take a Virtual Tour",
@@ -54,7 +54,7 @@ export const translations = {
       highlights: [
         { title: "Safe Environment", desc: "Strict health and security protocols", image: "" },
         { title: "Qualified Staff", desc: "Trained and carefully selected nannies", image: "" },
-        { title: "Small Class Sizes", desc: "Personal attention for every child", image: "" }
+        { title: "Kidtopia OS Portal", desc: "End-to-end software & Parent Dashboard", image: "" }
       ]
     },
     safety: {
@@ -551,7 +551,7 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       badgeText: "ለ2026 ምዝገባ ላይ ነን",
       title: "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
       titleHighlight: "ደህንነቱ የተጠበቀ፣ አሳቢ",
-      subheadline: "ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ — ህፃናት ደህንነቱ በተጠበቀ እና በሚንከባከብ አካባቢ የሚማሩበት፣ የሚጫወቱበት እና የሚበለጽጉበት።",
+      subheadline: "እንኳን ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት በደህና መጡ። ከበይነመረብ ምዝገባ እስከ የጣት አሻራ መውጫ ባለው ዘመናዊ የኪድቶፒያ ኦኤስ ሶፍትዌር እና ለእያንዳንዱ ወላጅ በተዘጋጀ የቀጥታ የክትትል ዳሽቦርድ ሙሉ በሙሉ የተደራጀ ምቹ የህፃናት ማቆያ።",
       enroll: "ልጅዎን ያስመዝግቡ",
       bookTour: "ጉብኝት ያስይዙ",
       virtualTour: "ቪርቹዋል ጉብኝት ያድርጉ",
@@ -563,7 +563,7 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       highlights: [
         { title: "ደህንነቱ የተጠበቀ አካባቢ", desc: "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች", image: "" },
         { title: "ብቁ ሰራተኞች", desc: "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች", image: "" },
-        { title: "አነስተኛ የክፍል መጠኖች", desc: "ለእያንዳንዱ ልጅ የግል ትኩረት", image: "" }
+        { title: "የኪድቶፒያ ሶፍትዌር", desc: "ከምዝገባ እስከ መውጫ እና የወላጅ ዳሽቦርድ", image: "" }
       ]
     },
     safety: {
