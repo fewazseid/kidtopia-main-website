@@ -93,12 +93,14 @@ export const translations = {
       image1: "",
       image2: "",
       features: [
-        "Real-time parent communication",
-        "Daily digital activity reports",
-        "Healthy and safe environment",
-        "Small class sizes",
-        "Secure child pickup system",
-        "Transparent daycare operations"
+        "Real-time parent communication with photo updates",
+        "Comprehensive daily digital activity reports",
+        "Healthy, sanitized and child-proof environments",
+        "Small class sizes with certified loving caregivers",
+        "Secure biometric and verified child pickup system",
+        "Transparent daycare operations & open communication",
+        "Premium modern cognitive & motor skill development curriculum",
+        "First aid & pediatric CPR certified staff members"
       ]
     },
     virtualTour: {
@@ -600,12 +602,14 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       image1: "",
       image2: "",
       features: [
-        "የእውነተኛ ጊዜ የወላጅ ግንኙነት",
-        "ዕለታዊ ዲጂታል የእንቅስቃሴ ሪፖርቶች",
-        "ጤናማ እና ደህንነቱ የተጠበቀ አካባቢ",
-        "አነስተኛ የክፍል መጠኖች",
-        "ደህንነቱ የተጠበቀ የህፃናት መውሰጃ ስርዓት",
-        "ግልጽ የቀን እንክብካቤ ስራዎች"
+        "የእውነተኛ ጊዜ የወላጅ ግንኙነት ከፎቶ ዝመናዎች ጋር",
+        "አጠቃላይ ዕለታዊ ዲጂታል የእንቅስቃሴ ሪፖርቶች",
+        "ጤናማ፣ ንጹህ እና ደህንነቱ የተጠበቀ አካባቢ",
+        "አነስተኛ የክፍል መጠኖች ከአፍቃሪ ተንከባካቢዎች ጋር",
+        "ደህንነቱ የተጠበቀ የባዮሜትሪክ የህፃናት መውሰጃ ስርዓት",
+        "ግልጽ የቀን እንክብካቤ ስራዎች እና ቀጥተኛ ግንኙነት",
+        "ዘመናዊ የእውቀት እና የክህሎት ማሳደጊያ ስርዓተ ትምህርት",
+        "የመጀመሪያ ደረጃ የህክምና እርዳታ (CPR) የሰለጠኑ ሰራተኞች"
       ]
     },
     virtualTour: {

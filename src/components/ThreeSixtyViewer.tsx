@@ -338,6 +338,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   
   // Onboarding walkthrough guide states
   const [showGuide, setShowGuide] = useState(true); // Automatically pop up the interactive hand tour guide
+  const [showHelpModal, setShowHelpModal] = useState(false);
   const [tutorialTime, setTutorialTime] = useState(0);
   const [tutorialStep, setTutorialStep] = useState<'horizontal' | 'vertical' | 'teleport'>('horizontal');
   
@@ -2036,8 +2037,17 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         {/* Floating Top Title Bar - Replaced with Middle Compass & Onboarding guidelines */}
         <div className="absolute top-4 left-4 right-4 pointer-events-none flex justify-between items-start z-30">
           
-          {/* Top Left: Admin Controls */}
-          <div className="flex gap-2 pointer-events-auto">
+          {/* Top Left: Controls & Help Button */}
+          <div className="flex flex-col sm:flex-row gap-2 pointer-events-auto">
+            <button
+              onClick={() => setShowHelpModal(true)}
+              className="px-3 py-2 rounded-xl text-xs font-black font-sans flex items-center gap-1.5 shadow-lg bg-white/70 dark:bg-black/45 backdrop-blur-md border border-white/45 dark:border-white/10 text-stone-800 dark:text-stone-200 hover:bg-white/95 dark:hover:bg-black/75 hover:scale-105 active:scale-95 duration-200 cursor-pointer"
+              title={lang === 'am' ? 'እርዳታ / መመሪያ' : 'Help / Tour Guide'}
+            >
+              <HelpCircle className="w-4 h-4 text-brand-green animate-pulse" />
+              <span>{lang === 'am' ? 'የጉብኝት መመሪያ' : 'How to Move'}</span>
+            </button>
+
             {/* Admin control panel toggler */}
             {isAdminMode && isAdmin && (
               <button
@@ -2133,6 +2143,97 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
                 {getHotspotDescription(activeInfoHotspot) || (lang === 'am' ? 'ስለዚህ ዘመናዊ የህፃናት ማቆያ ክፍል ተጨማሪ ዝርዝሮችን ያግኙ።' : 'Discover more details about this area of our modern nursery school.')}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Floating Interactive Help Modal / Navigation Guide */}
+        {showHelpModal && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[99] flex items-center justify-center p-4 pointer-events-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white/90 dark:bg-stone-900/95 backdrop-blur-[32px] border border-white/60 dark:border-white/10 p-6 rounded-[28px] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.3)] max-w-sm w-full relative overflow-hidden"
+            >
+              {/* Top design accent bar */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-green via-brand-teal to-brand-orange" />
+
+              <div className="flex justify-between items-center mb-5 mt-1">
+                <h4 className="font-sans font-black text-stone-900 dark:text-stone-100 text-[10px] tracking-widest uppercase flex items-center gap-2">
+                  <Compass className="w-4 h-4 text-brand-green animate-spin" style={{ animationDuration: '8s' }} />
+                  {lang === 'am' ? 'የጉብኝት መመሪያ' : '360° TOUR GUIDE'}
+                </h4>
+                <button 
+                  onClick={() => setShowHelpModal(false)}
+                  className="p-1.5 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Steps */}
+              <div className="space-y-4 text-stone-700 dark:text-stone-300 font-sans text-xs">
+                {/* 1. Look Around */}
+                <div className="flex gap-3 items-start p-2.5 rounded-2xl bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/5 shadow-sm">
+                  <div className="text-2xl animate-bounce shrink-0 mt-0.5" style={{ animationDuration: '2s' }}>👆</div>
+                  <div>
+                    <h5 className="font-bold text-stone-900 dark:text-white mb-0.5">
+                      {lang === 'am' ? 'ዙሪያውን ለመመልከት' : 'Look Around'}
+                    </h5>
+                    <p className="text-[11px] leading-relaxed opacity-90">
+                      {lang === 'am' 
+                        ? 'መዳፊቱን በመጫን ወደፈለጉት አቅጣጫ ይጎትቱ (ወይም በስልክዎ ስክሪኑን ይንኩና ያንሸራትቱ)።' 
+                        : 'Click & drag your mouse in any direction, or swipe on mobile to view the entire room.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. Move between Rooms */}
+                <div className="flex gap-3 items-start p-2.5 rounded-2xl bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/5 shadow-sm">
+                  <div className="text-lg shrink-0 w-8 h-8 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green font-bold">🟢</div>
+                  <div>
+                    <h5 className="font-bold text-stone-900 dark:text-white mb-0.5">
+                      {lang === 'am' ? 'ወደ ሌሎች ክፍሎች ለመሄድ' : 'Switch Rooms'}
+                    </h5>
+                    <p className="text-[11px] leading-relaxed opacity-90">
+                      {lang === 'am' 
+                        ? 'በክፍሉ ወለል ላይ ያሉትን የሚያንፀባርቁ ቀስቶች ወይም ክብ መድረሻዎች ይጫኑ።' 
+                        : 'Click on the perspective floor arrows or circular hotspots to transition between rooms.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3. Detailed Info */}
+                <div className="flex gap-3 items-start p-2.5 rounded-2xl bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/5 shadow-sm">
+                  <div className="text-sm shrink-0 w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 font-serif font-black italic">i</div>
+                  <div>
+                    <h5 className="font-bold text-stone-900 dark:text-white mb-0.5">
+                      {lang === 'am' ? 'ዝርዝር መግለጫ ለማየት' : 'View Area Details'}
+                    </h5>
+                    <p className="text-[11px] leading-relaxed opacity-90">
+                      {lang === 'am' 
+                        ? 'ስለ አንድ የተወሰነ ቦታ ተጨማሪ መረጃ ለማግኘት ቢጫ የ "i" ምልክት ያላቸውን መድረሻዎች ይጫኑ።' 
+                        : 'Tap on yellow "i" beacons to reveal rich information about specific learning corners.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Start Guide Button */}
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowHelpModal(false);
+                    setShowGuide(true);
+                  }}
+                  className="w-full btn-primary py-2.5 rounded-xl text-[11px] font-black tracking-wider uppercase text-center flex items-center justify-center gap-1.5 shadow-md shadow-brand-green/20 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
+                  {lang === 'am' ? 'የቪዲዮ መመሪያውን በድጋሚ አጫውት' : 'Replay Visual Demo'}
+                </button>
+              </div>
+
+            </motion.div>
           </div>
         )}
 
