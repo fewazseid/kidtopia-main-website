@@ -290,7 +290,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
         </div>
 
         {/* Interactive 360° Virtual Tour Area */}
-        <div className="max-w-5xl mx-auto mb-24">
+        <div className="max-w-3xl mx-auto mb-24">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

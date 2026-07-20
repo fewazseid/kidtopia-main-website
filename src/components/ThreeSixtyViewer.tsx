@@ -3,8 +3,7 @@ import * as THREE from 'three';
 import { 
   ArrowRight, ArrowUp, ArrowDown, ArrowLeft, Plus, Trash2, Camera, Move, Settings, Check, X, 
   RotateCcw, ZoomIn, ZoomOut, Maximize2, Minimize2, Edit2, Save, 
-  Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle, MapPin, Info,
-  Pointer
+  Image as ImageIcon, Eye, RefreshCw, ChevronRight, Compass, HelpCircle, MapPin, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -291,7 +290,7 @@ const GlassyHand: React.FC<GlassyHandProps> = ({ x, y, pressing, step = 'horizon
         }}
         className="relative text-5xl sm:text-6xl drop-shadow-[0_12px_24px_rgba(0,0,0,0.5)] select-none pointer-events-none flex items-center justify-center"
       >
-        <Pointer size={48} className="text-brand-orange fill-brand-orange/20 rotate-[15deg]" />
+        👆
       </motion.div>
     </div>
   );
@@ -1767,7 +1766,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   if (loading) {
     const startScene = scenes?.find(s => s.isStart) || scenes?.[0] || DEFAULT_SCENES[0];
     return (
-      <div className="w-full h-[240px] sm:h-[315px] md:h-[450px] flex flex-col items-center justify-center bg-stone-950 text-stone-200 rounded-2xl border border-stone-800 relative overflow-hidden p-6 shadow-2xl">
+      <div className="w-full h-[320px] sm:h-[420px] md:h-[600px] flex flex-col items-center justify-center bg-stone-950 text-stone-200 rounded-2xl border border-stone-800 relative overflow-hidden p-6 shadow-2xl">
         {/* Ambient blurred background */}
         <div className="absolute inset-0 opacity-20 filter blur-2xl scale-125 select-none pointer-events-none">
           <img 
@@ -1847,7 +1846,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           }
         }}
         className={`relative w-full rounded-2xl overflow-hidden shadow-2xl border bg-black transition-all duration-300 ${
-          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[240px] sm:h-[315px] md:h-[450px] border-stone-200/80 dark:border-stone-800'
+          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[320px] sm:h-[420px] md:h-[600px] border-stone-200/80 dark:border-stone-800'
         }`}
       >
         
