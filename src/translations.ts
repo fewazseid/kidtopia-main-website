@@ -210,6 +210,12 @@ export const translations = {
       contact: "Contact Information",
       links: "Quick Links",
       resources: "Parent Resources",
+      resourceLinks: [
+        { label: "Parent Handbook", actionType: "handbook" },
+        { label: "Nutrition Guide", actionType: "nutrition" },
+        { label: "Ethiopian Childcare Directive", actionType: "intl_act" },
+        { label: "Policies & Guidelines", actionType: "intl_guidelines" }
+      ],
       social: {
         facebook: "https://facebook.com",
         instagram: "https://instagram.com",
@@ -708,6 +714,12 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       contact: "የእውቂያ መረጃ",
       links: "ፈጣን አገናኞች",
       resources: "የወላጆች መርጃ",
+      resourceLinks: [
+        { label: "የወላጅ መመሪያ", actionType: "handbook" },
+        { label: "የተመጣጠነ ምግብ መመሪያ", actionType: "nutrition" },
+        { label: "የኢትዮጵያ የህፃናት ማቆያ መመሪያ", actionType: "intl_act" },
+        { label: "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች", actionType: "intl_guidelines" }
+      ],
       social: {
         facebook: "https://facebook.com",
         instagram: "https://instagram.com",

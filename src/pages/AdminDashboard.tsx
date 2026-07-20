@@ -1836,8 +1836,8 @@ export const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-stone-100 flex flex-col md:flex-row pt-20">
       {/* Desktop & Mobile Fixed Sticky Save & Notification Header Panel aligned parallel with Kidtopia Logo */}
       <div className="fixed top-0 left-0 right-0 h-20 z-[60] pointer-events-none">
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-end gap-2 md:gap-4 pointer-events-auto">
-          <div className="flex items-center gap-2 md:gap-4">
+        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-end gap-2 md:gap-4 pointer-events-none">
+          <div className="flex items-center gap-2 md:gap-4 pointer-events-auto">
             <button 
               onClick={() => setActiveSection('bookings')}
               className={`relative p-2 md:p-2.5 text-stone-600 bg-white/80 hover:bg-white border border-stone-200/60 rounded-full transition-colors shadow-sm cursor-pointer flex items-center justify-center ${activeSection === 'bookings' ? 'ring-2 ring-brand-green bg-white' : ''}`}

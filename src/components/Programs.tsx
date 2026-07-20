@@ -48,11 +48,11 @@ export const Programs: React.FC<ProgramsProps> = ({ lang }) => {
         </div>
 
         {/* Programs Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="flex flex-wrap justify-center gap-10">
           {t.cards.map((card: any, idx: number) => (
             <div 
               key={idx} 
-              className="flex h-full"
+              className="w-full lg:w-[calc(50%-20px)] flex h-full"
             >
               <GlassCard 
                 layout

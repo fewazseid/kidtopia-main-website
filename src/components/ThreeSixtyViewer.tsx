@@ -8,8 +8,9 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, auth } from '../firebase';
+import { db, auth, storage } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface Hotspot {
   id: string;
@@ -773,27 +774,15 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const handleImageUpload = async (file: File, isEdit: boolean = false) => {
     setUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const storageRef = ref(storage, `uploads/three-sixty/${fileName}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
       
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Upload failed with status ' + response.status);
-      }
-
-      const data = await response.json();
-      if (data.url) {
-        if (isEdit) {
-          setEditRoomImageUrl(data.url);
-        } else {
-          setNewRoomImageUrl(data.url);
-        }
+      if (isEdit) {
+        setEditRoomImageUrl(downloadURL);
       } else {
-        throw new Error('No URL returned from upload response');
+        setNewRoomImageUrl(downloadURL);
       }
     } catch (err) {
       console.error('File upload failed:', err);

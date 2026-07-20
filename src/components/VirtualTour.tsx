@@ -334,12 +334,8 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                       />
                     )}
                     
-                    {/* Centered button overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/25 transition-colors duration-350">
-                      <div className="w-14 h-14 bg-brand-yellow/90 hover:bg-brand-yellow rounded-full flex items-center justify-center text-stone-900 shadow-xl group-hover:scale-110 transition-all duration-300">
-                        <Maximize2 size={18} className="stroke-[3]" />
-                      </div>
-                    </div>
+                    {/* Centered hover overlay for interactive feedback */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-350" />
 
                     {/* Left corner badge */}
                     <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-stone-200 border border-white/10 pointer-events-none">

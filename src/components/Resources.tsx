@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion } from 'motion/react';
@@ -13,6 +14,14 @@ interface ResourcesProps {
 export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
   const t = useContent(lang).resources;
   const [activeActionType, setActiveActionType] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const actionParam = searchParams.get('action');
+
+  useEffect(() => {
+    if (actionParam) {
+      setActiveActionType(actionParam);
+    }
+  }, [actionParam]);
   
   const icons = [
     <BookOpen className="w-6 h-6 text-brand-teal" />,
@@ -124,7 +133,12 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
         {activeActionType && (
           <ParentalResourceDetails 
             actionType={activeActionType} 
-            onClose={() => setActiveActionType(null)} 
+            onClose={() => {
+              setActiveActionType(null);
+              const newParams = new URLSearchParams(searchParams);
+              newParams.delete('action');
+              setSearchParams(newParams);
+            }} 
             lang={lang === 'en' || lang === 'am' ? lang : 'en'} 
           />
         )}

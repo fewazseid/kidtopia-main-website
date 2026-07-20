@@ -79,10 +79,28 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               {content.nav.parentResources || t.resources}
             </h3>
             <ul className="space-y-3.5">
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Parent Guidelines</button></li>
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Health Policy</button></li>
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Terms and Conditions</button></li>
-              <li><button className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-all cursor-pointer">Privacy Policy</button></li>
+              {t.resourceLinks && t.resourceLinks.map((link: any, idx: number) => {
+                const label = typeof link === 'string' ? link : link.label;
+                const actionType = typeof link === 'string' ? 'handbook' : link.actionType;
+                return (
+                  <li key={idx}>
+                    <Link 
+                      to={`/resources?action=${actionType}`} 
+                      className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400"
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                );
+              })}
+              {(!t.resourceLinks || t.resourceLinks.length === 0) && (
+                <>
+                  <li><Link to="/resources?action=handbook" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Parent Handbook</Link></li>
+                  <li><Link to="/resources?action=nutrition" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Health & Nutrition Guide</Link></li>
+                  <li><Link to="/resources?action=intl_act" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Childcare Directive</Link></li>
+                  <li><Link to="/resources?action=intl_guidelines" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Consolidated Policies</Link></li>
+                </>
+              )}
             </ul>
           </div>
 
