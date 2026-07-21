@@ -259,7 +259,7 @@ export const translations = {
         },
         {
           title: "3. Digital Security Check-out",
-          content: "Security is our utmost priority. Our digital check-in/out registers authorized parents. Fingerprint registration is highly recommended. Only pre-registered individuals with approved government IDs can check out a child. No exceptions can be made."
+          content: "Security is our utmost priority. Our digital check-in/out registers authorized parents. Only pre-registered individuals with approved government IDs can check out a child. No exceptions can be made."
         },
         {
           title: "4. Daily Schedules & Naptime",

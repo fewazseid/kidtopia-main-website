@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Download, X, CheckCircle2, Sparkles, ExternalLink, Share2, PlusSquare, MoreVertical } from 'lucide-react';
+import { Download, X, CheckCircle2, Sparkles, Share2, PlusSquare, MoreVertical, Smartphone } from 'lucide-react';
 import { Language } from '../translations';
 
 interface InstallAppModalProps {
@@ -14,10 +14,13 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
   const [installedSuccess, setInstalledSuccess] = useState<boolean>(false);
   const [showManualGuide, setShowManualGuide] = useState<boolean>(false);
-  
   const [installCancelled, setInstallCancelled] = useState<boolean>(false);
-  
-  const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
+  const [isLaunching, setIsLaunching] = useState<boolean>(false);
+
+  const handleClose = () => {
+    localStorage.setItem('kidtopia_install_prompt_dismissed', 'true');
+    onClose();
+  };
 
   useEffect(() => {
     // Check if app is already running as an installed PWA
@@ -37,10 +40,24 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       setDeferredPrompt(e);
     };
 
+    // Listen for completion of installation -> Automatically open app in same page
+    const handleAppInstalled = () => {
+      setInstalledSuccess(true);
+      localStorage.setItem('kidtopia_install_prompt_dismissed', 'true');
+      (window as any).deferredPwaPrompt = null;
+      setDeferredPrompt(null);
+      setIsLaunching(true);
+      setTimeout(() => {
+        window.location.href = window.location.origin + window.location.pathname;
+      }, 1000);
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [isOpen]);
 
@@ -54,8 +71,14 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
         const userChoice = await activePrompt.userChoice;
         if (userChoice && userChoice.outcome === 'accepted') {
           setInstalledSuccess(true);
+          localStorage.setItem('kidtopia_install_prompt_dismissed', 'true');
           (window as any).deferredPwaPrompt = null;
           setDeferredPrompt(null);
+          setIsLaunching(true);
+          // Auto open / launch app in the same page
+          setTimeout(() => {
+            window.location.href = window.location.origin + window.location.pathname;
+          }, 1000);
           return;
         } else if (userChoice && userChoice.outcome === 'dismissed') {
           setInstallCancelled(true);
@@ -64,12 +87,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       } catch (err) {
         console.error('Error triggering browser PWA install prompt:', err);
       }
-    }
-
-    // If in iframe sandbox, open in new tab so browser allows PWA installation
-    if (isInIframe) {
-      window.open(window.location.href, '_blank');
-      return;
     }
 
     setShowManualGuide(true);
@@ -85,7 +102,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[999] bg-stone-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -100,7 +117,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
             <div className="absolute bottom-0 left-0 w-36 h-36 bg-brand-teal/15 rounded-full blur-2xl pointer-events-none" />
 
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="absolute top-4 right-4 p-2 text-stone-400 hover:text-white bg-stone-800/60 hover:bg-stone-800 rounded-full transition cursor-pointer"
             >
               <X size={18} />
@@ -125,9 +142,16 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
 
             <div className="mt-5 space-y-3">
               {isStandalone || installedSuccess ? (
-                <div className="bg-brand-green/15 border border-brand-green/30 p-4 rounded-2xl flex items-center justify-center gap-2 text-brand-green text-sm font-bold">
-                  <CheckCircle2 size={20} />
-                  <span>{lang === 'en' ? 'App is Installed on Device' : 'አፕሊኬሽኑ በስኬት ተጭኗል'}</span>
+                <div className="bg-brand-green/15 border border-brand-green/30 p-4 rounded-2xl text-center space-y-2">
+                  <div className="flex items-center justify-center gap-2 text-brand-green text-sm font-bold">
+                    <CheckCircle2 size={20} />
+                    <span>{lang === 'en' ? 'App is Installed on Device' : 'አፕሊኬሽኑ በስኬት ተጭኗል'}</span>
+                  </div>
+                  {isLaunching && (
+                    <p className="text-xs text-stone-300 animate-pulse">
+                      {lang === 'en' ? 'Launching Kidtopia App...' : 'አፕሊኬሽኑ እየተከፈተ ነው...'}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2.5">
@@ -149,17 +173,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                     <span>{lang === 'en' ? 'Install App on Device' : 'አፕሊኬሽኑን በስልክዎ ይጫኑ'}</span>
                     <Sparkles size={16} />
                   </button>
-
-                  {/* If in AI Studio Preview iFrame */}
-                  {isInIframe && (
-                    <button
-                      onClick={() => window.open(window.location.href, '_blank')}
-                      className="w-full py-2.5 px-4 bg-stone-800 hover:bg-stone-700/80 text-stone-200 text-xs font-bold rounded-xl border border-stone-700 transition flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <ExternalLink size={14} className="text-brand-yellow" />
-                      <span>{lang === 'en' ? 'Open in New Tab to Trigger Install' : 'በአዲስ ታብ ይክፈቱ'}</span>
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -204,7 +217,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
               )}
 
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="w-full py-2 text-xs text-stone-400 hover:text-white font-medium transition cursor-pointer"
               >
                 {lang === 'en' ? 'Continue in Web Browser' : 'በብራውዘር ቀጥል'}
@@ -216,4 +229,3 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
     </AnimatePresence>
   );
 };
-

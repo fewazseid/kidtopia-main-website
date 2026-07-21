@@ -114,13 +114,6 @@ export const setUserRole = async (uid: string, role: string, email: string) => {
   }, { merge: true });
 };
 
-export const saveFingerprintTemplate = async (template: string) => {
-  await setDoc(doc(db, 'settings', 'admin_config'), {
-    fingerprintTemplate: template,
-    updatedAt: new Date().toISOString()
-  }, { merge: true });
-};
-
 export interface AdminConfig {
   username?: string;
   password?: string;

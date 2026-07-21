@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Fingerprint, Download, Smartphone } from 'lucide-react';
+import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Download } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginWithGoogle, getUserRole, setUserRole, loginWithEmail, registerWithEmail, getAdminConfig, updateCurrentUserPassword } from '../firebase';
-import { captureFingerprint, matchFingerprints, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
 import { InstallAppModal } from '../components/InstallAppModal';
 
 interface LoginPageProps {
@@ -24,22 +23,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [fingerprintLoading, setFingerprintLoading] = useState(false);
-  const [isSimulated, setIsSimulated] = useState(isFingerprintSimulatorEnabled());
 
   const [isAdminSelect, setIsAdminSelect] = useState(false);
 
-  // Automatically invite user to download / install the app when entering the login page
+  // Automatically invite user to download / install the app ONCE when entering the login page
   useEffect(() => {
     const isPwa = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
-    if (!isPwa) {
+    const isDismissed = localStorage.getItem('kidtopia_install_prompt_dismissed') === 'true';
+
+    if (!isPwa && !isDismissed) {
       const timer = setTimeout(() => {
         if (onOpenInstallModal) {
           onOpenInstallModal();
         } else {
           setIsModalOpen(true);
         }
-      }, 500);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [onOpenInstallModal]);
@@ -50,69 +49,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
       return;
     }
     setError('Access Denied. Only administrator accounts are authorized to log in.');
-  };
-
-  const handleFingerprintLogin = async () => {
-    setError('');
-    setFingerprintLoading(true);
-    try {
-      const available = await isSecuGenAvailable();
-      if (!available) {
-        throw new Error('SecuGen WebAPI service is not running. Please ensure the driver is installed.');
-      }
-
-      // Fetch admin config to get the admin email
-      let adminConfig: any = { username: 'admin', email: 'admin@kidtopiaet.com', firebasePassword: 'admin123' };
-      try {
-        const remoteConfig = await getAdminConfig();
-        adminConfig = { ...adminConfig, ...remoteConfig };
-      } catch (e) {
-        console.warn('Using default admin config for fingerprint login', e);
-      }
-
-      // We need to find the user document for the admin to get their fingerprint template
-      // Since we don't have a direct UID, we'll try to find it by email or use the known admin shortcut logic
-      // For simplicity, let's assume we are logging in as the 'admin' user
-      
-      // First, we need to get the UID for the admin email
-      // We can't easily query by email in Firestore without an index, 
-      // but we can try to sign in with the admin shortcut first to get the UID if needed,
-      // or just assume the admin has a fixed UID if we set it up that way.
-      // Better: The admin must have registered their fingerprint while logged in.
-      
-      const storedTemplate = adminConfig.fingerprintTemplate;
-
-      if (!storedTemplate) {
-        throw new Error('No fingerprint registered for this account. Please login with password and register in settings.');
-      }
-
-      // Now capture the current fingerprint
-      const captureResponse = await captureFingerprint();
-      if (captureResponse.ErrorCode !== 0) {
-        throw new Error(captureResponse.ErrorDescription || 'Failed to capture fingerprint.');
-      }
-
-      if (!captureResponse.Base64Template) {
-        throw new Error('No template received from scanner.');
-      }
-
-      // Match the captured template with the stored one
-      const isMatch = await matchFingerprints(storedTemplate, captureResponse.Base64Template);
-      
-      if (isMatch) {
-        // Success! Now log in using the admin's firebase password
-        const result = await loginWithEmail(adminConfig.email, adminConfig.firebasePassword || 'admin123');
-        const role = await getUserRole(result.user.uid);
-        handleRedirect(role || 'admin');
-      } else {
-        throw new Error('Fingerprint does not match.');
-      }
-    } catch (err: any) {
-      console.error('Fingerprint Login Error:', err);
-      setError(err.message);
-    } finally {
-      setFingerprintLoading(false);
-    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -298,6 +234,32 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="w-full max-w-lg space-y-6"
       >
+        {/* Prominent Install App Banner at the VERY TOP of Login Page */}
+        <div className="bg-stone-900 text-white p-5 rounded-3xl border border-stone-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/15 rounded-full blur-xl pointer-events-none" />
+          <div className="flex items-center gap-3.5 z-10">
+            <div className="p-3 bg-gradient-to-tr from-brand-orange to-brand-yellow rounded-2xl text-stone-950 font-black shrink-0 shadow-lg">
+              <Download size={22} />
+            </div>
+            <div>
+              <h4 className="font-display font-black text-sm sm:text-base text-white">
+                {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
+              </h4>
+              <p className="text-xs text-stone-400 mt-0.5">
+                {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleOpenGuide}
+            className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-brand-orange via-brand-orange to-brand-yellow text-stone-950 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap z-10 border border-white/20"
+          >
+            <Download size={15} />
+            <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+          </button>
+        </div>
+
         <div className="card-rounded p-8 sm:p-10">
           {isAdminSelect ? (
             <motion.div 
@@ -406,53 +368,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <button
                   onClick={handleGoogleLogin}
-                  disabled={loading || fingerprintLoading}
+                  disabled={loading}
                   className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-white/50 active:scale-[0.98] border border-white/60 bg-white/40 backdrop-blur-md shadow-sm disabled:opacity-50"
                 >
                   <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
                   Login with Google
                 </button>
-
-                <button
-                  onClick={handleFingerprintLogin}
-                  disabled={loading || fingerprintLoading}
-                  className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-stone-900 text-white font-bold text-lg transition-all hover:bg-stone-800 active:scale-[0.98] disabled:opacity-50"
-                >
-                  <Fingerprint size={20} />
-                  {fingerprintLoading ? 'Scanning...' : 'Login with Fingerprint'}
-                </button>
-
-                <div className="flex items-center justify-between bg-stone-50/80 backdrop-blur-sm p-3 rounded-xl border border-stone-100">
-                  <div className="flex items-center gap-2">
-                    <Fingerprint size={16} className={isSimulated ? "text-amber-500" : "text-emerald-500"} />
-                    <span className="text-xs text-stone-600 font-medium">Free Demo Simulator</span>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={isSimulated}
-                      onChange={(e) => {
-                        const val = e.target.checked;
-                        setIsSimulated(val);
-                        setFingerprintSimulator(val);
-                      }}
-                    />
-                    <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green"></div>
-                  </label>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/35"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 text-stone-500 font-medium bg-transparent">Secure Access</span>
-                  </div>
-                </div>
               </div>
 
               <div className="mt-8 text-center text-sm text-stone-500">
@@ -463,45 +387,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                   </Link>
                 </p>
               </div>
-
-              <div className="mt-6 pt-4 border-t border-stone-200/60 flex items-center justify-between text-xs text-stone-500">
-                <span className="font-medium">{lang === 'en' ? 'Kidtopia Web Application' : 'የኪድቶፒያ ዌብ አፕሊኬሽን:'}</span>
-                <button
-                  type="button"
-                  onClick={handleOpenGuide}
-                  className="font-black text-brand-orange hover:underline cursor-pointer flex items-center gap-1.5"
-                >
-                  <Download size={14} />
-                  <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
-                </button>
-              </div>
             </>
           )}
-        </div>
-
-        {/* Quick Direct Download / Install Action Prompt in Login Area */}
-        <div className="bg-stone-900 text-white p-5 rounded-2xl border border-stone-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-brand-orange/15 rounded-xl border border-brand-orange/30 text-brand-orange shrink-0">
-              <Download size={22} />
-            </div>
-            <div>
-              <h4 className="font-display font-black text-sm text-white">
-                {lang === 'en' ? 'Download Kidtopia Web App' : 'የኪድቶፒያ አፕሊኬሽን አውርድ'}
-              </h4>
-              <p className="text-xs text-stone-400 mt-0.5">
-                {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleOpenGuide}
-            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-brand-orange to-brand-yellow text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
-          >
-            <Download size={14} />
-            <span>{lang === 'en' ? 'Download App' : 'አፕሊኬሽኑን አውርድ'}</span>
-          </button>
         </div>
       </motion.div>
 

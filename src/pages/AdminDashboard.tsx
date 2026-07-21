@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh, ContentContext } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -24,8 +24,7 @@ import { Header } from '../components/Header';
 import { EnrollPage } from './EnrollPage';
 import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { IframePreview } from '../components/IframePreview';
-import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking, getNewsletterSubscribers, deleteNewsletterSubscriber } from '../firebase';
-import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking, getNewsletterSubscribers, deleteNewsletterSubscriber } from '../firebase';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
@@ -304,9 +303,6 @@ export const AdminDashboard: React.FC = () => {
   const [newUserRole, setNewUserRole] = useState('admin');
   const [addingUser, setAddingUser] = useState(false);
   const [apiStatus, setApiStatus] = useState<string | null>(null);
-  const [fingerprintLoading, setFingerprintLoading] = useState(false);
-  const [fingerprintStatus, setFingerprintStatus] = useState<string | null>(null);
-  const [isSimulated, setIsSimulated] = useState(isFingerprintSimulatorEnabled());
 
   const [tourSchedule, setTourSchedule] = useState<any>(null);
   const [scheduleViewDay, setScheduleViewDay] = useState('Default');
@@ -476,39 +472,6 @@ export const AdminDashboard: React.FC = () => {
         email: 'admin@kidtopiadaycare.com',
         firebasePassword: 'admin123'
       });
-    }
-  };
-
-  const handleRegisterFingerprint = async () => {
-    setFingerprintLoading(true);
-    setFingerprintStatus('Initializing SecuGen WebAPI...');
-    try {
-      const available = await isSecuGenAvailable();
-      if (!available) {
-        throw new Error('SecuGen WebAPI service is not running. Please ensure the driver is installed and running on localhost:8000.');
-      }
-
-      setFingerprintStatus('Please place your finger on the scanner...');
-      const response = await captureFingerprint();
-      
-      if (response.ErrorCode !== 0) {
-        throw new Error(response.ErrorDescription || 'Failed to capture fingerprint.');
-      }
-
-      if (response.Base64Template) {
-        setFingerprintStatus('Saving fingerprint template...');
-        await saveFingerprintTemplate(response.Base64Template);
-        setFingerprintStatus('Fingerprint registered successfully!');
-        setFeedback({ type: 'success', message: 'Fingerprint registered successfully!' });
-      } else {
-        throw new Error('No template received from scanner.');
-      }
-    } catch (err: any) {
-      console.error('Fingerprint Registration Error:', err);
-      setFingerprintStatus(`Error: ${err.message}`);
-      setFeedback({ type: 'error', message: err.message });
-    } finally {
-      setFingerprintLoading(false);
     }
   };
 
@@ -2694,64 +2657,6 @@ export const AdminDashboard: React.FC = () => {
                       {securityLoading ? 'Updating...' : 'Save Security Settings'}
                     </button>
                   </form>
-
-                  <div className="mt-12 pt-8 border-t border-stone-100">
-                    <h3 className="text-lg font-bold text-stone-900 mb-2">Fingerprint Authentication</h3>
-                    <p className="text-sm text-stone-500 mb-4">Register your fingerprint to enable quick login using your SecuGen Hamster Plus scanner.</p>
-                    <div className="flex flex-col gap-4 max-w-md">
-                      <div className="bg-emerald-50 border border-emerald-150 p-4 rounded-xl text-xs text-stone-700 leading-relaxed">
-                        <h4 className="font-bold text-brand-green mb-1.5 flex items-center gap-1.5">
-                          <Fingerprint size={14} /> FREE SECUGEN WORKAROUND GUIDE
-                        </h4>
-                        <p className="mb-2">
-                          Commercial SecuGen WebAPI licenses are paid. To bypass this, we have engineered a built-in <strong>Free Demo Simulator</strong> that completely removes the need for physical hardware or premium driver installations.
-                        </p>
-                        <ol className="list-decimal pl-4 space-y-1.5">
-                          <li><strong>Free Simulator Mode (Default / Recommended):</strong> Simply toggle the "Free Demo Simulator" switch below. No drivers are needed. You can register and test fingerprint authentication for free instantly!</li>
-                          <li><strong>Physical Hardware Integration:</strong> To use a physical SecuGen Hamster Plus, install the local USB bridge service listening on port <code className="bg-emerald-100 px-1 py-0.5 rounded font-mono">8000</code> (HTTP) or <code className="bg-emerald-100 px-1 py-0.5 rounded font-mono">8443</code> (HTTPS). Remember to trust self-signed local certificates.</li>
-                        </ol>
-                      </div>
-
-                      <button 
-                        onClick={handleRegisterFingerprint}
-                        disabled={fingerprintLoading}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 text-white rounded-xl hover:bg-stone-800 transition-colors font-bold disabled:opacity-50"
-                      >
-                        <Fingerprint size={20} />
-                        {fingerprintLoading ? 'Processing...' : 'Register Fingerprint'}
-                      </button>
-
-                      <div className="flex items-center justify-between bg-stone-50 p-3 rounded-xl border border-stone-100">
-                        <div className="flex items-center gap-2">
-                          <Fingerprint size={16} className={isSimulated ? "text-amber-500" : "text-emerald-500"} />
-                          <div>
-                            <span className="text-xs text-stone-700 font-bold block">Free Demo Simulator</span>
-                            <span className="text-[10px] text-stone-400 block">Bypasses commercial driver licenses</span>
-                          </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={isSimulated}
-                            onChange={(e) => {
-                              const val = e.target.checked;
-                              setIsSimulated(val);
-                              setFingerprintSimulator(val);
-                              setFingerprintStatus(val ? 'Switched to free Demo Simulator.' : 'Switched to physical hardware scanner.');
-                            }}
-                          />
-                          <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green"></div>
-                        </label>
-                      </div>
-
-                      {fingerprintStatus && (
-                        <div className={`p-3 rounded-xl text-sm ${fingerprintStatus.includes('Error') ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-stone-50 text-stone-700 border border-stone-100'}`}>
-                          {fingerprintStatus}
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
                   <div className="mt-12 pt-8 border-t border-stone-100">
                     <h3 className="text-lg font-bold text-stone-900 mb-2">Central Operations & Notifications Email</h3>
