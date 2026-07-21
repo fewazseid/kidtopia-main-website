@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh, ContentContext } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -26,7 +26,7 @@ import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { IframePreview } from '../components/IframePreview';
 import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking, getNewsletterSubscribers, deleteNewsletterSubscriber } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
 import { ThreeSixtyViewer } from '../components/ThreeSixtyViewer';
@@ -49,6 +49,225 @@ export function convertGoogleDriveUrl(url: string): string {
   
   return trimmed;
 }
+
+interface SoftwareScreenshotsManagerProps {
+  lang: 'en' | 'am';
+}
+
+export const SoftwareScreenshotsManager: React.FC<SoftwareScreenshotsManagerProps> = ({ lang }) => {
+  const [activeTab, setActiveTab] = useState<'registration' | 'dashboard' | 'qrcode'>('dashboard');
+  const [uploadedScreenshots, setUploadedScreenshots] = useState<any>({
+    registration: null,
+    dashboard: null,
+    qrcode: null,
+  });
+  const [driveLink, setDriveLink] = useState('');
+  const [driveError, setDriveError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'screenshots'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setUploadedScreenshots({
+          registration: data.registration || null,
+          dashboard: data.dashboard || null,
+          qrcode: data.qrcode || null,
+        });
+      }
+    }, (err) => {
+      console.warn("Firestore screenshots listen error inside AdminDashboard:", err);
+    });
+    return () => unsub();
+  }, []);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        setUploadedScreenshots((prev: any) => ({
+          ...prev,
+          [activeTab]: base64
+        }));
+        try {
+          await setDoc(doc(db, 'settings', 'screenshots'), {
+            [activeTab]: base64
+          }, { merge: true });
+        } catch (error) {
+          console.error("Error persisting screenshot to Firestore:", error);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleApplyDriveLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!driveLink.trim()) return;
+
+    let processedUrl = driveLink.trim();
+    if (processedUrl.includes('drive.google.com')) {
+      const converted = convertGoogleDriveUrl(processedUrl);
+      if (converted === processedUrl) {
+        setDriveError(lang === 'en' ? 'Could not parse Google Drive File ID.' : 'የጉግል ድራይቭ ፋይል መለያ ማግኘት አልተቻለም።');
+        return;
+      }
+      processedUrl = converted;
+    }
+
+    setDriveError('');
+    setUploadedScreenshots((prev: any) => ({
+      ...prev,
+      [activeTab]: processedUrl
+    }));
+
+    try {
+      await setDoc(doc(db, 'settings', 'screenshots'), {
+        [activeTab]: processedUrl
+      }, { merge: true });
+      setDriveLink('');
+    } catch (error) {
+      console.error("Error saving Drive URL:", error);
+    }
+  };
+
+  const removeScreenshot = async () => {
+    setUploadedScreenshots((prev: any) => ({
+      ...prev,
+      [activeTab]: null
+    }));
+    try {
+      await setDoc(doc(db, 'settings', 'screenshots'), {
+        [activeTab]: null
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error removing screenshot:", error);
+    }
+  };
+
+  return (
+    <div className="bg-white dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800 rounded-xl p-5 space-y-4">
+      {/* Tab select bar */}
+      <div className="flex gap-2 border-b border-stone-100 dark:border-stone-800 pb-3">
+        {[
+          { id: 'registration', label: lang === 'en' ? '1. Online Registration' : '1. የኢንተርኔት ምዝገባ' },
+          { id: 'dashboard', label: lang === 'en' ? '2. Parent Dashboard' : '2. የወላጅ ዳሽቦርድ' },
+          { id: 'qrcode', label: lang === 'en' ? '3. QR Code Checkout' : '3. በQR ኮድ መውሰጃ' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              activeTab === tab.id 
+                ? 'bg-brand-green text-white shadow-sm' 
+                : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-700'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        accept="image/*" 
+        className="hidden" 
+      />
+
+      {/* Upload/Status Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-stone-50/50 dark:bg-stone-800/40 p-4 rounded-xl border border-stone-100 dark:border-stone-800/60">
+        <div>
+          <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 dark:text-stone-500 block mb-1">
+            {lang === 'en' ? 'CURRENT SCREENSHOT STATUS' : 'የአሁኑ የስክሪንሾት ሁኔታ'}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${uploadedScreenshots[activeTab] ? 'bg-brand-green animate-pulse' : 'bg-amber-500'}`} />
+            <span className="text-xs font-bold text-stone-700 dark:text-stone-300">
+              {uploadedScreenshots[activeTab] 
+                ? (lang === 'en' ? 'Custom screenshot uploaded' : 'ስክሪንሾት ተጭኗል') 
+                : (lang === 'en' ? 'Using default mock preview' : 'ነባሪውን ማሳያ በመጠቀም ላይ')}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="px-3.5 py-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 font-bold text-stone-700 dark:text-stone-300 shadow-sm cursor-pointer transition flex items-center gap-1.5 text-xs"
+          >
+            <Upload size={13} className="text-stone-500" />
+            <span>{uploadedScreenshots[activeTab] ? (lang === 'en' ? 'Change Image' : 'ምስል ቀይር') : (lang === 'en' ? 'Upload Image File' : 'ምስል ጫን')}</span>
+          </button>
+
+          {uploadedScreenshots[activeTab] && (
+            <button
+              type="button"
+              onClick={removeScreenshot}
+              className="px-3.5 py-2 rounded-xl bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 font-bold cursor-pointer transition text-xs"
+            >
+              {lang === 'en' ? 'Reset to Default' : 'ወደ ነባሪ መልስ'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Google Drive Link Input Form */}
+      <form onSubmit={handleApplyDriveLink} className="space-y-2">
+        <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
+          {lang === 'en' ? 'Or Paste Google Drive Image Link' : 'ወይም የጉግል ድራይቭ ምስል ሊንክ እዚህ ይለጥፉ'}
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={driveLink}
+            onChange={(e) => {
+              setDriveLink(e.target.value);
+              setDriveError('');
+            }}
+            placeholder="https://drive.google.com/file/d/..."
+            className="flex-1 px-3 py-2 border border-stone-200 dark:border-stone-700 rounded-xl text-xs outline-none focus:border-brand-green bg-stone-50/50 dark:bg-stone-800/50 text-stone-800 dark:text-stone-200"
+          />
+          <button
+            type="submit"
+            className="bg-brand-green hover:bg-brand-green/90 text-white rounded-xl px-4 py-2 text-xs font-bold transition duration-200 cursor-pointer shadow-sm shrink-0"
+          >
+            {lang === 'en' ? 'Apply Link' : 'ሊንክ ተግብር'}
+          </button>
+        </div>
+        {driveError && (
+          <p className="text-[11px] text-red-500 font-semibold">{driveError}</p>
+        )}
+        <p className="text-[10px] text-stone-400 font-medium leading-relaxed">
+          {lang === 'en' 
+            ? 'Note: Make sure the Google Drive image sharing option is set to "Anyone with the link can view".' 
+            : 'ማሳሰቢያ፡ በጉግል ድራይቭ ላይ የምስሉ ማጋሪያ ፈቃድ "በሊንኩ ማንም ማየት ይችላል (Anyone with the link)" መሆኑን ያረጋግጡ።'}
+        </p>
+      </form>
+
+      {/* Quick Preview Thumbnail */}
+      {uploadedScreenshots[activeTab] && (
+        <div className="mt-2.5">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 dark:text-stone-500 block mb-1.5">
+            {lang === 'en' ? 'SCREENSHOT PREVIEW' : 'የስክሪንሾት ቅድመ-ዕይታ'}
+          </span>
+          <div className="relative w-full max-w-sm aspect-video rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 bg-stone-900 flex items-center justify-center">
+            <img 
+              src={uploadedScreenshots[activeTab]} 
+              alt="Screenshot preview thumbnail" 
+              className="max-h-full max-w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -3292,6 +3511,22 @@ export const AdminDashboard: React.FC = () => {
                             Drag to look around the virtual room, and use the "Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
                           </p>
                           <ThreeSixtyViewer isAdminMode={true} />
+                        </div>
+                      )}
+                      {activeSection === 'softwareShowcase' && (
+                        <div className="mb-10 p-6 bg-amber-50/50 dark:bg-stone-900/40 border border-amber-200/50 dark:border-stone-800 rounded-2xl shadow-sm space-y-6">
+                          <div className="flex items-center gap-2">
+                            <Layout size={20} className="text-amber-600" />
+                            <h3 className="font-bold text-stone-800 dark:text-stone-100 text-base">
+                              {activeLang === 'en' ? 'Software Showcase Screenshot Settings' : 'የሶፍትዌር ማሳያ ስክሪንሾት ቅንጅቶች'}
+                            </h3>
+                          </div>
+                          <p className="text-xs text-stone-600 dark:text-stone-400 font-sans leading-relaxed">
+                            {activeLang === 'en' 
+                              ? 'Manage the high-fidelity screenshots for each software tab. You can upload an image file directly or paste a shared Google Drive image link. This will replace the default interactive mockup preview.'
+                              : 'ለእያንዳንዱ የሶፍትዌር ምድብ ስክሪንሾቶችን ያስተዳድሩ። ምስል በቀጥታ መጫን ወይም የጉግል ድራይቭ ሊንክ መለጠፍ ይችላሉ። ይህ ነባሪውን ማሳያ ይተካዋል።'}
+                          </p>
+                          <SoftwareScreenshotsManager lang={activeLang} />
                         </div>
                       )}
                       {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 

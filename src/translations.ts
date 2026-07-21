@@ -521,7 +521,22 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
     softwareShowcase: {
       badge: "Web-Based Daycare System",
       title: "From Registration to Kids' Checkout, Powered by Kidtopia's Web Portal",
-      subtitle: "We believe transparency is the ultimate foundation of trust. That's why we built our custom web-based daycare system to keep you connected, secured, and informed every single second."
+      subtitle: "We believe transparency is the ultimate foundation of trust. That's why we built our custom web-based daycare system to keep you connected, secured, and informed every single second.",
+      parentDashboardTitle: "Exclusive Parent Dashboard",
+      parentDashboardDesc: "Parents get full access to a modern portal with real-time updates, child health logs, daily diet details, and direct communication with nannies.",
+      uploadLabel: "Upload actual screenshot in Admin panel to replace this preview",
+      uploadFormat: "Supports PNG, JPG or WebP. Replaces mock preview.",
+      changeScreenshot: "Replace Custom Screenshot",
+      useFallback: "Reset to Default Interface Preview",
+      tabRegistration: "1. Online Registration",
+      tabDashboard: "2. Parent Dashboard",
+      tabQrcode: "3. QR Code Checkout",
+      regTitle: "Streamlined Online Registration Portal",
+      regDesc: "Say goodbye to physical paper stacks. Register your child, sign secure medical declarations, upload immunizations, and select learning tracks in 5 minutes.",
+      dashTitle: "Secure Parent Control Panel & Live Feed",
+      dashDesc: "Real-time feeding updates, nap timers, and activity checklists. View exclusive daily photo streams of your children participating in cognitive activities.",
+      qrcodeTitle: "Secure QR Code Kids' Checkout & Analysis",
+      qrcodeDesc: "Checkout is facilitated by secure QR Code scanning from parents' phones based on their login credentials. Parents can also view automated analyzed reports of their child's daily habits, activity logs, and routine highlights."
     }
   },
   am: {
@@ -1034,7 +1049,22 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
     softwareShowcase: {
       badge: "የቀን ማቆያ ዌብ ሲስተም",
       title: "ከምዝገባ እስከ ህፃናት መውጫ - በኪድቶፒያ ዌብ ፖርታል የተደገፈ",
-      subtitle: "ግልጽነት ለታማኝነት ዋናው መሠረት እንደሆነ እናምናለን። ለዚህም ነው በእያንዳንዱ ሰከንድ ደህንነትዎን ለመጠበቅ እና መረጃ ለማድረስ የእኛን ልዩ የሶፍትዌር ስርዓት የዘረጋነው።"
+      subtitle: "ግልጽነት ለታማኝነት ዋናው መሠረት እንደሆነ እናምናለን። ለዚህም ነው በእያንዳንዱ ሰከንድ ደህንነትዎን ለመጠበቅ እና መረጃ ለማድረስ የእኛን ልዩ የሶፍትዌር ስርዓት የዘረጋነው።",
+      parentDashboardTitle: "የወላጆች መቆጣጠሪያ ሰሌዳ (Dashboard)",
+      parentDashboardDesc: "ወላጆች የእውነተኛ ጊዜ ዝመናዎችን፣ የጤና ሁኔታዎችን፣ ዕለታዊ አመጋገብን እና ከተንከባካቢዎች ጋር ቀጥተኛ ግንኙነትን የሚያገኙበት ዘመናዊ ፖርታል አላቸው።",
+      uploadLabel: "ለመቀየር በአድሚን ፓነል ውስጥ እውነተኛ ስክሪንሾት ይጫኑ",
+      uploadFormat: "PNG፣ JPG ወይም WebP ይደግፋል። ነባሪውን ምስል ይቀይራል።",
+      changeScreenshot: "አዲስ ስክሪንሾት ለመቀየር",
+      useFallback: "ወደ ነባሪው የሶፍትዌር ንድፍ ይመለሱ",
+      tabRegistration: "1. የኢንተርኔት ምዝገባ",
+      tabDashboard: "2. የወላጅ ዳሽቦርድ",
+      tabQrcode: "3. በQR ኮድ መውሰጃ",
+      regTitle: "ቀላል እና ፈጣን የበይነመረብ ምዝገባ",
+      regDesc: "የወረቀት ስራዎችን ያስቀሩ። በ 5 ደቂቃዎች ውስጥ ልጅዎን ይመዝግቡ፣ የህክምና መግለጫዎችን ይሙሉ፣ እና የክትባት ካርዶችን በቀላሉ ያስገቡ።",
+      dashTitle: "የወላጅ መቆጣጠሪያ እና የቀጥታ መረጃ ፍሰት",
+      dashDesc: "ምግብ፣ እንቅልፍ እና የእንቅስቃሴ ሪፖርቶች። ልጆችዎ በእውቀት ማሳደጊያ ስራዎች ላይ ሲሳተፉ የሚያሳዩ ልዩ የፎቶ ዝመናዎችን ያግኙ።",
+      qrcodeTitle: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ እና የዕለት ሪፖርት",
+      qrcodeDesc: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ። ወላጆች በስልካቸው የሚመነጨውን የQR ኮድ በመጠቀም ልጆቻቸውን በታማኝነት መውሰድ ይችላሉ። በተጨማሪም የልጃቸውን የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ትንተና ሪፖርቶች ማየት ይችላሉ።"
     }
   }
 };
