@@ -9,10 +9,9 @@ interface HeaderProps {
   lang: Language;
   setLang: (l: Language) => void;
   onScrollTo: (id: string) => void;
-  onOpenInstallModal?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpenInstallModal }) => {
+export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const t = useContent(lang).nav;
@@ -169,18 +168,6 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
           {/* Right Actions */}
           <div className="hidden lg:flex items-center gap-2.5 xl:gap-4.5">
-            {onOpenInstallModal && (
-              <button
-                type="button"
-                onClick={onOpenInstallModal}
-                className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange border border-brand-orange/25 transition-all px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
-                title={lang === 'en' ? 'Download & Install Web App' : 'የዌብ አፕሊኬሽን ጭነት መመሪያ'}
-              >
-                <Download size={13} className="animate-bounce" />
-                <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጭን'}</span>
-              </button>
-            )}
-
             <button 
               onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
               className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-2"
@@ -240,20 +227,6 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                 <Link to="/login" className="w-full text-center text-white font-bold font-display rounded-full px-6 py-2.5 text-sm shadow-[0_4px_15px_rgba(58,91,50,0.2)]" style={{ backgroundColor: t.activeColor || '#3a5b32' }} onClick={() => setIsMenuOpen(false)}>
                   {t.login}
                 </Link>
-
-                {onOpenInstallModal && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      onOpenInstallModal();
-                    }}
-                    className="w-full py-2.5 px-4 bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/25 text-brand-orange font-display font-black text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition shadow-sm"
-                  >
-                    <Smartphone size={15} />
-                    <span>{lang === 'en' ? 'Install Kidtopia App (Mobile/PC)' : 'የኪድቶፒያ አፕሊኬሽን ጭነት (ሞባይል/ኮምፒዩተር)'}</span>
-                  </button>
-                )}
               </div>
               <div className="flex-1 overflow-y-auto space-y-1.5 py-4 pr-1">
                 {navItems.map((item, idx) => (

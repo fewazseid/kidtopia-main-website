@@ -449,6 +449,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                   </Link>
                 </p>
               </div>
+
+              <div className="mt-6 pt-4 border-t border-stone-200/60 flex items-center justify-between text-xs text-stone-500">
+                <span className="font-medium">{lang === 'en' ? 'Kidtopia Web Application' : 'የኪድቶፒያ ዌብ አፕሊኬሽን:'}</span>
+                <button
+                  type="button"
+                  onClick={handleOpenGuide}
+                  className="font-black text-brand-orange hover:underline cursor-pointer flex items-center gap-1.5"
+                >
+                  <Download size={14} />
+                  <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+                </button>
+              </div>
             </>
           )}
         </div>

@@ -7,10 +7,9 @@ import { subscribeToNewsletter } from '../firebase';
 
 interface FooterProps {
   lang: Language;
-  onOpenInstallModal?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ lang, onOpenInstallModal }) => {
+export const Footer: React.FC<FooterProps> = ({ lang }) => {
   const content = useContent(lang);
   const t = content.footer;
   const nav = content.nav;
@@ -141,17 +140,6 @@ export const Footer: React.FC<FooterProps> = ({ lang, onOpenInstallModal }) => {
               <li><Link to="/virtual-tour" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.virtualTour}</Link></li>
               <li><Link to="/enroll" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.enrollNow}</Link></li>
               <li><Link to="/contact" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.contact}</Link></li>
-              {onOpenInstallModal && (
-                <li>
-                  <button
-                    type="button"
-                    onClick={onOpenInstallModal}
-                    className="text-sm font-bold text-brand-orange hover:text-white hover:translate-x-1 inline-flex items-center gap-1.5 transition-transform cursor-pointer"
-                  >
-                    <span>📲 {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጭነት'}</span>
-                  </button>
-                </li>
-              )}
             </ul>
           </div>
 
