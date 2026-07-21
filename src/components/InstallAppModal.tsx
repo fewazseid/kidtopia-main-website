@@ -15,6 +15,8 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   const [installedSuccess, setInstalledSuccess] = useState<boolean>(false);
   const [showManualGuide, setShowManualGuide] = useState<boolean>(false);
   
+  const [installCancelled, setInstallCancelled] = useState<boolean>(false);
+  
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   }, [isOpen]);
 
   const handleDirectInstall = async () => {
+    setInstallCancelled(false);
     const activePrompt = (window as any).deferredPwaPrompt || deferredPrompt;
 
     if (activePrompt && typeof activePrompt.prompt === 'function') {
@@ -53,6 +56,9 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
           setInstalledSuccess(true);
           (window as any).deferredPwaPrompt = null;
           setDeferredPrompt(null);
+          return;
+        } else if (userChoice && userChoice.outcome === 'dismissed') {
+          setInstallCancelled(true);
           return;
         }
       } catch (err) {
@@ -125,6 +131,15 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                 </div>
               ) : (
                 <div className="space-y-2.5">
+                  {/* If user previously cancelled the browser prompt */}
+                  {installCancelled && (
+                    <p className="text-[11px] text-brand-orange bg-brand-orange/10 border border-brand-orange/20 p-2.5 rounded-xl text-center">
+                      {lang === 'en'
+                        ? 'Installation request was cancelled. Click the button above whenever you are ready.'
+                        : 'የመጫን ጥያቄው ተሰርዟል። ዝግጁ ሲሆኑ ከላይ ያለውን አዝራር ይጫኑ።'}
+                    </p>
+                  )}
+
                   {/* Primary Trigger Button */}
                   <button
                     onClick={handleDirectInstall}
