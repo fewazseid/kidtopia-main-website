@@ -25,10 +25,73 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ContentProvider } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
 import { useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { X } from 'lucide-react';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
   const isMinimalLayout = ['/login', '/admin'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
+  
+  // State for expanded image viewer
+  const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
+
+  // Set up global click listener for images
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'IMG') {
+        const img = target as HTMLImageElement;
+        
+        // Exclude small UI icons, badges, indicators, flags, and logos
+        if (img.naturalWidth < 100 || img.naturalHeight < 100 || img.width < 90 || img.height < 90) {
+          return;
+        }
+
+        // Check if excluded class/elements
+        if (
+          img.classList.contains('no-expand') || 
+          img.src.includes('flag') || 
+          img.src.includes('logo') ||
+          img.src.includes('icon') ||
+          img.id === 'barcode'
+        ) {
+          return;
+        }
+
+        // Open the high fidelity expandable image modal
+        setExpandedImage({
+          src: img.src,
+          alt: img.alt || (lang === 'en' ? 'Kidtopia Academy' : 'ኪድቶፒያ አካዳሚ')
+        });
+      }
+    };
+
+    document.addEventListener('click', handleGlobalClick);
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, [lang]);
+
+  // Handle escape key press & scroll lock
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setExpandedImage(null);
+      }
+    };
+
+    if (expandedImage) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [expandedImage]);
 
   return (
     <div className="min-h-screen selection:bg-brand-green/20 relative">
@@ -64,6 +127,63 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
       {!isMinimalLayout && <Footer lang={lang} />}
       
       <LeadCapturePopup lang={lang} />
+
+      {/* Global High-Fidelity Expandable Image Modal */}
+      <AnimatePresence>
+        {expandedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setExpandedImage(null)}
+            className="fixed inset-0 z-[9999] bg-stone-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 select-none cursor-zoom-out"
+          >
+            {/* Top Close Button bar (Frosted Glass Icon) */}
+            <motion.button
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ delay: 0.1 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedImage(null);
+              }}
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white hover:scale-105 active:scale-95 transition-all duration-300 shadow-xl cursor-pointer"
+              title="Close Preview (Esc)"
+            >
+              <X size={20} className="stroke-[2.5]" />
+            </motion.button>
+
+            {/* Container for Image & Caption */}
+            <div className="w-full max-w-5xl flex flex-col items-center justify-center gap-4 relative">
+              <motion.img
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: "spring", damping: 25, stiffness: 180 }}
+                src={expandedImage.src}
+                alt={expandedImage.alt}
+                onClick={(e) => e.stopPropagation()}
+                className="max-h-[80vh] max-w-full sm:max-w-[90%] md:max-w-[85%] object-contain rounded-2xl sm:rounded-3xl shadow-2xl border border-white/5 select-none"
+              />
+
+              {expandedImage.alt && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ delay: 0.15 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-stone-900/80 border border-white/5 text-stone-200 text-xs sm:text-sm font-sans font-medium px-5 py-2.5 rounded-full shadow-lg backdrop-blur-md text-center max-w-[90%] break-words"
+                >
+                  {expandedImage.alt}
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

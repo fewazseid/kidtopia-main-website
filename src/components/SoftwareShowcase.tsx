@@ -30,6 +30,51 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [driveLink, setDriveLink] = useState('');
+  const [driveError, setDriveError] = useState('');
+
+  // Helper to parse Google Drive link to direct web-friendly link
+  const getGoogleDriveDirectLink = (url: string): string => {
+    if (!url) return '';
+    if (url.includes('drive.google.com')) {
+      const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
+      }
+    }
+    return url;
+  };
+
+  const handleApplyDriveLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!driveLink.trim()) return;
+
+    let processedUrl = driveLink.trim();
+    if (processedUrl.includes('drive.google.com')) {
+      const converted = getGoogleDriveDirectLink(processedUrl);
+      if (converted === processedUrl) {
+        setDriveError(lang === 'en' ? 'Could not parse Google Drive File ID. Please make sure you copied the correct link.' : 'የጉግል ድራይቭ ፋይል መለያ (ID) ማግኘት አልተቻለም። ትክክለኛ ሊንክ መሆኑን ያረጋግጡ።');
+        return;
+      }
+      processedUrl = converted;
+    }
+
+    setDriveError('');
+    setUploadedScreenshots(prev => ({
+      ...prev,
+      [activeTab]: processedUrl
+    }));
+
+    try {
+      await setDoc(doc(db, 'settings', 'screenshots'), {
+        [activeTab]: processedUrl
+      }, { merge: true });
+      setDriveLink('');
+    } catch (error) {
+      console.error("Error persisting Drive URL to Firestore settings:", error);
+    }
+  };
+
   // Subscribe to real-time screenshot updates from Firestore settings
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'screenshots'), (snapshot) => {
@@ -525,25 +570,72 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
               </div>
             </div>
 
-            {/* Change/Reset Buttons (Only show if Admin View) */}
+            {/* Change/Reset Buttons & Google Drive Paste (Only show if Admin View) */}
             {isAdminView && (
-              <div className="mt-4.5 flex gap-3 text-xs">
-                <button 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 font-bold text-stone-700 shadow-sm cursor-pointer transition flex items-center gap-1.5"
-                >
-                  <Upload size={13} className="text-stone-500" />
-                  <span>{uploadedScreenshots[activeTab] ? t.changeScreenshot : (lang === 'am' ? 'የሶፍትዌሩን ምስል አፕሎድ ያድርጉ' : 'Upload Real Screenshot')}</span>
-                </button>
+              <div className="mt-6 w-full max-w-xl bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm space-y-4 animate-fadeIn">
+                <div className="flex flex-col sm:flex-row gap-3 text-xs justify-between items-start sm:items-center border-b border-stone-100 pb-3.5">
+                  <div>
+                    <h4 className="font-bold text-stone-800 text-sm">
+                      {lang === 'en' ? 'Screenshot Settings' : 'የስክሪንሾት ቅንጅቶች'}
+                    </h4>
+                    <p className="text-stone-500 text-[11px] mt-0.5 font-medium">
+                      {lang === 'en' ? `Updating image for "${activeTab}" tab.` : `ለ"${activeTab}" ምድብ ስክሪንሾት በመቀየር ላይ።`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 font-bold text-stone-700 shadow-sm cursor-pointer transition flex items-center gap-1.5"
+                    >
+                      <Upload size={13} className="text-stone-500" />
+                      <span>{uploadedScreenshots[activeTab] ? t.changeScreenshot : (lang === 'am' ? 'ምስል ጫን' : 'Upload Image')}</span>
+                    </button>
 
-                {uploadedScreenshots[activeTab] && (
-                  <button 
-                    onClick={removeScreenshot}
-                    className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 font-bold text-stone-500 cursor-pointer transition"
-                  >
-                    {t.useFallback}
-                  </button>
-                )}
+                    {uploadedScreenshots[activeTab] && (
+                      <button 
+                        type="button"
+                        onClick={removeScreenshot}
+                        className="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 font-bold text-stone-500 cursor-pointer transition"
+                      >
+                        {t.useFallback}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Google Drive Link Input Form */}
+                <form onSubmit={handleApplyDriveLink} className="space-y-2">
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                    {lang === 'en' ? 'Or Paste Google Drive Image Link' : 'ወይም የጉግል ድራይቭ ምስል ሊንክ እዚህ ይለጥፉ'}
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={driveLink}
+                      onChange={(e) => {
+                        setDriveLink(e.target.value);
+                        setDriveError('');
+                      }}
+                      placeholder="https://drive.google.com/file/d/..."
+                      className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-xs outline-none focus:border-brand-green bg-stone-50/50"
+                    />
+                    <button
+                      type="submit"
+                      className="bg-brand-green hover:bg-brand-green/90 text-white rounded-xl px-4 py-2 text-xs font-bold transition duration-200 cursor-pointer shadow-sm shrink-0"
+                    >
+                      {lang === 'en' ? 'Apply Link' : 'ሊንክ ተግብር'}
+                    </button>
+                  </div>
+                  {driveError && (
+                    <p className="text-[11px] text-red-500 font-semibold">{driveError}</p>
+                  )}
+                  <p className="text-[10px] text-stone-400 font-medium leading-relaxed">
+                    {lang === 'en' 
+                      ? 'Note: Make sure the Google Drive image sharing option is set to "Anyone with the link can view".' 
+                      : 'ማሳሰቢያ፡ በጉግል ድራይቭ ላይ የምስሉ ማጋሪያ ፈቃድ "በሊንኩ ማንም ማየት ይችላል (Anyone with the link)" መሆኑን ያረጋግጡ።'}
+                  </p>
+                </form>
               </div>
             )}
 
