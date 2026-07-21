@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Fingerprint } from 'lucide-react';
+import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Fingerprint, Download, Smartphone } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginWithGoogle, getUserRole, setUserRole, loginWithEmail, registerWithEmail, getAdminConfig, updateCurrentUserPassword } from '../firebase';
 import { captureFingerprint, matchFingerprints, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
+import { DeviceInstallGuideCard } from '../components/DeviceInstallGuideCard';
+import { InstallAppModal } from '../components/InstallAppModal';
 
 interface LoginPageProps {
   lang: Language;
+  onOpenInstallModal?: () => void;
 }
 
 type Role = 'admin' | 'staff' | 'parent';
 
-export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }) => {
   const t = useContent(lang).login;
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -264,13 +268,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
     }
   };
 
+  const handleOpenGuide = () => {
+    if (onOpenInstallModal) {
+      onOpenInstallModal();
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
   return (
-    <main className="pt-32 pb-24 min-h-screen flex items-center justify-center bg-transparent px-4">
+    <main className="pt-28 pb-24 min-h-screen flex items-center justify-center bg-transparent px-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md"
+        className="w-full max-w-lg space-y-6"
       >
         <div className="card-rounded p-8 sm:p-10">
           {isAdminSelect ? (
@@ -440,7 +452,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang }) => {
             </>
           )}
         </div>
+
+        {/* Auto-detected Device Download & Install Guide Card directly in Login Area */}
+        <DeviceInstallGuideCard 
+          lang={lang} 
+          onOpenFullModal={handleOpenGuide} 
+        />
       </motion.div>
+
+      {/* Full Modal for step-by-step device selector */}
+      <InstallAppModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        lang={lang}
+      />
     </main>
   );
 };
