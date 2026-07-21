@@ -211,3 +211,14 @@
   transform: scale(1.1); /* Slight scale to hide iframe black borders on certain ratios */
   pointer-events: none;
 }
+
+/* Custom Global Interactive Image Zoom Settings */
+img:not(.no-expand):not([src*="flag-"]):not([src*="logo"]):not([id="barcode"]):not([width^="1"]):not([width^="2"]):not([height^="1"]):not([height^="2"]) {
+  cursor: zoom-in;
+  transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+}
+
+img:not(.no-expand):not([src*="flag-"]):not([src*="logo"]):not([id="barcode"]):not([width^="1"]):not([width^="2"]):not([height^="1"]):not([height^="2"]):hover {
+  filter: brightness(1.04) contrast(1.01);
+}
+

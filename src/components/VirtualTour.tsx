@@ -371,7 +371,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={handleClose}
-              className="fixed inset-0 z-50 bg-stone-950/98 backdrop-blur-md flex flex-col items-center justify-center select-none"
+              className="fixed inset-0 z-[10000] bg-stone-950/98 backdrop-blur-md flex flex-col items-center justify-center select-none"
             >
               {/* Top Controls Bar */}
               <div className="absolute top-0 inset-x-0 p-4 md:p-6 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
@@ -384,29 +384,41 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                   </span>
                 </div>
                 
-                {/* Close Button */}
+                {/* Close Button top-right screen */}
                 <button
                   onClick={handleClose}
-                  className="w-12 h-12 bg-white/5 border border-white/10 hover:bg-red-500 hover:border-red-500 flex items-center justify-center rounded-2xl text-white transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  className="w-12 h-12 bg-white/10 border border-white/20 hover:bg-red-500 hover:border-red-500 flex items-center justify-center rounded-2xl text-white transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
                   title={lang === 'am' ? 'ዝጋ' : 'Close'}
                 >
                   <X size={20} className="stroke-[2.5]" />
                 </button>
               </div>
 
-              {/* Main Content Area - True expansion transition container! */}
+              {/* Main Content Area - True expansion transition container! Optimized for mobile with max-height and viewport-based sizing */}
               <motion.div 
                 layoutId={`media-card-container-${initialIndex}`}
                 onClick={(e) => e.stopPropagation()} 
-                className="relative max-w-4xl lg:max-w-5xl w-[84vw] xs:w-[80vw] sm:w-[84vw] md:w-[88vw] aspect-video flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-stone-950 z-10"
+                className="relative max-w-4xl lg:max-w-5xl w-[92vw] sm:w-[86vw] md:w-[80vw] h-[58vh] sm:h-[70vh] flex items-center justify-center rounded-3xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.8)] border border-white/15 bg-stone-950 z-10 p-1 sm:p-2"
               >
+                {/* Embedded Close Button inside the card for super easy and reliable mobile access */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClose();
+                  }}
+                  className="absolute top-4 right-4 z-[60] w-10 h-10 bg-black/75 hover:bg-red-500 border border-white/20 flex items-center justify-center rounded-full text-white transition-all hover:scale-110 active:scale-90 cursor-pointer shadow-md"
+                  title={lang === 'am' ? 'ዝጋ' : 'Close'}
+                >
+                  <X size={18} className="stroke-[2.5]" />
+                </button>
+
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeMediaIndex}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.25 }}
                     className="w-full h-full flex items-center justify-center"
                   >
                     {t.media[activeMediaIndex].type === 'video' ? (
@@ -424,32 +436,32 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
               </motion.div>
 
               {/* Bottom Caption Area */}
-              <div className="absolute bottom-0 inset-x-0 p-6 text-center z-50 bg-gradient-to-t from-black/90 to-transparent">
+              <div className="absolute bottom-0 inset-x-0 p-6 pb-8 text-center z-50 bg-gradient-to-t from-black/95 to-transparent">
                 {t.media[activeMediaIndex].description && (
-                  <p className="text-white text-base md:text-xl font-editorial font-bold max-w-3xl mx-auto px-4 leading-relaxed tracking-tight text-center">
+                  <p className="text-white text-base md:text-xl font-editorial font-bold max-w-2xl mx-auto px-4 leading-relaxed tracking-tight text-center">
                     {t.media[activeMediaIndex].description}
                   </p>
                 )}
-                <p className="text-[10px] text-stone-500 font-sans mt-2 tracking-wide">
-                  {lang === 'am' ? 'ለማሰስ የቀስት ቁልፎችን መጠቀም ይችላሉ' : 'Use Left/Right arrow keys or click the side navigation controls to browse'}
+                <p className="text-[10px] text-stone-400 font-sans mt-3.5 tracking-wide max-w-sm mx-auto bg-black/45 backdrop-blur-sm py-1.5 px-3 rounded-full border border-white/5">
+                  {lang === 'am' ? 'ለማሰስ የቀስት ቁልፎችን ወይም የጎን ቀስቶችን ይጠቀሙ' : 'Swipe/Arrow keys or click the side buttons to browse'}
                 </p>
               </div>
 
-              {/* Next/Previous Floating Side Buttons */}
+              {/* Next/Previous Floating Side Buttons - hidden or styled compactly on mobile */}
               <button
                 onClick={handlePrev}
-                className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-white/5 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-2xl hover:text-white hover:scale-105 active:scale-95 transition-all text-white/80 cursor-pointer z-50"
+                className="absolute left-3 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/60 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-full hover:text-white hover:scale-105 active:scale-95 transition-all text-white/90 cursor-pointer z-50 shadow-md"
                 title={lang === 'am' ? 'ቀደመ' : 'Previous'}
               >
-                <ChevronLeft size={24} className="stroke-[2.5]" />
+                <ChevronLeft size={20} className="sm:size-6 stroke-[2.5]" />
               </button>
 
               <button
                 onClick={handleNext}
-                className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-white/5 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-2xl hover:text-white hover:scale-105 active:scale-95 transition-all text-white/80 cursor-pointer z-50"
+                className="absolute right-3 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/60 hover:bg-brand-green border border-white/10 flex items-center justify-center rounded-full hover:text-white hover:scale-105 active:scale-95 transition-all text-white/90 cursor-pointer z-50 shadow-md"
                 title={lang === 'am' ? 'ቀጣይ' : 'Next'}
               >
-                <ChevronRight size={24} className="stroke-[2.5]" />
+                <ChevronRight size={20} className="sm:size-6 stroke-[2.5]" />
               </button>
             </motion.div>
           )}

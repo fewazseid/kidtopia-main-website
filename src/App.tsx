@@ -42,17 +42,21 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
       if (target.tagName === 'IMG') {
         const img = target as HTMLImageElement;
         
-        // Exclude small UI icons, badges, indicators, flags, and logos
-        if (img.naturalWidth < 100 || img.naturalHeight < 100 || img.width < 90 || img.height < 90) {
+        // Exclude tiny UI icons, badges, and decorations (width/height less than 32px)
+        if (
+          (img.naturalWidth > 0 && img.naturalWidth < 32) || 
+          (img.naturalHeight > 0 && img.naturalHeight < 32) || 
+          img.width < 32 || 
+          img.height < 32
+        ) {
           return;
         }
 
         // Check if excluded class/elements
         if (
           img.classList.contains('no-expand') || 
-          img.src.includes('flag') || 
+          img.src.includes('flag-') || 
           img.src.includes('logo') ||
-          img.src.includes('icon') ||
           img.id === 'barcode'
         ) {
           return;
