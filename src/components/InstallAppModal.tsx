@@ -73,27 +73,28 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   };
 
   const handleDirectInstall = async () => {
-    const activePrompt = deferredPrompt || (window as any).deferredPwaPrompt;
+    // Explicitly check for global deferredPwaPrompt
+    const pwaPrompt = (window as any).deferredPwaPrompt || deferredPrompt;
 
-    if (activePrompt) {
+    if (pwaPrompt && typeof pwaPrompt.prompt === 'function') {
       try {
-        activePrompt.prompt();
-        const { outcome } = await activePrompt.userChoice;
-        if (outcome === 'accepted') {
+        pwaPrompt.prompt();
+        const userChoice = await pwaPrompt.userChoice;
+        if (userChoice && userChoice.outcome === 'accepted') {
           setInstalledSuccess(true);
-          setDeferredPrompt(null);
           (window as any).deferredPwaPrompt = null;
+          setDeferredPrompt(null);
+          return;
         }
-        return;
       } catch (err) {
-        console.error('Error triggering PWA prompt:', err);
+        console.error('Error executing PWA prompt():', err);
       }
     }
 
-    // Trigger fallback shortcut download so a real file download happens
+    // Trigger fallback shortcut file download so a physical app launcher download is initiated
     downloadAppShortcutFile();
 
-    // If inside iframe or prompt unavailable, pop out to dedicated window
+    // If inside iframe or prompt unavailable, open dedicated window
     if (isInIframe) {
       window.open(window.location.href, '_blank');
     }
