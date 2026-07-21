@@ -455,3 +455,39 @@ export const sendEmail = async (to: string, subject: string, html: string, reply
     throw err;
   }
 };
+
+export const subscribeToNewsletter = async (email: string) => {
+  try {
+    const docId = email.trim().toLowerCase();
+    await setDoc(doc(db, 'newsletter_subscribers', docId), {
+      email: docId,
+      subscribedAt: new Date().toISOString(),
+      status: 'active'
+    });
+  } catch (err) {
+    console.error("Failed to subscribe to newsletter:", err);
+    throw err;
+  }
+};
+
+export const getNewsletterSubscribers = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'newsletter_subscribers'));
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as any[];
+  } catch (err) {
+    console.error("Failed to fetch newsletter subscribers:", err);
+    throw err;
+  }
+};
+
+export const deleteNewsletterSubscriber = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'newsletter_subscribers', id));
+  } catch (err) {
+    console.error("Failed to delete newsletter subscriber:", err);
+    throw err;
+  }
+};

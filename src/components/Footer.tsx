@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
-import { Facebook, Instagram, Send, Youtube, Mail, Phone, MapPin, Music2, ExternalLink } from 'lucide-react';
+import { Facebook, Instagram, Send, Youtube, Mail, Phone, MapPin, Music2, ExternalLink, CheckCircle } from 'lucide-react';
+import { subscribeToNewsletter } from '../firebase';
 
 interface FooterProps {
   lang: Language;
@@ -14,12 +15,81 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
   const nav = content.nav;
 
   const [selectedBranchIdx, setSelectedBranchIdx] = useState(0);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setStatus('error');
+      setErrorMsg(lang === 'en' ? 'Please enter a valid email address.' : 'እባክዎ ትክክለኛ የኢሜል አድራሻ ያስገቡ።');
+      return;
+    }
+    setLoading(true);
+    setStatus('idle');
+    try {
+      await subscribeToNewsletter(email);
+      setEmail('');
+      setStatus('success');
+      setTimeout(() => setStatus('idle'), 6000);
+    } catch (err: any) {
+      console.error(err);
+      setStatus('error');
+      setErrorMsg(lang === 'en' ? 'Subscription failed. Please try again.' : 'ምዝገባው አልተሳካም። እባክዎ እንደገና ይሞክሩ።');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <footer id="footer" className="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-400 py-20 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* Newsletter Signup Banner */}
+        <div className="border-b border-white/5 pb-12 mb-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="max-w-md">
+            <h3 className="font-display font-black text-lg text-stone-200 mb-2">
+              {lang === 'en' ? 'Stay Updated with Kidtopia' : 'ከኪድቶፒያ ጋር ሁልጊዜ አብረው ይሁኑ'}
+            </h3>
+            <p className="text-sm text-stone-400">
+              {lang === 'en' ? 'Subscribe to our newsletter for child development tips, academy news, and event schedules.' : 'ስለ ልጆች አስተዳደግ ምክሮች፣ የትምህርት ቤት ዜናዎች እና የክስተት መርሃግብሮች መረጃ ለማግኘት በኢሜልዎ ይመዝገቡ።'}
+            </p>
+          </div>
+          <div className="w-full lg:max-w-md">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={lang === 'en' ? 'Enter your email address' : 'የኢሜል አድራሻዎን ያስገቡ'}
+                required
+                className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white placeholder-stone-500 focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all flex-grow"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-brand-green hover:bg-brand-green/90 text-white rounded-2xl px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-55 shrink-0"
+              >
+                {loading ? (lang === 'en' ? 'Subscribing...' : 'በመመዝገብ ላይ...') : (lang === 'en' ? 'Subscribe' : 'ይመዝገቡ')}
+              </button>
+            </form>
+            {status === 'success' && (
+              <p className="text-xs text-brand-green font-bold mt-2 flex items-center gap-1.5 animate-fadeIn">
+                <CheckCircle size={14} /> {lang === 'en' ? 'Thank you for subscribing to our newsletter!' : 'የኪድቶፒያ ጋዜጣ ለመከታተል ስለተመዘገቡ እናመሰግናለን!'}
+              </p>
+            )}
+            {status === 'error' && (
+              <p className="text-xs text-red-400 font-bold mt-2 animate-fadeIn">
+                {errorMsg}
+              </p>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Contact */}
           <div>

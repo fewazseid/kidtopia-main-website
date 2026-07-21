@@ -21,12 +21,27 @@
         "login": { "type": "object" },
         "enrollmentPage": { "type": "object" }
       }
+    },
+    "NewsletterSubscriber": {
+      "title": "Newsletter Subscriber",
+      "description": "A user subscribed to the email newsletter.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "subscribedAt": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["email", "subscribedAt", "status"]
     }
   },
   "firestore": {
     "/content/{lang}": {
       "schema": "Content",
       "description": "Translated content for each language."
+    },
+    "/newsletter_subscribers/{subscriberId}": {
+      "schema": "NewsletterSubscriber",
+      "description": "Registered newsletter subscriber emails."
     }
   }
 }

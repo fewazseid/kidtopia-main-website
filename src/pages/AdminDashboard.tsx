@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Fingerprint, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh, ContentContext } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -24,7 +24,7 @@ import { Header } from '../components/Header';
 import { EnrollPage } from './EnrollPage';
 import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { IframePreview } from '../components/IframePreview';
-import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking } from '../firebase';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, saveFingerprintTemplate, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking, getNewsletterSubscribers, deleteNewsletterSubscriber } from '../firebase';
 import { captureFingerprint, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -94,6 +94,105 @@ export const AdminDashboard: React.FC = () => {
   const daysOfWeek = ['Default', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const [bookings, setBookings] = useState<any[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
+
+  // Newsletter Subscribers states
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [subscribersLoading, setSubscribersLoading] = useState(false);
+  const [newsletterSubject, setNewsletterSubject] = useState('');
+  const [newsletterBody, setNewsletterBody] = useState('');
+  const [sendingEmails, setSendingEmails] = useState(false);
+
+  const fetchSubscribers = async () => {
+    setSubscribersLoading(true);
+    try {
+      const list = await getNewsletterSubscribers();
+      setSubscribers(list);
+    } catch (err: any) {
+      console.error(err);
+      setFeedback({ type: 'error', message: 'Failed to fetch newsletter subscribers.' });
+    } finally {
+      setSubscribersLoading(false);
+    }
+  };
+
+  const handleDeleteSubscriber = async (id: string) => {
+    setConfirmModal({
+      message: `Are you sure you want to remove subscriber "${id}"?`,
+      onConfirm: async () => {
+        try {
+          await deleteNewsletterSubscriber(id);
+          setFeedback({ type: 'success', message: 'Subscriber removed successfully!' });
+          fetchSubscribers();
+        } catch (err: any) {
+          console.error(err);
+          setFeedback({ type: 'error', message: 'Failed to remove subscriber.' });
+        } finally {
+          setConfirmModal(null);
+        }
+      }
+    });
+  };
+
+  const handleSendNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (subscribers.length === 0) {
+      setFeedback({ type: 'error', message: 'There are no subscribers to send to.' });
+      return;
+    }
+    if (!newsletterSubject.trim() || !newsletterBody.trim()) {
+      setFeedback({ type: 'error', message: 'Please provide a subject and message body.' });
+      return;
+    }
+
+    setSendingEmails(true);
+    setFeedback({ type: 'info', message: `Sending email updates to ${subscribers.length} subscribers...` });
+    
+    let successCount = 0;
+    let failCount = 0;
+
+    const emailTemplateHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 12px; background-color: #faf9f6;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="color: #435334; margin: 0; font-size: 28px; letter-spacing: -0.5px;">KIDTOPIA</h1>
+          <p style="color: #c08261; margin: 4px 0 0; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">International Daycare and Preschool</p>
+        </div>
+        <div style="background-color: white; padding: 24px; border-radius: 8px; border: 1px solid #eee;">
+          <h2 style="color: #2b2b2b; margin-top: 0; font-size: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px;">${newsletterSubject}</h2>
+          <div style="color: #4a4a4a; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${newsletterBody}</div>
+        </div>
+        <div style="text-align: center; margin-top: 24px; font-size: 11px; color: #888;">
+          <p>You received this email because you subscribed to the Kidtopia newsletter.</p>
+          <p>© 2026 Kidtopia. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
+    for (const sub of subscribers) {
+      try {
+        await sendEmail(sub.email, newsletterSubject, emailTemplateHtml);
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to send email to ${sub.email}:`, err);
+        failCount++;
+      }
+    }
+
+    setSendingEmails(false);
+    setNewsletterSubject('');
+    setNewsletterBody('');
+
+    if (failCount === 0) {
+      setFeedback({ type: 'success', message: `Successfully sent newsletter to all ${successCount} subscribers!` });
+    } else {
+      setFeedback({ type: 'success', message: `Sent to ${successCount} subscribers. Failed for ${failCount} emails.` });
+    }
+  };
+
+  useEffect(() => {
+    if (activeSection === 'newsletter') {
+      fetchSubscribers();
+    }
+  }, [activeSection]);
 
   const checkApiHealth = async () => {
     let apiBase = (import.meta as any).env.VITE_API_URL || '';
@@ -1127,6 +1226,7 @@ export const AdminDashboard: React.FC = () => {
 
   const sections = [
     { id: 'bookings', icon: <Megaphone size={18} />, label: 'Tour Bookings' },
+    { id: 'newsletter', icon: <Mail size={18} />, label: 'Newsletter' },
     { id: 'emailTemplates', icon: <Megaphone size={18} />, label: 'Email Templates' },
     { id: 'nav', icon: <Layout size={18} />, label: 'Navigation' },
     { id: 'announcement', icon: <Megaphone size={18} />, label: 'Announcement' },
@@ -2088,10 +2188,10 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-stone-100">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-stone-900 capitalize">
-                {activeSection === 'bookings' ? 'Tour Bookings' : activeSection === 'emailTemplates' ? 'Email Templates' : activeSection === 'users' ? 'User Management' : activeSection === 'security' ? 'Security Settings' : `${activeSection} Content`} ({activeLang.toUpperCase()})
+                {activeSection === 'bookings' ? 'Tour Bookings' : activeSection === 'newsletter' ? 'Newsletter subscribers' : activeSection === 'emailTemplates' ? 'Email Templates' : activeSection === 'users' ? 'User Management' : activeSection === 'security' ? 'Security Settings' : `${activeSection} Content`} ({activeLang.toUpperCase()})
               </h1>
               <p className="text-xs text-stone-500 mt-1">
-                {activeSection === 'bookings' ? 'Review and manage incoming tour requests.' : activeSection === 'users' ? 'Manage system roles and bio logins.' : 'Customize wording and live-preview changes in real-time.'}
+                {activeSection === 'bookings' ? 'Review and manage incoming tour requests.' : activeSection === 'newsletter' ? 'Manage email subscriber lists and send newsletter announcements.' : activeSection === 'users' ? 'Manage system roles and bio logins.' : 'Customize wording and live-preview changes in real-time.'}
               </p>
             </div>
             
@@ -2206,6 +2306,124 @@ export const AdminDashboard: React.FC = () => {
                     </table>
                   </div>
                 )}
+              </div>
+            ) : activeSection === 'newsletter' ? (
+              <div className="space-y-8 animate-fadeIn">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Composing / Sending section */}
+                  <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                    <h3 className="text-lg font-bold text-stone-900 mb-2 flex items-center gap-2">
+                      <Mail className="text-brand-green" size={20} />
+                      Send Newsletter Update
+                    </h3>
+                    <p className="text-xs text-stone-500 mb-6">Write an update email to send to all registered parents in the newsletter list.</p>
+                    
+                    <form onSubmit={handleSendNewsletter} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Subject</label>
+                        <input
+                          type="text"
+                          value={newsletterSubject}
+                          onChange={(e) => setNewsletterSubject(e.target.value)}
+                          placeholder="e.g., Weekly Academy Updates & Menu Planner"
+                          required
+                          className="w-full px-4 py-3 border border-stone-200 rounded-xl outline-none focus:border-brand-green bg-white text-sm"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Message Body</label>
+                        <textarea
+                          rows={10}
+                          value={newsletterBody}
+                          onChange={(e) => setNewsletterBody(e.target.value)}
+                          placeholder="Write your email announcement or update here... Markdown or plain text is supported."
+                          required
+                          className="w-full px-4 py-3 border border-stone-200 rounded-xl outline-none focus:border-brand-green bg-white text-sm resize-none"
+                        />
+                      </div>
+                      
+                      <button
+                        type="submit"
+                        disabled={sendingEmails}
+                        className="w-full bg-brand-green hover:bg-brand-green/90 text-white rounded-xl py-3 font-bold text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-55 cursor-pointer shadow-sm"
+                      >
+                        {sendingEmails ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            Sending Emails...
+                          </>
+                        ) : (
+                          <>
+                            <Send size={16} />
+                            Send to {subscribers.length} Subscriber{subscribers.length === 1 ? '' : 's'}
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Subscribers list section */}
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-stone-900">Email Subscribers</h3>
+                        <p className="text-xs text-stone-500">Currently registered subscriber emails.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={fetchSubscribers}
+                        className="text-xs font-bold text-brand-green hover:underline cursor-pointer"
+                      >
+                        Refresh List
+                      </button>
+                    </div>
+
+                    {subscribersLoading ? (
+                      <div className="flex justify-center items-center py-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+                      </div>
+                    ) : subscribers.length === 0 ? (
+                      <div className="text-center py-12 bg-stone-50 border border-stone-100 rounded-2xl">
+                        <p className="text-sm text-stone-500">No active newsletter subscribers found.</p>
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
+                        <div className="max-h-[480px] overflow-y-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-stone-50 border-b border-stone-100 text-stone-500 text-xs font-bold uppercase tracking-wider">
+                                <th className="px-6 py-4">Email</th>
+                                <th className="px-6 py-4">Subscribed At</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {subscribers.map((sub) => (
+                                <tr key={sub.id} className="border-b border-stone-100 last:border-0 text-sm hover:bg-stone-50/50 transition-colors">
+                                  <td className="px-6 py-4 font-medium text-stone-800 break-all">{sub.email}</td>
+                                  <td className="px-6 py-4 text-stone-500 text-xs">
+                                    {sub.subscribedAt ? new Date(sub.subscribedAt).toLocaleDateString() : 'N/A'}
+                                  </td>
+                                  <td className="px-6 py-4 text-right">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteSubscriber(sub.id)}
+                                      className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                      title="Delete Subscriber"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             ) : activeSection === 'security' ? (
               <div className="space-y-8">

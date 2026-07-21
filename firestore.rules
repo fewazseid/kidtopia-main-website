@@ -77,6 +77,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Newsletter Subscribers Collection
+    match /newsletter_subscribers/{subscriberId} {
+      allow read: if isAuthorizedPersonnel();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
     // Connection testing
     match /test/{docId} {
       allow read, write: if true;
