@@ -587,8 +587,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         const progress = cycleTime / 5000;
         const angle = Math.sin(progress * Math.PI * 2); // Beautiful smooth back-and-forth oscillation
         
-        // Horizontal swiping reaction: as hand sweeps right (angle positive), camera rotates left to make scene move right
-        targetLonRef.current = initialLon + angle * 40;
+        // Horizontal swiping reaction: as hand sweeps right (angle positive), camera rotates in inverted direction
+        targetLonRef.current = initialLon - angle * 40;
         targetLatRef.current = initialLat; // keep vertical view steady
       }
       else {
@@ -1586,10 +1586,10 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
     if (useGyroscopeRef.current) {
       // Rotate the gyro offset quaternion dynamically based on dragging.
-      // Horizontal drag rotates around the world Y-axis (Up)
+      // Horizontal drag rotates around the world Y-axis (Up) - inverted hand movement
       const yawRotation = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(0, 1, 0),
-        THREE.MathUtils.degToRad(-deltaX * panSpeedX)
+        THREE.MathUtils.degToRad(deltaX * panSpeedX)
       );
       
       // Vertical drag rotates around the camera's local horizontal axis (Right)
@@ -1606,8 +1606,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
       
       gyroOffsetQRef.current.premultiply(yawRotation).premultiply(pitchRotation);
     } else {
-      // Both PC/Mouse and Mobile/Tablet screens now use 1 for intuitive, natural, and consistent dragging direction (grab and drag)
-      const swipeMultiplierX = 1;
+      // Inverted left and right hand drag movement as requested
+      const swipeMultiplierX = -1;
 
       targetLonRef.current += deltaX * panSpeedX * swipeMultiplierX;
       targetLatRef.current = Math.max(-85, Math.min(85, targetLatRef.current + deltaY * panSpeedY));
