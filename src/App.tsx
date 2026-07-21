@@ -24,16 +24,18 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ContentProvider } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
+import { InstallAppModal } from './components/InstallAppModal';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X } from 'lucide-react';
+import { X, Smartphone, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
   const isMinimalLayout = ['/login', '/admin'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
   
-  // State for expanded image viewer
+  // State for expanded image viewer and Install App modal
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState<boolean>(false);
 
   // Set up global click listener for images
   useEffect(() => {
@@ -110,7 +112,12 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
       {isMinimalLayout ? (
         <MinimalHeader lang={lang} setLang={setLang} />
       ) : (
-        <Header lang={lang} setLang={setLang} onScrollTo={scrollToSection} />
+        <Header 
+          lang={lang} 
+          setLang={setLang} 
+          onScrollTo={scrollToSection} 
+          onOpenInstallModal={() => setIsInstallModalOpen(true)} 
+        />
       )}
       
       <Routes>
@@ -128,9 +135,36 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
       </Routes>
 
-      {!isMinimalLayout && <Footer lang={lang} />}
+      {!isMinimalLayout && (
+        <Footer 
+          lang={lang} 
+          onOpenInstallModal={() => setIsInstallModalOpen(true)} 
+        />
+      )}
       
       <LeadCapturePopup lang={lang} />
+
+      {/* Floating Install App Button */}
+      {!isMinimalLayout && (
+        <button
+          type="button"
+          onClick={() => setIsInstallModalOpen(true)}
+          className="fixed bottom-6 right-6 z-40 bg-stone-900 hover:bg-stone-800 text-white font-display font-bold text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-full shadow-2xl border border-stone-700/80 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 group cursor-pointer"
+          title={lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጭነት'}
+        >
+          <div className="w-2.5 h-2.5 rounded-full bg-brand-orange animate-ping" />
+          <Smartphone size={18} className="text-brand-yellow group-hover:rotate-12 transition-transform" />
+          <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጭን'}</span>
+          <Sparkles size={14} className="text-brand-orange" />
+        </button>
+      )}
+
+      {/* Install App Step-by-Step Guide Modal */}
+      <InstallAppModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+        lang={lang}
+      />
 
       {/* Global High-Fidelity Expandable Image Modal */}
       <AnimatePresence>
