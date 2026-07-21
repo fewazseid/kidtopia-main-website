@@ -133,7 +133,7 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ lang }) => {
                 ease: [0.16, 1, 0.3, 1],
                 x: { type: "spring", stiffness: 300, damping: 30 }
               }}
-              className="card-rounded p-8 sm:p-12 md:p-16 relative text-center shadow-[0_30px_70px_-20px_rgba(0,0,0,0.05)] border-t-8 border-t-brand-green/90 cursor-grab active:cursor-grabbing select-none bg-white"
+              className="card-rounded p-8 sm:p-12 md:p-16 relative text-center shadow-[0_30px_70px_-20px_rgba(0,0,0,0.05)] border-t-8 border-t-brand-green/90 cursor-grab active:cursor-grabbing select-none bg-white touch-pan-y"
             >
               <Quote className="absolute top-6 left-6 sm:top-10 sm:left-10 text-brand-green/10 stroke-[2.5]" size={80} />
               

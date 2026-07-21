@@ -20,6 +20,82 @@ interface SoftwareShowcaseProps {
   isAdminView?: boolean;
 }
 
+const InlineEditInput: React.FC<{
+  fieldKey: string;
+  initialValue: string;
+  isTextArea?: boolean;
+  onSave: (val: string) => void;
+}> = ({ fieldKey, initialValue, isTextArea = false, onSave }) => {
+  const [val, setVal] = useState(initialValue);
+  const [isFocused, setIsFocused] = useState(false);
+  const [savingState, setSavingState] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+  useEffect(() => {
+    setVal(initialValue);
+  }, [initialValue]);
+
+  const timeoutRef = useRef<any>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const nextVal = e.target.value;
+    setVal(nextVal);
+    setSavingState('saving');
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      onSave(nextVal);
+      setSavingState('saved');
+      setTimeout(() => setSavingState('idle'), 1500);
+    }, 600);
+  };
+
+  return (
+    <div className="relative group w-full">
+      {isTextArea ? (
+        <textarea
+          value={val}
+          onChange={handleChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          rows={3}
+          className={`w-full bg-stone-50 dark:bg-stone-900/60 text-stone-700 dark:text-stone-300 text-sm font-sans font-medium leading-relaxed p-3 rounded-xl border transition outline-none resize-none min-h-[90px] ${
+            isFocused 
+              ? 'border-brand-green ring-2 ring-brand-green/10' 
+              : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-750'
+          }`}
+        />
+      ) : (
+        <input
+          type="text"
+          value={val}
+          onChange={handleChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          className={`w-full bg-stone-50 dark:bg-stone-900/60 text-stone-800 dark:text-stone-100 font-bold p-2.5 rounded-xl border transition outline-none ${
+            isFocused 
+              ? 'border-brand-green ring-2 ring-brand-green/10' 
+              : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-750'
+          }`}
+        />
+      )}
+      <div className="absolute top-2.5 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none select-none">
+        {savingState === 'saving' && (
+          <span className="text-[9px] font-black text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md animate-pulse">Saving...</span>
+        )}
+        {savingState === 'saved' && (
+          <span className="text-[9px] font-black text-brand-green bg-green-50 dark:bg-green-950/40 px-2 py-0.5 rounded-md">Saved!</span>
+        )}
+        {savingState === 'idle' && (
+          <span className="text-[8px] font-bold text-stone-400 bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-md uppercase tracking-wider">Editable</span>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdminView = false }) => {
   const [activeTab, setActiveTab] = useState<'registration' | 'dashboard' | 'qrcode'>('dashboard');
   const [uploadedScreenshots, setUploadedScreenshots] = useState<ScreenshotMap>({
@@ -27,11 +103,39 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
     dashboard: null,
     qrcode: null,
   });
+  const [showFallbackInAdmin, setShowFallbackInAdmin] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [driveLink, setDriveLink] = useState('');
   const [driveError, setDriveError] = useState('');
+
+  const updateShowcaseField = async (key: string, value: string) => {
+    try {
+      const docRef = doc(db, 'content', lang);
+      await setDoc(docRef, {
+        softwareShowcase: {
+          [key]: value
+        }
+      }, { merge: true });
+    } catch (err) {
+      console.error("Failed to save showcase field inline:", err);
+    }
+  };
+
+  const renderText = (key: string, isTextArea = false) => {
+    if (isAdminView) {
+      return (
+        <InlineEditInput
+          fieldKey={key}
+          initialValue={t[key] || ''}
+          isTextArea={isTextArea}
+          onSave={(val) => updateShowcaseField(key, val)}
+        />
+      );
+    }
+    return t[key];
+  };
 
   // Helper to parse Google Drive link to direct web-friendly link
   const getGoogleDriveDirectLink = (url: string): string => {
@@ -150,6 +254,16 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
       dashDesc: "Real-time feeding updates, nap timers, and activity checklists. View exclusive daily photo streams of your children participating in cognitive activities.",
       qrcodeTitle: "Secure QR Code Kids' Checkout & Analysis",
       qrcodeDesc: "Checkout is facilitated by secure QR Code scanning from parents' phones based on their login credentials. Parents can also view automated analyzed reports of their child's daily habits, activity logs, and routine highlights.",
+      regBullet1: "Digital Immunization & Medical Submissions",
+      regBullet2: "Daily Schedule & Custom Track Setup",
+      regBullet3: "Instant Email Confirmation & Onboarding",
+      dashBullet1: "Nap, Diet & Feeding Timer Indicators",
+      dashBullet2: "Secure Daily Classroom Photo streams",
+      dashBullet3: "Dynamic Health Status & Temperature logs",
+      qrcodeBullet1: "Secure Dynamic QR Code generation for Parents",
+      qrcodeBullet2: "Full Child Routine Status and analyzed report",
+      qrcodeBullet3: "Instant Child Checkout SMS alert to parents",
+      infoHighlight: "Every parent receives secure custom dashboard credentials to view their child's digital journal. Accessible via the \"Login\" button on the navigation bar."
     },
     am: {
       badge: "የቀን ማቆያ ዌብ ሲስተም",
@@ -169,7 +283,17 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
       dashTitle: "የወላጅ መቆጣጠሪያ እና የቀጥታ መረጃ ፍሰት",
       dashDesc: "ምግብ፣ እንቅልፍ እና የእንቅስቃሴ ሪፖርቶች። ልጆችዎ በእውቀት ማሳደጊያ ስራዎች ላይ ሲሳተፉ የሚያሳዩ ልዩ የፎቶ ዝመናዎችን ያግኙ።",
       qrcodeTitle: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ እና የዕለት ሪፖርት",
-      qrcodeDesc: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ። ወላጆች በስልካቸው የሚመነጨውን የQR ኮድ በመጠቀም ልጆቻቸውን በታማኝነት መውሰድ ይችላሉ። በተጨማሪም የልጃቸውን የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ትንተና ሪፖርቶች ማየት ይችላሉ።"
+      qrcodeDesc: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ። ወላጆች በስልካቸው የሚመነጨውን የQR ኮድ በመጠቀም ልጆቻቸውን በታማኝነት መውሰድ ይችላሉ። በተጨማሪም የልጃቸውን የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ትንተና ሪፖርቶች ማየት ይችላሉ።",
+      regBullet1: "ዲጂታል የክትባት ካርድና የህክምና ፎርሞች ማቅረቢያ",
+      regBullet2: "ዕለታዊ የሰዓት መርሐ-ግብር ምርጫና መለያ ማስተካከያ",
+      regBullet3: "ፈጣን የኢሜይል ማረጋገጫና የመቀበያ ሰነዶች ዝግጅት",
+      dashBullet1: "የእንቅልፍ፣ የምግብና የፈሳሽ ዝርዝር ዝመናዎች ማሳያ",
+      dashBullet2: "ደህንነቱ የተጠበቀ የዕለት ተዕለት የእንቅስቃሴ ቀጥታ ፎቶዎች",
+      dashBullet3: "የጤና እና የሰውነት ሙቀት መለኪያ ሪፖርት መዝገብ",
+      qrcodeBullet1: "ለወላጆች ደህንነቱ የተጠበቀ የQR ኮድ ማመንጫ",
+      qrcodeBullet2: "የልጁ የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ሪፖርት",
+      qrcodeBullet3: "ልጁ ሲወጣ ለወላጆች ፈጣን የኤስኤምኤስ (SMS) መልእክት",
+      infoHighlight: "ወላጆች የራሳቸው የዳሽቦርድ መለያ አላቸው። በምናሌው ላይ ያለውን \"ግባ\" ቁልፍ በመጫን መግባት ይችላሉ።"
     }
   };
 
@@ -199,7 +323,7 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
             className="inline-flex items-center gap-1.5 bg-brand-orange/10 text-brand-orange text-xs font-black tracking-widest uppercase font-accent px-4.5 py-2 rounded-full mb-6 border border-brand-orange/10 shadow-sm"
           >
             <ShieldCheck size={14} className="stroke-[2.5] text-brand-orange" />
-            <span>{t.badge}</span>
+            <span>{renderText('badge')}</span>
           </motion.div>
 
           <motion.h2 
@@ -209,7 +333,7 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="text-3xl sm:text-5xl font-display font-bold text-stone-900 mb-6 tracking-tight leading-tight"
           >
-            {t.title}
+            {renderText('title', true)}
           </motion.h2>
 
           <motion.p 
@@ -219,7 +343,7 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
             transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="text-stone-500 font-sans text-base sm:text-lg leading-relaxed max-w-3xl mx-auto font-medium"
           >
-            {t.subtitle}
+            {renderText('subtitle', true)}
           </motion.p>
         </div>
 
@@ -266,15 +390,15 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/5 rounded-bl-full pointer-events-none -z-10" />
 
                 <h3 className="text-2xl font-display font-bold text-stone-900 tracking-tight leading-tight">
-                  {activeTab === 'registration' && t.regTitle}
-                  {activeTab === 'dashboard' && t.dashTitle}
-                  {activeTab === 'qrcode' && t.qrcodeTitle}
+                  {activeTab === 'registration' && renderText('regTitle')}
+                  {activeTab === 'dashboard' && renderText('dashTitle')}
+                  {activeTab === 'qrcode' && renderText('qrcodeTitle')}
                 </h3>
 
                 <p className="text-stone-500 font-sans text-sm leading-relaxed font-medium">
-                  {activeTab === 'registration' && t.regDesc}
-                  {activeTab === 'dashboard' && t.dashDesc}
-                  {activeTab === 'qrcode' && t.qrcodeDesc}
+                  {activeTab === 'registration' && renderText('regDesc', true)}
+                  {activeTab === 'dashboard' && renderText('dashDesc', true)}
+                  {activeTab === 'qrcode' && renderText('qrcodeDesc', true)}
                 </p>
 
                 {/* Bullets */}
@@ -283,15 +407,15 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                     <>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'ዲጂታል የክትባት ካርድና የህክምና ፎርሞች' : 'Digital Immunization & Medical Submissions'}</span>
+                        <span>{renderText('regBullet1')}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'ዕለታዊ የሰዓት መርሐ-ግብር ምርጫ' : 'Daily Schedule & Custom Track Setup'}</span>
+                        <span>{renderText('regBullet2')}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'ፈጣን የኢሜይል ማረጋገጫና የመቀበያ ሰነዶች' : 'Instant Email Confirmation & Onboarding'}</span>
+                        <span>{renderText('regBullet3')}</span>
                       </div>
                     </>
                   )}
@@ -299,15 +423,15 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                     <>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የእንቅልፍ፣ የምግብና የፈሳሽ ዝርዝር ዝመናዎች' : 'Nap, Diet & Feeding Timer Indicators'}</span>
+                        <span>{renderText('dashBullet1')}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የClassroom እንቅስቃሴዎች የቀጥታ ፎቶዎች' : 'Secure Daily Classroom Photo streams'}</span>
+                        <span>{renderText('dashBullet2')}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የጤና እና የሙቀት መለኪያ ሪፖርት' : 'Dynamic Health Status & Temperature logs'}</span>
+                        <span>{renderText('dashBullet3')}</span>
                       </div>
                     </>
                   )}
@@ -315,15 +439,15 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                     <>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'ደህንነቱ የተጠበቀ የQR ኮድ መግቢያ' : 'Secure Dynamic QR Code generation for Parents'}</span>
+                        <span>{renderText('qrcodeBullet1')}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የልጁ ዕለታዊ መረጃ እና የባህሪ ትንተና' : 'Full Child Routine Status and analyzed report'}</span>
+                        <span>{renderText('qrcodeBullet2')}</span>
                       </div>
                       <div className="flex items-center gap-3.5 text-stone-700 font-sans text-sm font-semibold">
                         <CheckCircle2 size={16} className="text-brand-green shrink-0" />
-                        <span>{lang === 'am' ? 'የኤስኤምኤስ (SMS) መውጫ ማሳወቂያ' : 'Instant Child Checkout SMS alert to parents'}</span>
+                        <span>{renderText('qrcodeBullet3')}</span>
                       </div>
                     </>
                   )}
@@ -332,10 +456,8 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                 {/* Dashboard highlight card */}
                 <div className="mt-6 p-4 rounded-2xl bg-brand-cream/30 border border-brand-yellow/10 flex items-start gap-3">
                   <Info size={16} className="text-brand-orange shrink-0 mt-0.5" />
-                  <div className="text-xs text-stone-600 leading-normal font-sans font-medium">
-                    {lang === 'am' 
-                      ? 'ወላጆች የራሳቸው የዳሽቦርድ መለያ አላቸው። በምናሌው ላይ ያለውን "ግባ" ቁልፍ በመጫን መግባት ይችላሉ።' 
-                      : 'Every parent receives secure custom dashboard credentials to view their child\'s digital journal. Accessible via the "Login" button on the navigation bar.'}
+                  <div className="text-xs text-stone-600 leading-normal font-sans font-medium w-full">
+                    {renderText('infoHighlight', true)}
                   </div>
                 </div>
               </motion.div>
@@ -412,11 +534,113 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                     )}
                   </div>
                 ) : (
-                  /* High Fidelity CSS-designed Fallback Mockups */
-                  <div className="absolute inset-0 z-0 bg-stone-950 font-sans p-4 sm:p-6 flex flex-col justify-between">
+                  isAdminView && !showFallbackInAdmin ? (
+                    /* Elegant interactive Edit/Upload state directly inside screen mockup */
+                    <div className="absolute inset-0 z-10 bg-stone-950 flex flex-col justify-between p-4 sm:p-6 text-center" onClick={(e) => e.stopPropagation()}>
+                      {/* Toggle fallback mockup vs upload screen */}
+                      <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
+                        <span className="text-xs font-black uppercase text-brand-green tracking-wider">{lang === 'en' ? 'Active Edit Mode' : 'የአርትዖት ሁነታ'}</span>
+                        <div className="flex gap-1 bg-white/5 p-0.5 rounded-lg border border-white/5">
+                          <button
+                            type="button"
+                            onClick={() => setShowFallbackInAdmin(false)}
+                            className="px-2 py-1 text-[9px] font-black rounded-md bg-brand-green text-white shadow"
+                          >
+                            {lang === 'en' ? 'Uploader' : 'መጫኛ'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowFallbackInAdmin(true)}
+                            className="px-2 py-1 text-[9px] font-black rounded-md text-stone-400 hover:text-white"
+                          >
+                            {lang === 'en' ? 'Fallback Mockup' : 'ቅድመ-ዕይታ'}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 flex flex-col justify-center items-center py-4">
+                        <Upload size={36} className="text-brand-green mb-3 animate-bounce" />
+                        
+                        <h4 className="text-sm font-bold text-white mb-1">
+                          {lang === 'en' ? 'Upload Custom Tab Screenshot' : 'የስክሪን ቅጂ ይጫኑ'}
+                        </h4>
+                        
+                        <p className="text-[10px] text-stone-400 max-w-xs leading-normal mb-3 font-medium">
+                          {lang === 'en' 
+                            ? `Drag/drop or click below to upload an actual screenshot for "${t['tab' + activeTab.charAt(0).toUpperCase() + activeTab.slice(1)]}".`
+                            : `ለ"${t['tab' + activeTab.charAt(0).toUpperCase() + activeTab.slice(1)]}" ትክክለኛውን የሲስተሙን ፎቶ ይጫኑ።`}
+                        </p>
+
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-4 py-2 bg-brand-green hover:bg-brand-green/90 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 cursor-pointer flex items-center gap-1.5"
+                        >
+                          <Upload size={12} />
+                          <span>{lang === 'en' ? 'Select Image File' : 'ምስል ይምረጡ'}</span>
+                        </button>
+
+                        <div className="w-full flex items-center justify-center gap-2 my-2.5 max-w-[200px]">
+                          <div className="h-[1px] bg-stone-850 flex-1" />
+                          <span className="text-[8px] font-bold text-stone-500 uppercase tracking-widest">{lang === 'en' ? 'OR' : 'ወይም'}</span>
+                          <div className="h-[1px] bg-stone-850 flex-1" />
+                        </div>
+
+                        {/* Inline Google Drive link inside screen mockup */}
+                        <form onSubmit={handleApplyDriveLink} className="w-full max-w-xs space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex gap-1.5">
+                            <input
+                              type="text"
+                              value={driveLink}
+                              onChange={(e) => {
+                                setDriveLink(e.target.value);
+                                setDriveError('');
+                              }}
+                              placeholder={lang === 'en' ? "Paste Google Drive Image Link..." : "የጉግል ድራይቭ ሊንክ ይለጥፉ..."}
+                              className="flex-1 px-3 py-1.5 bg-stone-900 border border-stone-800 rounded-xl text-[10px] text-stone-300 placeholder-stone-600 outline-none focus:border-brand-green"
+                            />
+                            <button
+                              type="submit"
+                              className="bg-brand-green hover:bg-brand-green/90 text-white rounded-xl px-3 py-1.5 text-[10px] font-black transition duration-200"
+                            >
+                              {lang === 'en' ? 'Apply' : 'ተግብር'}
+                            </button>
+                          </div>
+                          {driveError && (
+                            <p className="text-[9px] text-red-500 font-semibold">{driveError}</p>
+                          )}
+                        </form>
+                      </div>
+
+                      <div className="border-t border-white/5 pt-2 text-[9px] text-stone-500 font-medium">
+                        {lang === 'en' ? 'Replaces default mock screen layout' : 'ነባሪውን የሲስተም ንድፍ ይተካል'}
+                      </div>
+                    </div>
+                  ) : (
+                    /* High Fidelity CSS-designed Fallback Mockups */
+                    <div className="absolute inset-0 z-0 bg-stone-950 font-sans p-4 sm:p-6 flex flex-col justify-between">
+                      {/* Toggle fallback mockup vs upload screen inside mock */}
+                      {isAdminView && (
+                        <div className="absolute top-3.5 right-3.5 z-30 flex gap-1 bg-black/80 p-0.5 rounded-lg border border-white/10" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => setShowFallbackInAdmin(false)}
+                            className="px-2 py-1 text-[9px] font-bold rounded-md text-stone-400 hover:text-white"
+                          >
+                            {lang === 'en' ? 'Uploader' : 'መጫኛ'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowFallbackInAdmin(true)}
+                            className="px-2 py-1 text-[9px] font-bold rounded-md bg-brand-green text-white"
+                          >
+                            {lang === 'en' ? 'Preview' : 'ቅድመ-ዕይታ'}
+                          </button>
+                        </div>
+                      )}
                     
-                    {/* Header bar */}
-                    <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
+                      {/* Header bar */}
+                      <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
                       <div className="flex items-center gap-2">
                         <div className="w-5.5 h-5.5 rounded-lg bg-brand-green flex items-center justify-center text-[10px] font-black font-accent">K</div>
                         <span className="text-xs font-black tracking-wider uppercase text-white">Kidtopia Daycare System</span>
@@ -565,7 +789,7 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                     </div>
 
                   </div>
-                )}
+                ))}
                 
               </div>
             </div>

@@ -383,34 +383,26 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                     {activeMediaIndex + 1} / {t.media.length}
                   </span>
                 </div>
-                
-                {/* Close Button top-right screen */}
-                <button
-                  onClick={handleClose}
-                  className="w-12 h-12 bg-white/10 border border-white/20 hover:bg-red-500 hover:border-red-500 flex items-center justify-center rounded-2xl text-white transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
-                  title={lang === 'am' ? 'ዝጋ' : 'Close'}
-                >
-                  <X size={20} className="stroke-[2.5]" />
-                </button>
               </div>
+                
+              {/* Highly prominent, easily clickable global close button specifically optimized for mobile notch/margins */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClose();
+                }}
+                className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[10005] w-14 h-14 bg-stone-900/95 border-2 border-white/25 flex items-center justify-center rounded-full text-white transition-all hover:bg-red-600 hover:border-red-600 hover:scale-110 active:scale-90 cursor-pointer shadow-2xl"
+                title={lang === 'am' ? 'ዝጋ' : 'Close'}
+              >
+                <X size={26} className="stroke-[2.5]" />
+              </button>
 
-              {/* Main Content Area - True expansion transition container! Optimized for mobile with max-height and viewport-based sizing */}
+              {/* Main Content Area - True expansion transition container! Optimized for mobile with larger viewport height */}
               <motion.div 
                 layoutId={`media-card-container-${initialIndex}`}
                 onClick={(e) => e.stopPropagation()} 
-                className="relative max-w-4xl lg:max-w-5xl w-[92vw] sm:w-[86vw] md:w-[80vw] h-[58vh] sm:h-[70vh] flex items-center justify-center rounded-3xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.8)] border border-white/15 bg-stone-950 z-10 p-1 sm:p-2"
+                className="relative max-w-4xl lg:max-w-5xl w-[94vw] sm:w-[86vw] md:w-[80vw] h-[68vh] xs:h-[75vh] sm:h-[80vh] flex items-center justify-center rounded-3xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.8)] border border-white/15 bg-stone-950 z-10 p-1 sm:p-2"
               >
-                {/* Embedded Close Button inside the card for super easy and reliable mobile access */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClose();
-                  }}
-                  className="absolute top-4 right-4 z-[60] w-10 h-10 bg-black/75 hover:bg-red-500 border border-white/20 flex items-center justify-center rounded-full text-white transition-all hover:scale-110 active:scale-90 cursor-pointer shadow-md"
-                  title={lang === 'am' ? 'ዝጋ' : 'Close'}
-                >
-                  <X size={18} className="stroke-[2.5]" />
-                </button>
 
                 <AnimatePresence mode="wait">
                   <motion.div

@@ -536,7 +536,17 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       dashTitle: "Secure Parent Control Panel & Live Feed",
       dashDesc: "Real-time feeding updates, nap timers, and activity checklists. View exclusive daily photo streams of your children participating in cognitive activities.",
       qrcodeTitle: "Secure QR Code Kids' Checkout & Analysis",
-      qrcodeDesc: "Checkout is facilitated by secure QR Code scanning from parents' phones based on their login credentials. Parents can also view automated analyzed reports of their child's daily habits, activity logs, and routine highlights."
+      qrcodeDesc: "Checkout is facilitated by secure QR Code scanning from parents' phones based on their login credentials. Parents can also view automated analyzed reports of their child's daily habits, activity logs, and routine highlights.",
+      regBullet1: "Digital Immunization & Medical Submissions",
+      regBullet2: "Daily Schedule & Custom Track Setup",
+      regBullet3: "Instant Email Confirmation & Onboarding",
+      dashBullet1: "Nap, Diet & Feeding Timer Indicators",
+      dashBullet2: "Secure Daily Classroom Photo streams",
+      dashBullet3: "Dynamic Health Status & Temperature logs",
+      qrcodeBullet1: "Secure Dynamic QR Code generation for Parents",
+      qrcodeBullet2: "Full Child Routine Status and analyzed report",
+      qrcodeBullet3: "Instant Child Checkout SMS alert to parents",
+      infoHighlight: "Every parent receives secure custom dashboard credentials to view their child's digital journal. Accessible via the \"Login\" button on the navigation bar."
     }
   },
   am: {
@@ -1064,7 +1074,17 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       dashTitle: "የወላጅ መቆጣጠሪያ እና የቀጥታ መረጃ ፍሰት",
       dashDesc: "ምግብ፣ እንቅልፍ እና የእንቅስቃሴ ሪፖርቶች። ልጆችዎ በእውቀት ማሳደጊያ ስራዎች ላይ ሲሳተፉ የሚያሳዩ ልዩ የፎቶ ዝመናዎችን ያግኙ።",
       qrcodeTitle: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ እና የዕለት ሪፖርት",
-      qrcodeDesc: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ። ወላጆች በስልካቸው የሚመነጨውን የQR ኮድ በመጠቀም ልጆቻቸውን በታማኝነት መውሰድ ይችላሉ። በተጨማሪም የልጃቸውን የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ትንተና ሪፖርቶች ማየት ይችላሉ።"
+      qrcodeDesc: "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ። ወላጆች በስልካቸው የሚመነጨውን የQR ኮድ በመጠቀም ልጆቻቸውን በታማኝነት መውሰድ ይችላሉ። በተጨማሪም የልጃቸውን የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ትንተና ሪፖርቶች ማየት ይችላሉ።",
+      regBullet1: "ዲጂታል የክትባት ካርድና የህክምና ፎርሞች ማቅረቢያ",
+      regBullet2: "ዕለታዊ የሰዓት መርሐ-ግብር ምርጫና መለያ ማስተካከያ",
+      regBullet3: "ፈጣን የኢሜይል ማረጋገጫና የመቀበያ ሰነዶች ዝግጅት",
+      dashBullet1: "የእንቅልፍ፣ የምግብና የፈሳሽ ዝርዝር ዝመናዎች ማሳያ",
+      dashBullet2: "ደህንነቱ የተጠበቀ የዕለት ተዕለት የእንቅስቃሴ ቀጥታ ፎቶዎች",
+      dashBullet3: "የጤና እና የሰውነት ሙቀት መለኪያ ሪፖርት መዝገብ",
+      qrcodeBullet1: "ለወላጆች ደህንነቱ የተጠበቀ የQR ኮድ ማመንጫ",
+      qrcodeBullet2: "የልጁ የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ሪፖርት",
+      qrcodeBullet3: "ልጁ ሲወጣ ለወላጆች ፈጣን የኤስኤምኤስ (SMS) መልእክት",
+      infoHighlight: "ወላጆች የራሳቸው የዳሽቦርድ መለያ አላቸው። በምናሌው ላይ ያለውን \"ግባ\" ቁልፍ በመጫን መግባት ይችላሉ።"
     }
   }
 };
