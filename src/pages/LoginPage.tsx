@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Fingerprint, Download, Smartphone } from 'lucide-react';
 import { Language } from '../translations';
@@ -29,6 +29,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
   const [isSimulated, setIsSimulated] = useState(isFingerprintSimulatorEnabled());
 
   const [isAdminSelect, setIsAdminSelect] = useState(false);
+
+  // Automatically invite user to download / install the app when entering the login page
+  useEffect(() => {
+    const isPwa = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+    if (!isPwa) {
+      const timer = setTimeout(() => {
+        if (onOpenInstallModal) {
+          onOpenInstallModal();
+        } else {
+          setIsModalOpen(true);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [onOpenInstallModal]);
 
   const handleRedirect = (role: string) => {
     if (role === 'admin') {

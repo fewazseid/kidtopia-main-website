@@ -9,9 +9,10 @@ interface HeaderProps {
   lang: Language;
   setLang: (l: Language) => void;
   onScrollTo: (id: string) => void;
+  onOpenInstallModal?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => {
+export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpenInstallModal }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const t = useContent(lang).nav;
@@ -167,7 +168,19 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo }) => 
           </nav>
 
           {/* Right Actions */}
-          <div className="hidden lg:flex items-center gap-2.5 xl:gap-4.5">
+          <div className="hidden lg:flex items-center gap-2.5 xl:gap-3.5">
+            {onOpenInstallModal && (
+              <button
+                type="button"
+                onClick={onOpenInstallModal}
+                className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/25 text-brand-orange transition-all px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                title={lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}
+              >
+                <Download size={13} />
+                <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+              </button>
+            )}
+
             <button 
               onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
               className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-2"

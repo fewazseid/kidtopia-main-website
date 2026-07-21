@@ -116,6 +116,7 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
           lang={lang} 
           setLang={setLang} 
           onScrollTo={scrollToSection} 
+          onOpenInstallModal={() => setIsInstallModalOpen(true)}
         />
       )}
       
