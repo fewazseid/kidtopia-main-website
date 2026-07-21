@@ -225,6 +225,19 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-widest opacity-60" style={{ color: t.textColor || '#44403c' }}>Navigation</span>
                   <div className="flex items-center gap-2">
+                    {onOpenInstallModal && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          onOpenInstallModal();
+                        }}
+                        className="text-xs font-black tracking-wider uppercase px-3 py-2 rounded-xl cursor-pointer bg-brand-orange/10 text-brand-orange border border-brand-orange/25 flex items-center gap-1.5"
+                      >
+                        <Download size={14} />
+                        <span>{lang === 'en' ? 'Install App' : 'አፕ አውርድ'}</span>
+                      </button>
+                    )}
                     <button 
                       onClick={() => {
                         setLang(lang === 'en' ? 'am' : 'en');

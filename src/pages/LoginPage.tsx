@@ -6,7 +6,6 @@ import { useContent } from '../ContentContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginWithGoogle, getUserRole, setUserRole, loginWithEmail, registerWithEmail, getAdminConfig, updateCurrentUserPassword } from '../firebase';
 import { captureFingerprint, matchFingerprints, isSecuGenAvailable, isFingerprintSimulatorEnabled, setFingerprintSimulator } from '../services/fingerprintService';
-import { DeviceInstallGuideCard } from '../components/DeviceInstallGuideCard';
 import { InstallAppModal } from '../components/InstallAppModal';
 
 interface LoginPageProps {
@@ -480,14 +479,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
           )}
         </div>
 
-        {/* Auto-detected Device Download & Install Guide Card directly in Login Area */}
-        <DeviceInstallGuideCard 
-          lang={lang} 
-          onOpenFullModal={handleOpenGuide} 
-        />
+        {/* Quick Direct Download / Install Action Prompt in Login Area */}
+        <div className="bg-stone-900 text-white p-5 rounded-2xl border border-stone-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-brand-orange/15 rounded-xl border border-brand-orange/30 text-brand-orange shrink-0">
+              <Download size={22} />
+            </div>
+            <div>
+              <h4 className="font-display font-black text-sm text-white">
+                {lang === 'en' ? 'Download Kidtopia Web App' : 'የኪድቶፒያ አፕሊኬሽን አውርድ'}
+              </h4>
+              <p className="text-xs text-stone-400 mt-0.5">
+                {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleOpenGuide}
+            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-brand-orange to-brand-yellow text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+          >
+            <Download size={14} />
+            <span>{lang === 'en' ? 'Download App' : 'አፕሊኬሽኑን አውርድ'}</span>
+          </button>
+        </div>
       </motion.div>
 
-      {/* Full Modal for step-by-step device selector */}
+      {/* Direct Download Action Modal */}
       <InstallAppModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
