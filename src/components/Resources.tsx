@@ -49,7 +49,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
             className="inline-flex items-center gap-1.5 bg-brand-teal/10 text-brand-teal text-xs font-black tracking-widest uppercase font-accent px-4.5 py-2 rounded-full mb-4"
           >
             <GraduationCap size={14} className="stroke-[2.5]" />
-            Parent Resources
+            {t.title}
           </motion.div>
           
           <motion.h2 

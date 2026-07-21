@@ -73,10 +73,148 @@ function cleanResources(data: any): any {
   return cleaned;
 }
 
+function isConfigKey(key: string, value: any): boolean {
+  const lowerKey = key.toLowerCase();
+  const configKeys = [
+    'backgroundtype', 'icon', 'logo', 'buttonlink', 'googlemapscoordinates',
+    'image1', 'image2', 'rating', 'rate', 'image', 'actiontype', 'link', 
+    'step', 'time', 'id', 'enabled', 'phones', 'emails', 'developerurl'
+  ];
+  if (configKeys.includes(lowerKey)) return true;
+  if (typeof value === 'string') {
+    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
+      return true;
+    }
+  }
+  if (typeof value === 'boolean' || typeof value === 'number') {
+    return true;
+  }
+  return false;
+}
+
+function getNestedValue(obj: any, path: string[]): any {
+  let current = obj;
+  for (const part of path) {
+    if (current === null || current === undefined) return undefined;
+    current = current[part];
+  }
+  return current;
+}
+
+function alignStructures(enVal: any, amVal: any, path: string[] = []): any {
+  if (enVal === null || enVal === undefined) return amVal;
+
+  // If enVal is an array
+  if (Array.isArray(enVal)) {
+    if (!Array.isArray(amVal)) {
+      const defaultAm = getNestedValue(defaultTranslations.am, path);
+      if (Array.isArray(defaultAm)) {
+        return JSON.parse(JSON.stringify(defaultAm));
+      }
+      return JSON.parse(JSON.stringify(enVal));
+    }
+
+    const alignedAm: any[] = [];
+    const pairedAmIndices = new Set<number>();
+
+    for (let i = 0; i < enVal.length; i++) {
+      const itemEn = enVal[i];
+      let matchedAmIdx = -1;
+
+      if (itemEn && typeof itemEn === 'object') {
+        for (let j = 0; j < amVal.length; j++) {
+          if (pairedAmIndices.has(j)) continue;
+          const itemAm = amVal[j];
+          if (!itemAm || typeof itemAm !== 'object') continue;
+
+          // Try match strategies
+          if (itemEn.actionType && itemAm.actionType && itemEn.actionType === itemAm.actionType) {
+            matchedAmIdx = j;
+            break;
+          }
+          if (itemEn.image && itemAm.image && itemEn.image === itemAm.image && itemEn.image !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+          if (itemEn.url && itemAm.url && itemEn.url === itemAm.url && itemEn.url !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+          if (itemEn.step && itemAm.step && itemEn.step === itemAm.step && itemEn.step !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+          if (itemEn.time && itemAm.time && itemEn.time === itemAm.time && itemEn.time !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+        }
+      }
+
+      // Fallback matching by index
+      if (matchedAmIdx === -1 && i < amVal.length && !pairedAmIndices.has(i)) {
+        matchedAmIdx = i;
+      }
+
+      const nextPath = [...path, i.toString()];
+      if (matchedAmIdx !== -1) {
+        alignedAm.push(alignStructures(itemEn, amVal[matchedAmIdx], nextPath));
+        pairedAmIndices.add(matchedAmIdx);
+      } else {
+        const defaultAmItem = getNestedValue(defaultTranslations.am, nextPath);
+        if (defaultAmItem !== undefined) {
+          alignedAm.push(JSON.parse(JSON.stringify(defaultAmItem)));
+        } else {
+          alignedAm.push(JSON.parse(JSON.stringify(itemEn)));
+        }
+      }
+    }
+
+    return alignedAm;
+  }
+
+  // If enVal is an object (and not null/undefined)
+  if (typeof enVal === 'object') {
+    if (amVal === null || amVal === undefined || typeof amVal !== 'object' || Array.isArray(amVal)) {
+      const defaultAm = getNestedValue(defaultTranslations.am, path);
+      if (defaultAm && typeof defaultAm === 'object' && !Array.isArray(defaultAm)) {
+        return JSON.parse(JSON.stringify(defaultAm));
+      }
+      return JSON.parse(JSON.stringify(enVal));
+    }
+
+    const resObj: any = {};
+    for (const key of Object.keys(enVal)) {
+      const nextPath = [...path, key];
+      if (isConfigKey(key, enVal[key])) {
+        resObj[key] = JSON.parse(JSON.stringify(enVal[key]));
+      } else {
+        if (amVal[key] === undefined || amVal[key] === null) {
+          const defaultAmField = getNestedValue(defaultTranslations.am, nextPath);
+          if (defaultAmField !== undefined) {
+            resObj[key] = JSON.parse(JSON.stringify(defaultAmField));
+          } else {
+            if (typeof enVal[key] === 'object' && enVal[key] !== null) {
+              resObj[key] = alignStructures(enVal[key], undefined, nextPath);
+            } else {
+              resObj[key] = enVal[key];
+            }
+          }
+        } else {
+          resObj[key] = alignStructures(enVal[key], amVal[key], nextPath);
+        }
+      }
+    }
+    return resObj;
+  }
+
+  return amVal !== undefined && amVal !== null && amVal !== "" ? amVal : enVal;
+}
+
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<any>(() => ({
     en: cleanResources(defaultTranslations.en),
-    am: cleanResources(defaultTranslations.am)
+    am: alignStructures(cleanResources(defaultTranslations.en), cleanResources(defaultTranslations.am))
   }));
   const [loading, setLoading] = useState(true);
 
@@ -92,10 +230,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const unsubEn = onSnapshot(doc(db, 'content', 'en'), (snapshot) => {
       if (snapshot.exists()) {
-        setContent((prev: any) => ({
-          ...prev,
-          en: cleanResources(deepMerge(defaultTranslations.en, snapshot.data()))
-        }));
+        setContent((prev: any) => {
+          const enData = cleanResources(deepMerge(defaultTranslations.en, snapshot.data()));
+          const amData = alignStructures(enData, prev.am);
+          return { en: enData, am: amData };
+        });
       }
       enLoaded = true;
       checkLoaded();
@@ -116,10 +255,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const unsubAm = onSnapshot(doc(db, 'content', 'am'), (snapshot) => {
       if (snapshot.exists()) {
-        setContent((prev: any) => ({
-          ...prev,
-          am: cleanResources(deepMergeAmharic(defaultTranslations.am, snapshot.data(), defaultTranslations.en))
-        }));
+        setContent((prev: any) => {
+          const amRaw = cleanResources(deepMergeAmharic(defaultTranslations.am, snapshot.data(), defaultTranslations.en));
+          const amData = alignStructures(prev.en, amRaw);
+          return { en: prev.en, am: amData };
+        });
       }
       amLoaded = true;
       checkLoaded();

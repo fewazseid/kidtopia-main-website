@@ -73,7 +73,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
             className="inline-flex items-center gap-1.5 bg-brand-green/10 text-brand-green text-xs font-black tracking-widest uppercase font-accent px-4.5 py-2 rounded-full mb-4"
           >
             <Users size={14} className="stroke-[2.5]" />
-            Educators & Mentors
+            {lang === 'am' ? 'አስተማሪዎች እና አማካሪዎች' : 'Educators & Mentors'}
           </motion.div>
           
           <motion.h2 
@@ -114,7 +114,7 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ lang }) => {
                     <Heart size={16} className="fill-current" />
                   </span>
                   <p className="text-white text-sm font-medium leading-relaxed mb-1">{member.desc}</p>
-                  <span className="text-[10px] uppercase tracking-widest text-brand-yellow font-black">Bio Profile</span>
+                  <span className="text-[10px] uppercase tracking-widest text-brand-yellow font-black">{lang === 'am' ? 'የሕይወት ታሪክ' : 'Bio Profile'}</span>
                 </div>
               </div>
 

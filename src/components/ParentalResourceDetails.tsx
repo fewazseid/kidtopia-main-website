@@ -498,19 +498,33 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                   <p className="text-sm text-stone-800 font-bold mb-1">
                     {lang === 'en' ? 'Drag and drop files here, or click to browse' : 'ሰነዶችን እዚህ ይጎትቱ፣ ወይም ጠቅ አድርገው ይምረጡ'}
                   </p>
-                  <p className="text-xs text-stone-500 mb-4">Supports PDF or Image files up to 10MB</p>
+                  <p className="text-xs text-stone-500 mb-4">
+                    {lang === 'en' 
+                      ? 'Supports PDF or Image files up to 10MB' 
+                      : 'እስከ 10 ሜጋባይት የሚደርሱ የፒዲኤፍ ወይም የምስል ፋይሎችን ይደግፋል'}
+                  </p>
 
                   <div className="mb-4">
-                    <label className="block text-xs font-semibold text-stone-600 mb-1 text-left">Document Category</label>
+                    <label className="block text-xs font-semibold text-stone-600 mb-1 text-left">
+                      {lang === 'en' ? 'Document Category' : 'የሰነድ ዓይነት'}
+                    </label>
                     <select 
                       value={docName} 
                       onChange={(e) => setDocName(e.target.value)}
                       className="w-full p-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-green bg-white font-medium text-stone-800"
                     >
-                      <option value="Immunization Record">Immunization Record (የክትባት ካርድ)</option>
-                      <option value="TB Screening Certificate">TB Screening (የቲቢ ምርመራ)</option>
-                      <option value="Birth Certificate">Birth Certificate (የልደት ምስክር ወረቀት)</option>
-                      <option value="Parent Acknowledgment Form">Handbook Acknowledgment (የእጅ መጽሐፍ ስምምነት)</option>
+                      <option value="Immunization Record">
+                        {lang === 'en' ? 'Immunization Record (የክትባት ካርድ)' : 'የክትባት ካርድ (Immunization Record)'}
+                      </option>
+                      <option value="TB Screening Certificate">
+                        {lang === 'en' ? 'TB Screening (የቲቢ ምርመራ)' : 'የቲቢ ምርመራ (TB Screening)'}
+                      </option>
+                      <option value="Birth Certificate">
+                        {lang === 'en' ? 'Birth Certificate (የልደት ምስክር ወረቀት)' : 'የልደት ምስክር ወረቀት (Birth Certificate)'}
+                      </option>
+                      <option value="Parent Acknowledgment Form">
+                        {lang === 'en' ? 'Handbook Acknowledgment (የእጅ መጽሐፍ ስምምነት)' : 'የእጅ መጽሐፍ ስምምነት (Handbook Acknowledgment)'}
+                      </option>
                     </select>
                   </div>
 
@@ -526,14 +540,14 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                     onClick={() => fileInputRef.current?.click()}
                     className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold mr-2 transition-all"
                   >
-                    Select File
+                    {lang === 'en' ? 'Select File' : 'ፋይል ምረጥ'}
                   </button>
                   <button
                     type="submit"
                     disabled={!selectedFile || loading}
                     className="px-4 py-2 bg-brand-green hover:bg-brand-green/95 disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-md transition-all"
                   >
-                    Upload Document
+                    {lang === 'en' ? 'Upload Document' : 'ሰነዱን ስቀል'}
                   </button>
                 </form>
               </div>
@@ -551,7 +565,9 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                             {doc.status === 'approved' && <CheckCircle2 size={14} className="text-green-500" />}
                             {doc.status === 'pending' && <AlertCircle size={14} className="text-yellow-500" />}
                           </h4>
-                          <p className="text-xs text-stone-500">Uploaded on {doc.date}</p>
+                          <p className="text-xs text-stone-500">
+                            {lang === 'en' ? 'Uploaded on ' : 'የተሰቀለበት ቀን፡ '}{doc.date}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
@@ -561,7 +577,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                               ? 'bg-red-100 text-red-700'
                               : 'bg-yellow-100 text-yellow-700'
                           }`}>
-                            {doc.status}
+                            {doc.status === 'approved' ? (lang === 'en' ? 'Approved' : 'የጸደቀ') : doc.status === 'rejected' ? (lang === 'en' ? 'Rejected' : 'ውድቅ የተደረገ') : (lang === 'en' ? 'Pending' : 'በሂደት ላይ')}
                           </span>
                           <button 
                             onClick={() => deleteDocument(doc.id)}
@@ -575,7 +591,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                   </div>
                 ) : (
                   <div className="text-center py-12 text-stone-400 font-medium">
-                    No documents uploaded yet.
+                    {lang === 'en' ? 'No documents uploaded yet.' : 'እስከ አሁን ምንም የተሰቀለ ሰነድ የለም።'}
                   </div>
                 )}
               </div>

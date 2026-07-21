@@ -557,9 +557,9 @@ export const AdminDashboard: React.FC = () => {
     if (typeof value !== 'string') return true;
     const lowerKey = key.toLowerCase();
     const nonTextKeys = [
-      'image', 'video', 'heroimage', 'herovideo', 'url', 'type', 
+      'image', 'video', 'heroimage', 'herovideo', 'url', 
       'backgroundtype', 'icon', 'logo', 'buttonlink', 'googlemapscoordinates',
-      'image1', 'image2', 'rating', 'rate'
+      'image1', 'image2', 'rating', 'rate', 'actiontype', 'link', 'step', 'time', 'id', 'enabled', 'phones', 'emails', 'developerurl'
     ];
     if (nonTextKeys.includes(lowerKey)) return true;
     if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
@@ -696,6 +696,75 @@ export const AdminDashboard: React.FC = () => {
     targetLang: 'en' | 'am';
   }
 
+  const alignArrays = (enArr: any[], amArr: any[]): { en: any[], am: any[] } => {
+    const alignedEn: any[] = [];
+    const alignedAm: any[] = [];
+    const pairedAmIndices = new Set<number>();
+
+    for (let i = 0; i < enArr.length; i++) {
+      const itemEn = enArr[i];
+      if (itemEn === null || itemEn === undefined) continue;
+
+      let matchedAmIdx = -1;
+
+      if (typeof itemEn === 'object' && itemEn !== null) {
+        for (let j = 0; j < amArr.length; j++) {
+          if (pairedAmIndices.has(j)) continue;
+          const itemAm = amArr[j];
+          if (typeof itemAm !== 'object' || itemAm === null) continue;
+
+          // Strategy 1: actionType
+          if (itemEn.actionType && itemAm.actionType && itemEn.actionType === itemAm.actionType) {
+            matchedAmIdx = j;
+            break;
+          }
+          // Strategy 2: image (not empty)
+          if (itemEn.image && itemAm.image && itemEn.image === itemAm.image && itemEn.image !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+          // Strategy 3: url
+          if (itemEn.url && itemAm.url && itemEn.url === itemAm.url && itemEn.url !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+          // Strategy 4: step
+          if (itemEn.step && itemAm.step && itemEn.step === itemAm.step && itemEn.step !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+          // Strategy 5: time
+          if (itemEn.time && itemAm.time && itemEn.time === itemAm.time && itemEn.time !== '') {
+            matchedAmIdx = j;
+            break;
+          }
+        }
+      }
+
+      // Fallback matching by index if there was no structural key match but index exists and is unpaired
+      if (matchedAmIdx === -1 && i < amArr.length && !pairedAmIndices.has(i)) {
+        matchedAmIdx = i;
+      }
+
+      alignedEn.push(itemEn);
+      if (matchedAmIdx !== -1) {
+        alignedAm.push(amArr[matchedAmIdx]);
+        pairedAmIndices.add(matchedAmIdx);
+      } else {
+        alignedAm.push(undefined);
+      }
+    }
+
+    for (let j = 0; j < amArr.length; j++) {
+      if (!pairedAmIndices.has(j)) {
+        alignedEn.push(undefined);
+        alignedAm.push(amArr[j]);
+      }
+    }
+
+    return { en: alignedEn, am: alignedAm };
+  };
+
   const syncAndQueueTranslations = (enVal: any, amVal: any, currentPath: string[], jobs: TranslationJob[]): { en: any, am: any } => {
     if (enVal === null || enVal === undefined) return { en: null, am: amVal };
     if (amVal === null || amVal === undefined) return { en: enVal, am: null };
@@ -739,12 +808,13 @@ export const AdminDashboard: React.FC = () => {
 
     // If both are arrays
     if (Array.isArray(repairedEn) && Array.isArray(repairedAm)) {
-      const maxLength = Math.max(repairedEn.length, repairedAm.length);
+      const { en: alignedEn, am: alignedAm } = alignArrays(repairedEn, repairedAm);
+      const maxLength = Math.max(alignedEn.length, alignedAm.length);
       const newEnArr = [];
       const newAmArr = [];
       for (let i = 0; i < maxLength; i++) {
-        const itemEn = repairedEn[i];
-        const itemAm = repairedAm[i];
+        const itemEn = alignedEn[i];
+        const itemAm = alignedAm[i];
         const nextPath = [...currentPath, i.toString()];
 
         if (itemEn !== undefined && itemAm !== undefined) {
