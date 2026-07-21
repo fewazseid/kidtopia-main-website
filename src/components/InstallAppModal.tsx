@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Download, X, CheckCircle2, Sparkles, ExternalLink, Share2, PlusSquare, MoreVertical, Smartphone, Monitor } from 'lucide-react';
+import { Download, X, CheckCircle2, Sparkles, ExternalLink, Share2, PlusSquare, MoreVertical } from 'lucide-react';
 import { Language } from '../translations';
 
 interface InstallAppModalProps {
@@ -13,16 +13,17 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
   const [installedSuccess, setInstalledSuccess] = useState<boolean>(false);
-  const [showManualSteps, setShowManualSteps] = useState<boolean>(false);
+  const [showManualGuide, setShowManualGuide] = useState<boolean>(false);
+  
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
 
   useEffect(() => {
-    // Check if app is running as standalone PWA
+    // Check if app is already running as an installed PWA
     if (window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone) {
       setIsStandalone(true);
     }
 
-    // Check global captured prompt if already caught
+    // Capture prompt from global window
     if ((window as any).deferredPwaPrompt) {
       setDeferredPrompt((window as any).deferredPwaPrompt);
     }
@@ -41,45 +42,13 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
     };
   }, [isOpen]);
 
-  const downloadAppShortcutFile = () => {
-    const currentUrl = window.location.href;
-    const htmlContent = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Kidtopia Daycare & Preschool</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="${window.location.origin}/manifest.json">
-  <meta name="theme-color" content="#3A5B32">
-  <script>
-    window.location.href = "${currentUrl}";
-  </script>
-</head>
-<body style="font-family:sans-serif; text-align:center; padding:40px; background:#f8f6f0; color:#1c1917;">
-  <h2>Redirecting to Kidtopia Web App...</h2>
-  <p><a href="${currentUrl}">Click here if not redirected automatically.</a></p>
-</body>
-</html>`;
-
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'KidtopiaAppLauncher.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const handleDirectInstall = async () => {
-    // Explicitly check for global deferredPwaPrompt
-    const pwaPrompt = (window as any).deferredPwaPrompt || deferredPrompt;
+    const activePrompt = (window as any).deferredPwaPrompt || deferredPrompt;
 
-    if (pwaPrompt && typeof pwaPrompt.prompt === 'function') {
+    if (activePrompt && typeof activePrompt.prompt === 'function') {
       try {
-        pwaPrompt.prompt();
-        const userChoice = await pwaPrompt.userChoice;
+        activePrompt.prompt();
+        const userChoice = await activePrompt.userChoice;
         if (userChoice && userChoice.outcome === 'accepted') {
           setInstalledSuccess(true);
           (window as any).deferredPwaPrompt = null;
@@ -87,19 +56,17 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
           return;
         }
       } catch (err) {
-        console.error('Error executing PWA prompt():', err);
+        console.error('Error triggering browser PWA install prompt:', err);
       }
     }
 
-    // Trigger fallback shortcut file download so a physical app launcher download is initiated
-    downloadAppShortcutFile();
-
-    // If inside iframe or prompt unavailable, open dedicated window
+    // If in iframe sandbox, open in new tab so browser allows PWA installation
     if (isInIframe) {
       window.open(window.location.href, '_blank');
+      return;
     }
 
-    setShowManualSteps(true);
+    setShowManualGuide(true);
   };
 
   const isIOS = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -111,7 +78,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[999] bg-stone-950/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 z-[999] bg-stone-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
           onClick={onClose}
         >
           <motion.div
@@ -122,7 +89,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden my-auto"
           >
-            {/* Background glowing gradients */}
+            {/* Ambient Background Blur */}
             <div className="absolute top-0 right-0 w-36 h-36 bg-brand-orange/15 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-36 h-36 bg-brand-teal/15 rounded-full blur-2xl pointer-events-none" />
 
@@ -141,11 +108,11 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
               </div>
 
               <h2 className="text-xl font-black font-display text-white">
-                {lang === 'en' ? 'Download Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን አውርድ'}
+                {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
               </h2>
               <p className="text-stone-400 text-xs mt-1.5 max-w-xs mx-auto leading-relaxed">
                 {lang === 'en'
-                  ? 'Get the official web app directly on your device for fast 1-tap access.'
+                  ? 'Install the official Kidtopia Web App onto your phone or desktop home screen.'
                   : 'የኪድቶፒያን አፕሊኬሽን በስልክዎ ወይም በኮምፒተርዎ ላይ በመጫን በፍጥነት ይጠቀሙ።'}
               </p>
             </div>
@@ -154,40 +121,42 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
               {isStandalone || installedSuccess ? (
                 <div className="bg-brand-green/15 border border-brand-green/30 p-4 rounded-2xl flex items-center justify-center gap-2 text-brand-green text-sm font-bold">
                   <CheckCircle2 size={20} />
-                  <span>{lang === 'en' ? 'Kidtopia App Installed' : 'አፕሊኬሽኑ ተጭኗል'}</span>
+                  <span>{lang === 'en' ? 'App is Installed on Device' : 'አፕሊኬሽኑ በስኬት ተጭኗል'}</span>
                 </div>
               ) : (
                 <div className="space-y-2.5">
+                  {/* Primary Trigger Button */}
                   <button
                     onClick={handleDirectInstall}
                     className="w-full py-3.5 px-6 bg-gradient-to-r from-brand-orange via-brand-orange to-brand-yellow text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:shadow-brand-orange/20 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer border border-white/20"
                   >
                     <Download size={18} />
-                    <span>{lang === 'en' ? 'Download & Install Now' : 'አሁኑኑ አውርድና ጫን'}</span>
+                    <span>{lang === 'en' ? 'Install App on Device' : 'አፕሊኬሽኑን በስልክዎ ይጫኑ'}</span>
                     <Sparkles size={16} />
                   </button>
 
+                  {/* If in AI Studio Preview iFrame */}
                   {isInIframe && (
                     <button
                       onClick={() => window.open(window.location.href, '_blank')}
                       className="w-full py-2.5 px-4 bg-stone-800 hover:bg-stone-700/80 text-stone-200 text-xs font-bold rounded-xl border border-stone-700 transition flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <ExternalLink size={14} className="text-brand-yellow" />
-                      <span>{lang === 'en' ? 'Open in App Window to Install' : 'በተለየ መስኮት ይክፈቱ'}</span>
+                      <span>{lang === 'en' ? 'Open in New Tab to Trigger Install' : 'በአዲስ ታብ ይክፈቱ'}</span>
                     </button>
                   )}
                 </div>
               )}
 
-              {/* Step instructions if native browser dialog is blocked */}
-              {(showManualSteps || !deferredPrompt) && !isStandalone && !installedSuccess && (
+              {/* Native Browser Instructions fallback */}
+              {(showManualGuide || !deferredPrompt) && !isStandalone && !installedSuccess && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   className="mt-3 bg-stone-950/60 border border-stone-800 p-3.5 rounded-2xl text-left space-y-2 text-xs"
                 >
                   <p className="font-bold text-brand-orange uppercase text-[10px] tracking-wider">
-                    {lang === 'en' ? 'Browser Install Steps:' : 'የአጫጫን ደረጃዎች:'}
+                    {lang === 'en' ? 'Browser Native Install Steps:' : 'የብራውዘር አጫጫን መመሪያ:'}
                   </p>
                   {isIOS ? (
                     <ol className="space-y-1.5 text-stone-300 text-[11px]">
@@ -198,7 +167,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-4 h-4 rounded bg-stone-800 text-brand-green flex items-center justify-center font-bold text-[10px]">2</span>
-                        <span>{lang === 'en' ? 'Select "Add to Home Screen"' : '"Add to Home Screen" ይምረጡ'}</span>
+                        <span>{lang === 'en' ? 'Tap "Add to Home Screen"' : '"Add to Home Screen" ይምረጡ'}</span>
                         <PlusSquare size={13} className="text-brand-green shrink-0" />
                       </li>
                     </ol>
@@ -206,12 +175,12 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                     <ol className="space-y-1.5 text-stone-300 text-[11px]">
                       <li className="flex items-center gap-2">
                         <span className="w-4 h-4 rounded bg-stone-800 text-brand-orange flex items-center justify-center font-bold text-[10px]">1</span>
-                        <span>{lang === 'en' ? 'Click 3 dots menu (⋮) in upper browser bar' : 'በብራውዘሩ ከላይ 3 ነጥቦቹን (⋮) ይጫኑ'}</span>
+                        <span>{lang === 'en' ? 'Tap 3 dots menu (⋮) or Install icon in address bar' : 'የብራውዘሩን 3 ነጥቦች (⋮) ወይም Install ምልክት ይጫኑ'}</span>
                         <MoreVertical size={13} className="text-brand-orange shrink-0" />
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-4 h-4 rounded bg-stone-800 text-brand-green flex items-center justify-center font-bold text-[10px]">2</span>
-                        <span>{lang === 'en' ? 'Click "Install Kidtopia App"' : '"Install Kidtopia" ይጫኑ'}</span>
+                        <span>{lang === 'en' ? 'Select "Install Kidtopia" or "Add to Home screen"' : '"Install Kidtopia" የሚለውን ይምረጡ'}</span>
                         <Download size={13} className="text-brand-green shrink-0" />
                       </li>
                     </ol>
@@ -223,7 +192,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                 onClick={onClose}
                 className="w-full py-2 text-xs text-stone-400 hover:text-white font-medium transition cursor-pointer"
               >
-                {lang === 'en' ? 'Continue in Browser' : 'በብራውዘር ቀጥል'}
+                {lang === 'en' ? 'Continue in Web Browser' : 'በብራውዘር ቀጥል'}
               </button>
             </div>
           </motion.div>
@@ -232,3 +201,4 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
     </AnimatePresence>
   );
 };
+
