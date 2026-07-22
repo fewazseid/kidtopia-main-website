@@ -13,7 +13,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
   const [installedSuccess, setInstalledSuccess] = useState<boolean>(false);
-  const [showIosGuide, setShowIosGuide] = useState<boolean>(false);
 
   const isIOS = typeof navigator !== 'undefined' && (
     /iphone|ipad|ipod/i.test(navigator.userAgent) ||
@@ -33,7 +32,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
 
   const handleClose = () => {
     localStorage.setItem('kidtopia_install_prompt_dismissed', 'true');
-    setShowIosGuide(false);
     onClose();
   };
 
@@ -79,13 +77,13 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   };
 
   const handleInstallClick = async () => {
-    // If running in an iframe (e.g. preview environment), open top-level window so Safari displays bottom toolbar
+    // If inside an iframe preview, open top-level tab so Safari's native toolbar is available
     if (isInIframe) {
       handleOpenInSafari();
       return;
     }
 
-    // On Android / Chrome / Supported browsers with native PWA prompt
+    // On Android / Chrome / Desktop with native prompt API support
     const activePrompt = (window as any).deferredPwaPrompt || deferredPrompt;
     if (activePrompt && typeof activePrompt.prompt === 'function') {
       try {
@@ -101,9 +99,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
         console.error('PWA install prompt error:', err);
       }
     }
-
-    // On iOS Safari, reveal direct 2-step guidance
-    setShowIosGuide(true);
   };
 
   return (
@@ -161,103 +156,102 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
 
               <p className="text-stone-600 text-xs mt-2 max-w-xs mx-auto leading-relaxed">
                 {lang === 'en'
-                  ? 'Install Kidtopia App on your iPhone or device for fast, 1-tap access.'
+                  ? 'Install Kidtopia App on your iPhone or mobile device.'
                   : 'የኪድቶፒያን አፕሊኬሽን በስልክዎ ላይ በመጫን በፍጥነት ይጠቀሙ።'}
               </p>
             </div>
 
             <div className="mt-5 space-y-3">
-              <div className="space-y-3">
-                {/* Warning/Action if inside iframe preview */}
-                {isInIframe && (
-                  <div className="bg-brand-yellow/20 border border-brand-yellow/40 p-3.5 rounded-2xl text-xs text-stone-800 space-y-2">
-                    <p className="font-bold flex items-center gap-1.5 text-stone-900">
-                      <ExternalLink size={15} className="text-brand-orange shrink-0" />
-                      <span>{lang === 'en' ? 'iPhone Safari Requirement:' : 'ለ iPhone Safari አጠቃቀም:'}</span>
-                    </p>
-                    <p className="text-[11px] text-stone-600 leading-normal">
-                      {lang === 'en'
-                        ? 'Apple Safari requires opening the app in a real full tab to allow "Add to Home Screen".'
-                        : 'በiPhone ላይ አፑን ለመጫን በSafari ብራውዘር በቀጥታ መከፈት አለበት።'}
-                    </p>
-                    <button
-                      onClick={handleOpenInSafari}
-                      className="w-full py-2.5 bg-brand-orange hover:bg-brand-orange/90 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow cursor-pointer text-xs"
-                    >
-                      <ExternalLink size={14} />
-                      <span>{lang === 'en' ? 'Open in Safari Tab' : 'በSafari አዲስ ታብ ክፈት'}</span>
-                    </button>
+              {/* Special callout when running inside preview iframe on iPhone */}
+              {isInIframe && (
+                <div className="bg-brand-yellow/20 border border-brand-yellow/40 p-3.5 rounded-2xl text-xs text-stone-800 space-y-2">
+                  <p className="font-bold flex items-center gap-1.5 text-stone-900">
+                    <ExternalLink size={15} className="text-brand-orange shrink-0" />
+                    <span>{lang === 'en' ? 'Open in Safari Tab:' : 'በSafari አዲስ ታብ ይክፈቱ:'}</span>
+                  </p>
+                  <p className="text-[11px] text-stone-600 leading-normal">
+                    {lang === 'en'
+                      ? 'iOS Safari requires viewing in a full browser tab to show the bottom toolbar and Add to Home Screen.'
+                      : 'በiPhone ላይ ለመጫን መጀመሪያ በSafari አዲስ ታብ መከፈት አለበት።'}
+                  </p>
+                  <button
+                    onClick={handleOpenInSafari}
+                    className="w-full py-2.5 bg-brand-orange hover:bg-brand-orange/90 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow cursor-pointer text-xs"
+                  >
+                    <ExternalLink size={14} />
+                    <span>{lang === 'en' ? 'Open in Safari Tab' : 'በSafari አዲስ ታብ ክፈት'}</span>
+                  </button>
+                </div>
+              )}
+
+              {/* iPhone / iOS Direct Safari Instructions */}
+              {isIOS && (
+                <div className="bg-white border border-stone-200/90 p-4 rounded-2xl space-y-3 shadow-sm">
+                  <div className="flex items-center gap-2 text-brand-green font-bold text-xs uppercase tracking-wider">
+                    <Apple size={16} className="text-stone-800" />
+                    <span>{lang === 'en' ? 'iPhone Installation Instructions:' : 'በiPhone ላይ እንዴት ይጫናል?'}</span>
                   </div>
-                )}
 
-                  {/* On iPhone / iOS Safari Steps */}
-                  {isIOS && (
-                    <div className="bg-white border border-stone-200/90 p-4 rounded-2xl space-y-3 shadow-sm">
-                      <div className="flex items-center gap-2 text-brand-green font-bold text-xs uppercase tracking-wider">
-                        <Apple size={16} className="text-stone-800" />
-                        <span>{lang === 'en' ? 'How to Install on iPhone:' : 'በiPhone ላይ እንዴት ይጫናል?'}</span>
+                  <ol className="space-y-2.5 text-stone-700 text-xs">
+                    <li className="flex items-start gap-2.5 bg-brand-cream/80 p-2.5 rounded-xl border border-stone-200/60">
+                      <span className="w-5 h-5 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">1</span>
+                      <div>
+                        <p className="font-bold text-stone-900 flex items-center gap-1.5">
+                          <span>{lang === 'en' ? 'Tap Safari Share Button' : 'በSafari ታችኛው ክፍል Share ይጫኑ'}</span>
+                          <Share2 size={14} className="text-brand-orange shrink-0" />
+                        </p>
+                        <p className="text-[11px] text-stone-500 mt-0.5">
+                          {lang === 'en' ? 'Located on the bottom toolbar of Safari.' : 'በ Safari ታችኛው ባር ላይ የሚገኘውን አዶ ይጫኑ።'}
+                        </p>
                       </div>
+                    </li>
 
-                      <ol className="space-y-2.5 text-stone-700 text-xs">
-                        <li className="flex items-start gap-2.5 bg-brand-cream/80 p-2.5 rounded-xl border border-stone-200/60">
-                          <span className="w-5 h-5 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">1</span>
-                          <div>
-                            <p className="font-bold text-stone-900 flex items-center gap-1.5">
-                              <span>{lang === 'en' ? 'Tap Safari Share Button' : 'በSafari የShare አዶ ይጫኑ'}</span>
-                              <Share2 size={14} className="text-brand-orange" />
-                            </p>
-                            <p className="text-[11px] text-stone-500 mt-0.5">
-                              {lang === 'en' ? 'At the bottom toolbar of your iPhone Safari screen.' : 'በ Safari ታችኛው ክፍል የሚገኘውን አዶ ይጫኑ።'}
-                            </p>
-                          </div>
-                        </li>
-
-                        <li className="flex items-start gap-2.5 bg-brand-cream/80 p-2.5 rounded-xl border border-stone-200/60">
-                          <span className="w-5 h-5 rounded-full bg-brand-green text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">2</span>
-                          <div>
-                            <p className="font-bold text-stone-900 flex items-center gap-1.5">
-                              <span>{lang === 'en' ? 'Select "Add to Home Screen"' : '"Add to Home Screen" ይምረጡ'}</span>
-                              <PlusSquare size={14} className="text-brand-green" />
-                            </p>
-                            <p className="text-[11px] text-stone-500 mt-0.5">
-                              {lang === 'en' ? 'Scroll down and tap Add.' : 'በመጨረሻም "Add" በማለት ይጫኑ።'}
-                            </p>
-                          </div>
-                        </li>
-                      </ol>
-
-                      {/* Visual Animated Indicator pointing down towards Safari Share button */}
-                      <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-brand-orange font-bold animate-bounce">
-                        <ArrowDown size={14} />
-                        <span>{lang === 'en' ? 'Tap action button at bottom of Safari' : 'በSafari ታችኛው ክፍል የሚገኘውን አዶ ይጫኑ'}</span>
+                    <li className="flex items-start gap-2.5 bg-brand-cream/80 p-2.5 rounded-xl border border-stone-200/60">
+                      <span className="w-5 h-5 rounded-full bg-brand-green text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">2</span>
+                      <div>
+                        <p className="font-bold text-stone-900 flex items-center gap-1.5">
+                          <span>{lang === 'en' ? 'Tap "Add to Home Screen"' : '"Add to Home Screen" ይምረጡ'}</span>
+                          <PlusSquare size={14} className="text-brand-green shrink-0" />
+                        </p>
+                        <p className="text-[11px] text-stone-500 mt-0.5">
+                          {lang === 'en' ? 'Scroll down and tap Add.' : 'በመጨረሻም "Add" በማለት ይጫኑ።'}
+                        </p>
                       </div>
-                    </div>
-                  )}
+                    </li>
+                  </ol>
 
-                  {/* Primary Action Buttons */}
-                  <div className="pt-1 flex flex-col gap-2">
-                    {/* Trigger prompt or open Safari */}
-                    <button
-                      onClick={handleInstallClick}
-                      className="w-full py-3 px-4 bg-brand-green hover:bg-brand-green/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-green/30"
-                    >
-                      <Download size={16} />
-                      <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
-                    </button>
-
-                    {/* Quick 1-tap "I Added it to Home Screen" / Mark Installed Button */}
-                    <button
-                      onClick={() => {
-                        markAppInstalled();
-                        handleClose();
-                      }}
-                      className="w-full py-2.5 px-4 bg-white hover:bg-stone-100 text-stone-700 font-bold text-xs rounded-2xl border border-stone-200 transition cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <CheckCircle2 size={15} className="text-brand-green" />
-                      <span>{lang === 'en' ? 'Done! I Added it to Home Screen' : 'ተጭኗል! ወደ Home Screen አክያለሁ'}</span>
-                    </button>
+                  {/* Visual Animated Indicator pointing down towards Safari Share button */}
+                  <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-brand-orange font-bold animate-bounce">
+                    <ArrowDown size={14} />
+                    <span>{lang === 'en' ? 'Tap Share at bottom of Safari screen' : 'በSafari ታችኛው ክፍል Share ይጫኑ'}</span>
                   </div>
                 </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="pt-1 flex flex-col gap-2">
+                {!isIOS && (
+                  <button
+                    onClick={handleInstallClick}
+                    className="w-full py-3 px-4 bg-brand-green hover:bg-brand-green/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-green/30"
+                  >
+                    <Download size={16} />
+                    <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+                  </button>
+                )}
+
+                {/* Confirm button */}
+                <button
+                  onClick={() => {
+                    markAppInstalled();
+                    handleClose();
+                  }}
+                  className="w-full py-2.5 px-4 bg-white hover:bg-stone-100 text-stone-700 font-bold text-xs rounded-2xl border border-stone-200 transition cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <CheckCircle2 size={15} className="text-brand-green" />
+                  <span>{lang === 'en' ? 'Done! Added to Home Screen' : 'ተጭኗል! ወደ Home Screen አክያለሁ'}</span>
+                </button>
+              </div>
 
               {/* Security guarantee footer */}
               <div className="pt-2 flex items-center justify-center gap-1.5 text-[10px] text-stone-500 font-medium">
