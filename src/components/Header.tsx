@@ -30,7 +30,11 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
     checkInstalled();
     window.addEventListener('appinstalled', checkInstalled);
-    return () => window.removeEventListener('appinstalled', checkInstalled);
+    window.addEventListener('storage', checkInstalled);
+    return () => {
+      window.removeEventListener('appinstalled', checkInstalled);
+      window.removeEventListener('storage', checkInstalled);
+    };
   }, []);
 
   useEffect(() => {

@@ -37,7 +37,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
 
     checkInstalled();
     window.addEventListener('appinstalled', checkInstalled);
-    return () => window.removeEventListener('appinstalled', checkInstalled);
+    window.addEventListener('storage', checkInstalled);
+    return () => {
+      window.removeEventListener('appinstalled', checkInstalled);
+      window.removeEventListener('storage', checkInstalled);
+    };
   }, []);
 
   // Automatically invite user to download / install the app ONCE when entering the login page (if not already installed)
@@ -249,17 +253,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
       >
         {/* Prominent Install App Banner at the VERY TOP of Login Page (Hides if App is Installed) */}
         {!isAppInstalled && (
-          <div className="bg-stone-900 text-white p-5 rounded-3xl border border-stone-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/15 rounded-full blur-xl pointer-events-none" />
+          <div className="bg-brand-cream text-stone-800 p-5 rounded-[28px] border border-stone-200/90 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/10 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center gap-3.5 z-10">
-              <div className="p-3 bg-gradient-to-tr from-brand-orange to-brand-yellow rounded-2xl text-stone-950 font-black shrink-0 shadow-lg">
+              <div className="p-3 bg-white border border-stone-200/80 rounded-2xl text-brand-green font-black shrink-0 shadow-sm">
                 <Download size={22} />
               </div>
               <div>
-                <h4 className="font-display font-black text-sm sm:text-base text-white">
+                <h4 className="font-display font-black text-sm sm:text-base text-stone-900">
                   {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
                 </h4>
-                <p className="text-xs text-stone-400 mt-0.5">
+                <p className="text-xs text-stone-600 mt-0.5">
                   {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
                 </p>
               </div>
@@ -267,7 +271,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
             <button
               type="button"
               onClick={handleOpenGuide}
-              className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-brand-orange via-brand-orange to-brand-yellow text-stone-950 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap z-10 border border-white/20"
+              className="w-full sm:w-auto px-5 py-3 bg-brand-green hover:bg-brand-green/90 text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap z-10 border border-brand-green/30"
             >
               <Download size={15} />
               <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
