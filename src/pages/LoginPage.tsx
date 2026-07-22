@@ -25,13 +25,26 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
   const [showPassword, setShowPassword] = useState(false);
 
   const [isAdminSelect, setIsAdminSelect] = useState(false);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
 
-  // Automatically invite user to download / install the app ONCE when entering the login page
   useEffect(() => {
-    const isPwa = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+    const checkInstalled = () => {
+      const installed = window.matchMedia('(display-mode: standalone)').matches ||
+        (navigator as any).standalone === true ||
+        localStorage.getItem('kidtopia_app_installed') === 'true';
+      setIsAppInstalled(installed);
+    };
+
+    checkInstalled();
+    window.addEventListener('appinstalled', checkInstalled);
+    return () => window.removeEventListener('appinstalled', checkInstalled);
+  }, []);
+
+  // Automatically invite user to download / install the app ONCE when entering the login page (if not already installed)
+  useEffect(() => {
     const isDismissed = localStorage.getItem('kidtopia_install_prompt_dismissed') === 'true';
 
-    if (!isPwa && !isDismissed) {
+    if (!isAppInstalled && !isDismissed) {
       const timer = setTimeout(() => {
         if (onOpenInstallModal) {
           onOpenInstallModal();
@@ -41,7 +54,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [onOpenInstallModal]);
+  }, [onOpenInstallModal, isAppInstalled]);
 
   const handleRedirect = (role: string) => {
     if (role === 'admin') {
@@ -234,31 +247,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="w-full max-w-lg space-y-6"
       >
-        {/* Prominent Install App Banner at the VERY TOP of Login Page */}
-        <div className="bg-stone-900 text-white p-5 rounded-3xl border border-stone-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/15 rounded-full blur-xl pointer-events-none" />
-          <div className="flex items-center gap-3.5 z-10">
-            <div className="p-3 bg-gradient-to-tr from-brand-orange to-brand-yellow rounded-2xl text-stone-950 font-black shrink-0 shadow-lg">
-              <Download size={22} />
+        {/* Prominent Install App Banner at the VERY TOP of Login Page (Hides if App is Installed) */}
+        {!isAppInstalled && (
+          <div className="bg-stone-900 text-white p-5 rounded-3xl border border-stone-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/15 rounded-full blur-xl pointer-events-none" />
+            <div className="flex items-center gap-3.5 z-10">
+              <div className="p-3 bg-gradient-to-tr from-brand-orange to-brand-yellow rounded-2xl text-stone-950 font-black shrink-0 shadow-lg">
+                <Download size={22} />
+              </div>
+              <div>
+                <h4 className="font-display font-black text-sm sm:text-base text-white">
+                  {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
+                </h4>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-display font-black text-sm sm:text-base text-white">
-                {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
-              </h4>
-              <p className="text-xs text-stone-400 mt-0.5">
-                {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
-              </p>
-            </div>
+            <button
+              type="button"
+              onClick={handleOpenGuide}
+              className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-brand-orange via-brand-orange to-brand-yellow text-stone-950 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap z-10 border border-white/20"
+            >
+              <Download size={15} />
+              <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleOpenGuide}
-            className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-brand-orange via-brand-orange to-brand-yellow text-stone-950 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap z-10 border border-white/20"
-          >
-            <Download size={15} />
-            <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
-          </button>
-        </div>
+        )}
 
         <div className="card-rounded p-8 sm:p-10">
           {isAdminSelect ? (

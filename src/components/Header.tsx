@@ -15,9 +15,23 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpenInstallModal }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
   const t = useContent(lang).nav;
 
   const location = useLocation();
+
+  useEffect(() => {
+    const checkInstalled = () => {
+      const installed = window.matchMedia('(display-mode: standalone)').matches ||
+        (navigator as any).standalone === true ||
+        localStorage.getItem('kidtopia_app_installed') === 'true';
+      setIsAppInstalled(installed);
+    };
+
+    checkInstalled();
+    window.addEventListener('appinstalled', checkInstalled);
+    return () => window.removeEventListener('appinstalled', checkInstalled);
+  }, []);
 
   useEffect(() => {
     // Ensure dark mode is fully disabled and cleared from the document
@@ -169,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
           {/* Right Actions */}
           <div className="hidden lg:flex items-center gap-2.5 xl:gap-3.5">
-            {onOpenInstallModal && (
+            {!isAppInstalled && onOpenInstallModal && (
               <button
                 type="button"
                 onClick={onOpenInstallModal}
@@ -225,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-widest opacity-60" style={{ color: t.textColor || '#44403c' }}>Navigation</span>
                   <div className="flex items-center gap-2">
-                    {onOpenInstallModal && (
+                    {!isAppInstalled && onOpenInstallModal && (
                       <button
                         type="button"
                         onClick={() => {
