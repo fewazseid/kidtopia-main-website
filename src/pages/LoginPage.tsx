@@ -251,8 +251,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="w-full max-w-lg space-y-6"
       >
-        {/* Prominent Install App Banner at the VERY TOP of Login Page (Hides if App is Installed) */}
-        {!isAppInstalled && (
+        {/* Prominent Install App Banner at the VERY TOP of Login Page (Always visible for testing) */}
+        {true && (
           <div className="bg-brand-cream text-stone-800 p-5 rounded-[28px] border border-stone-200/90 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/10 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center gap-3.5 z-10">

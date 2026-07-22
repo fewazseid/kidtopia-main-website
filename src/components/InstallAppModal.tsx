@@ -184,46 +184,28 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
             </div>
 
             <div className="mt-5 space-y-3">
-              {/* If user already has app installed */}
-              {isStandalone || installedSuccess ? (
-                <div className="bg-brand-green/10 border border-brand-green/30 p-5 rounded-2xl text-center space-y-2">
-                  <div className="flex items-center justify-center gap-2 text-brand-green text-sm font-bold">
-                    <CheckCircle2 size={20} />
-                    <span>{lang === 'en' ? 'Kidtopia App is Installed!' : 'አፕሊኬሽኑ በስኬት ተጭኗል!'}</span>
+              <div className="space-y-3">
+                {/* Warning/Action if inside iframe preview */}
+                {isInIframe && (
+                  <div className="bg-brand-yellow/20 border border-brand-yellow/40 p-3.5 rounded-2xl text-xs text-stone-800 space-y-2">
+                    <p className="font-bold flex items-center gap-1.5 text-stone-900">
+                      <ExternalLink size={15} className="text-brand-orange shrink-0" />
+                      <span>{lang === 'en' ? 'iPhone Safari Requirement:' : 'ለ iPhone Safari አጠቃቀም:'}</span>
+                    </p>
+                    <p className="text-[11px] text-stone-600 leading-normal">
+                      {lang === 'en'
+                        ? 'Apple Safari requires opening the app in a real full tab to allow "Add to Home Screen".'
+                        : 'በiPhone ላይ አፑን ለመጫን በSafari ብራውዘር በቀጥታ መከፈት አለበት።'}
+                    </p>
+                    <button
+                      onClick={handleOpenInSafari}
+                      className="w-full py-2.5 bg-brand-orange hover:bg-brand-orange/90 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow cursor-pointer text-xs"
+                    >
+                      <ExternalLink size={14} />
+                      <span>{lang === 'en' ? 'Open in Safari Tab' : 'በSafari አዲስ ታብ ክፈት'}</span>
+                    </button>
                   </div>
-                  <p className="text-xs text-stone-600">
-                    {lang === 'en' ? 'You are using the official Kidtopia app on your device.' : 'የኪድቶፒያ ኦፊሴላዊ አፕሊኬሽን እየተጠቀሙ ነው።'}
-                  </p>
-                  <button
-                    onClick={handleClose}
-                    className="mt-2 px-5 py-2 bg-brand-green text-white font-bold text-xs rounded-xl shadow cursor-pointer"
-                  >
-                    {lang === 'en' ? 'Close' : 'ዝጋ'}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {/* Warning/Action if inside iframe preview */}
-                  {isInIframe && (
-                    <div className="bg-brand-yellow/20 border border-brand-yellow/40 p-3.5 rounded-2xl text-xs text-stone-800 space-y-2">
-                      <p className="font-bold flex items-center gap-1.5 text-stone-900">
-                        <ExternalLink size={15} className="text-brand-orange shrink-0" />
-                        <span>{lang === 'en' ? 'iPhone Safari Requirement:' : 'ለ iPhone Safari አጠቃቀም:'}</span>
-                      </p>
-                      <p className="text-[11px] text-stone-600 leading-normal">
-                        {lang === 'en'
-                          ? 'Apple Safari requires opening the app in a real full tab to allow "Add to Home Screen".'
-                          : 'በiPhone ላይ አፑን ለመጫን በSafari ብራውዘር በቀጥታ መከፈት አለበት።'}
-                      </p>
-                      <button
-                        onClick={handleOpenInSafari}
-                        className="w-full py-2.5 bg-brand-orange hover:bg-brand-orange/90 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow cursor-pointer text-xs"
-                      >
-                        <ExternalLink size={14} />
-                        <span>{lang === 'en' ? 'Open in Safari Tab' : 'በSafari አዲስ ታብ ክፈት'}</span>
-                      </button>
-                    </div>
-                  )}
+                )}
 
                   {/* On iPhone / iOS Safari Steps */}
                   {isIOS && (
@@ -297,7 +279,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                     </button>
                   </div>
                 </div>
-              )}
 
               {/* Security guarantee footer */}
               <div className="pt-2 flex items-center justify-center gap-1.5 text-[10px] text-stone-500 font-medium">

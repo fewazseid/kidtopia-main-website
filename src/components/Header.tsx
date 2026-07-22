@@ -187,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
           {/* Right Actions */}
           <div className="hidden lg:flex items-center gap-2.5 xl:gap-3.5">
-            {!isAppInstalled && onOpenInstallModal && (
+            {onOpenInstallModal && (
               <button
                 type="button"
                 onClick={onOpenInstallModal}
@@ -243,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-widest opacity-60" style={{ color: t.textColor || '#44403c' }}>Navigation</span>
                   <div className="flex items-center gap-2">
-                    {!isAppInstalled && onOpenInstallModal && (
+                    {onOpenInstallModal && (
                       <button
                         type="button"
                         onClick={() => {
