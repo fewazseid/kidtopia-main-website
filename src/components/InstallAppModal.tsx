@@ -87,21 +87,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
 
   const handleDirectInstall = async () => {
     setInstallCancelled(false);
-    
-    // Step 1: Start Download & Package Preparation Progress
-    setDownloadProgress(20);
-    setProgressStage(lang === 'en' ? 'Connecting to Kidtopia app server...' : 'ከኪድቶፒያ ሲስተም ጋር በመገናኘት ላይ...');
-
-    await new Promise((r) => setTimeout(r, 400));
-    setDownloadProgress(60);
-    setProgressStage(lang === 'en' ? 'Preparing app package & service worker...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
-
-    await new Promise((r) => setTimeout(r, 400));
-    setDownloadProgress(100);
-    setProgressStage(lang === 'en' ? 'Launching native browser installer...' : 'አፕሊኬሽኑን በመጫን ላይ...');
-
-    await new Promise((r) => setTimeout(r, 300));
-    setDownloadProgress(null); // Reset progress display
 
     // If running inside an iframe (like AI Studio preview), open in direct tab for native installation
     if (isInIframe) {
@@ -109,10 +94,9 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       return;
     }
 
-    // If on iOS (iPhone/iPad)
+    // On iOS (iPhone/iPad), trigger native Safari Share Sheet directly in user gesture context
     if (isIOS) {
       setShowManualGuide(true);
-      // Trigger native Safari Share Sheet directly
       if (navigator.share) {
         try {
           await navigator.share({
@@ -126,6 +110,21 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       }
       return;
     }
+
+    // Step 1: Start Download & Package Preparation Progress for Android / Desktop
+    setDownloadProgress(20);
+    setProgressStage(lang === 'en' ? 'Connecting to Kidtopia app server...' : 'ከኪድቶፒያ ሲስተም ጋር በመገናኘት ላይ...');
+
+    await new Promise((r) => setTimeout(r, 400));
+    setDownloadProgress(60);
+    setProgressStage(lang === 'en' ? 'Preparing app package & service worker...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
+
+    await new Promise((r) => setTimeout(r, 400));
+    setDownloadProgress(100);
+    setProgressStage(lang === 'en' ? 'Launching native browser installer...' : 'አፕሊኬሽኑን በመጫን ላይ...');
+
+    await new Promise((r) => setTimeout(r, 300));
+    setDownloadProgress(null); // Reset progress display
 
     // On Chrome / Android / Desktop with native prompt support
     const activePrompt = (window as any).deferredPwaPrompt || deferredPrompt;
