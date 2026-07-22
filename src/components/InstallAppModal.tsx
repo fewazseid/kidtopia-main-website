@@ -79,31 +79,13 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   };
 
   const handleInstallClick = async () => {
-    // If running in an iframe (e.g. preview environment), open top-level window so Safari allow "Add to Home Screen"
+    // If running in an iframe (e.g. preview environment), open top-level window so Safari displays bottom toolbar
     if (isInIframe) {
       handleOpenInSafari();
       return;
     }
 
-    // On iOS Safari
-    if (isIOS) {
-      // Try Web Share API if available to pop up native iOS Share sheet
-      if (typeof navigator !== 'undefined' && (navigator as any).share) {
-        try {
-          await (navigator as any).share({
-            title: 'Kidtopia App',
-            text: 'Kidtopia International Daycare & Preschool',
-            url: window.location.href,
-          });
-        } catch (err) {
-          // User closed share sheet or unsupported
-        }
-      }
-      setShowIosGuide(true);
-      return;
-    }
-
-    // On Android / Desktop
+    // On Android / Chrome / Supported browsers with native PWA prompt
     const activePrompt = (window as any).deferredPwaPrompt || deferredPrompt;
     if (activePrompt && typeof activePrompt.prompt === 'function') {
       try {
@@ -120,6 +102,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       }
     }
 
+    // On iOS Safari, reveal direct 2-step guidance
     setShowIosGuide(true);
   };
 
@@ -246,24 +229,20 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                       {/* Visual Animated Indicator pointing down towards Safari Share button */}
                       <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-brand-orange font-bold animate-bounce">
                         <ArrowDown size={14} />
-                        <span>{lang === 'en' ? 'Tap Share at bottom of Safari' : 'በSafari ታችኛው ክፍል Share የሚለውን ይጫኑ'}</span>
+                        <span>{lang === 'en' ? 'Tap action button at bottom of Safari' : 'በSafari ታችኛው ክፍል የሚገኘውን አዶ ይጫኑ'}</span>
                       </div>
                     </div>
                   )}
 
                   {/* Primary Action Buttons */}
                   <div className="pt-1 flex flex-col gap-2">
-                    {/* Trigger native share sheet or prompt */}
+                    {/* Trigger prompt or open Safari */}
                     <button
                       onClick={handleInstallClick}
                       className="w-full py-3 px-4 bg-brand-green hover:bg-brand-green/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-green/30"
                     >
                       <Download size={16} />
-                      <span>
-                        {isIOS
-                          ? (lang === 'en' ? 'Tap to Install / Share' : 'አፕሊኬሽኑን ጫን / ሼር')
-                          : (lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን')}
-                      </span>
+                      <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
                     </button>
 
                     {/* Quick 1-tap "I Added it to Home Screen" / Mark Installed Button */}
