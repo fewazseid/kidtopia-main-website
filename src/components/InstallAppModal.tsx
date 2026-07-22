@@ -79,78 +79,49 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   );
 
-  const triggerDirectShortcutDownload = () => {
-    try {
-      const shortcutHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Kidtopia App</title>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Kidtopia">
-  <link rel="apple-touch-icon" href="${window.location.origin}/pwa-192x192.png">
-  <script>window.location.href = "${window.location.href}";</script>
-</head>
-<body style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;text-align:center;padding:40px;background:#1c1917;color:#fff;">
-  <h2>Kidtopia Web App</h2>
-  <p>Launching Kidtopia...</p>
-</body>
-</html>`;
-      const blob = new Blob([shortcutHtml], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'KidtopiaApp.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error('Download error:', e);
-    }
+  const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
+
+  const handleOpenNewTab = () => {
+    window.open(window.location.href, '_blank');
   };
 
   const handleDirectInstall = async () => {
     setInstallCancelled(false);
     
     // Step 1: Start Download & Package Preparation Progress
-    setDownloadProgress(15);
+    setDownloadProgress(20);
     setProgressStage(lang === 'en' ? 'Connecting to Kidtopia app server...' : 'ከኪድቶፒያ ሲስተም ጋር በመገናኘት ላይ...');
 
     await new Promise((r) => setTimeout(r, 400));
-    setDownloadProgress(45);
-    setProgressStage(lang === 'en' ? 'Downloading app assets & service worker...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
-
-    await new Promise((r) => setTimeout(r, 500));
-    setDownloadProgress(80);
-    setProgressStage(lang === 'en' ? 'Verifying package & generating installer...' : 'አፕሊኬሽኑን በማጣራት ላይ...');
+    setDownloadProgress(60);
+    setProgressStage(lang === 'en' ? 'Preparing app package & service worker...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
 
     await new Promise((r) => setTimeout(r, 400));
     setDownloadProgress(100);
-    setProgressStage(lang === 'en' ? 'Download Complete! Launching App Installer...' : 'ወረዳው ተጠናቋል! አፕሊኬሽኑን በመጫን ላይ...');
+    setProgressStage(lang === 'en' ? 'Launching native browser installer...' : 'አፕሊኬሽኑን በመጫን ላይ...');
 
-    await new Promise((r) => setTimeout(r, 500));
-    
-    // Always trigger direct file download of the launcher shortcut file for physical download feedback
-    triggerDirectShortcutDownload();
+    await new Promise((r) => setTimeout(r, 300));
+    setDownloadProgress(null); // Reset progress display
 
-    setDownloadProgress(null); // Reset progress display after completion
+    // If running inside an iframe (like AI Studio preview), open in direct tab for native installation
+    if (isInIframe) {
+      handleOpenNewTab();
+      return;
+    }
 
     // If on iOS (iPhone/iPad)
     if (isIOS) {
       setShowManualGuide(true);
-      // Try native Safari Share Sheet if supported
+      // Trigger native Safari Share Sheet directly
       if (navigator.share) {
         try {
           await navigator.share({
             title: 'Kidtopia Web App',
-            text: 'Install Kidtopia App on your Home Screen',
+            text: 'Install Kidtopia App on your iPhone / iPad Home Screen',
             url: window.location.href,
           });
         } catch (err) {
-          // User dismissed native share sheet
+          // User closed share sheet
         }
       }
       return;
@@ -171,7 +142,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
           (window as any).deferredPwaPrompt = null;
           setDeferredPrompt(null);
           setIsLaunching(true);
-          // Auto open / launch app in the same page
           setTimeout(() => {
             window.location.href = window.location.origin + window.location.pathname;
           }, 1000);
