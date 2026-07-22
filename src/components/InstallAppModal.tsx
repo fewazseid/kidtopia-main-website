@@ -74,36 +74,85 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
     };
   }, [isOpen]);
 
-  const isIOS = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isIOS = typeof navigator !== 'undefined' && (
+    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+
+  const triggerDirectShortcutDownload = () => {
+    try {
+      const shortcutHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Kidtopia App</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kidtopia">
+  <link rel="apple-touch-icon" href="${window.location.origin}/pwa-192x192.png">
+  <script>window.location.href = "${window.location.href}";</script>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;text-align:center;padding:40px;background:#1c1917;color:#fff;">
+  <h2>Kidtopia Web App</h2>
+  <p>Launching Kidtopia...</p>
+</body>
+</html>`;
+      const blob = new Blob([shortcutHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'KidtopiaApp.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Download error:', e);
+    }
+  };
 
   const handleDirectInstall = async () => {
     setInstallCancelled(false);
     
-    // Step 1: Start Download & Package Preparation Progress Simulation
-    setDownloadProgress(10);
-    setProgressStage(lang === 'en' ? 'Connecting to Kidtopia app repository...' : 'ከኪድቶፒያ ሲስተም ጋር በመገናኘት ላይ...');
+    // Step 1: Start Download & Package Preparation Progress
+    setDownloadProgress(15);
+    setProgressStage(lang === 'en' ? 'Connecting to Kidtopia app server...' : 'ከኪድቶፒያ ሲስተም ጋር በመገናኘት ላይ...');
 
-    // Progress step 1
     await new Promise((r) => setTimeout(r, 400));
-    setDownloadProgress(35);
-    setProgressStage(lang === 'en' ? 'Downloading Service Worker & offline assets...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
+    setDownloadProgress(45);
+    setProgressStage(lang === 'en' ? 'Downloading app assets & service worker...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
 
-    // Progress step 2
     await new Promise((r) => setTimeout(r, 500));
-    setDownloadProgress(70);
-    setProgressStage(lang === 'en' ? 'Verifying web application package...' : 'አፕሊኬሽኑን በማጣራት ላይ...');
+    setDownloadProgress(80);
+    setProgressStage(lang === 'en' ? 'Verifying package & generating installer...' : 'አፕሊኬሽኑን በማጣራት ላይ...');
 
-    // Progress step 3
     await new Promise((r) => setTimeout(r, 400));
     setDownloadProgress(100);
-    setProgressStage(lang === 'en' ? 'Package ready! Launching installer...' : 'ዝግጁ ነው! አፕሊኬሽኑን በመጫን ላይ...');
+    setProgressStage(lang === 'en' ? 'Download Complete! Launching App Installer...' : 'ወረዳው ተጠናቋል! አፕሊኬሽኑን በመጫን ላይ...');
 
-    await new Promise((r) => setTimeout(r, 300));
+    await new Promise((r) => setTimeout(r, 500));
+    
+    // Always trigger direct file download of the launcher shortcut file for physical download feedback
+    triggerDirectShortcutDownload();
+
     setDownloadProgress(null); // Reset progress display after completion
 
     // If on iOS (iPhone/iPad)
     if (isIOS) {
       setShowManualGuide(true);
+      // Try native Safari Share Sheet if supported
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Kidtopia Web App',
+            text: 'Install Kidtopia App on your Home Screen',
+            url: window.location.href,
+          });
+        } catch (err) {
+          // User dismissed native share sheet
+        }
+      }
       return;
     }
 
