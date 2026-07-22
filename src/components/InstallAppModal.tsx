@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Download, X, CheckCircle2, Sparkles, Share2, PlusSquare, MoreVertical, Loader2, ArrowDownCircle, Apple } from 'lucide-react';
+import { Download, X, CheckCircle2, Share2, PlusSquare, MoreVertical, Loader2, Apple, Smartphone, ShieldCheck } from 'lucide-react';
 import { Language } from '../translations';
 
 interface InstallAppModalProps {
@@ -13,7 +13,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
   const [installedSuccess, setInstalledSuccess] = useState<boolean>(false);
-  const [showManualGuide, setShowManualGuide] = useState<boolean>(false);
+  const [showIosGuide, setShowIosGuide] = useState<boolean>(false);
   const [installCancelled, setInstallCancelled] = useState<boolean>(false);
   const [isLaunching, setIsLaunching] = useState<boolean>(false);
 
@@ -23,6 +23,8 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
 
   const handleClose = () => {
     localStorage.setItem('kidtopia_install_prompt_dismissed', 'true');
+    setShowIosGuide(false);
+    setDownloadProgress(null);
     onClose();
   };
 
@@ -51,7 +53,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       setDeferredPrompt(e);
     };
 
-    // Listen for completion of installation -> Automatically open app in same page
+    // Listen for completion of installation
     const handleAppInstalled = () => {
       setInstalledSuccess(true);
       setIsStandalone(true);
@@ -94,37 +96,26 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       return;
     }
 
-    // On iOS (iPhone/iPad), trigger native Safari Share Sheet directly in user gesture context
-    if (isIOS) {
-      setShowManualGuide(true);
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: 'Kidtopia Web App',
-            text: 'Install Kidtopia App on your iPhone / iPad Home Screen',
-            url: window.location.href,
-          });
-        } catch (err) {
-          // User closed share sheet
-        }
-      }
-      return;
-    }
-
-    // Step 1: Start Download & Package Preparation Progress for Android / Desktop
+    // Step 1: Show download & package installation progress
     setDownloadProgress(20);
     setProgressStage(lang === 'en' ? 'Connecting to Kidtopia app server...' : 'ከኪድቶፒያ ሲስተም ጋር በመገናኘት ላይ...');
 
-    await new Promise((r) => setTimeout(r, 400));
-    setDownloadProgress(60);
-    setProgressStage(lang === 'en' ? 'Preparing app package & service worker...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
+    await new Promise((r) => setTimeout(r, 450));
+    setDownloadProgress(65);
+    setProgressStage(lang === 'en' ? 'Preparing web application package...' : 'አፕሊኬሽኑን በማዘጋጀት ላይ...');
 
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 450));
     setDownloadProgress(100);
-    setProgressStage(lang === 'en' ? 'Launching native browser installer...' : 'አፕሊኬሽኑን በመጫን ላይ...');
+    setProgressStage(lang === 'en' ? 'Launching native installer...' : 'አፕሊኬሽኑን በመጫን ላይ...');
 
     await new Promise((r) => setTimeout(r, 300));
-    setDownloadProgress(null); // Reset progress display
+    setDownloadProgress(null);
+
+    // If on iOS (iPhone/iPad), reveal the 2-step home screen installation guide
+    if (isIOS) {
+      setShowIosGuide(true);
+      return;
+    }
 
     // On Chrome / Android / Desktop with native prompt support
     const activePrompt = (window as any).deferredPwaPrompt || deferredPrompt;
@@ -154,7 +145,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       }
     }
 
-    setShowManualGuide(true);
+    setShowIosGuide(true);
   };
 
   return (
@@ -168,37 +159,39 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
           onClick={handleClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            initial={{ scale: 0.95, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            exit={{ scale: 0.95, opacity: 0, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden my-auto"
+            className="w-full max-w-sm sm:max-w-md bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden my-auto"
           >
-            {/* Ambient Background Blur */}
-            <div className="absolute top-0 right-0 w-36 h-36 bg-brand-orange/15 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-36 h-36 bg-brand-teal/15 rounded-full blur-2xl pointer-events-none" />
+            {/* Ambient Accent Gradients */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-brand-yellow/10 rounded-full blur-2xl pointer-events-none" />
 
             <button
               onClick={handleClose}
               className="absolute top-4 right-4 p-2 text-stone-400 hover:text-white bg-stone-800/60 hover:bg-stone-800 rounded-full transition cursor-pointer z-10"
+              aria-label="Close"
             >
               <X size={18} />
             </button>
 
+            {/* Header / App Icon Area */}
             <div className="text-center pt-1">
               <div className="w-16 h-16 mx-auto mb-3.5 rounded-2xl bg-gradient-to-tr from-brand-orange via-brand-yellow to-brand-green p-0.5 shadow-lg">
                 <div className="w-full h-full bg-stone-900 rounded-[14px] flex items-center justify-center">
-                  <Download className="text-brand-orange animate-pulse" size={28} />
+                  <Smartphone className="text-brand-orange" size={28} />
                 </div>
               </div>
 
-              <h2 className="text-xl font-black font-display text-white">
+              <h2 className="text-lg sm:text-xl font-black font-display text-white">
                 {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
               </h2>
-              <p className="text-stone-400 text-xs mt-1.5 max-w-xs mx-auto leading-relaxed">
+              <p className="text-stone-400 text-xs mt-1 max-w-xs mx-auto leading-relaxed">
                 {lang === 'en'
-                  ? 'Install the official Kidtopia Web App onto your phone or desktop home screen.'
+                  ? 'Install Kidtopia Web App directly to your home screen for quick offline access.'
                   : 'የኪድቶፒያን አፕሊኬሽን በስልክዎ ወይም በኮምፒተርዎ ላይ በመጫን በፍጥነት ይጠቀሙ።'}
               </p>
             </div>
@@ -208,26 +201,26 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
               {isStandalone || installedSuccess ? (
                 <div className="bg-brand-green/15 border border-brand-green/30 p-5 rounded-2xl text-center space-y-2">
                   <div className="flex items-center justify-center gap-2 text-brand-green text-sm font-bold">
-                    <CheckCircle2 size={22} />
-                    <span>{lang === 'en' ? 'App is Installed on Device' : 'አፕሊኬሽኑ በስኬት ተጭኗል'}</span>
+                    <CheckCircle2 size={20} />
+                    <span>{lang === 'en' ? 'App Installed on Device' : 'አፕሊኬሽኑ በስኬት ተጭኗል'}</span>
                   </div>
                   <p className="text-xs text-stone-300">
                     {lang === 'en' ? 'You are using the official Kidtopia application.' : 'የኪድቶፒያ ኦፊሴላዊ አፕሊኬሽን እየተጠቀሙ ነው።'}
                   </p>
                   {isLaunching && (
                     <p className="text-xs text-brand-yellow font-medium animate-pulse pt-1">
-                      {lang === 'en' ? 'Launching Kidtopia App...' : 'አፕሊኬሽኑ እየተከፈተ ነው...'}
+                      {lang === 'en' ? 'Opening Kidtopia App...' : 'አፕሊኬሽኑ እየተከፈተ ነው...'}
                     </p>
                   )}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {/* Download / Preparation Progress Bar */}
+                  {/* Download Progress Bar */}
                   {downloadProgress !== null && (
                     <motion.div
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-stone-950/80 border border-brand-orange/30 p-4 rounded-2xl space-y-2.5"
+                      className="bg-stone-950/80 border border-brand-orange/30 p-4 rounded-2xl space-y-2"
                     >
                       <div className="flex justify-between items-center text-xs font-bold">
                         <span className="text-stone-300 flex items-center gap-1.5">
@@ -236,7 +229,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                         </span>
                         <span className="text-brand-orange font-mono font-black">{downloadProgress}%</span>
                       </div>
-                      <div className="w-full bg-stone-800 h-2.5 rounded-full overflow-hidden p-0.5">
+                      <div className="w-full bg-stone-800 h-2 rounded-full overflow-hidden">
                         <motion.div
                           className="bg-gradient-to-r from-brand-orange to-brand-yellow h-full rounded-full transition-all duration-300"
                           style={{ width: `${downloadProgress}%` }}
@@ -245,119 +238,109 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
                     </motion.div>
                   )}
 
-                  {/* If user previously cancelled the browser prompt */}
+                  {/* Cancelled message */}
                   {installCancelled && (
-                    <p className="text-[11px] text-brand-orange bg-brand-orange/10 border border-brand-orange/20 p-2.5 rounded-xl text-center">
+                    <p className="text-xs text-brand-orange bg-brand-orange/10 border border-brand-orange/20 p-3 rounded-xl text-center">
                       {lang === 'en'
-                        ? 'Installation request was cancelled. Click the button above whenever you are ready.'
-                        : 'የመጫን ጥያቄው ተሰርዟል። ዝግጁ ሲሆኑ ከላይ ያለውን አዝራር ይጫኑ።'}
+                        ? 'Installation request was cancelled. Tap Install whenever you are ready.'
+                        : 'የመጫን ጥያቄው ተሰርዟል። ዝግጁ ሲሆኑ Install የሚለውን ይጫኑ።'}
                     </p>
                   )}
 
-                  {/* Primary Trigger Button (Only shown if NOT installed) */}
-                  {downloadProgress === null && (
-                    <button
-                      onClick={handleDirectInstall}
-                      className="w-full py-3.5 px-6 bg-gradient-to-r from-brand-orange via-brand-orange to-brand-yellow text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:shadow-brand-orange/20 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer border border-white/20"
+                  {/* iOS Share Sheet Guidance view when Install is clicked on iPhone */}
+                  {isIOS && showIosGuide && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-stone-950/90 border border-stone-800 p-4 rounded-2xl text-left space-y-3"
                     >
-                      <Download size={18} />
-                      <span>{lang === 'en' ? 'Install App on Device' : 'አፕሊኬሽኑን በስልክዎ ይጫኑ'}</span>
-                      <Sparkles size={16} />
-                    </button>
+                      <div className="flex items-center gap-2 text-brand-orange font-bold text-xs uppercase tracking-wider">
+                        <Apple size={16} className="text-white" />
+                        <span>{lang === 'en' ? 'Complete iOS Installation:' : 'የiPhone አጫጫን መመሪያ:'}</span>
+                      </div>
+
+                      <ol className="space-y-2 text-stone-300 text-xs">
+                        <li className="flex items-start gap-2 bg-stone-900 p-2.5 rounded-xl border border-stone-800">
+                          <span className="w-5 h-5 rounded-full bg-brand-orange/20 text-brand-orange flex items-center justify-center font-bold text-[11px] shrink-0">1</span>
+                          <div>
+                            <p className="font-bold text-white flex items-center gap-1.5">
+                              <span>{lang === 'en' ? 'Tap Safari Share icon' : 'በSafari የShare ምልክት ይጫኑ'}</span>
+                              <Share2 size={14} className="text-brand-orange" />
+                            </p>
+                            <p className="text-[11px] text-stone-400 mt-0.5">
+                              {lang === 'en' ? 'Located at the bottom of Safari screen.' : 'በ Safari ታችኛው ክፍል የሚገኘውን አዶ ይጫኑ።'}
+                            </p>
+                          </div>
+                        </li>
+
+                        <li className="flex items-start gap-2 bg-stone-900 p-2.5 rounded-xl border border-stone-800">
+                          <span className="w-5 h-5 rounded-full bg-brand-green/20 text-brand-green flex items-center justify-center font-bold text-[11px] shrink-0">2</span>
+                          <div>
+                            <p className="font-bold text-white flex items-center gap-1.5">
+                              <span>{lang === 'en' ? 'Tap "Add to Home Screen"' : '"Add to Home Screen" ይምረጡ'}</span>
+                              <PlusSquare size={14} className="text-brand-green" />
+                            </p>
+                            <p className="text-[11px] text-stone-400 mt-0.5">
+                              {lang === 'en' ? 'Then tap Add in the top right corner.' : 'በመጨረሻም "Add" በማለት ይጫኑ።'}
+                            </p>
+                          </div>
+                        </li>
+                      </ol>
+                    </motion.div>
+                  )}
+
+                  {/* Android / Chrome Manual Steps fallback */}
+                  {!isIOS && showIosGuide && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="bg-stone-950/80 border border-stone-800 p-3.5 rounded-2xl text-left space-y-2 text-xs"
+                    >
+                      <p className="font-bold text-brand-orange uppercase text-[10px] tracking-wider">
+                        {lang === 'en' ? 'Browser Native Steps:' : 'የብራውዘር አጫጫን መመሪያ:'}
+                      </p>
+                      <ol className="space-y-1.5 text-stone-300 text-[11px]">
+                        <li className="flex items-center gap-2">
+                          <span className="w-4 h-4 rounded bg-stone-800 text-brand-orange flex items-center justify-center font-bold text-[10px]">1</span>
+                          <span>{lang === 'en' ? 'Tap 3 dots menu or Install in browser bar' : 'የብራውዘሩን 3 ነጥቦች ወይም Install ምልክት ይጫኑ'}</span>
+                          <MoreVertical size={13} className="text-brand-orange shrink-0" />
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="w-4 h-4 rounded bg-stone-800 text-brand-green flex items-center justify-center font-bold text-[10px]">2</span>
+                          <span>{lang === 'en' ? 'Select Install Kidtopia' : '"Install Kidtopia" የሚለውን ይምረጡ'}</span>
+                          <Download size={13} className="text-brand-green shrink-0" />
+                        </li>
+                      </ol>
+                    </motion.div>
+                  )}
+
+                  {/* Action Buttons Row: Install and Cancel (Android dialog style) */}
+                  {downloadProgress === null && (
+                    <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                      <button
+                        onClick={handleDirectInstall}
+                        className="flex-1 py-3 px-4 bg-gradient-to-r from-brand-orange via-brand-orange to-brand-yellow text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer border border-white/20"
+                      >
+                        <Download size={16} />
+                        <span>{lang === 'en' ? 'Install' : 'ጫን'}</span>
+                      </button>
+
+                      <button
+                        onClick={handleClose}
+                        className="py-3 px-5 bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bold text-xs sm:text-sm rounded-2xl transition cursor-pointer text-center"
+                      >
+                        {lang === 'en' ? 'Cancel' : 'ሰርዝ'}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
 
-              {/* iPhone / iOS Specific Guide */}
-              {isIOS && !isStandalone && !installedSuccess && (
-                <motion.div
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-3 bg-stone-950/80 border border-stone-800 p-4 rounded-2xl text-left space-y-3"
-                >
-                  <div className="flex items-center gap-2 text-brand-orange font-bold text-xs uppercase tracking-wider">
-                    <Apple size={16} className="text-white" />
-                    <span>{lang === 'en' ? 'iPhone Safari Installation Steps:' : 'የiPhone አጫጫን መመሪያ:'}</span>
-                  </div>
-
-                  <ol className="space-y-2.5 text-stone-300 text-xs">
-                    <li className="flex items-start gap-2.5 bg-stone-900/80 p-2.5 rounded-xl border border-stone-800/60">
-                      <span className="w-5 h-5 rounded-full bg-brand-orange/20 border border-brand-orange/40 text-brand-orange flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">1</span>
-                      <div className="flex-1">
-                        <p className="font-bold text-white flex items-center gap-1.5">
-                          <span>{lang === 'en' ? 'Tap Safari Share Button' : 'በSafari የShare ምልክት ይጫኑ'}</span>
-                          <Share2 size={14} className="text-brand-orange animate-pulse" />
-                        </p>
-                        <p className="text-[11px] text-stone-400 mt-0.5">
-                          {lang === 'en' ? 'Located in the bottom toolbar of Safari (or top right on iPad).' : 'በስልክዎ ታችኛው ክፍል የሚገኘውን Share አዶ ይጫኑ።'}
-                        </p>
-                      </div>
-                    </li>
-
-                    <li className="flex items-start gap-2.5 bg-stone-900/80 p-2.5 rounded-xl border border-stone-800/60">
-                      <span className="w-5 h-5 rounded-full bg-brand-green/20 border border-brand-green/40 text-brand-green flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">2</span>
-                      <div className="flex-1">
-                        <p className="font-bold text-white flex items-center gap-1.5">
-                          <span>{lang === 'en' ? 'Select "Add to Home Screen"' : '"Add to Home Screen" ይምረጡ'}</span>
-                          <PlusSquare size={14} className="text-brand-green" />
-                        </p>
-                        <p className="text-[11px] text-stone-400 mt-0.5">
-                          {lang === 'en' ? 'Scroll down the share menu options and tap "Add to Home Screen".' : 'ምናሌውን ዝቅ በማድረግ "Add to Home Screen" የሚለውን ይጫኑ።'}
-                        </p>
-                      </div>
-                    </li>
-
-                    <li className="flex items-start gap-2.5 bg-stone-900/80 p-2.5 rounded-xl border border-stone-800/60">
-                      <span className="w-5 h-5 rounded-full bg-brand-yellow/20 border border-brand-yellow/40 text-brand-yellow flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">3</span>
-                      <div className="flex-1">
-                        <p className="font-bold text-white">
-                          {lang === 'en' ? 'Tap "Add" in Top Right' : 'በቀኝ በኩል "Add" ይጫኑ'}
-                        </p>
-                        <p className="text-[11px] text-stone-400 mt-0.5">
-                          {lang === 'en' ? 'Confirm to place Kidtopia app icon on your home screen.' : 'በመጨረሻም "Add" በማለት አፕሊኬሽኑን በስልክዎ ገጽ ላይ ያኑሩት።'}
-                        </p>
-                      </div>
-                    </li>
-                  </ol>
-
-                  <div className="flex items-center justify-center gap-1.5 text-[11px] text-brand-orange bg-brand-orange/10 p-2 rounded-xl border border-brand-orange/20 text-center font-medium">
-                    <ArrowDownCircle size={14} className="animate-bounce" />
-                    <span>{lang === 'en' ? 'Look for the Share icon in Safari bottom toolbar below' : 'በ Safari ታችኛው ክፍል የ Share ምልክቱን ይመልከቱ'}</span>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Android / Desktop Browser Instructions fallback */}
-              {!isIOS && (showManualGuide || !deferredPrompt) && !isStandalone && !installedSuccess && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  className="mt-3 bg-stone-950/60 border border-stone-800 p-3.5 rounded-2xl text-left space-y-2 text-xs"
-                >
-                  <p className="font-bold text-brand-orange uppercase text-[10px] tracking-wider">
-                    {lang === 'en' ? 'Browser Native Install Steps:' : 'የብራውዘር አጫጫን መመሪያ:'}
-                  </p>
-                  <ol className="space-y-1.5 text-stone-300 text-[11px]">
-                    <li className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded bg-stone-800 text-brand-orange flex items-center justify-center font-bold text-[10px]">1</span>
-                      <span>{lang === 'en' ? 'Tap 3 dots menu (⋮) or Install icon in address bar' : 'የብራውዘሩን 3 ነጥቦች (⋮) ወይም Install ምልክት ይጫኑ'}</span>
-                      <MoreVertical size={13} className="text-brand-orange shrink-0" />
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded bg-stone-800 text-brand-green flex items-center justify-center font-bold text-[10px]">2</span>
-                      <span>{lang === 'en' ? 'Select "Install Kidtopia" or "Add to Home screen"' : '"Install Kidtopia" የሚለውን ይምረጡ'}</span>
-                      <Download size={13} className="text-brand-green shrink-0" />
-                    </li>
-                  </ol>
-                </motion.div>
-              )}
-
-              <button
-                onClick={handleClose}
-                className="w-full py-2 text-xs text-stone-400 hover:text-white font-medium transition cursor-pointer"
-              >
-                {lang === 'en' ? 'Continue in Web Browser' : 'በብራውዘር ቀጥል'}
-              </button>
+              {/* Security guarantee footer */}
+              <div className="pt-2 flex items-center justify-center gap-1.5 text-[10px] text-stone-500 font-medium">
+                <ShieldCheck size={13} className="text-brand-green" />
+                <span>{lang === 'en' ? 'Official Kidtopia Web Application' : 'የኪድቶፒያ ኦፊሴላዊ ዌብ አፕሊኬሽን'}</span>
+              </div>
             </div>
           </motion.div>
         </motion.div>
@@ -365,3 +348,4 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
     </AnimatePresence>
   );
 };
+
