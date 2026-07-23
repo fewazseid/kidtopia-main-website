@@ -250,32 +250,48 @@ export const translations = {
       ],
       handbookChapters: [
         {
-          title: "1. Welcome & Philosophy",
-          content: "Welcome to Kidtopia International Daycare! Our philosophy is centered around providing a holistic, safe, and stimulating environment that fosters intellectual growth, physical coordination, and socio-emotional wellness. We operate under rigorous childcare excellence policies."
+          title: "Parent Handbook Academic Year 2026/2027",
+          content: "Welcome Letter\n\nDear Parents and Guardians,\n\nWelcome to Kidtopia International Daycare & Preschool.\n\nThank you for trusting us with your child’s care, development, and early learning journey. At Kidtopia, we believe every child deserves a safe, caring, respectful, and stimulating environment where they can explore, learn, and grow with confidence.\n\nWe believe that children develop best when families and educators work together. Strong communication, mutual respect, and partnership between parents and our team help us provide the best possible experience for every child.\n\nThis Parent Handbook explains our policies, procedures, and expectations to create a safe, organized, and positive environment for children, families, and staff.\n\nWe appreciate your trust and partnership.\n\nKidtopia Management\n\n“Growing, Learning, and Thriving Together”"
         },
         {
-          title: "2. Health & Screenings",
-          content: "To maintain a clean and disease-free environment for all children, we enforce mandatory medical screening. All children must submit fully updated immunization charts, TB clearance certificates, and Hepatitis/HIV screening results. Contagious children must stay home."
+          title: "1. Our Philosophy & Core Values",
+          content: "At Kidtopia International Daycare & Preschool, our philosophy is rooted in the conviction that early childhood is the foundation of lifelong learning, character, and emotional resilience. We provide a holistic, safe, and stimulating environment that fosters intellectual curiosity, physical coordination, social-emotional wellness, and creative expression.\n\nWe believe every child is uniquely gifted and thrives through active play, structured exploration, and positive reinforcement. Our core values center on:\n• Child Safety First: Absolute protection and hygienic standards in every classroom.\n• Loving & Qualified Care: Dedicated educators trained in early childhood development.\n• Family Partnership: Transparent, daily communication with parents as co-partners.\n• Cultural Inclusivity: Celebrating diversity, respect, and mutual kindness."
         },
         {
-          title: "3. Digital Security Check-out",
-          content: "Security is our utmost priority. Our digital check-in/out registers authorized parents. Only pre-registered individuals with approved government IDs can check out a child. No exceptions can be made."
+          title: "2. Admission & Enrollment Requirements",
+          content: "Kidtopia welcomes children aged 1.5 years through 6 years. Admission is granted on a first-come, first-served basis regardless of race, nationality, or religion.\n\nRequired Documentation for Admission:\n1. Completed and signed Official Enrollment Application Form.\n2. Valid copy of Parent/Guardian National ID or Passport.\n3. Official Birth Certificate copy of the child.\n4. Up-to-date Immunization & Vaccination Card.\n5. Mandatory Medical Screening Clearance: Recent certified laboratory test results for Tuberculosis (TB), HIV, and Hepatitis B screening.\n6. Passport-sized photographs of the child and authorized pick-up guardians.\n\nRoom placement is confirmed only after all medical clearances and enrollment forms are verified by our health and administrative staff."
         },
         {
-          title: "4. Daily Schedules & Naptime",
-          content: "Our days are filled with structured balance: free play, studies, healthy meals, and an afternoon nap (13:00 to 15:00). Blankets and sheets are laundered internally using our commercial hygienic laundry system."
+          title: "3. Operating Hours, Arrival & Pick-Up Security",
+          content: "Operating Hours:\n• Monday through Friday: 7:30 AM to 6:00 PM.\n• Morning Circle & Arrival: We recommend arriving before 8:30 AM so children can fully participate in morning activities.\n\nPick-Up Security Protocols:\n• Authorized Pick-Up: Children are released strictly to guardians registered in the parent portal with verified government photo IDs or authenticated dynamic QR Codes on their logged-in mobile phones.\n• Unauthorized Pick-Up Notice: If an unlisted family member or representative must pick up your child, advance written authorization in the portal or phone verification at least 2 hours prior is mandatory. No child will be released without complete verification.\n• Late Pick-Up Policy: The center closes promptly at 6:00 PM. A late pick-up fee of 200 ETB is assessed for every 15 minutes of delay past 6:00 PM, payable directly to the administration."
         },
         {
-          title: "5. Financial Terms & Withdrawals",
-          content: "Parents agree to pay tuition on or before the 1st of each month. Late fees apply after the 5th. 30 days written advance notice is required for withdrawals; failure to do so results in forfeiture of security deposit."
+          title: "4. Health, Hygiene & Sick Child Policy",
+          content: "To maintain a healthy, disease-free environment for all children, Kidtopia strictly enforces its Sick Child Policy.\n\nWhen a Child Must Stay Home:\nChildren exhibiting any of the following symptoms must remain at home:\n• Fever of 38°C (100.4°F) or higher.\n• Vomiting or diarrhea within the preceding 24 hours.\n• Unexplained skin rashes, eye discharge (conjunctivitis), or severe persistent cough.\n• Contagious childhood illnesses (measles, chickenpox, flu).\n\nReturn to Care Criteria:\nChildren may return to daycare only when they have been fever-free and symptom-free for at least 24 consecutive hours without fever-reducing medication.\n\nPrescription Medication Policy:\nCenter staff and our school nurse will administer prescribed medication only if accompanied by a signed Doctor’s Prescription Note, clear dosage instructions, and a signed Parent Consent Form. All medication must be provided in its original pharmaceutical bottle."
         },
         {
-          title: "6. Emergency Medical Authorization",
-          content: "In a medical emergency, we make every effort to contact parents. If unreachable, parents authorize Kidtopia to secure emergency medical treatment, hospitalize, or order injection/surgery for the child under medical direction."
+          title: "5. Daily Schedule, Nutrition & Napping Routine",
+          content: "Daily Routine & Learning Balance:\nOur days combine structured cognitive lessons, sensory art, outdoor physical play, storytelling, and free exploration.\n\nNutrition & Kitchen Protocols:\n• We provide fresh, balanced, and nutritious meals prepared daily in our certified daycare kitchen, including morning breakfast, warm lunch, and afternoon snacks.\n• Weekly meal menus are published in advance.\n• Parents must notify administration in writing of any severe food allergies, lactose intolerance, or dietary restrictions.\n\nAfternoon Nap & Hygiene:\n• A mandatory quiet naptime is scheduled from 1:00 PM to 3:00 PM (13:00 to 15:00).\n• Each child is provided an individual sanitized cot and bedding.\n• All blankets and linens are laundered regularly in our commercial, hygienic internal laundry facility."
         },
         {
-          title: "7. Parental Code of Conduct",
-          content: "We believe in a relationship of respect. Parents must communicate respectfully with teachers and staff. Aggressive behavior or harassment will result in immediate termination of daycare enrollment with zero refund."
+          title: "6. Tuition, Financial Terms & Withdrawal Policy",
+          content: "Financial Agreement & Invoicing:\n• Monthly Tuition: Billed monthly in advance. Invoice statements are dispatched on the 25th day of the preceding month.\n• Due Date: Tuition fees are due on or before the 1st calendar day of each month.\n• Late Fee Penalty: Payments received after the 5th day of the month incur a 10% late fee penalty.\n\nAbsences & Holidays:\nTuition fees guarantee your child's placement and remain payable in full during public holidays, sick days, or temporary family vacations.\n\nWithdrawal & Refund Policy:\n• To withdraw a child, parents must submit a 30-day advance written notice to the administrative office.\n• Failure to provide a full 30-day notice will result in the forfeiture of the security deposit.\n• All registration fees and processed tuition payments are non-refundable."
+        },
+        {
+          title: "7. Communication, Technology & Web Portal",
+          content: "Partnership & Transparency:\nKidtopia utilizes a modern web-based daycare management system to ensure complete operational transparency.\n\nParent Web Portal Features:\n• Daily Activity Journal: View real-time feeding times, nap logs, and milestone progress.\n• Photo Stream: Access daily classroom photos of your child engaging in learning activities.\n• Health & Temperature Records: Daily health inspection logs uploaded by our school nurse.\n• Dynamic QR Code: Secure checkout scanner on your mobile phone.\n\nParent Expectations:\nParents are expected to review portal updates daily, update emergency contact numbers promptly, and attend bi-annual Parent-Teacher Conferences."
+        },
+        {
+          title: "8. Behavior Guidance & Positive Discipline",
+          content: "Our behavioral approach focuses on positive guidance, active listening, redirection, and emotional co-regulation.\n\nKey Discipline Principles:\n• Positive Reinforcement: Praising effort, kindness, and sharing.\n• Active Redirection: Guiding children toward constructive play choices.\n• Zero Corporal Punishment: Physical punishment, verbal degradation, shouting, or isolation are strictly prohibited.\n• Collaborative Action: In cases of repeated aggressive or disruptive behavior (biting, hitting), teachers will collaborate with parents to establish a individualized behavior support plan."
+        },
+        {
+          title: "9. Emergency Procedures & Medical Authorization",
+          content: "Safety Standards & Drills:\n• Fully stocked First Aid stations are located in every classroom.\n• All teachers and care staff are certified in Pediatric First Aid and CPR.\n• Fire and emergency evacuation drills are conducted biannually.\n\nEmergency Medical Authorization:\nIn the event of a sudden medical emergency, staff will immediately initiate emergency medical services and attempt to contact parents. If parents or designated emergency contacts cannot be reached, parents authorize Kidtopia management and attending physicians to secure emergency medical evaluation, hospitalization, or treatment as deemed necessary for the safety of the child."
+        },
+        {
+          title: "10. Parent Code of Conduct & Consent Agreement",
+          content: "Mutual Respect & Dignity:\nKidtopia is dedicated to maintaining a safe, welcoming, and respectful community for children, families, and educators.\n\nParent Code of Conduct:\n• Parents and guardians must communicate with teachers, caregivers, and administrative staff with politeness, respect, and constructive dialogue.\n• Zero-Tolerance Policy: Verbal abuse, shouting, profanity, physical threats, or harassment of Kidtopia staff members will result in immediate termination of the child's daycare enrollment with zero financial refund.\n\nAgreement & Acceptance:\nBy enrolling your child at Kidtopia International Daycare & Preschool, parents acknowledge that they have read, understood, and agreed to adhere to all terms, policies, fee schedules, and guidelines contained within this Parent Handbook Academic Year 2026/2027."
         }
       ],
       menuDays: [
@@ -789,32 +805,48 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       ],
       handbookChapters: [
         {
-          title: "1. እንኳን ደህና መጡ እና ፍልስፍና",
-          content: "ወደ ኪድቶፒያ ዓለም አቀፍ የህጻናት ማቆያ እንኳን ደህና መጡ! የእኛ ፍልስፍና ህጻናት የአእምሮ እድገትን፣ የአካል ቅንጅትን እና ማህበራዊ-ስሜታዊ ደህንነትን የሚያዳብሩበትን ምቹ እና አስተማማኝ አካባቢ ማቅረብ ነው። እኛ በከፍተኛ የ childcare ፖሊሲዎች ስር እንሰራለን።"
+          title: "የወላጆች መመሪያ የ2026/2027 ትምህርት ዘመን",
+          content: "የእንኳን ደህና መጣችሁ መልእክት\n\nውድ ወላጆች እና አሳዳጊዎች፣\n\nወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ።\n\nየልጅዎን እንክብካቤ፣ እድገት እና የመማር ጉዞ ለእኛ ስለአመኑብን እናመሰግናለን። በኪድቶፒያ፣ እያንዳንዱ ልጅ በልበ ሙሉነት የሚዳስስበት፣ የሚማርበት እና የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ፣ አክብሮት ያለው እና አነቃቂ አካባቢ ይገባዋል ብለን እንምናምናለን።\n\nቤተሰቦች እና አስተማሪዎች አብረው ሲሰሩ ህፃናት በጥሩ ሁኔታ እንደሚያድጉ እንገነዘባለን። በወላጆች እና በቡድናችን መካከል ያለው ጠንካራ ግንኙነት፣ እርስ በርስ መከባበር እና አጋርነት ለእያንዳንዱ ልጅ ምርጥ ልምድ እንድንሰጥ ይረዳናል።\n\nይህ የወላጆች መመሪያ ለህፃናት፣ ለቤተሰቦች እና ለሰራተኞች ደህንነቱ የተጠበቀ፣ የተደራጀ እና አወንታዊ አካባቢን ለመፍጠር የእኛን ፖሊሲዎች፣ አሰራሮች እና እቅዶች ያብራራል።\n\nእምነትዎን እና አጋርነትዎን እናደንቃለን።\n\nየኪድቶፒያ አስተዳደር\n\n“አብሮ ማደግ፣ መማር እና መበልጸግ”"
         },
         {
-          title: "2. የጤና ምርመራዎች",
-          content: "ለንጹህ እና ከበሽታ ነጻ የሆነ አካባቢ ለመጠበቅ፣ አስገዳጅ የህክምና ምርመራዎችን እናስፈጽማለን። ሁሉም ልጆች የተሟላ የክትባት ሰነድ፣ የቲቢ ምርመራ፣ የሄፓታይተስ እና የኤችአይቪ ምርመራ ውጤቶችን ማቅረብ አለባቸው። ተላላፊ በሽታ ያለባቸው ህጻናት ቤት መቆየት አለባቸው።"
+          title: "1. የእኛ ፍልስፍና እና ዋና እሴቶች",
+          content: "በኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት፣ ፍልስፍናችን የቅድመ ልጅነት ጊዜ የህይወት ዘመን ትምህርት፣ ስብዕና እና የስሜት ጥንካሬ መሰረት ነው በሚል እምነት ላይ የተመሰረተ ነው። ህፃናት የአእምሮ ፍላጎትን፣ የአካል ቅንጅትን፣ የማህበራዊ-ስሜታዊ ደህንነትን እና የፈጠራ አገላለጽን የሚያደናቅፍ ሁለንተናዊ፣ ደህንነቱ የተጠበቀ እና አነቃቂ አካባቢ እናዘጋጃለን።\n\nዋና ዋና እሴቶቻችን፡\n• የልጆች ደህንነት ቅድሚያ፡ በእያንዳንዱ ክፍል ውስጥ ፍፁም ጥበቃ እና የንጽህና መስፈርቶች።\n• አሳቢ እና ብቁ እንክብካቤ፡ በቅድመ ህፃናት እድገት የሰለጠኑ አስተማሪዎች።\n• የቤተሰብ አጋርነት፡ ከወላጆች ጋር በየቀኑ ግልጽ የመገናኛ አሰራር።\n• ባህላዊ አካታችነት፡ ብዝሃነትን፣ አክብሮትን እና ደግነትን ማጎልበት።"
         },
         {
-          title: "3. የዲጂታል ደህንነት መውጫ",
-          content: "ደህንነት የላቀ ቅድሚያ የምንሰጠው ጉዳይ ነው። የዲጂታል መግቢያ/መውጫ ተርሚናላችን የተፈቀደላቸውን ወላጆች ይመዘግባል። በQR ኮድ መውሰድ በከፍተኛ ደረጃ ይመከራል። ህጋዊ የመታወቂያ ካርድ ያላቸው ቀድመው የተመዘገቡ ወላጆች ብቻ በስልካቸው የQR ኮድ በመጠቀም ህጻናትን መውሰድ ይችላሉ። ምንም ልዩ ሁኔታ አይፈቀድም።"
+          title: "2. የምዝገባ እና የቅበላ መስፈርቶች",
+          content: "ኪድቶፒያ እድሜያቸው ከ 1.5 እስከ 6 ዓመት የሆኑ ህፃናትን ይቀበላል።\n\nለቀረበው ምዝገባ የሚያስፈልጉ ሰነዶች፡\n1. የተሞላ እና የተፈረመ ኦፊሴላዊ የምዝገባ ፎርም።\n2. የወላጅ/አሳዳጊ ህጋዊ መታወቂያ ወይም ፓስፖርት ኮፒ።\n3. የልጁ ኦፊሴላዊ የልደት ምስክር ወረቀት ኮፒ።\n4. ወቅታዊ የክትባት ካርድ።\n5. አስገዳጅ የህክምና ማረጋገጫ፡ የሳንባ ነቀርሳ (TB)፣ ኤችአይቪ (HIV) እና ሄፓታይተስ ቢ የላቦራቶሪ የምርመራ ውጤቶች።\n6. የልጁ እና የተፈቀደላቸው አሳዳጊዎች የፓስፖርት መጠን ፎቶግራፎች።"
         },
         {
-          title: "4. ዕለታዊ መርሃግብር እና የእንቅልፍ ሰዓት",
-          content: "ዕለታችን ሚዛናዊ በሆኑ ተግባራት የተሞላ ነው፡ ነጻ ጨዋታ፣ ትምህርት፣ ጤናማ ምግቦች እና ከሰዓት በኋላ እንቅልፍ (ከ13:00 እስከ 15:00)። ብርድ ልብሶች እና አንሶላዎች በራሳችን የልብስ ማጠቢያ ስርዓት በንጽህና ይታጠባሉ።"
+          title: "3. የሥራ ሰዓት፣ የመድረሻ እና የመውጫ ደህንነት",
+          content: "የሥራ ሰዓት፡\n• ከሰኞ እስከ አርብ፡ ከጠዋቱ 1:30 እስከ ምሽቱ 12:00 ሰዓት።\n• የጠዋት መድረሻ፡ ህፃናት በጠዋት እንቅስቃሴዎች እንዲሳተፉ ከጠዋቱ 2:30 በፊት እንዲደርሱ እንመክራለን።\n\nየመውጫ ደህንነት ደንብ፡\n• ህፃናት የሚለቀቁት በወላጅ ፖርታል ላይ ለተመዘገቡ እና ህጋዊ መታወቂያ ወይም በስልካቸው የQR ኮድ ላላቸው ወላጆች ብቻ ነው።\n• ያልተመዘገበ ሰው ህፃኑን የሚወስድ ከሆነ ቢያንስ ከ2 ሰዓት በፊት በፖርታሉ ወይም በስልክ ማስወቅ ይኖርበታል።\n• የዘግይቶ መውጫ ክፍያ፡ ማዕከሉ ከምሽቱ 12:00 ሰዓት ይዘጋል። ከ12:00 ሰዓት በኋላ ለሚዘገይ ለእያንዳንዱ 15 ደቂቃ 200 የኢትዮጵያ ብር የቅጣት ክፍያ ይታሰባል።"
         },
         {
-          title: "5. የክፍያ ውሎች እና ምዝገባ ስረዛ",
-          content: "ወላጆች በየወሩ ከ1ኛው ቀን በፊት ክፍያዎችን ለመፈጸም ይስማማሉ። ከ5ኛው ቀን በኋላ ላለፉ ክፍያዎች የ10% ቅጣት ይታሰባል። ምዝገባ ለመሰረዝ ቢያንስ የ30 ቀናት ቅድመ ማስጠንቀቂያ በጽሁፍ መቅረብ አለበት፤ ያለበለዚያ የያዙት የዋስትና ክፍያ አይመለስም።"
+          title: "4. የጤና፣ የንጽህና እና የታመመ ልጅ ፖሊሲ",
+          content: "የታመመ ልጅ መመሪያ፡\nከፍተኛ ትኩሳት (≥38°C)፣ ማስታወክ፣ ተቅማጥ፣ ወይም ተላላፊ የበሽታ ምልክቶች ያሏቸው ህፃናት ቤት መቆየት አለባቸው።\n\nወደ ማቆያ የመመለሻ መስፈርቶች፡\nህፃናት ትኩሳትን የሚቀንሱ መድኃኒቶችን ሳይጠቀሙ ቢያንስ ለ24 ሰዓታት ከትኩሳት እና ከምልክቶች ነጻ መሆናቸው ሲረጋገጥ ብቻ ይመለሳሉ።\n\nየታዘዘ መድኃኒት አሰጣጥ፡\nሰራተኞች መድኃኒት የሚሰጡት በሐኪም የታዘዘ ማስታወሻ እና የወላጅ ስምምነት ሲቀርብ ብቻ ነው።"
         },
         {
-          title: "6. አስቸኳይ የህክምና ፈቃድ",
-          content: "በድንገተኛ የህክምና ሁኔታ ወላጆችን ለማግኘት የተቻለንን ሁሉ እናደርጋለን። ማግኘት ካልተቻለ ግን፣ ወላጆች ኪድቶፒያ ለልጁ አስፈላጊውን አስቸኳይ የህክምና እርዳታ፣ ሆስፒታል መተኛት፣ ማደንዘዣ ወይም ቀዶ чуገና እንዲያዝ ፈቃድ ይሰጣሉ።"
+          title: "5. ዕለታዊ መርሃግብር፣ የምግብ እና የእንቅልፍ ሰዓት",
+          content: "የተመጣጠነ ምግብ፡\nበየቀኑ በራሳችን ኩሽና የተዘጋጀ ኦርጋኒክ ቁርስ፣ ትኩስ ምሳ እና ከሰዓት በኋላ መክሰስ እናቀርባለን።\n\nዕለታዊ መርሃግብር እና የእንቅልፍ ሰዓት፡\nዕለታዊ መርሃግብራችን ትምህርታዊ ጨዋታዎችን፣ የፈጠራ ስራዎችን፣ የውጭ ጨዋታዎችን እና ከሰዓት በኋላ እንቅልፍን (ከ13:00 እስከ 15:00) ያካትታል። የመኝታ ልብሶች በየቀኑ በራሳችን ማጠቢያ ይጸዳሉ።"
         },
         {
-          title: "7. የወላጅ የስነ-ምግባር ደንብ",
-          content: "እኛ የምናምነው በመከባበር ላይ በተመሰረተ ግንኙነት ነው። ወላጆች ከመምህራን እና ከሰራተኞች ጋር በአክብሮት መነጋገር አለባቸው። አስገዳጅ ወይም ተሳዳቢ የሆኑ ባህሪያት ያለ ምንም የክፍያ ተመላሽ ወዲያውኑ ከምዝገባ እንዲሰረዙ ያደርጋል።"
+          title: "6. የትምህርት ክፍያ፣ ውሎች እና ምዝገባ ስረዛ",
+          content: "የክፍያ ውሎች፡\nየወር ክፍያ በየወሩ አስቀድሞ ይከፈላል። ክፍያ በየወሩ ከ1ኛው ቀን በፊት መከፈል አለበት። ከ5ኛው ቀን በኋላ የ10% ቅጣት ይታሰባል።\n\nምዝገባ የመሰረዝ ፖሊሲ፡\nልጅዎን ለማስወጣት የ30 ቀናት የጽሁፍ ቅድመ ማስጠንቀቂያ መስጠት አለብዎት። ይህ ካልሆነ የያዙት የዋስትና ክፍያ አይመለስም።"
+        },
+        {
+          title: "7. መገናኛ፣ ሶፍትዌር እና የወላጅ ፖርታል",
+          content: "የወላጅ ፖርታል አገልግሎቶች፡\nወላጆች በየቀኑ የምግብ፣ የእንቅልፍ፣ የትምህርት እና የፎቶ ዝመናዎችን በኪድቶፒያ የዌብ ፖርታል ይከታተላሉ። የQR ኮድ መውጫ በስልክዎ ይሰራል።"
+        },
+        {
+          title: "8. የባህሪ መመሪያ እና አወንታዊ ስነ-ምግባር",
+          content: "የእኛ የስነ-ምግባር አቀራረብ በአወንታዊ ማበረታቻ፣ ንቁ አቅጣጫ ማስያዝ እና ስሜትን በመረዳት ላይ የተመሰረተ ነው። አካላዊ ቅጣት ወይም ማግለል በጥብቅ የተከለከለ ነው።"
+        },
+        {
+          title: "9. የአደጋ ጊዜ ሂደቶች እና የህክምና ፈቃድ",
+          content: "በእያንዳንዱ ክፍል ውስጥ የመጀመሪያ እርዳታ መስጫዎች አሉ፤ ሰራተኞቻችን በህፃናት የመጀመሪያ እርዳታ የሰለጠኑ ናቸው። በድንገተኛ የህክምና ሁኔታ ወላጆች ካልተገኙ ኪድቶፒያ አስፈላጊውን የህክምና እርዳታ እንዲያገኝ ፈቃድ ይሰጣሉ።"
+        },
+        {
+          title: "10. የወላጅ የስነ-ምግባር ደንብ እና ስምምነት",
+          content: "ወላጆች ከመምህራን እና ሰራተኞች ጋር በአክብሮት መነጋገር አለባቸው። ተሳዳቢ ወይም አሰናካይ ባህሪያት ያለ ምንም የክፍያ ተመላሽ ከምዝገባ እንዲሰረዙ ያደርጋል። ልጅዎን በማስመዝገብ፣ በዚህ የወላጆች መመሪያ የ2026/2027 ትምህርት ዘመን ውስጥ የተካተቱትን ሁሉንም ደንቦች ለማከበር ይስማማሉ።"
         }
       ],
       menuDays: [
