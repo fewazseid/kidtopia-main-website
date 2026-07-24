@@ -22,7 +22,7 @@ import { LoginPage } from './pages/LoginPage';
 import { EnrollPage } from './pages/EnrollPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { ContentProvider } from './ContentContext';
+import { ContentProvider, useLanguageConfig } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
 import { InstallAppModal } from './components/InstallAppModal';
 import { useLocation } from 'react-router-dom';
@@ -206,13 +206,33 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
   );
 };
 
-export default function App() {
-  const [lang, setLang] = useState<Language>('en');
+const MainApp = () => {
+  const { languageConfig } = useLanguageConfig();
+  const [lang, setLang] = useState<Language>(() => {
+    const saved = localStorage.getItem('kidtopia_lang') as Language | null;
+    return saved === 'am' || saved === 'en' ? saved : 'en';
+  });
 
-  // Simple analytics tracking
+  // Sync lang when languageConfig loads or changes (e.g. default changed or language deactivated)
   useEffect(() => {
-    console.log('Page visit tracked');
-  }, []);
+    const saved = localStorage.getItem('kidtopia_lang') as Language | null;
+    let target = saved || languageConfig.defaultLanguage;
+
+    if (target === 'en' && !languageConfig.isEnActive) {
+      target = 'am';
+    } else if (target === 'am' && !languageConfig.isAmActive) {
+      target = 'en';
+    }
+
+    setLang(target);
+  }, [languageConfig.defaultLanguage, languageConfig.isEnActive, languageConfig.isAmActive]);
+
+  const handleSetLang = (newLang: Language) => {
+    if (newLang === 'en' && !languageConfig.isEnActive) return;
+    if (newLang === 'am' && !languageConfig.isAmActive) return;
+    setLang(newLang);
+    localStorage.setItem('kidtopia_lang', newLang);
+  };
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -222,10 +242,16 @@ export default function App() {
   };
 
   return (
+    <Router>
+      <AppContent lang={lang} setLang={handleSetLang} scrollToSection={scrollToSection} />
+    </Router>
+  );
+};
+
+export default function App() {
+  return (
     <ContentProvider>
-      <Router>
-        <AppContent lang={lang} setLang={setLang} scrollToSection={scrollToSection} />
-      </Router>
+      <MainApp />
     </ContentProvider>
   );
 }

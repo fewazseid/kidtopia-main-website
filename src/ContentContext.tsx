@@ -4,16 +4,30 @@ import { db } from './firebase';
 import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
 
+export type LanguageConfig = {
+  defaultLanguage: 'en' | 'am';
+  isEnActive: boolean;
+  isAmActive: boolean;
+};
+
 type ContentContextType = {
   content: any;
   loading: boolean;
   refresh: () => Promise<void>;
+  languageConfig: LanguageConfig;
+  updateLanguageConfig: (config: LanguageConfig) => Promise<void>;
 };
 
 export const ContentContext = createContext<ContentContextType>({
   content: defaultTranslations,
   loading: true,
   refresh: async () => {},
+  languageConfig: {
+    defaultLanguage: 'en',
+    isEnActive: true,
+    isAmActive: true,
+  },
+  updateLanguageConfig: async () => {},
 });
 
 // Robust deep merge to ensure partial edits in Firestore do not destroy nested translations structures
@@ -22,6 +36,16 @@ function deepMerge(target: any, source: any): any {
 
   if (Array.isArray(source)) {
     if (!Array.isArray(target)) return source;
+    // If target array is longer than source array (e.g. new default items added in code), preserve target items
+    if (target.length > source.length) {
+      return target.map((targetItem, idx) => {
+        const sourceItem = source[idx];
+        if (sourceItem && typeof sourceItem === 'object' && targetItem && typeof targetItem === 'object') {
+          return deepMerge(targetItem, sourceItem);
+        }
+        return sourceItem !== undefined && sourceItem !== null ? sourceItem : targetItem;
+      });
+    }
     return source.map((item, idx) => {
       const defaultTarget = target[idx] || target[0];
       if (item && typeof item === 'object' && defaultTarget && typeof defaultTarget === 'object') {
@@ -218,6 +242,38 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }));
   const [loading, setLoading] = useState(true);
 
+  const [languageConfig, setLanguageConfig] = useState<LanguageConfig>({
+    defaultLanguage: 'en',
+    isEnActive: true,
+    isAmActive: true,
+  });
+
+  useEffect(() => {
+    const unsubLang = onSnapshot(doc(db, 'settings', 'language_config'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setLanguageConfig({
+          defaultLanguage: data.defaultLanguage === 'am' ? 'am' : 'en',
+          isEnActive: data.isEnActive !== false,
+          isAmActive: data.isAmActive !== false,
+        });
+      }
+    }, (err) => {
+      console.warn("Firestore language config snapshot warning:", err);
+    });
+
+    return () => unsubLang();
+  }, []);
+
+  const updateLanguageConfig = async (newConfig: LanguageConfig) => {
+    setLanguageConfig(newConfig);
+    try {
+      await setDoc(doc(db, 'settings', 'language_config'), newConfig);
+    } catch (err) {
+      console.error("Failed to update language config in Firestore:", err);
+    }
+  };
+
   useEffect(() => {
     let enLoaded = false;
     let amLoaded = false;
@@ -230,8 +286,17 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const unsubEn = onSnapshot(doc(db, 'content', 'en'), (snapshot) => {
       if (snapshot.exists()) {
+        const snapData = snapshot.data();
+        const policies = snapData?.resources?.policiesAndRegulations;
+        const chapters = snapData?.resources?.handbookChapters;
+        if (!policies || policies.length < 10 || !chapters || chapters.length < 11) {
+          setDoc(doc(db, 'content', 'en'), {
+            ...snapData,
+            resources: defaultTranslations.en.resources
+          }, { merge: true }).catch(() => {});
+        }
         setContent((prev: any) => {
-          const enData = cleanResources(deepMerge(defaultTranslations.en, snapshot.data()));
+          const enData = cleanResources(deepMerge(defaultTranslations.en, snapData));
           const amData = alignStructures(enData, prev.am);
           return { en: enData, am: amData };
         });
@@ -255,8 +320,17 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const unsubAm = onSnapshot(doc(db, 'content', 'am'), (snapshot) => {
       if (snapshot.exists()) {
+        const snapData = snapshot.data();
+        const policies = snapData?.resources?.policiesAndRegulations;
+        const chapters = snapData?.resources?.handbookChapters;
+        if (!policies || policies.length < 10 || !chapters || chapters.length < 11) {
+          setDoc(doc(db, 'content', 'am'), {
+            ...snapData,
+            resources: defaultTranslations.am.resources
+          }, { merge: true }).catch(() => {});
+        }
         setContent((prev: any) => {
-          const amRaw = cleanResources(deepMergeAmharic(defaultTranslations.am, snapshot.data(), defaultTranslations.en));
+          const amRaw = cleanResources(deepMergeAmharic(defaultTranslations.am, snapData, defaultTranslations.en));
           const amData = alignStructures(prev.en, amRaw);
           return { en: prev.en, am: amData };
         });
@@ -296,7 +370,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   ];
 
    return (
-    <ContentContext.Provider value={{ content, loading, refresh: async () => {} }}>
+    <ContentContext.Provider value={{ content, loading, refresh: async () => {}, languageConfig, updateLanguageConfig }}>
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
@@ -392,4 +466,9 @@ export const useContent = (lang: Language) => {
 export const useContentRefresh = () => {
   const { refresh } = useContext(ContentContext);
   return refresh;
+};
+
+export const useLanguageConfig = () => {
+  const { languageConfig, updateLanguageConfig } = useContext(ContentContext);
+  return { languageConfig, updateLanguageConfig };
 };

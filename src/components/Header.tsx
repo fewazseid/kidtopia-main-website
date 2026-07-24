@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Download, Smartphone } from 'lucide-react';
 import { Language } from '../translations';
-import { useContent } from '../ContentContext';
+import { useContent, useLanguageConfig } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface HeaderProps {
@@ -17,6 +17,8 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAppInstalled, setIsAppInstalled] = useState(false);
   const t = useContent(lang).nav;
+  const { languageConfig } = useLanguageConfig();
+  const { isEnActive, isAmActive } = languageConfig;
 
   const location = useLocation();
 
@@ -185,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
             })}
           </nav>
 
-          {/* Right Actions */}
+          {/* Right Actions (Desktop) */}
           <div className="hidden lg:flex items-center gap-2.5 xl:gap-3.5">
             {onOpenInstallModal && (
               <button
@@ -199,14 +201,38 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
               </button>
             )}
 
-            <button 
-              onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
-              className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-white/40 backdrop-blur-sm border border-white/60 transition-all px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-2"
-              style={{ color: t.textColor || '#44403c' }}
-            >
-              <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
-              <span>{lang === 'en' ? 'አማርኛ' : 'English'}</span>
-            </button>
+            {/* Language Switcher Pill (EN | AM) */}
+            <div className="flex items-center p-0.5 rounded-xl bg-white/50 backdrop-blur-md border border-white/70 shadow-sm">
+              {isEnActive && (
+                <button
+                  type="button"
+                  onClick={() => setLang('en')}
+                  className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                    lang === 'en'
+                      ? 'bg-brand-green text-white shadow-sm scale-105'
+                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                  }`}
+                  title="English"
+                >
+                  EN
+                </button>
+              )}
+              {isAmActive && (
+                <button
+                  type="button"
+                  onClick={() => setLang('am')}
+                  className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                    lang === 'am'
+                      ? 'bg-brand-green text-white shadow-sm scale-105'
+                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                  }`}
+                  title="አማርኛ"
+                >
+                  AM
+                </button>
+              )}
+            </div>
+
             <Link 
               to="/login" 
               className="text-white font-bold font-display rounded-full px-4 xl:px-6 py-1.5 xl:py-2.5 text-[10px] xl:text-[11px] shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
@@ -216,14 +242,49 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button 
-            className="lg:hidden p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors" 
-            style={{ color: t.textColor || '#44403c' }}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {/* Mobile Header Right Bar Controls (Visible without expanding mobile menu!) */}
+          <div className="lg:hidden flex items-center gap-2">
+            {/* Language Switcher Pill (EN | AM) */}
+            <div className="flex items-center p-0.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
+              {isEnActive && (
+                <button
+                  type="button"
+                  onClick={() => setLang('en')}
+                  className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                    lang === 'en'
+                      ? 'bg-brand-green text-white shadow-sm scale-105'
+                      : 'text-stone-700 opacity-75 hover:opacity-100'
+                  }`}
+                  title="English"
+                >
+                  EN
+                </button>
+              )}
+              {isAmActive && (
+                <button
+                  type="button"
+                  onClick={() => setLang('am')}
+                  className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                    lang === 'am'
+                      ? 'bg-brand-green text-white shadow-sm scale-105'
+                      : 'text-stone-700 opacity-75 hover:opacity-100'
+                  }`}
+                  title="አማርኛ"
+                >
+                  AM
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Menu Toggle Button */}
+            <button 
+              className="p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors cursor-pointer" 
+              style={{ color: t.textColor || '#44403c' }}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -256,16 +317,6 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                         <span>{lang === 'en' ? 'Install App' : 'አፕ አውርድ'}</span>
                       </button>
                     )}
-                    <button 
-                      onClick={() => {
-                        setLang(lang === 'en' ? 'am' : 'en');
-                        setIsMenuOpen(false);
-                      }}
-                      className="text-xs font-black tracking-wider uppercase px-4 py-2 rounded-xl cursor-pointer"
-                      style={{ color: t.activeColor || '#3a5b32', backgroundColor: `${t.activeColor || '#3a5b32'}15`, border: `1px solid ${t.activeColor || '#3a5b32'}25` }}
-                    >
-                      {lang === 'en' ? 'አማርኛ' : 'English'}
-                    </button>
                   </div>
                 </div>
                 <Link to="/login" className="w-full text-center text-white font-bold font-display rounded-full px-6 py-2.5 text-sm shadow-[0_4px_15px_rgba(58,91,50,0.2)]" style={{ backgroundColor: t.activeColor || '#3a5b32' }} onClick={() => setIsMenuOpen(false)}>

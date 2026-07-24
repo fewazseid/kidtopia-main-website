@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload, Globe, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useContentRefresh, ContentContext } from '../ContentContext';
+import { useContentRefresh, ContentContext, useLanguageConfig } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
 
 // Live Preview Components
@@ -271,6 +271,14 @@ export const SoftwareScreenshotsManager: React.FC<SoftwareScreenshotsManagerProp
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const refreshContent = useContentRefresh();
+  const { languageConfig, updateLanguageConfig } = useLanguageConfig();
+  const [localLangConfig, setLocalLangConfig] = useState(languageConfig);
+  const [savingLangConfig, setSavingLangConfig] = useState(false);
+
+  useEffect(() => {
+    setLocalLangConfig(languageConfig);
+  }, [languageConfig]);
+
   const [content, setContent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1407,6 +1415,7 @@ export const AdminDashboard: React.FC = () => {
   }
 
   const sections = [
+    { id: 'languages', icon: <Globe size={18} />, label: 'Language Settings' },
     { id: 'bookings', icon: <Megaphone size={18} />, label: 'Tour Bookings' },
     { id: 'newsletter', icon: <Mail size={18} />, label: 'Newsletter' },
     { id: 'emailTemplates', icon: <Megaphone size={18} />, label: 'Email Templates' },
@@ -2370,10 +2379,10 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-stone-100">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-stone-900 capitalize">
-                {activeSection === 'bookings' ? 'Tour Bookings' : activeSection === 'newsletter' ? 'Newsletter subscribers' : activeSection === 'emailTemplates' ? 'Email Templates' : activeSection === 'users' ? 'User Management' : activeSection === 'security' ? 'Security Settings' : `${activeSection} Content`} ({activeLang.toUpperCase()})
+                {activeSection === 'languages' ? 'Language Settings' : activeSection === 'bookings' ? 'Tour Bookings' : activeSection === 'newsletter' ? 'Newsletter subscribers' : activeSection === 'emailTemplates' ? 'Email Templates' : activeSection === 'users' ? 'User Management' : activeSection === 'security' ? 'Security Settings' : `${activeSection} Content`} ({activeLang.toUpperCase()})
               </h1>
               <p className="text-xs text-stone-500 mt-1">
-                {activeSection === 'bookings' ? 'Review and manage incoming tour requests.' : activeSection === 'newsletter' ? 'Manage email subscriber lists and send newsletter announcements.' : activeSection === 'users' ? 'Manage system roles and bio logins.' : 'Customize wording and live-preview changes in real-time.'}
+                {activeSection === 'languages' ? 'Configure default site language and active language toggles in header.' : activeSection === 'bookings' ? 'Review and manage incoming tour requests.' : activeSection === 'newsletter' ? 'Manage email subscriber lists and send newsletter announcements.' : activeSection === 'users' ? 'Manage system roles and bio logins.' : 'Customize wording and live-preview changes in real-time.'}
               </p>
             </div>
             
@@ -2400,7 +2409,170 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-4 md:p-8">
-            {activeSection === 'users' ? (
+            {activeSection === 'languages' ? (
+              <div className="space-y-8 animate-fadeIn">
+                <div>
+                  <h2 className="text-xl font-bold text-stone-900 mb-2 flex items-center gap-2">
+                    <Globe className="text-brand-green" size={24} />
+                    Language Configuration
+                  </h2>
+                  <p className="text-sm text-stone-500 mb-6">
+                    Select the default language for website visitors and manage active language options in the top navigation bar.
+                  </p>
+
+                  <div className="space-y-6 max-w-xl">
+                    {/* Default Language Selector */}
+                    <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                      <label className="block text-sm font-bold text-stone-800 uppercase tracking-wider mb-2">
+                        Default Site Language
+                      </label>
+                      <p className="text-xs text-stone-500 mb-4">
+                        This language will be loaded automatically when a parent or visitor opens the website.
+                      </p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setLocalLangConfig({ ...localLangConfig, defaultLanguage: 'en' })}
+                          className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-between transition-all cursor-pointer ${
+                            localLangConfig.defaultLanguage === 'en'
+                              ? 'bg-brand-green/10 border-brand-green text-brand-green shadow-sm'
+                              : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-100'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-brand-green/20 text-brand-green font-black text-xs">EN</span>
+                            <span>English</span>
+                          </div>
+                          {localLangConfig.defaultLanguage === 'en' && <Check size={18} className="text-brand-green" />}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setLocalLangConfig({ ...localLangConfig, defaultLanguage: 'am' })}
+                          className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-between transition-all cursor-pointer ${
+                            localLangConfig.defaultLanguage === 'am'
+                              ? 'bg-brand-green/10 border-brand-green text-brand-green shadow-sm'
+                              : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-100'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-brand-green/20 text-brand-green font-black text-xs">AM</span>
+                            <span>አማርኛ (Amharic)</span>
+                          </div>
+                          {localLangConfig.defaultLanguage === 'am' && <Check size={18} className="text-brand-green" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Temporarily Deactivate Languages */}
+                    <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 space-y-4">
+                      <div>
+                        <label className="block text-sm font-bold text-stone-800 uppercase tracking-wider mb-1">
+                          Active Header Navigation Languages
+                        </label>
+                        <p className="text-xs text-stone-500">
+                          Toggle to show or temporarily deactivate specific languages in the header bar.
+                        </p>
+                      </div>
+
+                      <div className="space-y-3 pt-2">
+                        {/* English Active Toggle */}
+                        <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-stone-200">
+                          <div className="flex items-center gap-3">
+                            <span className="px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 font-black text-xs">EN</span>
+                            <div>
+                              <span className="font-bold text-stone-800 text-sm block">English Language</span>
+                              <span className="text-xs text-stone-500">Show 'EN' option in header navigation bar</span>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={localLangConfig.isEnActive}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                if (!checked && !localLangConfig.isAmActive) {
+                                  setFeedback({ type: 'error', message: 'At least one language must remain active!' });
+                                  return;
+                                }
+                                setLocalLangConfig({
+                                  ...localLangConfig,
+                                  isEnActive: checked,
+                                  defaultLanguage: (!checked && localLangConfig.defaultLanguage === 'en') ? 'am' : localLangConfig.defaultLanguage
+                                });
+                              }}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green"></div>
+                          </label>
+                        </div>
+
+                        {/* Amharic Active Toggle */}
+                        <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-stone-200">
+                          <div className="flex items-center gap-3">
+                            <span className="px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 font-black text-xs">AM</span>
+                            <div>
+                              <span className="font-bold text-stone-800 text-sm block">አማርኛ (Amharic Language)</span>
+                              <span className="text-xs text-stone-500">Show 'AM' option in header navigation bar</span>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={localLangConfig.isAmActive}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                if (!checked && !localLangConfig.isEnActive) {
+                                  setFeedback({ type: 'error', message: 'At least one language must remain active!' });
+                                  return;
+                                }
+                                setLocalLangConfig({
+                                  ...localLangConfig,
+                                  isAmActive: checked,
+                                  defaultLanguage: (!checked && localLangConfig.defaultLanguage === 'am') ? 'en' : localLangConfig.defaultLanguage
+                                });
+                              }}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setSavingLangConfig(true);
+                        try {
+                          await updateLanguageConfig(localLangConfig);
+                          setFeedback({ type: 'success', message: 'Language settings updated and published successfully!' });
+                        } catch (err) {
+                          setFeedback({ type: 'error', message: 'Failed to update language settings.' });
+                        } finally {
+                          setSavingLangConfig(false);
+                        }
+                      }}
+                      disabled={savingLangConfig}
+                      className="w-full bg-brand-green hover:bg-brand-green/90 text-white rounded-xl py-3.5 font-bold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                    >
+                      {savingLangConfig ? (
+                        <>
+                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                          Saving Settings...
+                        </>
+                      ) : (
+                        <>
+                          <Save size={18} />
+                          Save Language Settings
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : activeSection === 'users' ? (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-6">
                   <div>
@@ -3058,7 +3230,7 @@ export const AdminDashboard: React.FC = () => {
                     {/* Inner scaled viewport via real Iframe for accurate viewport media queries */}
                     <div className="w-full h-full text-left min-h-[500px]">
                       <IframePreview>
-                        <ContentContext.Provider value={{ content, loading: false, refresh: async () => {} }}>
+                        <ContentContext.Provider value={{ content, loading: false, refresh: async () => {}, languageConfig, updateLanguageConfig }}>
                           {renderPreviewComponent()}
                         </ContentContext.Provider>
                       </IframePreview>
