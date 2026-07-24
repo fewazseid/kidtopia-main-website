@@ -67,34 +67,54 @@ export function startReminderJob() {
           }
           
           if (recipientEmails.length > 0) {
-            const subject = `Reminder: Pending Booking for ${b.name}`;
+            const { doc, getDoc } = await import('firebase/firestore');
+            const { db } = await import('../firebase.ts');
+            let adminReminderTemplate: any = null;
+            try {
+              const contentDoc = await getDoc(doc(db, 'content', 'en'));
+              if (contentDoc.exists()) {
+                adminReminderTemplate = contentDoc.data()?.emailTemplates?.adminReminder;
+              }
+            } catch (err) {
+              console.error('Failed to load content doc for email template in reminder job:', err);
+            }
+
+            const dayName = b.date ? new Date(b.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+            const rawSubject = adminReminderTemplate?.subject || `Reminder: Pending Tour Booking for {name}`;
+            const rawBody = adminReminderTemplate?.body || `Action Required: Pending Tour Booking\n\nThe following tour booking request has been pending for over {hours} hours and requires review in the admin dashboard.\n\nParent Name: {name}\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nPlease log in to your admin panel to approve or reject this tour request.`;
+
+            const replaceTags = (str: string) => {
+              if (!str) return '';
+              return str
+                .replace(/\{name\}|\[Parent Name\]|\[Name\]/gi, b.name || '')
+                .replace(/\{date\}|\[Date\]/gi, b.date || '')
+                .replace(/\{time\}|\[Time\]/gi, b.time || '')
+                .replace(/\{dayName\}|\[Day\]/gi, dayName)
+                .replace(/\{branch\}|\[Branch\]/gi, b.branch || 'Main Branch')
+                .replace(/\{email\}|\[Parent Email\]|\[Email\]/gi, b.email || '')
+                .replace(/\{phone\}|\[Parent Phone\]|\[Phone\]/gi, b.phone || '')
+                .replace(/\{hours\}|\[Hours\]/gi, String(reminderHours));
+            };
+
+            const subject = replaceTags(rawSubject);
+            const bodyText = replaceTags(rawBody);
+
+            const paragraphs = bodyText
+              .split('\n')
+              .map(p => p.trim())
+              .filter(p => p !== '')
+              .map(p => `<p style="margin: 0 0 14px 0; font-size: 15px; line-height: 1.6; color: #44403c;">${p}</p>`)
+              .join('');
+
             const html = `
-              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #fafaf9;">
+              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e7e5e4; border-radius: 16px; background-color: #fafaf9;">
                 <div style="text-align: center; margin-bottom: 24px;">
-                  <h1 style="color: #3a5b32; margin: 0; font-size: 24px; font-weight: 800;">KIDTOPIA</h1>
+                  <h1 style="color: #3a5b32; margin: 0; font-size: 24px; font-weight: 800; font-family: sans-serif;">KIDTOPIA</h1>
                   <p style="color: #6b7280; margin: 4px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px;">International Daycare & Preschool</p>
                 </div>
-                <h2 style="color: #1c1917; font-size: 18px; border-bottom: 1px solid #e7e5e4; padding-bottom: 12px; margin-top: 0;">Action Required: Pending Tour Booking</h2>
-                <p style="color: #44403c; font-size: 14px; line-height: 1.6;">The following tour booking has been pending for over ${reminderHours} hours and requires review:</p>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 16px; margin-bottom: 24px;">
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; color: #44403c; width: 120px; font-size: 14px;">Name:</td>
-                    <td style="padding: 6px 0; color: #1c1917; font-size: 14px;">${b.name}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; color: #44403c; font-size: 14px;">Campus Branch:</td>
-                    <td style="padding: 6px 0; color: #1c1917; font-size: 14px;">${b.branch || 'Main Branch'}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; color: #44403c; font-size: 14px;">Requested Date:</td>
-                    <td style="padding: 6px 0; color: #1c1917; font-size: 14px;">${b.date}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; color: #44403c; font-size: 14px;">Requested Time:</td>
-                    <td style="padding: 6px 0; color: #1c1917; font-size: 14px;">${b.time}</td>
-                  </tr>
-                </table>
-                <p style="color: #44403c; font-size: 14px; line-height: 1.6;">Please log in to the admin dashboard to approve or decline this request.</p>
+                <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e7e5e4;">
+                  ${paragraphs}
+                </div>
                 <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
                 <p style="font-size: 11px; color: #78716c; text-align: center; margin: 0;">This reminder request was automatically sent by the Kidtopia scheduler system.</p>
               </div>

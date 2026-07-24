@@ -122,20 +122,17 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
             ? 'የጉብኝት ጥያቄው ደርሶናል\n\nውድ {name}፣\n\nበኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት የአካል ጉብኝት ለማድረግ ቀጠሮ ስላስያዙ እናመሰግናለን! የእኛን ካምፓስ ለእርስዎ ለማሳየት በጉጉት እንጠብቃለን።\n\nየቀጠሮዎ ዝርዝር እንደሚከተለው ነው፡\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nየምዝገባ ቡድናችን ጥያቄዎን በቅርቡ ገምግሞ ጉብኝትዎ ሲረጋገጥ የኢሜል መልዕክት ይልክልዎታል።\n\nጉብኝቱ ከመረጋገጡ በፊት የቀጠሮ ሰዓትዎን መቀየር ከፈለጉ ከታች ያለውን ቁልፍ ይጫኑ፡'
             : 'Kidtopia Tour Received\n\nDear {name},\n\nThank you for booking a physical tour at Kidtopia International Daycare and Preschool! We are excited to show you our campus.\n\nHere are your request details:\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nOur admissions team will review your request shortly and send you an email once your tour is confirmed.\n\nIf you need to change your requested time before it is finalized, click the button below:');
 
-        // Parse and replace both curly braces and standard bracket placeholders
+        // Parse and replace curly braces, standard brackets, and custom placeholders
         const replacePlaceholders = (text: string) => {
           if (!text) return '';
           return text
-            .replace(/\{name\}/g, formData.name || '')
-            .replace(/\[Parent Name\]/g, formData.name || '')
-            .replace(/\{date\}/g, selectedDate || '')
-            .replace(/\[Date\]/g, selectedDate || '')
-            .replace(/\{time\}/g, selectedTime || '')
-            .replace(/\[Time\]/g, selectedTime || '')
-            .replace(/\{dayName\}/g, dayName)
-            .replace(/\[Day\]/g, dayName)
-            .replace(/\{branch\}/g, selectedBranchName)
-            .replace(/\[Branch\]/g, selectedBranchName);
+            .replace(/\{name\}|\[Parent Name\]|\[Name\]/gi, formData.name || '')
+            .replace(/\{date\}|\[Date\]/gi, selectedDate || '')
+            .replace(/\{time\}|\[Time\]/gi, selectedTime || '')
+            .replace(/\{dayName\}|\[Day\]/gi, dayName || '')
+            .replace(/\{branch\}|\[Branch\]/gi, selectedBranchName || '')
+            .replace(/\{email\}|\[Parent Email\]|\[Email\]/gi, formData.email || '')
+            .replace(/\{phone\}|\[Parent Phone\]|\[Phone\]/gi, formData.phone || '');
         };
 
         const parentSubject = replacePlaceholders(templateSubject);
@@ -212,31 +209,36 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
         getAdminConfig().then((config) => {
           const opsEmail = config.operationsEmail;
           if (opsEmail) {
+            const adminSubjectTemplate = content.emailTemplates?.adminPendingAlert?.subject || 'Alert: New Pending Tour Booking Request';
+            const adminBodyTemplate = content.emailTemplates?.adminPendingAlert?.body || 'New Pending Tour Request\n\nA new physical tour booking request has been submitted and is pending review in the admin dashboard.\n\nParent Name: {name}\nParent Email: {email}\nParent Phone: {phone}\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nPlease log in to your admin panel to approve or reject this tour request.';
+            
+            const adminSubject = replacePlaceholders(adminSubjectTemplate);
+            const adminBody = replacePlaceholders(adminBodyTemplate);
+
+            const adminBodyParagraphs = adminBody
+              .split('\n')
+              .map(p => p.trim())
+              .filter(p => p !== '')
+              .map(p => `<p style="margin: 0 0 14px 0; font-size: 15px; line-height: 1.6; color: #44403c;">${p}</p>`)
+              .join('');
+
             const adminEmailHtml = `
               <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
                 <div style="text-align: center; margin-bottom: 24px;">
-                  <span style="font-size: 14px; font-weight: bold; color: #f59e0b; text-transform: uppercase;">Notification Alert</span>
-                  <h2 style="color: #f59e0b; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">New Pending Tour Booking</h2>
-                </div>
-                <p style="font-size: 15px; color: #44403c; line-height: 1.6;">A new physical tour booking request has been submitted and is pending review in the admin dashboard.</p>
-                
-                <div style="background-color: #f5f5f4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #f59e0b; font-size: 14px; color: #44403c; line-height: 1.6;">
-                  <p style="margin: 0 0 8px 0;"><strong>Parent Name:</strong> ${formData.name}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>Parent Email:</strong> ${formData.email}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>Parent Phone:</strong> ${formData.phone}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>Campus Location:</strong> ${selectedBranchName}</p>
-                  <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${dayName}, ${selectedDate}</p>
-                  <p style="margin: 0;"><strong>Time:</strong> ${selectedTime}</p>
+                  <span style="font-size: 14px; font-weight: bold; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px;">Admin Notification</span>
+                  <h2 style="color: #f59e0b; margin: 10px 0 0 0; font-family: sans-serif; font-weight: 800;">${adminSubject}</h2>
                 </div>
                 
-                <p style="font-size: 15px; color: #44403c; line-height: 1.6;">Please log in to your admin panel to approve or reject this tour request.</p>
+                <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e7e5e4;">
+                  ${adminBodyParagraphs}
+                </div>
                 
                 <div style="text-align: center; margin: 24px 0;">
                   <a href="${window.location.origin}/admin" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Go to Admin Dashboard</a>
                 </div>
               </div>
             `;
-            sendEmail(opsEmail, 'Alert: New Pending Tour Booking Request', adminEmailHtml).catch(console.error);
+            sendEmail(opsEmail, adminSubject, adminEmailHtml).catch(console.error);
           }
         }).catch(console.error);
 

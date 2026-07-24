@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getBooking, getTourSchedule, updateBookingTime, cancelBooking } from '../firebase';
+import { getBooking, getTourSchedule, updateBookingTime, cancelBooking, sendEmail, getAdminConfig } from '../firebase';
 import { Calendar, Clock, CheckCircle, ArrowLeft, MapPin } from 'lucide-react';
 
 import { Language } from '../translations';
@@ -70,6 +70,19 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
     fetchData();
   }, [id]);
 
+  const replacePlaceholders = (template: string, data: any) => {
+    if (!template) return '';
+    const dayName = data.date ? new Date(data.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+    return template
+      .replace(/\{name\}|\[Parent Name\]|\[Name\]/gi, data.name || '')
+      .replace(/\{date\}|\[Date\]/gi, data.date || '')
+      .replace(/\{time\}|\[Time\]/gi, data.time || '')
+      .replace(/\{dayName\}|\[Day\]/gi, dayName)
+      .replace(/\{branch\}|\[Branch\]/gi, data.branch || '')
+      .replace(/\{email\}|\[Parent Email\]|\[Email\]/gi, data.email || '')
+      .replace(/\{phone\}|\[Parent Phone\]|\[Phone\]/gi, data.phone || '');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || !selectedDate || !selectedTime) return;
@@ -78,6 +91,78 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
     try {
       await updateBookingTime(id, selectedDate, selectedTime, selectedBranch);
       setSuccess(true);
+
+      // Send Reschedule Emails
+      if (booking?.email) {
+        const isAmharic = lang === 'am';
+        const parentRescheduleSubject = content.emailTemplates?.reschedule?.subject || (isAmharic ? 'የጉብኝት ቀጠሮ ተቀይሯል' : 'Tour Booking Rescheduled');
+        const parentRescheduleBody = content.emailTemplates?.reschedule?.body || (isAmharic
+          ? 'የጉብኝት ቀጠሮዎ በተሳካ ሁኔታ ተቀይሯል\n\nውድ {name}፣\n\nየአካል ጉብኝት ቀጠሮዎ ተዘምኗል።\n\nየካምፓስ አድራሻ: {branch}\nአዲስ ቀን: {dayName}, {date}\nአዲስ ሰዓት: {time}'
+          : 'Tour Rescheduled Successfully\n\nDear {name},\n\nYour physical tour booking has been updated.\n\nCampus Location: {branch}\nNew Date: {dayName}, {date}\nNew Time: {time}');
+
+        const bData = {
+          ...booking,
+          date: selectedDate,
+          time: selectedTime,
+          branch: selectedBranch || booking.branch
+        };
+
+        const parentSubject = replacePlaceholders(parentRescheduleSubject, bData);
+        const parentBody = replacePlaceholders(parentRescheduleBody, bData);
+
+        const parentParagraphs = parentBody
+          .split('\n')
+          .map(p => p.trim())
+          .filter(p => p !== '')
+          .map(p => `<p style="margin: 0 0 14px 0; font-size: 15px; line-height: 1.6; color: #44403c;">${p}</p>`)
+          .join('');
+
+        const parentEmailHtml = `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 14px; font-weight: bold; color: #10b981; text-transform: uppercase; letter-spacing: 1px;">Kidtopia Campus Tour</span>
+              <h2 style="color: #10b981; margin: 8px 0 0 0; font-family: sans-serif; font-weight: 800;">${parentSubject}</h2>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e7e5e4;">
+              ${parentParagraphs}
+            </div>
+          </div>
+        `;
+
+        sendEmail(booking.email, parentSubject, parentEmailHtml).catch(console.error);
+
+        // Admin Alert
+        getAdminConfig().then((config) => {
+          const opsEmail = config.operationsEmail;
+          if (opsEmail) {
+            const adminSubjectTemplate = content.emailTemplates?.adminRescheduleAlert?.subject || 'Alert: Tour Booking Rescheduled by Parent';
+            const adminBodyTemplate = content.emailTemplates?.adminRescheduleAlert?.body || 'Tour Rescheduled Alert\n\nA parent has updated their physical tour booking schedule.\n\nParent Name: {name}\nParent Email: {email}\nParent Phone: {phone}\nCampus Location: {branch}\nUpdated Date: {dayName}, {date}\nUpdated Time: {time}';
+
+            const adminSubject = replacePlaceholders(adminSubjectTemplate, bData);
+            const adminBody = replacePlaceholders(adminBodyTemplate, bData);
+
+            const adminParagraphs = adminBody
+              .split('\n')
+              .map(p => p.trim())
+              .filter(p => p !== '')
+              .map(p => `<p style="margin: 0 0 14px 0; font-size: 15px; line-height: 1.6; color: #44403c;">${p}</p>`)
+              .join('');
+
+            const adminEmailHtml = `
+              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                  <span style="font-size: 14px; font-weight: bold; color: #f59e0b; text-transform: uppercase;">Admin Alert</span>
+                  <h2 style="color: #f59e0b; margin: 8px 0 0 0; font-family: sans-serif; font-weight: 800;">${adminSubject}</h2>
+                </div>
+                <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e7e5e4;">
+                  ${adminParagraphs}
+                </div>
+              </div>
+            `;
+            sendEmail(opsEmail, adminSubject, adminEmailHtml).catch(console.error);
+          }
+        }).catch(console.error);
+      }
     } catch (err) {
       console.error(err);
       setError(t.failedToUpdate);
@@ -98,6 +183,71 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
     try {
       await cancelBooking(id);
       setIsCancelled(true);
+
+      // Send Cancellation Emails
+      if (booking?.email) {
+        const isAmharic = lang === 'am';
+        const parentCancelSubject = content.emailTemplates?.cancellation?.subject || (isAmharic ? 'የጉብኝት ቀጠሮ ተሰርዟል' : 'Tour Booking Cancelled');
+        const parentCancelBody = content.emailTemplates?.cancellation?.body || (isAmharic
+          ? 'የጉብኝት ቀጠሮ መሬዝ\n\nውድ {name}፣\n\nበ{date} በ{time} የነበረዎት የአካል ጉብኝት ጥያቄ በጠየቁት መሠረት ተሰርዟል።'
+          : 'Tour Booking Cancelled\n\nDear {name},\n\nYour physical tour request for {date} at {time} has been cancelled as requested.');
+
+        const parentSubject = replacePlaceholders(parentCancelSubject, booking);
+        const parentBody = replacePlaceholders(parentCancelBody, booking);
+
+        const parentParagraphs = parentBody
+          .split('\n')
+          .map(p => p.trim())
+          .filter(p => p !== '')
+          .map(p => `<p style="margin: 0 0 14px 0; font-size: 15px; line-height: 1.6; color: #44403c;">${p}</p>`)
+          .join('');
+
+        const parentEmailHtml = `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 14px; font-weight: bold; color: #ef4444; text-transform: uppercase;">Kidtopia Tour Update</span>
+              <h2 style="color: #ef4444; margin: 8px 0 0 0; font-family: sans-serif; font-weight: 800;">${parentSubject}</h2>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e7e5e4;">
+              ${parentParagraphs}
+            </div>
+          </div>
+        `;
+
+        sendEmail(booking.email, parentSubject, parentEmailHtml).catch(console.error);
+
+        // Admin Alert
+        getAdminConfig().then((config) => {
+          const opsEmail = config.operationsEmail;
+          if (opsEmail) {
+            const adminSubjectTemplate = content.emailTemplates?.adminCancellationAlert?.subject || 'Alert: Tour Booking Cancelled by Parent';
+            const adminBodyTemplate = content.emailTemplates?.adminCancellationAlert?.body || 'Tour Cancellation Alert\n\nA tour booking request has been cancelled by the parent.\n\nParent Name: {name}\nParent Email: {email}\nCampus Location: {branch}\nOriginal Date: {dayName}, {date}\nOriginal Time: {time}';
+
+            const adminSubject = replacePlaceholders(adminSubjectTemplate, booking);
+            const adminBody = replacePlaceholders(adminBodyTemplate, booking);
+
+            const adminParagraphs = adminBody
+              .split('\n')
+              .map(p => p.trim())
+              .filter(p => p !== '')
+              .map(p => `<p style="margin: 0 0 14px 0; font-size: 15px; line-height: 1.6; color: #44403c;">${p}</p>`)
+              .join('');
+
+            const adminEmailHtml = `
+              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 30px; background-color: #fafaf9; border-radius: 16px; border: 1px solid #e7e5e4; max-width: 600px; margin: 0 auto; text-align: left;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                  <span style="font-size: 14px; font-weight: bold; color: #ef4444; text-transform: uppercase;">Admin Alert</span>
+                  <h2 style="color: #ef4444; margin: 8px 0 0 0; font-family: sans-serif; font-weight: 800;">${adminSubject}</h2>
+                </div>
+                <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e7e5e4;">
+                  ${adminParagraphs}
+                </div>
+              </div>
+            `;
+            sendEmail(opsEmail, adminSubject, adminEmailHtml).catch(console.error);
+          }
+        }).catch(console.error);
+      }
     } catch (err) {
       console.error(err);
       setError(lang === 'en' ? "Failed to cancel booking." : "ቀጠሮውን መሰረዝ አልተቻለም።");

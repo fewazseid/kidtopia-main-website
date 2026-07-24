@@ -791,20 +791,87 @@ export const AdminDashboard: React.FC = () => {
           );
         }
 
-        // Add emailTemplates default
-        const defaultEmailTemplates = {
+        // Add complete emailTemplates default
+        const defaultEmailTemplatesEn = {
+          received: {
+            subject: 'Kidtopia Tour Booking Request Received',
+            body: 'Kidtopia Tour Request Received\n\nDear {name},\n\nThank you for booking a physical tour at Kidtopia International Daycare and Preschool! We are excited to show you our campus.\n\nHere are your request details:\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nOur admissions team will review your request shortly and send you an email once your tour is confirmed.\n\nIf you need to change your requested time before it is finalized, you can use the reschedule link provided.'
+          },
           approval: {
             subject: 'Kidtopia Tour Booking - Confirmed',
-            body: 'Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.'
+            body: 'Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.'
           },
           rejection: {
             subject: 'Tour Booking Update',
             body: 'Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.'
+          },
+          adminPendingAlert: {
+            subject: 'Alert: New Pending Tour Booking Request',
+            body: 'New Pending Tour Request\n\nA new physical tour booking request has been submitted and is pending review in the admin dashboard.\n\nParent Name: {name}\nParent Email: {email}\nParent Phone: {phone}\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nPlease log in to your admin panel to approve or reject this tour request.'
+          },
+          adminReminder: {
+            subject: 'Reminder: Pending Booking for {name}',
+            body: 'Action Required: Pending Tour Booking\n\nThe following tour booking has been pending and requires review:\n\nParent Name: {name}\nCampus Location: {branch}\nRequested Date: {date}\nRequested Time: {time}\n\nPlease log in to the admin dashboard to approve or decline this request.'
+          },
+          reschedule: {
+            subject: 'Tour Booking Rescheduled',
+            body: 'Tour Rescheduled Successfully\n\nDear {name},\n\nYour physical tour booking has been updated.\n\nCampus Location: {branch}\nNew Date: {dayName}, {date}\nNew Time: {time}\n\nOur team will review your updated schedule and notify you if any further changes are needed.'
+          },
+          adminRescheduleAlert: {
+            subject: 'Alert: Tour Booking Rescheduled by Parent',
+            body: 'Tour Rescheduled Alert\n\nA parent has updated their physical tour booking schedule.\n\nParent Name: {name}\nParent Email: {email}\nParent Phone: {phone}\nCampus Location: {branch}\nUpdated Date: {dayName}, {date}\nUpdated Time: {time}\n\nPlease check the admin dashboard for details.'
+          },
+          cancellation: {
+            subject: 'Tour Booking Cancelled',
+            body: 'Tour Booking Cancelled\n\nDear {name},\n\nYour physical tour request for {date} at {time} has been cancelled as requested.\n\nYou can book a new tour anytime through our website.'
+          },
+          adminCancellationAlert: {
+            subject: 'Alert: Tour Booking Cancelled by Parent',
+            body: 'Tour Cancellation Alert\n\nA tour booking request has been cancelled by the parent.\n\nParent Name: {name}\nParent Email: {email}\nCampus Location: {branch}\nOriginal Date: {dayName}, {date}\nOriginal Time: {time}'
           }
         };
 
-        if (!(enData as any).emailTemplates) (enData as any).emailTemplates = JSON.parse(JSON.stringify(defaultEmailTemplates));
-        if (!(amData as any).emailTemplates) (amData as any).emailTemplates = JSON.parse(JSON.stringify(defaultEmailTemplates));
+        const defaultEmailTemplatesAm = {
+          received: {
+            subject: 'የኪድቶፒያ የጉብኝት ቀጠሮ ጥያቄ ደርሶናል',
+            body: 'የጉብኝት ጥያቄው ደርሶናል\n\nውድ {name}፣\n\nበኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት የአካል ጉብኝት ለማድረግ ቀጠሮ ስላስያዙ እናመሰግናለን! የእኛን ካምፓስ ለእርስዎ ለማሳየት በጉጉት እንጠብቃለን።\n\nየቀጠሮዎ ዝርዝር እንደሚከተለው ነው፡\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nየምዝገባ ቡድናችን ጥያቄዎን በቅርቡ ገምግሞ ጉብኝትዎ ሲረጋገጥ የኢሜል መልዕክት ይልክልዎታል።'
+          },
+          approval: {
+            subject: 'የኪድቶፒያ የጉብኝት ቀጠሮ - ተረጋግጧል',
+            body: 'የጉብኝት ቀጠሮዎ ተረጋግጧል!\n\nሰላም {name}፣\n\nበኪድቶፒያ የሚያደርጉት ጉብኝት መረጋገጡን ስናበስርዎ በደስታ ነው!\n\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nእርስዎን ለማግኘት በጉጉት እንጠብቃለን! ማንኛውም ጥያቄ ካለዎት እባክዎን ያነጋግሩን።'
+          },
+          rejection: {
+            subject: 'የጉብኝት ቀጠሮ ዝመና',
+            body: 'የጉብኝት ቀጠሮ ዝመና\n\nሰላም {name}፣\n\nአዝናለን፣ በ{dayName}, {date} በ{time} ያቀረቡትን የአካል ጉብኝት ጥያቄ ለማስተናገድ አንችልም።\n\nእባክዎን በሌላ ጊዜ አዲስ ጥያቄ ያቅርቡልን ወይም ለተጨማሪ መረጃ የእኛን ቢሮ ያነጋግሩ።'
+          },
+          adminPendingAlert: {
+            subject: 'ማሳወቂያ፡ አዲስ የጉብኝት ቀጠሮ ጥያቄ ደርሷል',
+            body: 'አዲስ የጉብኝት ጥያቄ ደርሷል\n\nአዲስ የአካል ጉብኝት ቀጠሮ ጥያቄ ቀርቧል እና በአድሚን ዳሽቦርድ ውስጥ ግምገማ እየጠበቀ ነው::\n\nየወላጅ ስም: {name}\nየወላጅ ኢሜይል: {email}\nየወላጅ ስልክ: {phone}\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nእባክዎን ይህንን የጉብኝት ጥያቄ ለማጽደቅ ወይም ለመሰረዝ ወደ አድሚን ፓነልዎ ይግቡ።'
+          },
+          adminReminder: {
+            subject: 'ማስታወሻ፡ ያልተወሰነ የጉብኝት ቀጠሮ ለ{name}',
+            body: 'ትኩረት የሚሻ፡ ያልተወሰነ የጉብኝት ቀጠሮ\n\nየሚከተለው የጉብኝት ቀጠሮ ጥያቄ ሳይወሰን ቆይቷል እና ግምገማ ይፈልጋል፡\n\nየወላጅ ስም: {name}\nየካምፓስ አድራሻ: {branch}\nየተጠየቀው ቀን: {date}\nየተጠየቀው ሰዓት: {time}\n\nእባክዎን ይህንን ጥያቄ ለማጽደቅ ወይም ለመቀነስ ወደ አድሚን ዳሽቦርድ ይግቡ።'
+          },
+          reschedule: {
+            subject: 'የጉብኝት ቀጠሮ ተቀይሯል',
+            body: 'የጉብኝት ቀጠሮዎ በተሳካ ሁኔታ ተቀይሯል\n\nውድ {name}፣\n\nየአካል ጉብኝት ቀጠሮዎ ተዘምኗል።\n\nየካምፓስ አድራሻ: {branch}\nአዲስ ቀን: {dayName}, {date}\nአዲስ ሰዓት: {time}\n\nቡድናችን አዲሱን የጊዜ ሰሌዳዎን ገምግሞ ተጨማሪ ለውጦች ካስፈለጉ ያሳውቅዎታል።'
+          },
+          adminRescheduleAlert: {
+            subject: 'ማሳወቂያ፡ የጉብኝት ቀጠሮ በወላጅ ተቀይሯል',
+            body: 'የጉብኝት ቀጠሮ መቀየር ማሳወቂያ\n\nወላጅ የአካል ጉብኝት ቀጠሮ ሰዓታቸውን ቀይረዋል።\n\nየወላጅ ስም: {name}\nየወላጅ ኢሜይል: {email}\nየወላጅ ስልክ: {phone}\nየካምፓስ አድራሻ: {branch}\nየተዘመነ ቀን: {dayName}, {date}\nየተዘመነ ሰዓት: {time}'
+          },
+          cancellation: {
+            subject: 'የጉብኝት ቀጠሮ ተሰርዟል',
+            body: 'የጉብኝት ቀጠሮ መሬዝ\n\nውድ {name}፣\n\nበ{date} በ{time} የነበረዎት የአካል ጉብኝት ጥያቄ በጠየቁት መሠረት ተሰርዟል።\n\nበማንኛውም ጊዜ በድረ-ገፃችን በኩል አዲስ ጉብኝት ማስያዝ ይችላሉ።'
+          },
+          adminCancellationAlert: {
+            subject: 'ማሳወቂያ፡ የጉብኝት ቀጠሮ በወላጅ ተሰርዟል',
+            body: 'የጉብኝት ቀጠሮ መሰረዝ ማሳወቂያ\n\nየጉብኝት ቀጠሮ ጥያቄ በወላጁ ተሰርዟል።\n\nየወላጅ ስም: {name}\nየወላጅ ኢሜይል: {email}\nየካምፓስ አድራሻ: {branch}\nየነበረው ቀን: {dayName}, {date}\nየነበረው ሰዓት: {time}'
+          }
+        };
+
+        (enData as any).emailTemplates = { ...defaultEmailTemplatesEn, ...((enData as any).emailTemplates || {}) };
+        (amData as any).emailTemplates = { ...defaultEmailTemplatesAm, ...((amData as any).emailTemplates || {}) };
 
         setContent({
           en: enData,
@@ -1560,7 +1627,10 @@ export const AdminDashboard: React.FC = () => {
       .replace(/\{name\}/g, '[Parent Name]')
       .replace(/\{date\}/g, '[Date]')
       .replace(/\{time\}/g, '[Time]')
-      .replace(/\{dayName\}/g, '[Day]');
+      .replace(/\{dayName\}/g, '[Day]')
+      .replace(/\{branch\}/g, '[Branch]')
+      .replace(/\{email\}/g, '[Parent Email]')
+      .replace(/\{phone\}/g, '[Parent Phone]');
 
     return cleaned.trim();
   };
@@ -1572,7 +1642,10 @@ export const AdminDashboard: React.FC = () => {
       .replace(/\[Parent Name\]/g, '{name}')
       .replace(/\[Date\]/g, '{date}')
       .replace(/\[Time\]/g, '{time}')
-      .replace(/\[Day\]/g, '{dayName}');
+      .replace(/\[Day\]/g, '{dayName}')
+      .replace(/\[Branch\]/g, '{branch}')
+      .replace(/\[Parent Email\]|\[Email\]/g, '{email}')
+      .replace(/\[Parent Phone\]|\[Phone\]/g, '{phone}');
   };
 
   // Formats email template text with a beautiful Kidtopia header/wrapper and Map section
@@ -2096,6 +2169,39 @@ export const AdminDashboard: React.FC = () => {
                   >
                     Day
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleaned = cleanEmailTemplateForUser(value);
+                      const updated = cleaned + " [Branch]";
+                      handleChange(path, prepareEmailTemplateForSave(updated));
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
+                  >
+                    Branch / Campus
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleaned = cleanEmailTemplateForUser(value);
+                      const updated = cleaned + " [Parent Email]";
+                      handleChange(path, prepareEmailTemplateForSave(updated));
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
+                  >
+                    Parent Email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleaned = cleanEmailTemplateForUser(value);
+                      const updated = cleaned + " [Parent Phone]";
+                      handleChange(path, prepareEmailTemplateForSave(updated));
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
+                  >
+                    Parent Phone
+                  </button>
                 </div>
               </div>
             </div>
@@ -2184,9 +2290,24 @@ export const AdminDashboard: React.FC = () => {
     }
     
     if (typeof value === 'object' && value !== null) {
+      const EMAIL_TEMPLATE_LABELS: Record<string, string> = {
+        received: '1. Tour Request Received (Parent Confirmation Email)',
+        approval: '2. Tour Request Approved (Parent Approval Email)',
+        rejection: '3. Tour Request Rejected (Parent Decline Email)',
+        adminPendingAlert: '4. New Pending Tour Alert (Admin Notification Email)',
+        adminReminder: '5. Pending Tour Reminder Alert (Admin Notification Email)',
+        reschedule: '6. Tour Rescheduled (Parent Confirmation Email)',
+        adminRescheduleAlert: '7. Tour Rescheduled Alert (Admin Notification Email)',
+        cancellation: '8. Tour Cancelled (Parent Confirmation Email)',
+        adminCancellationAlert: '9. Tour Cancelled Alert (Admin Notification Email)',
+      };
+      const displayTitle = (path[0] === 'emailTemplates' && path.length === 2)
+        ? (EMAIL_TEMPLATE_LABELS[key] || key)
+        : key;
+
       return (
-        <div key={path.join('.')} className="mb-6">
-          <h3 className="text-lg font-bold text-stone-800 mb-4 capitalize">{key}</h3>
+        <div key={path.join('.')} className="mb-6 p-5 bg-stone-50/50 rounded-2xl border border-stone-200/70">
+          <h3 className="text-base font-black text-stone-800 mb-4">{displayTitle}</h3>
           {sortObjectKeysByTemplate(value, path).map((objKey) => 
             renderField(objKey, value[objKey], [...path, objKey])
           )}
@@ -3104,24 +3225,28 @@ export const AdminDashboard: React.FC = () => {
                                             const templateHeader = content[bookingLang]?.emailTemplates?.approval?.subject || (bookingLang === 'am' ? 'የኪድቶፒያ የጉብኝት ቀጠሮ - ተረጋግጧል' : 'Kidtopia Tour Booking - Confirmed');
                                             const templateBody = content[bookingLang]?.emailTemplates?.approval?.body || (bookingLang === 'am' 
                                                 ? 'የጉብኝት ቀጠሮዎ ተረጋግጧል!\n\nሰላም {name}፣\n\nበኪድቶፒያ የሚያደርጉት ጉብኝት መረጋገጡን ስናበስርዎ በደስታ ነው!\n\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nእርስዎን ለማግኘት በጉጉት እንጠብቃለን! ማንኛውም ጥያቄ ካለዎት እባክዎን ያነጋግሩን።'
-                                                : `Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.`);
-                                            const subject = templateHeader
-                                                .replace(/\{name\}/g, b.name || '')
-                                                .replace(/\{date\}/g, b.date || '')
-                                                .replace(/\{time\}/g, b.time || '')
-                                                .replace(/\{dayName\}/g, dayName);
+                                                : 'Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us.');
+                                            
+                                            const replaceAllTags = (text: string) => {
+                                              if (!text) return '';
+                                              return text
+                                                .replace(/\{name\}|\[Parent Name\]|\[Name\]/gi, b.name || '')
+                                                .replace(/\{date\}|\[Date\]/gi, b.date || '')
+                                                .replace(/\{time\}|\[Time\]/gi, b.time || '')
+                                                .replace(/\{dayName\}|\[Day\]/gi, dayName || '')
+                                                .replace(/\{branch\}|\[Branch\]/gi, b.branch || '')
+                                                .replace(/\{email\}|\[Parent Email\]|\[Email\]/gi, b.email || '')
+                                                .replace(/\{phone\}|\[Parent Phone\]|\[Phone\]/gi, b.phone || '');
+                                            };
 
-                                            const processedBody = templateBody
-                                                .replace(/\{name\}/g, b.name || '')
-                                                .replace(/\{date\}/g, b.date || '')
-                                                .replace(/\{time\}/g, b.time || '')
-                                                .replace(/\{dayName\}/g, dayName);
+                                            const subject = replaceAllTags(templateHeader);
+                                            const processedBody = replaceAllTags(templateBody);
 
                                             const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch);
                                             sendEmail(b.email, subject, emailHtml).catch(console.error);
                                           }
                                         }}
-                                        className="text-brand-green hover:underline font-medium"
+                                        className="text-brand-green hover:underline font-medium cursor-pointer"
                                       >
                                         Approve
                                       </button>
@@ -3139,18 +3264,22 @@ export const AdminDashboard: React.FC = () => {
                                             const templateHeader = content[bookingLang]?.emailTemplates?.rejection?.subject || (bookingLang === 'am' ? 'የጉብኝት ቀጠሮ ዝመና' : 'Tour Booking Update');
                                             const templateBody = content[bookingLang]?.emailTemplates?.rejection?.body || (bookingLang === 'am'
                                                 ? 'የጉብኝት ቀጠሮ ዝመና\n\nሰላም {name}፣\n\nአዝናለን፣ በ{dayName}, {date} በ{time} ያቀረቡትን የአካል ጉብኝት ጥያቄ ለማስተናገድ አንችልም።\n\nእባክዎን በሌላ ጊዜ አዲስ ጥያቄ ያቅርቡልን ወይም ለተጨማሪ መረጃ የእኛን ቢሮ ያነጋግሩ።'
-                                                : `Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.`);
-                                            const subject = templateHeader
-                                                .replace(/\{name\}/g, b.name || '')
-                                                .replace(/\{date\}/g, b.date || '')
-                                                .replace(/\{time\}/g, b.time || '')
-                                                .replace(/\{dayName\}/g, dayName);
+                                                : 'Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.');
+                                            
+                                            const replaceAllTags = (text: string) => {
+                                              if (!text) return '';
+                                              return text
+                                                .replace(/\{name\}|\[Parent Name\]|\[Name\]/gi, b.name || '')
+                                                .replace(/\{date\}|\[Date\]/gi, b.date || '')
+                                                .replace(/\{time\}|\[Time\]/gi, b.time || '')
+                                                .replace(/\{dayName\}|\[Day\]/gi, dayName || '')
+                                                .replace(/\{branch\}|\[Branch\]/gi, b.branch || '')
+                                                .replace(/\{email\}|\[Parent Email\]|\[Email\]/gi, b.email || '')
+                                                .replace(/\{phone\}|\[Parent Phone\]|\[Phone\]/gi, b.phone || '');
+                                            };
 
-                                            const processedBody = templateBody
-                                                .replace(/\{name\}/g, b.name || '')
-                                                .replace(/\{date\}/g, b.date || '')
-                                                .replace(/\{time\}/g, b.time || '')
-                                                .replace(/\{dayName\}/g, dayName);
+                                            const subject = replaceAllTags(templateHeader);
+                                            const processedBody = replaceAllTags(templateBody);
 
                                             const emailHtml = formatEmailWithTheme(subject, processedBody, b.branch, true);
                                             sendEmail(b.email, subject, emailHtml).catch(console.error);
@@ -3242,14 +3371,17 @@ export const AdminDashboard: React.FC = () => {
                   {activeSection === 'emailTemplates' && (
                     <div className="mb-6 p-4 bg-lime-50 border border-brand-green/20 rounded-xl">
                       <h3 className="font-bold text-brand-green mb-2 flex items-center gap-2">
-                         <Megaphone size={18}/> Placeholder Variables
+                         <Megaphone size={18}/> Tour Booking Email Placeholder Variables
                       </h3>
-                      <p className="text-sm text-stone-600 mb-2">You can use these placeholders inside your email templates. They will be automatically replaced with the booking data when an email is sent:</p>
-                      <ul className="list-disc pl-5 text-sm text-stone-600 space-y-1">
-                        <li><strong>{`{name}`}</strong> - The parent's name</li>
-                        <li><strong>{`{date}`}</strong> - The requested tour date (YYYY-MM-DD)</li>
-                        <li><strong>{`{time}`}</strong> - The requested tour time</li>
-                        <li><strong>{`{dayName}`}</strong> - The day of the week (e.g., Monday, Tuesday)</li>
+                      <p className="text-sm text-stone-600 mb-2">You can use these placeholders (or click the tag buttons below each editor) inside any of your tour booking email templates. They will be automatically replaced with live booking data when emails are dispatched:</p>
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-stone-600 mt-2">
+                        <li><strong>{`{name}`}</strong> or <strong>{`[Parent Name]`}</strong> - Parent's full name</li>
+                        <li><strong>{`{branch}`}</strong> or <strong>{`[Branch]`}</strong> - Campus / Branch location</li>
+                        <li><strong>{`{date}`}</strong> or <strong>{`[Date]`}</strong> - Requested tour date</li>
+                        <li><strong>{`{time}`}</strong> or <strong>{`[Time]`}</strong> - Requested tour time slot</li>
+                        <li><strong>{`{dayName}`}</strong> or <strong>{`[Day]`}</strong> - Day of the week (e.g. Monday)</li>
+                        <li><strong>{`{email}`}</strong> or <strong>{`[Parent Email]`}</strong> - Parent's contact email</li>
+                        <li><strong>{`{phone}`}</strong> or <strong>{`[Parent Phone]`}</strong> - Parent's contact phone</li>
                       </ul>
                     </div>
                   )}
