@@ -208,16 +208,21 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
 
 const MainApp = () => {
   const { languageConfig } = useLanguageConfig();
-  const [lang, setLang] = useState<Language>(() => {
-    const saved = localStorage.getItem('kidtopia_lang') as Language | null;
-    return saved === 'am' || saved === 'en' ? saved : 'en';
+  const [lang, setLang] = useState<Language>('en');
+  const [userHasManuallySelected, setUserHasManuallySelected] = useState<boolean>(() => {
+    return !!sessionStorage.getItem('kidtopia_user_selected_lang');
   });
 
-  // Sync lang when languageConfig loads or changes (e.g. default changed or language deactivated)
+  // Sync lang when languageConfig loads or updates
   useEffect(() => {
-    const saved = localStorage.getItem('kidtopia_lang') as Language | null;
-    let target = saved || languageConfig.defaultLanguage;
+    const sessionLang = sessionStorage.getItem('kidtopia_user_selected_lang') as Language | null;
+    let target: Language = languageConfig.defaultLanguage || 'en';
 
+    if (userHasManuallySelected && sessionLang && (sessionLang === 'en' || sessionLang === 'am')) {
+      target = sessionLang;
+    }
+
+    // Guard against deactivated languages
     if (target === 'en' && !languageConfig.isEnActive) {
       target = 'am';
     } else if (target === 'am' && !languageConfig.isAmActive) {
@@ -225,13 +230,14 @@ const MainApp = () => {
     }
 
     setLang(target);
-  }, [languageConfig.defaultLanguage, languageConfig.isEnActive, languageConfig.isAmActive]);
+  }, [languageConfig.defaultLanguage, languageConfig.isEnActive, languageConfig.isAmActive, userHasManuallySelected]);
 
   const handleSetLang = (newLang: Language) => {
     if (newLang === 'en' && !languageConfig.isEnActive) return;
     if (newLang === 'am' && !languageConfig.isAmActive) return;
     setLang(newLang);
-    localStorage.setItem('kidtopia_lang', newLang);
+    setUserHasManuallySelected(true);
+    sessionStorage.setItem('kidtopia_user_selected_lang', newLang);
   };
 
   const scrollToSection = (id: string) => {

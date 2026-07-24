@@ -19,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
   const t = useContent(lang).nav;
   const { languageConfig } = useLanguageConfig();
   const { isEnActive, isAmActive } = languageConfig;
+  const showLanguageSwitcher = isEnActive && isAmActive;
 
   const location = useLocation();
 
@@ -201,37 +202,39 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
               </button>
             )}
 
-            {/* Language Switcher Pill (EN | AM) */}
-            <div className="flex items-center p-0.5 rounded-xl bg-white/50 backdrop-blur-md border border-white/70 shadow-sm">
-              {isEnActive && (
-                <button
-                  type="button"
-                  onClick={() => setLang('en')}
-                  className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                    lang === 'en'
-                      ? 'bg-brand-green text-white shadow-sm scale-105'
-                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                  }`}
-                  title="English"
-                >
-                  EN
-                </button>
-              )}
-              {isAmActive && (
-                <button
-                  type="button"
-                  onClick={() => setLang('am')}
-                  className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                    lang === 'am'
-                      ? 'bg-brand-green text-white shadow-sm scale-105'
-                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                  }`}
-                  title="አማርኛ"
-                >
-                  AM
-                </button>
-              )}
-            </div>
+            {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
+            {showLanguageSwitcher && (
+              <div className="flex items-center p-0.5 rounded-xl bg-white/50 backdrop-blur-md border border-white/70 shadow-sm">
+                {isEnActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('en')}
+                    className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'en'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                    }`}
+                    title="English"
+                  >
+                    EN
+                  </button>
+                )}
+                {isAmActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('am')}
+                    className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'am'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                    }`}
+                    title="አማርኛ"
+                  >
+                    AM
+                  </button>
+                )}
+              </div>
+            )}
 
             <Link 
               to="/login" 
@@ -244,37 +247,39 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
           {/* Mobile Header Right Bar Controls (Visible without expanding mobile menu!) */}
           <div className="lg:hidden flex items-center gap-2">
-            {/* Language Switcher Pill (EN | AM) */}
-            <div className="flex items-center p-0.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
-              {isEnActive && (
-                <button
-                  type="button"
-                  onClick={() => setLang('en')}
-                  className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                    lang === 'en'
-                      ? 'bg-brand-green text-white shadow-sm scale-105'
-                      : 'text-stone-700 opacity-75 hover:opacity-100'
-                  }`}
-                  title="English"
-                >
-                  EN
-                </button>
-              )}
-              {isAmActive && (
-                <button
-                  type="button"
-                  onClick={() => setLang('am')}
-                  className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                    lang === 'am'
-                      ? 'bg-brand-green text-white shadow-sm scale-105'
-                      : 'text-stone-700 opacity-75 hover:opacity-100'
-                  }`}
-                  title="አማርኛ"
-                >
-                  AM
-                </button>
-              )}
-            </div>
+            {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
+            {showLanguageSwitcher && (
+              <div className="flex items-center p-0.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
+                {isEnActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('en')}
+                    className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'en'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 opacity-75 hover:opacity-100'
+                    }`}
+                    title="English"
+                  >
+                    EN
+                  </button>
+                )}
+                {isAmActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('am')}
+                    className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'am'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 opacity-75 hover:opacity-100'
+                    }`}
+                    title="አማርኛ"
+                  >
+                    AM
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Mobile Menu Toggle Button */}
             <button 

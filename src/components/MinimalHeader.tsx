@@ -13,6 +13,7 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
   const navigate = useNavigate();
   const { languageConfig } = useLanguageConfig();
   const { isEnActive, isAmActive } = languageConfig;
+  const showLanguageSwitcher = isEnActive && isAmActive;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/65 backdrop-blur-md border-b border-white/20 shadow-sm">
@@ -47,37 +48,39 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Language Switcher Pill (EN | AM) */}
-          <div className="flex items-center p-0.5 rounded-xl bg-white/80 border border-stone-200 shadow-sm">
-            {isEnActive && (
-              <button
-                type="button"
-                onClick={() => setLang('en')}
-                className={`px-2.5 py-1 text-xs font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                  lang === 'en'
-                    ? 'bg-brand-green text-white shadow-sm scale-105'
-                    : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                }`}
-                title="English"
-              >
-                EN
-              </button>
-            )}
-            {isAmActive && (
-              <button
-                type="button"
-                onClick={() => setLang('am')}
-                className={`px-2.5 py-1 text-xs font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                  lang === 'am'
-                    ? 'bg-brand-green text-white shadow-sm scale-105'
-                    : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                }`}
-                title="አማርኛ"
-              >
-                AM
-              </button>
-            )}
-          </div>
+          {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
+          {showLanguageSwitcher && (
+            <div className="flex items-center p-0.5 rounded-xl bg-white/80 border border-stone-200 shadow-sm">
+              {isEnActive && (
+                <button
+                  type="button"
+                  onClick={() => setLang('en')}
+                  className={`px-2.5 py-1 text-xs font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                    lang === 'en'
+                      ? 'bg-brand-green text-white shadow-sm scale-105'
+                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                  }`}
+                  title="English"
+                >
+                  EN
+                </button>
+              )}
+              {isAmActive && (
+                <button
+                  type="button"
+                  onClick={() => setLang('am')}
+                  className={`px-2.5 py-1 text-xs font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                    lang === 'am'
+                      ? 'bg-brand-green text-white shadow-sm scale-105'
+                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                  }`}
+                  title="አማርኛ"
+                >
+                  AM
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>
