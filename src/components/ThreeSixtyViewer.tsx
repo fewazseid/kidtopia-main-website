@@ -337,7 +337,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   const [deletingHotspotId, setDeletingHotspotId] = useState<string | null>(null);
   
   // Onboarding walkthrough guide states
-  const [showGuide, setShowGuide] = useState(true); // Automatically pop up the interactive hand tour guide
+  const [showGuide, setShowGuide] = useState(false); // Default to off so it does not block tour view
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [tutorialTime, setTutorialTime] = useState(0);
   const [tutorialStep, setTutorialStep] = useState<'horizontal' | 'vertical' | 'teleport'>('horizontal');
@@ -1689,28 +1689,38 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     const el = document.getElementById('three-sixty-tour-container');
     if (!el) return;
 
-    if (!document.fullscreenElement && !isFullscreen) {
-      // Try native fullscreen
-      el.requestFullscreen()
-        .then(() => {
+    const isNativeFs = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
+
+    if (!isNativeFs && !isFullscreen) {
+      if (typeof el.requestFullscreen === 'function') {
+        el.requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(err => {
+            console.warn('Native fullscreen rejected or failed (falling back to robust CSS faux-fullscreen mode):', err);
+            setIsFullscreen(true);
+          });
+      } else if (typeof (el as any).webkitRequestFullscreen === 'function') {
+        try {
+          (el as any).webkitRequestFullscreen();
           setIsFullscreen(true);
-        })
-        .catch(err => {
-          console.warn('Native fullscreen rejected or failed (falling back to robust CSS faux-fullscreen mode):', err);
-          // Fallback: Enable CSS-based faux-fullscreen
+        } catch {
           setIsFullscreen(true);
-        });
+        }
+      } else {
+        // Fallback for iOS Safari / iPhone where requestFullscreen is not supported on elements
+        setIsFullscreen(true);
+      }
     } else {
-      // If we are in native fullscreen, exit it
-      if (document.fullscreenElement) {
+      if (document.fullscreenElement && typeof document.exitFullscreen === 'function') {
         document.exitFullscreen()
           .then(() => setIsFullscreen(false))
-          .catch(err => {
-            console.error('Error exiting native fullscreen:', err);
-            setIsFullscreen(false);
-          });
+          .catch(() => setIsFullscreen(false));
+      } else if ((document as any).webkitFullscreenElement && typeof (document as any).webkitExitFullscreen === 'function') {
+        try {
+          (document as any).webkitExitFullscreen();
+        } catch {}
+        setIsFullscreen(false);
       } else {
-        // Just turn off faux-fullscreen
         setIsFullscreen(false);
       }
     }
@@ -1719,7 +1729,8 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
   // Watch for fullscreen change via Esc key and native events, lock page scroll, and handle orientation change
   useEffect(() => {
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
+      const isFs = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
+      if (!isFs) {
         setIsFullscreen(false);
       }
     };
@@ -1751,12 +1762,14 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('orientationchange', handleOrientationChange);
     window.addEventListener('resize', handleOrientationChange);
     
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('orientationchange', handleOrientationChange);
       window.removeEventListener('resize', handleOrientationChange);
@@ -1847,7 +1860,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           }
         }}
         className={`relative w-full rounded-2xl overflow-hidden shadow-2xl border bg-black transition-all duration-300 ${
-          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none h-screen' : 'h-[320px] sm:h-[420px] md:h-[600px] border-stone-200/80 dark:border-stone-800'
+          isFullscreen ? 'fixed inset-0 z-[9999] rounded-none w-full h-[100dvh] bg-stone-950' : 'h-[320px] sm:h-[420px] md:h-[600px] border-stone-200/80 dark:border-stone-800'
         }`}
       >
         
@@ -2148,91 +2161,52 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
 
         {/* Floating Interactive Help Modal / Navigation Guide */}
         {showHelpModal && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[99] flex items-center justify-center p-4 pointer-events-auto">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[99] flex items-center justify-center p-3 pointer-events-auto">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white/90 dark:bg-stone-900/95 backdrop-blur-[32px] border border-white/60 dark:border-white/10 p-6 rounded-[28px] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.3)] max-w-sm w-full relative overflow-hidden"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white/95 dark:bg-stone-900/95 backdrop-blur-[24px] border border-white/60 dark:border-white/10 p-4 rounded-2xl shadow-2xl max-w-xs w-full relative overflow-hidden"
             >
-              {/* Top design accent bar */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-green via-brand-teal to-brand-orange" />
-
-              <div className="flex justify-between items-center mb-5 mt-1">
-                <h4 className="font-sans font-black text-stone-900 dark:text-stone-100 text-[10px] tracking-widest uppercase flex items-center gap-2">
-                  <Compass className="w-4 h-4 text-brand-green animate-spin" style={{ animationDuration: '8s' }} />
-                  {lang === 'am' ? 'የጉብኝት መመሪያ' : '360° TOUR GUIDE'}
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-sans font-black text-stone-900 dark:text-stone-100 text-[11px] tracking-wider uppercase flex items-center gap-1.5">
+                  <Compass className="w-3.5 h-3.5 text-brand-green" />
+                  {lang === 'am' ? 'የጉብኝት መመሪያ' : 'How to Move'}
                 </h4>
                 <button 
                   onClick={() => setShowHelpModal(false)}
-                  className="p-1.5 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 cursor-pointer"
+                  className="p-1 bg-black/5 dark:bg-white/10 hover:bg-black/10 rounded-full transition text-stone-500 dark:text-stone-300 cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              {/* Steps */}
-              <div className="space-y-4 text-stone-700 dark:text-stone-300 font-sans text-xs">
-                {/* 1. Look Around */}
-                <div className="flex gap-3 items-start p-2.5 rounded-2xl bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/5 shadow-sm">
-                  <div className="text-2xl animate-bounce shrink-0 mt-0.5" style={{ animationDuration: '2s' }}>👆</div>
-                  <div>
-                    <h5 className="font-bold text-stone-900 dark:text-white mb-0.5">
-                      {lang === 'am' ? 'ዙሪያውን ለመመልከት' : 'Look Around'}
-                    </h5>
-                    <p className="text-[11px] leading-relaxed opacity-90">
-                      {lang === 'am' 
-                        ? 'መዳፊቱን በመጫን ወደፈለጉት አቅጣጫ ይጎትቱ (ወይም በስልክዎ ስክሪኑን ይንኩና ያንሸራትቱ)።' 
-                        : 'Click & drag your mouse in any direction, or swipe on mobile to view the entire room.'}
-                    </p>
-                  </div>
+              <div className="space-y-2 text-stone-700 dark:text-stone-300 font-sans text-xs">
+                <div className="flex gap-2.5 items-center p-2 rounded-xl bg-stone-100 dark:bg-black/30">
+                  <span className="text-base shrink-0">👆</span>
+                  <p className="text-[11px] font-medium leading-tight">
+                    {lang === 'am' 
+                      ? 'ዙሪያውን ለመመልከት በስክሪኑ ላይ ያንሸራትቱ።' 
+                      : 'Drag mouse or swipe screen to look around.'}
+                  </p>
                 </div>
 
-                {/* 2. Move between Rooms */}
-                <div className="flex gap-3 items-start p-2.5 rounded-2xl bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/5 shadow-sm">
-                  <div className="text-lg shrink-0 w-8 h-8 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green font-bold">🟢</div>
-                  <div>
-                    <h5 className="font-bold text-stone-900 dark:text-white mb-0.5">
-                      {lang === 'am' ? 'ወደ ሌሎች ክፍሎች ለመሄድ' : 'Switch Rooms'}
-                    </h5>
-                    <p className="text-[11px] leading-relaxed opacity-90">
-                      {lang === 'am' 
-                        ? 'በክፍሉ ወለል ላይ ያሉትን የሚያንፀባርቁ ቀስቶች ወይም ክብ መድረሻዎች ይጫኑ።' 
-                        : 'Click on the perspective floor arrows or circular hotspots to transition between rooms.'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3. Detailed Info */}
-                <div className="flex gap-3 items-start p-2.5 rounded-2xl bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/5 shadow-sm">
-                  <div className="text-sm shrink-0 w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 font-serif font-black italic">i</div>
-                  <div>
-                    <h5 className="font-bold text-stone-900 dark:text-white mb-0.5">
-                      {lang === 'am' ? 'ዝርዝር መግለጫ ለማየት' : 'View Area Details'}
-                    </h5>
-                    <p className="text-[11px] leading-relaxed opacity-90">
-                      {lang === 'am' 
-                        ? 'ስለ አንድ የተወሰነ ቦታ ተጨማሪ መረጃ ለማግኘት ቢጫ የ "i" ምልክት ያላቸውን መድረሻዎች ይጫኑ።' 
-                        : 'Tap on yellow "i" beacons to reveal rich information about specific learning corners.'}
-                    </p>
-                  </div>
+                <div className="flex gap-2.5 items-center p-2 rounded-xl bg-stone-100 dark:bg-black/30">
+                  <span className="text-base shrink-0">🟢</span>
+                  <p className="text-[11px] font-medium leading-tight">
+                    {lang === 'am' 
+                      ? 'ወደ ሌላ ክፍል ለመሄድ መድረሻ ቀስቶችን ይጫኑ።' 
+                      : 'Tap floor arrows or hotspots to switch rooms.'}
+                  </p>
                 </div>
               </div>
 
-              {/* Start Guide Button */}
-              <div className="mt-5 flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowHelpModal(false);
-                    setShowGuide(true);
-                  }}
-                  className="w-full btn-primary py-2.5 rounded-xl text-[11px] font-black tracking-wider uppercase text-center flex items-center justify-center gap-1.5 shadow-md shadow-brand-green/20 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
-                >
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
-                  {lang === 'am' ? 'የቪዲዮ መመሪያውን በድጋሚ አጫውት' : 'Replay Visual Demo'}
-                </button>
-              </div>
-
+              <button
+                onClick={() => setShowHelpModal(false)}
+                className="w-full mt-3 py-2 bg-brand-green text-white rounded-xl text-[11px] font-bold tracking-wider uppercase text-center hover:bg-brand-green/90 transition cursor-pointer"
+              >
+                {lang === 'am' ? 'ተረድቻለሁ' : 'Got It'}
+              </button>
             </motion.div>
           </div>
         )}
