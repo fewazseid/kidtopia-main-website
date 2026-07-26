@@ -230,7 +230,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                     }`}
                     title="አማርኛ"
                   >
-                    AM
+                    አማ
                   </button>
                 )}
               </div>
@@ -275,7 +275,7 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                     }`}
                     title="አማርኛ"
                   >
-                    AM
+                    አማ
                   </button>
                 )}
               </div>

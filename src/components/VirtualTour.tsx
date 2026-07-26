@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Video, Calendar, Shield, Compass, X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { Play, Video, Calendar, Shield, Compass, X, ChevronLeft, ChevronRight, Maximize2, ChevronDown, ChevronUp } from 'lucide-react';
 import { ThreeSixtyViewer } from './ThreeSixtyViewer';
 
 interface VirtualTourProps {
@@ -130,6 +130,13 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
   const t = useContent(lang).virtualTour;
   const [activeMediaIndex, setActiveMediaIndex] = useState<number | null>(null);
   const [initialIndex, setInitialIndex] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  const mediaList = t.media || [];
+  const hasMoreThanSix = mediaList.length > 6;
+  const visibleMedia = (!isExpanded && hasMoreThanSix) 
+    ? mediaList.slice(0, 6) 
+    : mediaList;
 
   const getYouTubeId = (url: string) => {
     if (!url) return null;
@@ -303,20 +310,22 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
 
         <div className="relative max-w-6xl mx-auto">
           <div className="flex flex-wrap justify-center gap-8 lg:gap-12 items-stretch">
-            {t.media && t.media.map((item: any, index: number) => {
+            {visibleMedia && visibleMedia.map((item: any, idx: number) => {
               const isVideo = item.type === 'video';
+              const originalIndex = mediaList.findIndex((m: any) => m === item);
+              const cardIndex = originalIndex >= 0 ? originalIndex : idx;
               
               return (
                 <motion.div 
-                  key={index}
-                  layoutId={`media-card-container-${index}`}
+                  key={cardIndex}
+                  layoutId={`media-card-container-${cardIndex}`}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.8, delay: (idx % 6) * 0.1, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => {
-                    setInitialIndex(index);
-                    setActiveMediaIndex(index);
+                    setInitialIndex(cardIndex);
+                    setActiveMediaIndex(cardIndex);
                   }}
                   className="flex flex-col gap-5 w-full md:w-[calc(50%-1.5rem)] max-w-2xl group cursor-pointer"
                 >
@@ -328,7 +337,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                     ) : (
                       <img 
                         src={item.url} 
-                        alt={item.description || `Virtual Tour ${index + 1}`} 
+                        alt={item.description || `Virtual Tour ${cardIndex + 1}`} 
                         className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 ease-out"
                         referrerPolicy="no-referrer"
                       />
@@ -351,6 +360,27 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
               );
             })}
           </div>
+
+          {/* Sticky Expand / Collapse Button for Virtual Tour Media */}
+          {hasMoreThanSix && (
+            <div className="sticky bottom-6 z-30 flex justify-center mt-8 pt-4 pointer-events-none">
+              <motion.button
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="pointer-events-auto px-6 py-3.5 bg-brand-yellow text-stone-900 rounded-full font-black text-xs sm:text-sm tracking-wider uppercase shadow-2xl shadow-black/50 border-2 border-stone-700 flex items-center gap-2.5 backdrop-blur-md cursor-pointer hover:bg-brand-yellow/90 transition-all"
+              >
+                <span>
+                  {isExpanded 
+                    ? (lang === 'am' ? 'አነስ አድርግ (ዝጋ)' : 'Show Less') 
+                    : (lang === 'am' ? `ተጨማሪ ፎቶዎችና ቪዲዮዎች አሳይ (+${mediaList.length - 6})` : `Show Full Gallery (+${mediaList.length - 6} More)`)}
+                </span>
+                {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </motion.button>
+            </div>
+          )}
 
           <div className="mt-16 flex flex-wrap justify-center gap-5">
             <Link 

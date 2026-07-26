@@ -76,7 +76,7 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
                   }`}
                   title="አማርኛ"
                 >
-                  AM
+                  አማ
                 </button>
               )}
             </div>

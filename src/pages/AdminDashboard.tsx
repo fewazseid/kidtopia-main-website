@@ -2592,7 +2592,7 @@ export const AdminDashboard: React.FC = () => {
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded bg-brand-green/20 text-brand-green font-black text-xs">AM</span>
+                            <span className="px-2 py-0.5 rounded bg-brand-green/20 text-brand-green font-black text-xs">አማ</span>
                             <span>አማርኛ (Amharic)</span>
                           </div>
                           {localLangConfig.defaultLanguage === 'am' && <Check size={18} className="text-brand-green" />}
@@ -2646,10 +2646,10 @@ export const AdminDashboard: React.FC = () => {
                         {/* Amharic Active Toggle */}
                         <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-stone-200">
                           <div className="flex items-center gap-3">
-                            <span className="px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 font-black text-xs">AM</span>
+                            <span className="px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 font-black text-xs">አማ</span>
                             <div>
                               <span className="font-bold text-stone-800 text-sm block">አማርኛ (Amharic Language)</span>
-                              <span className="text-xs text-stone-500">Show 'AM' option in header navigation bar</span>
+                              <span className="text-xs text-stone-500">Show 'አማ' option in header navigation bar</span>
                             </div>
                           </div>
                           <label className="relative inline-flex items-center cursor-pointer">
