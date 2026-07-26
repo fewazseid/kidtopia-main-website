@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit3, ArrowUp, ArrowDown, Clock, Baby, Users, Save, Sparkles, Image, Check, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Edit3, ArrowUp, ArrowDown, Clock, Baby, Users, Save, Sparkles, Image, Check, AlertCircle, GripVertical } from 'lucide-react';
 
 interface DailyExperienceScheduleManagerProps {
   content: any;
@@ -38,6 +38,12 @@ export const DailyExperienceScheduleManager: React.FC<DailyExperienceScheduleMan
   const [editingClass, setEditingClass] = useState<any | null>(null);
   const [isAddingClass, setIsAddingClass] = useState(false);
   
+  // Drag & drop state for timeline slots and class tabs
+  const [draggedSlotIdx, setDraggedSlotIdx] = useState<number | null>(null);
+  const [dragOverSlotIdx, setDragOverSlotIdx] = useState<number | null>(null);
+  const [draggedClassIdx, setDraggedClassIdx] = useState<number | null>(null);
+  const [dragOverClassIdx, setDragOverClassIdx] = useState<number | null>(null);
+
   // New class form state
   const [newClassForm, setNewClassForm] = useState({
     name: '',
@@ -203,6 +209,31 @@ export const DailyExperienceScheduleManager: React.FC<DailyExperienceScheduleMan
     updateSchedules(newSchedules);
   };
 
+  const handleReorderTimelineItem = (dragIdx: number, hoverIdx: number) => {
+    if (dragIdx === hoverIdx) return;
+    const newSchedules = JSON.parse(JSON.stringify(schedulesEn));
+    const targetClass = newSchedules.find((s: any) => s.id === currentClass.id);
+    if (!targetClass) return;
+
+    if (dragIdx < 0 || dragIdx >= targetClass.timeline.length || hoverIdx < 0 || hoverIdx >= targetClass.timeline.length) return;
+
+    const [movedItem] = targetClass.timeline.splice(dragIdx, 1);
+    targetClass.timeline.splice(hoverIdx, 0, movedItem);
+
+    updateSchedules(newSchedules);
+  };
+
+  const handleReorderClass = (dragIdx: number, hoverIdx: number) => {
+    if (dragIdx === hoverIdx) return;
+    const newSchedules = JSON.parse(JSON.stringify(schedulesEn));
+    if (dragIdx < 0 || dragIdx >= newSchedules.length || hoverIdx < 0 || hoverIdx >= newSchedules.length) return;
+
+    const [moved] = newSchedules.splice(dragIdx, 1);
+    newSchedules.splice(hoverIdx, 0, moved);
+
+    updateSchedules(newSchedules);
+  };
+
   return (
     <div className="space-y-8 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm">
       
@@ -250,16 +281,52 @@ export const DailyExperienceScheduleManager: React.FC<DailyExperienceScheduleMan
         <div className="flex flex-wrap gap-2.5">
           {schedulesEn.map((sched: any, idx: number) => {
             const isSelected = sched.id === selectedClassId;
+            const isDragged = draggedClassIdx === idx;
+            const isDragOver = dragOverClassIdx === idx;
+
             return (
               <div
                 key={sched.id}
+                draggable={true}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('text/plain', `class::${idx}`);
+                  e.dataTransfer.effectAllowed = 'move';
+                  setDraggedClassIdx(idx);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  if (draggedClassIdx !== null && draggedClassIdx !== idx) {
+                    setDragOverClassIdx(idx);
+                  }
+                }}
+                onDragLeave={() => {
+                  if (dragOverClassIdx === idx) setDragOverClassIdx(null);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (draggedClassIdx !== null) {
+                    handleReorderClass(draggedClassIdx, idx);
+                  }
+                  setDraggedClassIdx(null);
+                  setDragOverClassIdx(null);
+                }}
+                onDragEnd={() => {
+                  setDraggedClassIdx(null);
+                  setDragOverClassIdx(null);
+                }}
                 className={`group flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-sm font-bold transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-brand-green text-white border-brand-green shadow-sm'
-                    : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                  isDragged
+                    ? 'opacity-40 border-dashed border-brand-green bg-brand-green/10'
+                    : isDragOver
+                      ? 'ring-2 ring-brand-green border-brand-green scale-105'
+                      : isSelected
+                        ? 'bg-brand-green text-white border-brand-green shadow-sm'
+                        : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
                 }`}
                 onClick={() => setSelectedClassId(sched.id)}
               >
+                <GripVertical size={14} className={`cursor-grab active:cursor-grabbing ${isSelected ? 'text-white/70' : 'text-stone-400'}`} />
                 <span>{sched.name} ({sched.ageRange})</span>
                 
                 <div className="flex items-center gap-1 ml-1 opacity-80 group-hover:opacity-100">
@@ -269,7 +336,7 @@ export const DailyExperienceScheduleManager: React.FC<DailyExperienceScheduleMan
                       setEditingClass({ ...sched });
                     }}
                     title="Edit Class Details"
-                    className={`p-1 rounded-lg transition-colors ${
+                    className={`p-1 rounded-lg transition-colors cursor-pointer ${
                       isSelected ? 'hover:bg-white/20 text-white' : 'hover:bg-stone-200 text-stone-600'
                     }`}
                   >
@@ -283,7 +350,7 @@ export const DailyExperienceScheduleManager: React.FC<DailyExperienceScheduleMan
                     }}
                     disabled={idx === 0}
                     title="Move Left"
-                    className={`p-1 rounded-lg transition-colors disabled:opacity-30 ${
+                    className={`p-1 rounded-lg transition-colors disabled:opacity-30 cursor-pointer ${
                       isSelected ? 'hover:bg-white/20 text-white' : 'hover:bg-stone-200 text-stone-600'
                     }`}
                   >
@@ -296,7 +363,7 @@ export const DailyExperienceScheduleManager: React.FC<DailyExperienceScheduleMan
                       handleDeleteClass(sched.id);
                     }}
                     title="Delete Class"
-                    className={`p-1 rounded-lg transition-colors ${
+                    className={`p-1 rounded-lg transition-colors cursor-pointer ${
                       isSelected ? 'hover:bg-red-500/30 text-white' : 'hover:bg-red-100 text-red-600'
                     }`}
                   >
@@ -528,85 +595,130 @@ export const DailyExperienceScheduleManager: React.FC<DailyExperienceScheduleMan
           {/* Slots List */}
           <div className="space-y-4">
             {currentClass.timeline && currentClass.timeline.length > 0 ? (
-              currentClass.timeline.map((slot: any, slotIdx: number) => (
-                <div
-                  key={slotIdx}
-                  className="p-5 bg-stone-50/80 rounded-2xl border border-stone-200/90 hover:border-brand-green/40 transition-all space-y-3"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="w-6 h-6 rounded-full bg-brand-green/10 text-brand-green text-xs font-black flex items-center justify-center">
-                      {slotIdx + 1}
-                    </span>
+              currentClass.timeline.map((slot: any, slotIdx: number) => {
+                const isDragged = draggedSlotIdx === slotIdx;
+                const isDragOver = dragOverSlotIdx === slotIdx;
 
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleMoveTimelineItem(slotIdx, 'up')}
-                        disabled={slotIdx === 0}
-                        title="Move Up"
-                        className="p-1.5 text-stone-500 hover:text-stone-800 disabled:opacity-30 cursor-pointer"
-                      >
-                        <ArrowUp size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleMoveTimelineItem(slotIdx, 'down')}
-                        disabled={slotIdx === currentClass.timeline.length - 1}
-                        title="Move Down"
-                        className="p-1.5 text-stone-500 hover:text-stone-800 disabled:opacity-30 cursor-pointer"
-                      >
-                        <ArrowDown size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTimelineItem(slotIdx)}
-                        title="Delete Slot"
-                        className="p-1.5 text-red-500 hover:text-red-700 cursor-pointer"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                return (
+                  <div
+                    key={slotIdx}
+                    draggable={true}
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('text/plain', `slot::${slotIdx}`);
+                      e.dataTransfer.effectAllowed = 'move';
+                      setDraggedSlotIdx(slotIdx);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      if (draggedSlotIdx !== null && draggedSlotIdx !== slotIdx) {
+                        setDragOverSlotIdx(slotIdx);
+                      }
+                    }}
+                    onDragLeave={() => {
+                      if (dragOverSlotIdx === slotIdx) setDragOverSlotIdx(null);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggedSlotIdx !== null) {
+                        handleReorderTimelineItem(draggedSlotIdx, slotIdx);
+                      }
+                      setDraggedSlotIdx(null);
+                      setDragOverSlotIdx(null);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedSlotIdx(null);
+                      setDragOverSlotIdx(null);
+                    }}
+                    className={`p-5 rounded-2xl border transition-all space-y-3 relative group ${
+                      isDragged 
+                        ? 'opacity-40 scale-[0.99] border-dashed border-brand-green bg-brand-green/5' 
+                        : isDragOver 
+                          ? 'border-2 border-brand-green ring-2 ring-brand-green/20 bg-stone-100 shadow-md' 
+                          : 'bg-stone-50/80 border-stone-200/90 hover:border-brand-green/40 hover:bg-stone-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-700 select-none" title="Drag to reorder schedule slot">
+                        <GripVertical size={18} className="text-stone-400 group-hover:text-stone-600" />
+                        <span className="w-6 h-6 rounded-full bg-brand-green/10 text-brand-green text-xs font-black flex items-center justify-center">
+                          {slotIdx + 1}
+                        </span>
+                        <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider hidden sm:inline">
+                          Drag slot to reorder
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleMoveTimelineItem(slotIdx, 'up')}
+                          disabled={slotIdx === 0}
+                          title="Move Up"
+                          className="p-1.5 text-stone-500 hover:text-stone-800 disabled:opacity-30 cursor-pointer"
+                        >
+                          <ArrowUp size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleMoveTimelineItem(slotIdx, 'down')}
+                          disabled={slotIdx === currentClass.timeline.length - 1}
+                          title="Move Down"
+                          className="p-1.5 text-stone-500 hover:text-stone-800 disabled:opacity-30 cursor-pointer"
+                        >
+                          <ArrowDown size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTimelineItem(slotIdx)}
+                          title="Delete Slot"
+                          className="p-1.5 text-red-500 hover:text-red-700 cursor-pointer"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
+                          Time Slot
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 7:30 AM - 9:00 AM"
+                          value={slot.time || ''}
+                          onChange={(e) => handleUpdateTimelineItem(slotIdx, 'time', e.target.value)}
+                          className="w-full px-3 py-1.5 text-sm bg-white border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green font-medium"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
+                          Activity (English)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Activity description in English..."
+                          value={slot.activity || ''}
+                          onChange={(e) => handleUpdateTimelineItem(slotIdx, 'activity', e.target.value)}
+                          className="w-full px-3 py-1.5 text-sm bg-white border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green font-medium"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
+                          Activity (Amharic)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="የእንቅስቃሴው ዝርዝር በአማርኛ..."
+                          value={slot.activityAm || ''}
+                          onChange={(e) => handleUpdateTimelineItem(slotIdx, 'activityAm', e.target.value)}
+                          className="w-full px-3 py-1.5 text-sm bg-white border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green font-medium"
+                        />
+                      </div>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
-                        Time Slot
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. 7:30 AM - 9:00 AM"
-                        value={slot.time || ''}
-                        onChange={(e) => handleUpdateTimelineItem(slotIdx, 'time', e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm bg-white border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green font-medium"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
-                        Activity (English)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Activity description in English..."
-                        value={slot.activity || ''}
-                        onChange={(e) => handleUpdateTimelineItem(slotIdx, 'activity', e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm bg-white border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green font-medium"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
-                        Activity (Amharic)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="የእንቅስቃሴው ዝርዝር በአማርኛ..."
-                        value={slot.activityAm || ''}
-                        onChange={(e) => handleUpdateTimelineItem(slotIdx, 'activityAm', e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm bg-white border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green font-medium"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-center p-6 bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 text-sm">
                 No schedule slots for this class yet. Click "Add Schedule Slot" above.

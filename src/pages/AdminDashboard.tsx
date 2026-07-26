@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload, Globe, Check } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload, Globe, Check, GripVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh, ContentContext, useLanguageConfig } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -281,6 +281,8 @@ export const AdminDashboard: React.FC = () => {
   }, [languageConfig]);
 
   const [content, setContent] = useState<any>(null);
+  const [draggedArrayInfo, setDraggedArrayInfo] = useState<{ pathKey: string; index: number } | null>(null);
+  const [dragOverArrayInfo, setDragOverArrayInfo] = useState<{ pathKey: string; index: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeLang, setActiveLang] = useState<'en' | 'am'>('en');
@@ -1488,6 +1490,33 @@ export const AdminDashboard: React.FC = () => {
     });
   };
 
+  const reorderItem = (path: string[], dragIndex: number, hoverIndex: number) => {
+    if (dragIndex === hoverIndex) return;
+    setContent((prevContent: any) => {
+      if (!prevContent) return prevContent;
+      const newContent = JSON.parse(JSON.stringify(prevContent));
+      
+      const reorderForLang = (lang: 'en' | 'am') => {
+        let current = newContent[lang];
+        for (let i = 0; i < path.length - 1; i++) {
+          if (!current[path[i]]) return;
+          current = current[path[i]];
+        }
+        const array = current[path[path.length - 1]];
+        if (Array.isArray(array) && dragIndex >= 0 && dragIndex < array.length && hoverIndex >= 0 && hoverIndex < array.length) {
+          const [movedItem] = array.splice(dragIndex, 1);
+          array.splice(hoverIndex, 0, movedItem);
+        }
+      };
+      
+      reorderForLang('en');
+      reorderForLang('am');
+      
+      setFeedback({ type: 'success', message: 'Item reordered via drag and drop' });
+      return newContent;
+    });
+  };
+
   if (loading || !content) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50">
@@ -2249,50 +2278,107 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-stone-800 capitalize">{key}</h3>
           </div>
-          {value.map((item, index) => (
-            <div key={index} className="mb-4 p-4 bg-white rounded-lg border border-stone-200 relative group">
-              <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
-                {index > 0 && (
-                  <button
-                    onClick={() => moveItem(path, index, 'up')}
-                    className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
-                    title="Move Up"
-                  >
-                    <ChevronUp size={16} />
-                  </button>
+          {value.map((item, index) => {
+            const pathKey = path.join('.');
+            const isBeingDragged = draggedArrayInfo?.pathKey === pathKey && draggedArrayInfo?.index === index;
+            const isDragOver = dragOverArrayInfo?.pathKey === pathKey && dragOverArrayInfo?.index === index;
+
+            return (
+              <div 
+                key={index} 
+                draggable={true}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('text/plain', `${pathKey}::${index}`);
+                  e.dataTransfer.effectAllowed = 'move';
+                  setDraggedArrayInfo({ pathKey, index });
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  if (draggedArrayInfo?.pathKey === pathKey && draggedArrayInfo?.index !== index) {
+                    setDragOverArrayInfo({ pathKey, index });
+                  }
+                }}
+                onDragLeave={() => {
+                  if (dragOverArrayInfo?.index === index) {
+                    setDragOverArrayInfo(null);
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (draggedArrayInfo && draggedArrayInfo.pathKey === pathKey) {
+                    reorderItem(path, draggedArrayInfo.index, index);
+                  }
+                  setDraggedArrayInfo(null);
+                  setDragOverArrayInfo(null);
+                }}
+                onDragEnd={() => {
+                  setDraggedArrayInfo(null);
+                  setDragOverArrayInfo(null);
+                }}
+                className={`mb-4 p-4 bg-white rounded-xl border transition-all duration-200 relative group ${
+                  isBeingDragged 
+                    ? 'opacity-40 scale-[0.99] border-dashed border-brand-green bg-brand-green/5' 
+                    : isDragOver
+                      ? 'border-2 border-brand-green ring-2 ring-brand-green/20 shadow-md bg-stone-50'
+                      : 'border-stone-200 hover:border-stone-300'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-100">
+                  <div className="flex items-center gap-2 cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-700 select-none" title="Drag to reorder item">
+                    <GripVertical size={18} className="text-stone-400 group-hover:text-stone-600" />
+                    <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+                      Item {index + 1}
+                    </span>
+                    <span className="text-[10px] bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full font-medium hidden sm:inline-block">
+                      Drag to reorder
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    {index > 0 && (
+                      <button
+                        onClick={() => moveItem(path, index, 'up')}
+                        className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg cursor-pointer"
+                        title="Move Up"
+                      >
+                        <ChevronUp size={16} />
+                      </button>
+                    )}
+                    {index < value.length - 1 && (
+                      <button
+                        onClick={() => moveItem(path, index, 'down')}
+                        className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg cursor-pointer"
+                        title="Move Down"
+                      >
+                        <ChevronDown size={16} />
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => removeItem(path, index)}
+                      className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg cursor-pointer"
+                      title="Remove Item"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {isPrimitiveArray ? (
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleChange([...path, index.toString()], e.target.value)}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none font-medium"
+                  />
+                ) : (
+                  sortObjectKeysByTemplate(item, path).map((itemKey) => 
+                    renderField(itemKey, item[itemKey], [...path, index.toString(), itemKey])
+                  )
                 )}
-                {index < value.length - 1 && (
-                  <button
-                    onClick={() => moveItem(path, index, 'down')}
-                    className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg"
-                    title="Move Down"
-                  >
-                    <ChevronDown size={16} />
-                  </button>
-                )}
-                <button 
-                  onClick={() => removeItem(path, index)}
-                  className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg"
-                  title="Remove Item"
-                >
-                  <Trash2 size={16} />
-                </button>
               </div>
-              <div className="text-xs font-bold text-stone-400 mb-2 uppercase tracking-wider">Item {index + 1}</div>
-              {isPrimitiveArray ? (
-                <input
-                  type="text"
-                  value={item}
-                  onChange={(e) => handleChange([...path, index.toString()], e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
-                />
-              ) : (
-                sortObjectKeysByTemplate(item, path).map((itemKey) => 
-                  renderField(itemKey, item[itemKey], [...path, index.toString(), itemKey])
-                )
-              )}
-            </div>
-          ))}
+            );
+          })}
           <button 
             onClick={() => addItem(path)}
             className="flex items-center gap-1 text-sm text-brand-green border border-brand-green px-3 py-2 rounded-lg hover:bg-brand-green hover:text-white transition-colors w-max mt-2"
