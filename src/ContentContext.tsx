@@ -36,27 +36,17 @@ function deepMerge(target: any, source: any): any {
 
   if (Array.isArray(source)) {
     if (!Array.isArray(target)) return source;
-    // If target array is longer than source array (e.g. new default items added in code), preserve target items
-    if (target.length > source.length) {
-      return target.map((targetItem, idx) => {
-        const sourceItem = source[idx];
-        if (sourceItem && typeof sourceItem === 'object' && targetItem && typeof targetItem === 'object') {
-          return deepMerge(targetItem, sourceItem);
-        }
-        return sourceItem !== undefined && sourceItem !== null ? sourceItem : targetItem;
-      });
-    }
-    return source.map((item, idx) => {
-      const defaultTarget = target[idx] || target[0];
-      if (item && typeof item === 'object' && defaultTarget && typeof defaultTarget === 'object') {
-        return deepMerge(defaultTarget, item);
+    // Source (Firestore) is the user's saved data. Use source items primarily.
+    return source.map((sourceItem, idx) => {
+      const targetItem = target[idx];
+      if (sourceItem && typeof sourceItem === 'object' && targetItem && typeof targetItem === 'object') {
+        return deepMerge(targetItem, sourceItem);
       }
-      return item;
+      return sourceItem !== undefined && sourceItem !== null ? sourceItem : targetItem;
     });
   }
 
   if (typeof source !== 'object') {
-    // If source is empty string "", it's a valid empty field, do not replace with target
     return source;
   }
 
@@ -68,7 +58,7 @@ function deepMerge(target: any, source: any): any {
   for (const key of Object.keys(source)) {
     const sourceVal = source[key];
     if (sourceVal !== undefined && sourceVal !== null) {
-      if (key in target) {
+      if (key in target && typeof target[key] === 'object' && target[key] !== null && typeof sourceVal === 'object' && sourceVal !== null && !Array.isArray(target[key]) && !Array.isArray(sourceVal)) {
         output[key] = deepMerge(target[key], sourceVal);
       } else {
         output[key] = sourceVal;
@@ -289,14 +279,6 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const unsubEn = onSnapshot(doc(db, 'content', 'en'), (snapshot) => {
       if (snapshot.exists()) {
         const snapData = snapshot.data();
-        const policies = snapData?.resources?.policiesAndRegulations;
-        const chapters = snapData?.resources?.handbookChapters;
-        if (!policies || policies.length < 10 || !chapters || chapters.length < 11) {
-          setDoc(doc(db, 'content', 'en'), {
-            ...snapData,
-            resources: defaultTranslations.en.resources
-          }, { merge: true }).catch(() => {});
-        }
         setContent((prev: any) => {
           const enData = cleanResources(deepMerge(defaultTranslations.en, snapData));
           const amData = alignStructures(enData, prev.am);
@@ -328,14 +310,6 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const unsubAm = onSnapshot(doc(db, 'content', 'am'), (snapshot) => {
       if (snapshot.exists()) {
         const snapData = snapshot.data();
-        const policies = snapData?.resources?.policiesAndRegulations;
-        const chapters = snapData?.resources?.handbookChapters;
-        if (!policies || policies.length < 10 || !chapters || chapters.length < 11) {
-          setDoc(doc(db, 'content', 'am'), {
-            ...snapData,
-            resources: defaultTranslations.am.resources
-          }, { merge: true }).catch(() => {});
-        }
         setContent((prev: any) => {
           const amRaw = cleanResources(deepMergeAmharic(defaultTranslations.am, snapData, defaultTranslations.en));
           const amData = alignStructures(prev.en, amRaw);
