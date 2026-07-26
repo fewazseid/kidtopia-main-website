@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Download, Smartphone } from 'lucide-react';
+import { Menu, X, Download, Smartphone, Globe } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent, useLanguageConfig } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
@@ -190,51 +190,17 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
           {/* Right Actions (Desktop) */}
           <div className="hidden lg:flex items-center gap-2.5 xl:gap-3.5">
-            {onOpenInstallModal && (
-              <button
-                type="button"
-                onClick={onOpenInstallModal}
-                className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/25 text-brand-orange transition-all px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
-                title={lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}
-              >
-                <Download size={13} />
-                <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
-              </button>
-            )}
-
-            {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
-            {showLanguageSwitcher && (
-              <div className="flex items-center p-0.5 rounded-xl bg-white/50 backdrop-blur-md border border-white/70 shadow-sm">
-                {isEnActive && (
-                  <button
-                    type="button"
-                    onClick={() => setLang('en')}
-                    className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                      lang === 'en'
-                        ? 'bg-brand-green text-white shadow-sm scale-105'
-                        : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                    }`}
-                    title="English"
-                  >
-                    EN
-                  </button>
-                )}
-                {isAmActive && (
-                  <button
-                    type="button"
-                    onClick={() => setLang('am')}
-                    className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                      lang === 'am'
-                        ? 'bg-brand-green text-white shadow-sm scale-105'
-                        : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                    }`}
-                    title="አማርኛ"
-                  >
-                    አማ
-                  </button>
-                )}
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
+              }}
+              className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/25 text-brand-orange transition-all px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              title={lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}
+            >
+              <Download size={13} />
+              <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+            </button>
 
             <Link 
               to="/login" 
@@ -245,42 +211,8 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
             </Link>
           </div>
 
-          {/* Mobile Header Right Bar Controls (Visible without expanding mobile menu!) */}
+          {/* Mobile Header Right Bar Controls */}
           <div className="lg:hidden flex items-center gap-2">
-            {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
-            {showLanguageSwitcher && (
-              <div className="flex items-center p-0.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
-                {isEnActive && (
-                  <button
-                    type="button"
-                    onClick={() => setLang('en')}
-                    className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                      lang === 'en'
-                        ? 'bg-brand-green text-white shadow-sm scale-105'
-                        : 'text-stone-700 opacity-75 hover:opacity-100'
-                    }`}
-                    title="English"
-                  >
-                    EN
-                  </button>
-                )}
-                {isAmActive && (
-                  <button
-                    type="button"
-                    onClick={() => setLang('am')}
-                    className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                      lang === 'am'
-                        ? 'bg-brand-green text-white shadow-sm scale-105'
-                        : 'text-stone-700 opacity-75 hover:opacity-100'
-                    }`}
-                    title="አማርኛ"
-                  >
-                    አማ
-                  </button>
-                )}
-              </div>
-            )}
-
             {/* Mobile Menu Toggle Button */}
             <button 
               className="p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors cursor-pointer" 
@@ -292,6 +224,21 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
           </div>
         </div>
       </div>
+
+      {/* Single Floating Language Button Under Navigation Bar */}
+      {showLanguageSwitcher && (
+        <div className="fixed top-[84px] right-4 sm:right-8 z-40">
+          <button
+            type="button"
+            onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-xl border border-stone-200/90 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all text-stone-800 font-black text-xs sm:text-sm cursor-pointer tracking-wider uppercase group"
+            title={lang === 'en' ? 'Switch to አማርኛ' : 'Switch to English'}
+          >
+            <Globe size={15} className="text-brand-green group-hover:rotate-45 transition-transform duration-300" />
+            <span>{lang === 'en' ? 'EN' : 'አማ'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -309,19 +256,17 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-widest opacity-60" style={{ color: t.textColor || '#44403c' }}>Navigation</span>
                   <div className="flex items-center gap-2">
-                    {onOpenInstallModal && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          onOpenInstallModal();
-                        }}
-                        className="text-xs font-black tracking-wider uppercase px-3 py-2 rounded-xl cursor-pointer bg-brand-orange/10 text-brand-orange border border-brand-orange/25 flex items-center gap-1.5"
-                      >
-                        <Download size={14} />
-                        <span>{lang === 'en' ? 'Install App' : 'አፕ አውርድ'}</span>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
+                      }}
+                      className="text-xs font-black tracking-wider uppercase px-3 py-2 rounded-xl cursor-pointer bg-brand-orange/10 text-brand-orange border border-brand-orange/25 flex items-center gap-1.5"
+                    >
+                      <Download size={14} />
+                      <span>{lang === 'en' ? 'Install App' : 'አፕ አውርድ'}</span>
+                    </button>
                   </div>
                 </div>
                 <Link to="/login" className="w-full text-center text-white font-bold font-display rounded-full px-6 py-2.5 text-sm shadow-[0_4px_15px_rgba(58,91,50,0.2)]" style={{ backgroundColor: t.activeColor || '#3a5b32' }} onClick={() => setIsMenuOpen(false)}>

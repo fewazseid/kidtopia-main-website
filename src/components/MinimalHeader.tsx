@@ -47,41 +47,20 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ lang, setLang }) =
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
-          {showLanguageSwitcher && (
-            <div className="flex items-center p-0.5 rounded-xl bg-white/80 border border-stone-200 shadow-sm">
-              {isEnActive && (
-                <button
-                  type="button"
-                  onClick={() => setLang('en')}
-                  className={`px-2.5 py-1 text-xs font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                    lang === 'en'
-                      ? 'bg-brand-green text-white shadow-sm scale-105'
-                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                  }`}
-                  title="English"
-                >
-                  EN
-                </button>
-              )}
-              {isAmActive && (
-                <button
-                  type="button"
-                  onClick={() => setLang('am')}
-                  className={`px-2.5 py-1 text-xs font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
-                    lang === 'am'
-                      ? 'bg-brand-green text-white shadow-sm scale-105'
-                      : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
-                  }`}
-                  title="አማርኛ"
-                >
-                  አማ
-                </button>
-              )}
-            </div>
-          )}
+      {/* Single Floating Language Button Under Navigation Bar */}
+      {showLanguageSwitcher && (
+        <div className="fixed top-[84px] right-4 sm:right-8 z-40">
+          <button
+            type="button"
+            onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-xl border border-stone-200/90 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all text-stone-800 font-black text-xs sm:text-sm cursor-pointer tracking-wider uppercase group"
+            title={lang === 'en' ? 'Switch to አማርኛ' : 'Switch to English'}
+          >
+            <Globe size={15} className="text-brand-green group-hover:rotate-45 transition-transform duration-300" />
+            <span>{lang === 'en' ? 'EN' : 'አማ'}</span>
+          </button>
         </div>
+      )}
       </div>
     </header>
   );

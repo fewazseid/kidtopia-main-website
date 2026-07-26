@@ -44,21 +44,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
     };
   }, []);
 
-  // Automatically invite user to download / install the app ONCE when entering the login page (if not already installed)
+  // Auto popup timer disabled
   useEffect(() => {
-    const isDismissed = localStorage.getItem('kidtopia_install_prompt_dismissed') === 'true';
-
-    if (!isAppInstalled && !isDismissed) {
-      const timer = setTimeout(() => {
-        if (onOpenInstallModal) {
-          onOpenInstallModal();
-        } else {
-          setIsModalOpen(true);
-        }
-      }, 600);
-      return () => clearTimeout(timer);
-    }
-  }, [onOpenInstallModal, isAppInstalled]);
+    // Disabled auto modal trigger
+  }, []);
 
   const handleRedirect = (role: string) => {
     if (role === 'admin') {
@@ -236,11 +225,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
   };
 
   const handleOpenGuide = () => {
-    if (onOpenInstallModal) {
-      onOpenInstallModal();
-    } else {
-      setIsModalOpen(true);
-    }
+    window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
   };
 
   return (

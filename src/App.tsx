@@ -116,7 +116,7 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
           lang={lang} 
           setLang={setLang} 
           onScrollTo={scrollToSection} 
-          onOpenInstallModal={() => setIsInstallModalOpen(true)}
+          onOpenInstallModal={() => { window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login'; }}
         />
       )}
       
@@ -130,7 +130,7 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/contact" element={<ContactPage lang={lang} />} />
         <Route path="/book-tour" element={<BookTourPage lang={lang} />} />
         <Route path="/reschedule/:id" element={<RescheduleTourPage lang={lang} setLang={setLang} />} />
-        <Route path="/login" element={<LoginPage lang={lang} onOpenInstallModal={() => setIsInstallModalOpen(true)} />} />
+        <Route path="/login" element={<LoginPage lang={lang} onOpenInstallModal={() => { window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login'; }} />} />
         <Route path="/enroll" element={<EnrollPage lang={lang} />} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
       </Routes>
