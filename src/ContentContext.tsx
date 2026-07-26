@@ -98,8 +98,10 @@ function cleanResources(data: any): any {
 }
 
 function isConfigKey(key: string, value: any, path: string[] = []): boolean {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'object') return false; // Objects and Arrays must be traversed, not treated as atomic config values
   if (typeof value === 'boolean' || typeof value === 'number') return true;
-  if (typeof value !== 'string') return true;
+
   const lowerKey = key.toLowerCase();
   const parentKey = path.length > 1 ? path[path.length - 2].toLowerCase() : '';
   const configKeys = [
@@ -108,7 +110,7 @@ function isConfigKey(key: string, value: any, path: string[] = []): boolean {
     'actiontype', 'link', 'step', 'id', 'enabled', 'phones', 'emails', 'developerurl', 'url', 'externalenrollmenturl'
   ];
   if (configKeys.includes(lowerKey) || configKeys.includes(parentKey)) return true;
-  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
+  if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:'))) {
     return true;
   }
   return false;

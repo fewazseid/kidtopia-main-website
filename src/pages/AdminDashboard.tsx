@@ -927,8 +927,10 @@ export const AdminDashboard: React.FC = () => {
   }, [content, activeLang, activeSection]);
 
   const isNonTextField = (key: string, value: any, path: string[] = []): boolean => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'object') return false; // Objects and Arrays must be traversed, not treated as atomic values
     if (typeof value === 'number' || typeof value === 'boolean') return true;
-    if (typeof value !== 'string') return true;
+
     const lowerKey = key.toLowerCase();
     const parentKey = path.length > 1 ? path[path.length - 2].toLowerCase() : '';
     const nonTextKeys = [
@@ -937,7 +939,7 @@ export const AdminDashboard: React.FC = () => {
       'image1', 'image2', 'rating', 'rate', 'actiontype', 'link', 'step', 'id', 'enabled', 'phones', 'emails', 'developerurl', 'externalenrollmenturl'
     ];
     if (nonTextKeys.includes(lowerKey) || nonTextKeys.includes(parentKey)) return true;
-    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
+    if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:'))) {
       return true;
     }
     return false;
