@@ -126,6 +126,180 @@ export const translations = {
     },
     dailyExperience: {
       title: "A Day at Kidtopia",
+      subtitle: "Tailored daily routines designed specifically for each developmental age group",
+      schedules: [
+        {
+          id: "infants",
+          name: "Infants",
+          nameAm: "ሕፃናት",
+          ageRange: "3 to 12 Months",
+          ageRangeAm: "ከ 3 እስከ 12 ወራት",
+          description: "Nurturing care, sensory play, personalized feeding, and peaceful sleep routines for our youngest learners.",
+          descriptionAm: "ለቀዳሚ እድሜ ታዳጊዎቻችን ፍቅር የተሞላበት እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች፣ አመጋገብ እና ሰላማዊ የእረፍት ጊዜ።",
+          timeline: [
+            {
+              time: "7:30 AM - 9:00 AM",
+              activity: "Warm arrival, bottle feeding & gentle sensory play",
+              activityAm: "ሞቅ ያለ አቀባበል፣ የምግብ/ወተት ሰዓት እና ቀላል የጨዋታ ጊዜ",
+              image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              time: "9:00 AM - 10:30 AM",
+              activity: "Morning nap & soothing music relaxation",
+              activityAm: "የጠዋት እንቅልፍ እና በሙዚቃ የተቀነባበረ የእረፍት ጊዜ",
+              image: ""
+            },
+            {
+              time: "10:30 AM - 11:30 AM",
+              activity: "Tummy time, motor skill practice & outdoor buggy stroll",
+              activityAm: "የሆድ ላይ ልምምድ፣ የእንቅስቃሴ ችሎታ ማሳደጊያ እና የውጪ አየር እረፍት",
+              image: ""
+            },
+            {
+              time: "11:30 AM - 12:30 PM",
+              activity: "Midday feeding & organic puree tasting",
+              activityAm: "የምሳ ሰዓት እና የተመጣጠነ ምግብ ቅመሳ",
+              image: ""
+            },
+            {
+              time: "12:30 PM - 2:30 PM",
+              activity: "Restful afternoon sleep & quiet story nursery rhymes",
+              activityAm: "የከሰአት እንቅልፍ እና የልጆች ታሪክ ማዳመጥ",
+              image: ""
+            },
+            {
+              time: "2:30 PM - 4:00 PM",
+              activity: "Interactive puppet play & soft block exploration",
+              activityAm: "የአሻንጉሊት ጨዋታዎች እና ለስላሳ እቃዎች አሰሳ",
+              image: ""
+            },
+            {
+              time: "4:00 PM - 5:30 PM",
+              activity: "Evening wind-down, infant massage & parent pickup",
+              activityAm: "የቀኑ ማጠቃለያ፣ የእጅና እግር ማሳጅ እና ለወላጆች ማስረከብ",
+              image: ""
+            }
+          ]
+        },
+        {
+          id: "toddlers",
+          name: "Toddlers",
+          nameAm: "ታዳጊዎች",
+          ageRange: "1 to 2.5 Years",
+          ageRangeAm: "ከ 1 እስከ 2.5 ዓመት",
+          description: "Active discovery, early language building, outdoor play, and social interaction.",
+          descriptionAm: "ንቁ አሰሳ፣ የቋንቋ እድገት ልምምድ፣ የውጪ ጨዋታ እና የማህበራዊ ግንኙነት ትምህርት።",
+          timeline: [
+            {
+              time: "7:30 AM - 8:30 AM",
+              activity: "Arrival, table toys & breakfast circle",
+              activityAm: "አቀባበል፣ የጠረጴዛ ጨዋታዎች እና የቁርስ ክበብ",
+              image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              time: "8:30 AM - 9:30 AM",
+              activity: "Morning greeting circle, song & fingerplay",
+              activityAm: "የጠዋት ሰላምታ፣ መዝሙር እና የጣት ጨዋታዎች",
+              image: ""
+            },
+            {
+              time: "9:30 AM - 10:30 AM",
+              activity: "Guided sensory exploration & finger painting",
+              activityAm: "የስሜት ህዋሳት ጨዋታ እና በቀለም የመሳል ልምምድ",
+              image: ""
+            },
+            {
+              time: "10:30 AM - 11:30 AM",
+              activity: "Outdoor playground time & gross motor obstacle course",
+              activityAm: "የሜዳ ላይ ጨዋታዎች እና የአካል ብቃት እንቅስቃሴ",
+              image: ""
+            },
+            {
+              time: "11:30 AM - 12:30 PM",
+              activity: "Nutritious hot lunch & handwashing routine",
+              activityAm: "የምሳ ሰዓት እና የእጅ መታጠብ ልምድ ማሳደጊያ",
+              image: ""
+            },
+            {
+              time: "12:30 PM - 2:30 PM",
+              activity: "Recharging nap time with soft lullabies",
+              activityAm: "የእረፍት እና የእንቅስቃሴ ማደሻ ጊዜ",
+              image: ""
+            },
+            {
+              time: "2:30 PM - 3:30 PM",
+              activity: "Afternoon healthy snack & storybook corner",
+              activityAm: "የከሰአት መክሰስ እና የታሪክ መጽሐፍት ንባብ",
+              image: ""
+            },
+            {
+              time: "3:30 PM - 5:30 PM",
+              activity: "Free play, music & movement circle, pickup",
+              activityAm: "ነፃ ጨዋታ፣ የሙዚቃ እንቅስቃሴ እና ለወላጆች ማስረከብ",
+              image: ""
+            }
+          ]
+        },
+        {
+          id: "preschool",
+          name: "Preschool",
+          nameAm: "ቅድመ-ትምህርት ቤት",
+          ageRange: "2.5 to 5 Years",
+          ageRangeAm: "ከ 2.5 እስከ 5 ዓመት",
+          description: "Structured STEM learning, phonics, creative art, character building, and school readiness.",
+          descriptionAm: "የሳይንስና ቴክኖሎጂ ትምህርት፣ የቋንቋና ፊደላት ልምምድ፣ ስነ-ጥበብ እና ለትምህርት ቤት ዝግጁ የማድረግ ፕሮግራም።",
+          timeline: [
+            {
+              time: "7:30 AM - 8:30 AM",
+              activity: "Welcome, morning table challenges & breakfast",
+              activityAm: "አቀባበል፣ የጠዋት አእምሮ ማነቃቂያ እና ቁርስ",
+              image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              time: "8:30 AM - 9:30 AM",
+              activity: "Morning assembly, calendar, weather & bilingual phonics",
+              activityAm: "የጠዋት ሰብሰባ፣ የቀን መቁጠሪያ፣ የአየር ሁኔታ እና ባለሁለት ቋንቋ ልምምድ",
+              image: ""
+            },
+            {
+              time: "9:30 AM - 10:45 AM",
+              activity: "STEM learning centers, math puzzles & early writing",
+              activityAm: "የSTEM ሳይንስ ማዕከላት፣ የሒሳብ እንቆቅልሾች እና የጽሑፍ ልምምድ",
+              image: ""
+            },
+            {
+              time: "10:45 AM - 11:45 AM",
+              activity: "Outdoor sports, cooperative games & nature exploration",
+              activityAm: "የስፖርት እንቅስቃሴዎች፣ የቡድን ጨዋታዎች እና ከተፈጥሮ ጋር መተዋወቅ",
+              image: ""
+            },
+            {
+              time: "11:45 AM - 12:45 PM",
+              activity: "Family-style lunch & social etiquette lessons",
+              activityAm: "የቤተሰብ አይነት የምሳ ሰዓት እና የማህበራዊ ስነ-ምግባር ትምህርት",
+              image: ""
+            },
+            {
+              time: "12:45 PM - 2:15 PM",
+              activity: "Rest or quiet reading & mindfulness relaxation",
+              activityAm: "የእረፍት ወይም የፀጥታ ንባብ እና የአእምሮ ማረጋጊያ",
+              image: ""
+            },
+            {
+              time: "2:15 PM - 3:30 PM",
+              activity: "Creative art studio, drama play & language lab",
+              activityAm: "የስነ-ጥበብ ስቱዲዮ፣ ድራማ እና የቋንቋ ቤተ-ሙከራ",
+              image: ""
+            },
+            {
+              time: "3:30 PM - 5:30 PM",
+              activity: "Afternoon snack, reflection circle & departure",
+              activityAm: "የከሰአት መክሰስ፣ የቀኑ ማጠቃለያ እና ጉዞ ወደ ቤት",
+              image: ""
+            }
+          ]
+        }
+      ],
       timeline: [
         { time: "Morning", activity: "Welcome and check-in", image: "" },
         { time: "Mid-morning", activity: "Learning activities", image: "" },
@@ -615,6 +789,180 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
     },
     dailyExperience: {
       title: "አንድ ቀን በኪድቶፒያ",
+      subtitle: "ለእያንዳንዱ የዕድሜ ክልል ታስበው የተዘጋጁ የቀን መርሃግብሮች",
+      schedules: [
+        {
+          id: "infants",
+          name: "Infants",
+          nameAm: "ሕፃናት",
+          ageRange: "3 to 12 Months",
+          ageRangeAm: "ከ 3 እስከ 12 ወራት",
+          description: "ለቀዳሚ እድሜ ታዳጊዎቻችን ፍቅር የተሞላበት እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች፣ አመጋገብ እና ሰላማዊ የእረፍት ጊዜ።",
+          descriptionAm: "ለቀዳሚ እድሜ ታዳጊዎቻችን ፍቅር የተሞላበት እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች፣ አመጋገብ እና ሰላማዊ የእረፍት ጊዜ።",
+          timeline: [
+            {
+              time: "7:30 AM - 9:00 AM",
+              activity: "Warm arrival, bottle feeding & gentle sensory play",
+              activityAm: "ሞቅ ያለ አቀባበል፣ የምግብ/ወተት ሰዓት እና ቀላል የጨዋታ ጊዜ",
+              image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              time: "9:00 AM - 10:30 AM",
+              activity: "Morning nap & soothing music relaxation",
+              activityAm: "የጠዋት እንቅልፍ እና በሙዚቃ የተቀነባበረ የእረፍት ጊዜ",
+              image: ""
+            },
+            {
+              time: "10:30 AM - 11:30 AM",
+              activity: "Tummy time, motor skill practice & outdoor buggy stroll",
+              activityAm: "የሆድ ላይ ልምምድ፣ የእንቅስቃሴ ችሎታ ማሳደጊያ እና የውጪ አየር እረፍት",
+              image: ""
+            },
+            {
+              time: "11:30 AM - 12:30 PM",
+              activity: "Midday feeding & organic puree tasting",
+              activityAm: "የምሳ ሰዓት እና የተመጣጠነ ምግብ ቅመሳ",
+              image: ""
+            },
+            {
+              time: "12:30 PM - 2:30 PM",
+              activity: "Restful afternoon sleep & quiet story nursery rhymes",
+              activityAm: "የከሰአት እንቅልፍ እና የልጆች ታሪክ ማዳመጥ",
+              image: ""
+            },
+            {
+              time: "2:30 PM - 4:00 PM",
+              activity: "Interactive puppet play & soft block exploration",
+              activityAm: "የአሻንጉሊት ጨዋታዎች እና ለስላሳ እቃዎች አሰሳ",
+              image: ""
+            },
+            {
+              time: "4:00 PM - 5:30 PM",
+              activity: "Evening wind-down, infant massage & parent pickup",
+              activityAm: "የቀኑ ማጠቃለያ፣ የእጅና እግር ማሳጅ እና ለወላጆች ማስረከብ",
+              image: ""
+            }
+          ]
+        },
+        {
+          id: "toddlers",
+          name: "Toddlers",
+          nameAm: "ታዳጊዎች",
+          ageRange: "1 to 2.5 Years",
+          ageRangeAm: "ከ 1 እስከ 2.5 ዓመት",
+          description: "ንቁ አሰሳ፣ የቋንቋ እድገት ልምምድ፣ የውጪ ጨዋታ እና የማህበራዊ ግንኙነት ትምህርት።",
+          descriptionAm: "ንቁ አሰሳ፣ የቋንቋ እድገት ልምምድ፣ የውጪ ጨዋታ እና የማህበራዊ ግንኙነት ትምህርት።",
+          timeline: [
+            {
+              time: "7:30 AM - 8:30 AM",
+              activity: "Arrival, table toys & breakfast circle",
+              activityAm: "አቀባበል፣ የጠረጴዛ ጨዋታዎች እና የቁርስ ክበብ",
+              image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              time: "8:30 AM - 9:30 AM",
+              activity: "Morning greeting circle, song & fingerplay",
+              activityAm: "የጠዋት ሰላምታ፣ መዝሙር እና የጣት ጨዋታዎች",
+              image: ""
+            },
+            {
+              time: "9:30 AM - 10:30 AM",
+              activity: "Guided sensory exploration & finger painting",
+              activityAm: "የስሜት ህዋሳት ጨዋታ እና በቀለም የመሳል ልምምድ",
+              image: ""
+            },
+            {
+              time: "10:30 AM - 11:30 AM",
+              activity: "Outdoor playground time & gross motor obstacle course",
+              activityAm: "የሜዳ ላይ ጨዋታዎች እና የአካል ብቃት እንቅስቃሴ",
+              image: ""
+            },
+            {
+              time: "11:30 AM - 12:30 PM",
+              activity: "Nutritious hot lunch & handwashing routine",
+              activityAm: "የምሳ ሰዓት እና የእጅ መታጠብ ልምድ ማሳደጊያ",
+              image: ""
+            },
+            {
+              time: "12:30 PM - 2:30 PM",
+              activity: "Recharging nap time with soft lullabies",
+              activityAm: "የእረፍት እና የእንቅስቃሴ ማደሻ ጊዜ",
+              image: ""
+            },
+            {
+              time: "2:30 PM - 3:30 PM",
+              activity: "Afternoon healthy snack & storybook corner",
+              activityAm: "የከሰአት መክሰስ እና የታሪክ መጽሐፍት ንባብ",
+              image: ""
+            },
+            {
+              time: "3:30 PM - 5:30 PM",
+              activity: "Free play, music & movement circle, pickup",
+              activityAm: "ነፃ ጨዋታ፣ የሙዚቃ እንቅስቃሴ እና ለወላጆች ማስረከብ",
+              image: ""
+            }
+          ]
+        },
+        {
+          id: "preschool",
+          name: "Preschool",
+          nameAm: "ቅድመ-ትምህርት ቤት",
+          ageRange: "2.5 to 5 Years",
+          ageRangeAm: "ከ 2.5 እስከ 5 ዓመት",
+          description: "የሳይንስና ቴክኖሎጂ ትምህርት፣ የቋንቋና ፊደላት ልምምድ፣ ስነ-ጥበብ እና ለትምህርት ቤት ዝግጁ የማድረግ ፕሮግራም።",
+          descriptionAm: "የሳይንስና ቴክኖሎጂ ትምህርት፣ የቋንቋና ፊደላት ልምምድ፣ ስነ-ጥበብ እና ለትምህርት ቤት ዝግጁ የማድረግ ፕሮግራም።",
+          timeline: [
+            {
+              time: "7:30 AM - 8:30 AM",
+              activity: "Welcome, morning table challenges & breakfast",
+              activityAm: "አቀባበል፣ የጠዋት አእምሮ ማነቃቂያ እና ቁርስ",
+              image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              time: "8:30 AM - 9:30 AM",
+              activity: "Morning assembly, calendar, weather & bilingual phonics",
+              activityAm: "የጠዋት ሰብሰባ፣ የቀን መቁጠሪያ፣ የአየር ሁኔታ እና ባለሁለት ቋንቋ ልምምድ",
+              image: ""
+            },
+            {
+              time: "9:30 AM - 10:45 AM",
+              activity: "STEM learning centers, math puzzles & early writing",
+              activityAm: "የSTEM ሳይንስ ማዕከላት፣ የሒሳብ እንቆቅልሾች እና የጽሑፍ ልምምድ",
+              image: ""
+            },
+            {
+              time: "10:45 AM - 11:45 AM",
+              activity: "Outdoor sports, cooperative games & nature exploration",
+              activityAm: "የስፖርት እንቅስቃሴዎች፣ የቡድን ጨዋታዎች እና ከተፈጥሮ ጋር መተዋወቅ",
+              image: ""
+            },
+            {
+              time: "11:45 AM - 12:45 PM",
+              activity: "Family-style lunch & social etiquette lessons",
+              activityAm: "የቤተሰብ አይነት የምሳ ሰዓት እና የማህበራዊ ስነ-ምግባር ትምህርት",
+              image: ""
+            },
+            {
+              time: "12:45 PM - 2:15 PM",
+              activity: "Rest or quiet reading & mindfulness relaxation",
+              activityAm: "የእረፍት ወይም የፀጥታ ንባብ እና የአእምሮ ማረጋጊያ",
+              image: ""
+            },
+            {
+              time: "2:15 PM - 3:30 PM",
+              activity: "Creative art studio, drama play & language lab",
+              activityAm: "የስነ-ጥበብ ስቱዲዮ፣ ድራማ እና የቋንቋ ቤተ-ሙከራ",
+              image: ""
+            },
+            {
+              time: "3:30 PM - 5:30 PM",
+              activity: "Afternoon snack, reflection circle & departure",
+              activityAm: "የከሰአት መክሰስ፣ የቀኑ ማጠቃለያ እና ጉዞ ወደ ቤት",
+              image: ""
+            }
+          ]
+        }
+      ],
       timeline: [
         { time: "ጥዋት", activity: "እንኳን ደህና መጡ እና መግቢያ", image: "" },
         { time: "ረፋድ", activity: "የመማሪያ እንቅስቃሴዎች", image: "" },

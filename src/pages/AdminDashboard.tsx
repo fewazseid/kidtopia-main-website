@@ -29,6 +29,7 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
 import { ThreeSixtyViewer } from '../components/ThreeSixtyViewer';
+import { DailyExperienceScheduleManager } from '../components/DailyExperienceScheduleManager';
 
 export function convertGoogleDriveUrl(url: string): string {
   if (!url) return '';
@@ -655,6 +656,13 @@ export const AdminDashboard: React.FC = () => {
             policiesAndRegulations: enDocData.resources?.policiesAndRegulations !== undefined ? enDocData.resources.policiesAndRegulations : defaultTranslations.en.resources.policiesAndRegulations,
           },
           nav: { ...defaultTranslations.en.nav, ...(enDocData.nav || {}) },
+          dailyExperience: {
+            ...defaultTranslations.en.dailyExperience,
+            ...(enDocData.dailyExperience || {}),
+            schedules: (enDocData.dailyExperience?.schedules && enDocData.dailyExperience.schedules.length > 0)
+              ? enDocData.dailyExperience.schedules
+              : defaultTranslations.en.dailyExperience.schedules
+          },
           footer: {
             ...defaultTranslations.en.footer,
             ...(enDocData.footer || {}),
@@ -685,6 +693,13 @@ export const AdminDashboard: React.FC = () => {
             policiesAndRegulations: amDocData.resources?.policiesAndRegulations !== undefined ? amDocData.resources.policiesAndRegulations : defaultTranslations.am.resources.policiesAndRegulations,
           },
           nav: { ...defaultTranslations.am.nav, ...(amDocData.nav || {}) },
+          dailyExperience: {
+            ...defaultTranslations.am.dailyExperience,
+            ...(amDocData.dailyExperience || {}),
+            schedules: (amDocData.dailyExperience?.schedules && amDocData.dailyExperience.schedules.length > 0)
+              ? amDocData.dailyExperience.schedules
+              : defaultTranslations.am.dailyExperience.schedules
+          },
           footer: {
             ...defaultTranslations.am.footer,
             ...(amDocData.footer || {}),
@@ -3720,6 +3735,16 @@ export const AdminDashboard: React.FC = () => {
                             Drag to look around the virtual room, and use the "Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
                           </p>
                           <ThreeSixtyViewer isAdminMode={true} />
+                        </div>
+                      )}
+                      {activeSection === 'dailyExperience' && (
+                        <div className="mb-10">
+                          <DailyExperienceScheduleManager 
+                            content={content} 
+                            setContent={setContent} 
+                            activeLang={activeLang} 
+                            onSave={handleSave} 
+                          />
                         </div>
                       )}
                       {activeSection === 'softwareShowcase' && (
