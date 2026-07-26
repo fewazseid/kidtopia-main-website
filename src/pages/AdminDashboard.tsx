@@ -2130,7 +2130,7 @@ export const AdminDashboard: React.FC = () => {
               <span>Learn More Section Content</span>
             </div>
           )}
-          <div className="flex justify-between items-center mb-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
             <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider">
               {isEmailBody ? 'Email Content (Line breaks are preserved)' : key.replace(/([A-Z])/g, ' $1').trim()}
             </label>
@@ -2138,7 +2138,7 @@ export const AdminDashboard: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleTranslateDirection(path, 'en', 'am')}
-                className="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md border border-blue-200 transition flex items-center gap-1 cursor-pointer"
+                className="text-[10px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md border border-blue-200 transition flex items-center gap-1 cursor-pointer"
                 title="Translate English to Amharic using AI"
               >
                 <span>🇬🇧 ➔ 🇪🇹 EN to AM</span>
@@ -2146,7 +2146,7 @@ export const AdminDashboard: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleTranslateDirection(path, 'am', 'en')}
-                className="text-[10px] font-bold px-2 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md border border-emerald-200 transition flex items-center gap-1 cursor-pointer"
+                className="text-[10px] font-bold px-2.5 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md border border-emerald-200 transition flex items-center gap-1 cursor-pointer"
                 title="Translate Amharic to English using AI"
               >
                 <span>🇪🇹 ➔ 🇬🇧 AM to EN</span>
