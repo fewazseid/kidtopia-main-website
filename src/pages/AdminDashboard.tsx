@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload, Globe, Check, GripVertical } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload, Globe, Check, GripVertical, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh, ContentContext, useLanguageConfig } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -1613,6 +1613,7 @@ export const AdminDashboard: React.FC = () => {
     { id: 'languages', icon: <Globe size={18} />, label: 'Language Settings', category: 'System Settings' },
     { id: 'users', icon: <Users size={18} />, label: 'User Management', category: 'System Settings' },
     { id: 'security', icon: <Shield size={18} />, label: 'Security Settings', category: 'System Settings' },
+    { id: 'dataRecovery', icon: <RefreshCw size={18} />, label: 'Content Recovery & Backup', category: 'System Settings' },
   ];
 
   const previewableSections = [
@@ -3104,6 +3105,111 @@ export const AdminDashboard: React.FC = () => {
                           {apiStatus}
                         </div>
                       )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : activeSection === 'dataRecovery' ? (
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-xl font-bold text-stone-900 mb-2">Content Recovery & Backup</h2>
+                  <p className="text-sm text-stone-500 mb-6">
+                    Manage your saved website information, export full JSON backups of English and Amharic data, or restore/import previously saved content if needed.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    {/* Export English */}
+                    <div className="bg-white p-6 rounded-2xl border border-stone-200/80 shadow-sm flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-bold text-stone-800 text-lg mb-1">Export English Content (EN)</h3>
+                        <p className="text-xs text-stone-500 mb-4">Download a complete JSON file of all English website wording, sections, and items.</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(content.en, null, 2));
+                          const downloadAnchor = document.createElement('a');
+                          downloadAnchor.setAttribute("href", dataStr);
+                          downloadAnchor.setAttribute("download", `kidtopia_content_en_${new Date().toISOString().slice(0,10)}.json`);
+                          document.body.appendChild(downloadAnchor);
+                          downloadAnchor.click();
+                          downloadAnchor.remove();
+                          setFeedback({ type: 'success', message: 'English content backup downloaded successfully!' });
+                        }}
+                        className="w-full py-2.5 bg-brand-green text-white rounded-xl font-bold text-sm hover:opacity-90 transition shadow-sm cursor-pointer"
+                      >
+                        Download EN Backup JSON
+                      </button>
+                    </div>
+
+                    {/* Export Amharic */}
+                    <div className="bg-white p-6 rounded-2xl border border-stone-200/80 shadow-sm flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-bold text-stone-800 text-lg mb-1">Export Amharic Content (AM)</h3>
+                        <p className="text-xs text-stone-500 mb-4">Download a complete JSON file of all Amharic website wording, sections, and items.</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(content.am, null, 2));
+                          const downloadAnchor = document.createElement('a');
+                          downloadAnchor.setAttribute("href", dataStr);
+                          downloadAnchor.setAttribute("download", `kidtopia_content_am_${new Date().toISOString().slice(0,10)}.json`);
+                          document.body.appendChild(downloadAnchor);
+                          downloadAnchor.click();
+                          downloadAnchor.remove();
+                          setFeedback({ type: 'success', message: 'Amharic content backup downloaded successfully!' });
+                        }}
+                        className="w-full py-2.5 bg-brand-teal text-white rounded-xl font-bold text-sm hover:opacity-90 transition shadow-sm cursor-pointer"
+                      >
+                        Download AM Backup JSON
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Restore / Import Section */}
+                  <div className="bg-white p-6 rounded-2xl border border-stone-200/80 shadow-sm space-y-4">
+                    <h3 className="font-bold text-stone-800 text-lg">Restore or Import Content Backup</h3>
+                    <p className="text-xs text-stone-500">
+                      If you have an exported JSON backup file containing your edited website information, upload it here to restore it directly to live Firestore database.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 items-center">
+                      <div className="w-full">
+                        <label className="block text-xs font-bold text-stone-700 mb-1">Select Language Target</label>
+                        <select 
+                          id="restore-lang-select" 
+                          className="w-full px-4 py-2 border border-stone-200 rounded-xl text-sm font-medium outline-none focus:border-brand-green bg-white"
+                          defaultValue="en"
+                        >
+                          <option value="en">English (EN)</option>
+                          <option value="am">Amharic (AM)</option>
+                        </select>
+                      </div>
+
+                      <div className="w-full">
+                        <label className="block text-xs font-bold text-stone-700 mb-1">Upload JSON Backup</label>
+                        <input 
+                          type="file" 
+                          accept=".json"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const targetLang = (document.getElementById('restore-lang-select') as HTMLSelectElement)?.value || 'en';
+                            try {
+                              const text = await file.text();
+                              const parsed = JSON.parse(text);
+                              if (!parsed || typeof parsed !== 'object') {
+                                throw new Error('Invalid JSON structure');
+                              }
+                              await setDoc(doc(db, 'content', targetLang), parsed);
+                              setContent((prev: any) => ({ ...prev, [targetLang]: parsed }));
+                              setFeedback({ type: 'success', message: `Successfully restored ${targetLang.toUpperCase()} content from backup file!` });
+                            } catch (err: any) {
+                              setFeedback({ type: 'error', message: `Failed to parse or restore backup: ${err.message}` });
+                            }
+                          }}
+                          className="w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-stone-100 file:text-stone-700 hover:file:bg-stone-200 cursor-pointer"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
