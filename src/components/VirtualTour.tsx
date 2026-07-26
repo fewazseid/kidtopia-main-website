@@ -132,6 +132,18 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
   const [initialIndex, setInitialIndex] = useState<number | null>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+  // Lock body scroll when media popup lightbox is active
+  useEffect(() => {
+    if (activeMediaIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeMediaIndex]);
+
   const mediaList = t.media || [];
   const hasMoreThanSix = mediaList.length > 6;
   const visibleMedia = (!isExpanded && hasMoreThanSix) 

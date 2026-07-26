@@ -37,6 +37,18 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState<boolean>(false);
 
+  // Lock body scroll when image is expanded in modal
+  useEffect(() => {
+    if (expandedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [expandedImage]);
+
   // Set up global click listener for images
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {

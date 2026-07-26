@@ -52,6 +52,18 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
   // Scroll to top when location changes
   useEffect(() => {
     window.scrollTo(0, 0);

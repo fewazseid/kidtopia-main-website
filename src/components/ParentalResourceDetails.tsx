@@ -21,6 +21,14 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const user = auth.currentUser;
 
+  // Lock background scroll when details modal is active
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   // Fetch parent profile for uploads and avatar
   useEffect(() => {
     const fetchProfile = async () => {

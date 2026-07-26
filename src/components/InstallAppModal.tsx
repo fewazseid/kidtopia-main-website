@@ -35,6 +35,18 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
     onClose();
   };
 
+  // Lock background body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     const checkIsInstalled = () => {
       const standalone = window.matchMedia('(display-mode: standalone)').matches || 
@@ -73,7 +85,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   }, [isOpen]);
 
   const handleOpenInSafari = () => {
-    window.open(window.location.href, '_blank');
+    window.open('https://kidtopia-main-u5x6pj.laravel.cloud/login', '_blank');
   };
 
   const handleInstallClick = async () => {
@@ -226,13 +238,23 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
 
               {/* Action Buttons */}
               <div className="pt-1 flex flex-col gap-2">
+                <a
+                  href="https://kidtopia-main-u5x6pj.laravel.cloud/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 px-4 bg-brand-orange hover:bg-brand-orange/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-orange/30 text-center"
+                >
+                  <ExternalLink size={16} />
+                  <span>{lang === 'en' ? 'Open Kidtopia Portal (kidtopia-main-u5x6pj.laravel.cloud)' : 'የኪድቶፒያ ሊንክ ክፈት'}</span>
+                </a>
+
                 {!isIOS && (
                   <button
                     onClick={handleInstallClick}
                     className="w-full py-3 px-4 bg-brand-green hover:bg-brand-green/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-green/30"
                   >
                     <Download size={16} />
-                    <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+                    <span>{lang === 'en' ? 'Install App Prompt' : 'አፕሊኬሽኑን ጫን'}</span>
                   </button>
                 )}
 
