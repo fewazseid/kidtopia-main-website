@@ -25,7 +25,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ContentProvider, useLanguageConfig } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
 import { InstallAppModal } from './components/InstallAppModal';
-import { AppLauncherBanner } from './components/AppLauncherBanner';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Smartphone, Sparkles } from 'lucide-react';
@@ -121,8 +120,6 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <div className="absolute top-[45%] left-[10%] w-[50vw] h-[50vw] rounded-full bg-brand-yellow/10 blur-[140px] animate-pulse" style={{ animationDuration: '12s' }} />
         <div className="absolute top-[15%] right-[5%] w-[45vw] h-[45vw] rounded-full bg-brand-teal/8 blur-[120px] animate-pulse" style={{ animationDuration: '18s' }} />
       </div>
-
-      <AppLauncherBanner lang={lang} />
 
       {isMinimalLayout ? (
         <MinimalHeader lang={lang} setLang={setLang} />
