@@ -85,7 +85,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   }, [isOpen]);
 
   const handleOpenInSafari = () => {
-    window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
+    window.open(window.location.origin, '_blank');
   };
 
   const handleInstallClick = async () => {
@@ -238,24 +238,13 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
 
               {/* Action Buttons */}
               <div className="pt-1 flex flex-col gap-2">
-                <a
-                  href="https://kidtopia-main-u5x6pj.laravel.cloud/login"
-                  target="_self"
-                  className="w-full py-3 px-4 bg-brand-orange hover:bg-brand-orange/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-orange/30 text-center"
+                <button
+                  onClick={handleInstallClick}
+                  className="w-full py-3 px-4 bg-brand-green hover:bg-brand-green/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-green/30"
                 >
-                  <ExternalLink size={16} />
-                  <span>{lang === 'en' ? 'Open Kidtopia Portal (kidtopia-main-u5x6pj.laravel.cloud)' : 'የኪድቶፒያ ሊንክ ክፈት'}</span>
-                </a>
-
-                {!isIOS && (
-                  <button
-                    onClick={handleInstallClick}
-                    className="w-full py-3 px-4 bg-brand-green hover:bg-brand-green/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-green/30"
-                  >
-                    <Download size={16} />
-                    <span>{lang === 'en' ? 'Install App Prompt' : 'አፕሊኬሽኑን ጫን'}</span>
-                  </button>
-                )}
+                  <Download size={16} />
+                  <span>{lang === 'en' ? 'Install Kidtopia App' : 'አፕሊኬሽኑን ጫን'}</span>
+                </button>
 
                 {/* Confirm button */}
                 <button

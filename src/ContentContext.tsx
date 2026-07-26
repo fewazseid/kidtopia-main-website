@@ -97,20 +97,18 @@ function cleanResources(data: any): any {
   return cleaned;
 }
 
-function isConfigKey(key: string, value: any): boolean {
+function isConfigKey(key: string, value: any, path: string[] = []): boolean {
+  if (typeof value === 'boolean' || typeof value === 'number') return true;
+  if (typeof value !== 'string') return true;
   const lowerKey = key.toLowerCase();
+  const parentKey = path.length > 1 ? path[path.length - 2].toLowerCase() : '';
   const configKeys = [
     'backgroundtype', 'icon', 'logo', 'buttonlink', 'googlemapscoordinates',
-    'image1', 'image2', 'rating', 'rate', 'image', 'actiontype', 'link', 
-    'step', 'time', 'id', 'enabled', 'phones', 'emails', 'developerurl'
+    'image1', 'image2', 'rating', 'rate', 'image', 'video', 'heroimage', 'herovideo',
+    'actiontype', 'link', 'step', 'id', 'enabled', 'phones', 'emails', 'developerurl', 'url', 'externalenrollmenturl'
   ];
-  if (configKeys.includes(lowerKey)) return true;
-  if (typeof value === 'string') {
-    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
-      return true;
-    }
-  }
-  if (typeof value === 'boolean' || typeof value === 'number') {
+  if (configKeys.includes(lowerKey) || configKeys.includes(parentKey)) return true;
+  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
     return true;
   }
   return false;
@@ -210,7 +208,7 @@ function alignStructures(enVal: any, amVal: any, path: string[] = []): any {
     const resObj: any = {};
     for (const key of Object.keys(enVal)) {
       const nextPath = [...path, key];
-      if (isConfigKey(key, enVal[key])) {
+      if (isConfigKey(key, enVal[key], nextPath)) {
         resObj[key] = JSON.parse(JSON.stringify(enVal[key]));
       } else {
         if (amVal[key] === undefined || amVal[key] === null) {

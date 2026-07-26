@@ -926,15 +926,17 @@ export const AdminDashboard: React.FC = () => {
     }
   }, [content, activeLang, activeSection]);
 
-  const isNonTextField = (key: string, value: any): boolean => {
+  const isNonTextField = (key: string, value: any, path: string[] = []): boolean => {
+    if (typeof value === 'number' || typeof value === 'boolean') return true;
     if (typeof value !== 'string') return true;
     const lowerKey = key.toLowerCase();
+    const parentKey = path.length > 1 ? path[path.length - 2].toLowerCase() : '';
     const nonTextKeys = [
       'image', 'video', 'heroimage', 'herovideo', 'url', 
       'backgroundtype', 'icon', 'logo', 'buttonlink', 'googlemapscoordinates',
-      'image1', 'image2', 'rating', 'rate', 'actiontype', 'link', 'step', 'time', 'id', 'enabled', 'phones', 'emails', 'developerurl'
+      'image1', 'image2', 'rating', 'rate', 'actiontype', 'link', 'step', 'id', 'enabled', 'phones', 'emails', 'developerurl', 'externalenrollmenturl'
     ];
-    if (nonTextKeys.includes(lowerKey)) return true;
+    if (nonTextKeys.includes(lowerKey) || nonTextKeys.includes(parentKey)) return true;
     if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) {
       return true;
     }
@@ -1145,9 +1147,14 @@ export const AdminDashboard: React.FC = () => {
     let repairedEn = enVal;
     let repairedAm = amVal;
 
+    const keyName = currentPath[currentPath.length - 1] || '';
+    if (keyName && isNonTextField(keyName, repairedEn, currentPath)) {
+      const syncVal = (repairedEn !== undefined && repairedEn !== null && repairedEn !== "") ? repairedEn : repairedAm;
+      return { en: syncVal, am: syncVal };
+    }
+
     // Structural repair: If one side is an object/array and the other is a primitive (e.g., "", null, undefined),
     // convert the primitive to match the object's structure.
-    const keyName = currentPath[currentPath.length - 1];
     if (typeof enVal === 'object' && enVal !== null && (typeof amVal !== 'object' || amVal === null)) {
       repairedAm = transformToOtherLangItem(enVal, keyName);
     } else if (typeof amVal === 'object' && amVal !== null && (typeof enVal !== 'object' || enVal === null)) {
@@ -1343,7 +1350,7 @@ export const AdminDashboard: React.FC = () => {
       current[lastKey] = val;
     };
 
-    if (isNonTextField(lastKey, value)) {
+    if (isNonTextField(lastKey, value, path)) {
       writeToLang('en', value);
       writeToLang('am', value);
     } else {
@@ -1526,30 +1533,35 @@ export const AdminDashboard: React.FC = () => {
   }
 
   const sections = [
-    { id: 'languages', icon: <Globe size={18} />, label: 'Language Settings' },
-    { id: 'bookings', icon: <Megaphone size={18} />, label: 'Tour Bookings' },
-    { id: 'newsletter', icon: <Mail size={18} />, label: 'Newsletter' },
-    { id: 'emailTemplates', icon: <Megaphone size={18} />, label: 'Email Templates' },
-    { id: 'nav', icon: <Layout size={18} />, label: 'Navigation' },
-    { id: 'announcement', icon: <Megaphone size={18} />, label: 'Announcement' },
-    { id: 'hero', icon: <Layout size={18} />, label: 'Hero Section' },
-    { id: 'safety', icon: <Shield size={18} />, label: 'Safety & Trust' },
-    { id: 'programs', icon: <Settings size={18} />, label: 'Programs' },
-    { id: 'staff', icon: <Users size={18} />, label: 'Staff' },
-    { id: 'whyChoose', icon: <Shield size={18} />, label: 'Why Choose Us' },
-    { id: 'faq', icon: <HelpCircle size={18} />, label: 'FAQs' },
-    { id: 'dailyExperience', icon: <Layout size={18} />, label: 'Daily Experience' },
-    { id: 'testimonials', icon: <Users size={18} />, label: 'Testimonials' },
-    { id: 'cta', icon: <Layout size={18} />, label: 'Call to Action' },
-    { id: 'virtualTour', icon: <Layout size={18} />, label: 'Virtual Tour' },
-    { id: 'softwareShowcase', icon: <Layout size={18} />, label: 'Software Showcase' },
-    { id: 'resources', icon: <Layout size={18} />, label: 'Resources' },
-    { id: 'footer', icon: <Layout size={18} />, label: 'Footer' },
-    { id: 'login', icon: <Users size={18} />, label: 'Login Page' },
-    { id: 'leadCapture', icon: <Layout size={18} />, label: 'Lead Capture' },
-    { id: 'enrollmentPage', icon: <FileText size={18} />, label: 'Enrollment Page' },
-    { id: 'users', icon: <Users size={18} />, label: 'User Management' },
-    { id: 'security', icon: <Shield size={18} />, label: 'Security Settings' },
+    // WEBSITE HOMEPAGE SECTIONS (STRICT TOP-TO-BOTTOM PAGE FLOW)
+    { id: 'nav', icon: <Layout size={18} />, label: 'Header Navigation', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'announcement', icon: <Megaphone size={18} />, label: 'Announcement Bar', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'hero', icon: <Layout size={18} />, label: 'Hero Section', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'safety', icon: <Shield size={18} />, label: 'Trust & Safety', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'programs', icon: <Settings size={18} />, label: 'Programs', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'whyChoose', icon: <Shield size={18} />, label: 'Why Choose Us', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'softwareShowcase', icon: <Layout size={18} />, label: 'Parent App Showcase', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'staff', icon: <Users size={18} />, label: 'Our Staff', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'virtualTour', icon: <Layout size={18} />, label: 'Virtual Campus Tour', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'dailyExperience', icon: <Layout size={18} />, label: 'Daily Experience', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'resources', icon: <Layout size={18} />, label: 'Parent Resources', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'testimonials', icon: <Users size={18} />, label: 'Testimonials', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'faq', icon: <HelpCircle size={18} />, label: 'FAQs', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'cta', icon: <Layout size={18} />, label: 'Call to Action', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'leadCapture', icon: <Layout size={18} />, label: 'Lead Capture Popup', category: 'Website Layout (Top-to-Bottom)' },
+    { id: 'footer', icon: <Layout size={18} />, label: 'Footer', category: 'Website Layout (Top-to-Bottom)' },
+
+    // OTHER WEBSITE PAGES
+    { id: 'enrollmentPage', icon: <FileText size={18} />, label: 'Enrollment Page', category: 'Other Website Pages' },
+    { id: 'login', icon: <Users size={18} />, label: 'Login Page', category: 'Other Website Pages' },
+
+    // ADMIN MANAGEMENT & OPERATIONS
+    { id: 'bookings', icon: <Megaphone size={18} />, label: 'Tour Bookings', category: 'Management & Operations' },
+    { id: 'emailTemplates', icon: <Megaphone size={18} />, label: 'Tour Email Templates', category: 'Management & Operations' },
+    { id: 'newsletter', icon: <Mail size={18} />, label: 'Email Newsletter', category: 'Management & Operations' },
+    { id: 'languages', icon: <Globe size={18} />, label: 'Language Settings', category: 'System Settings' },
+    { id: 'users', icon: <Users size={18} />, label: 'User Management', category: 'System Settings' },
+    { id: 'security', icon: <Shield size={18} />, label: 'Security Settings', category: 'System Settings' },
   ];
 
   const previewableSections = [
@@ -2512,23 +2524,32 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-                {sections.map(section => (
-                  <button
-                    key={section.id}
-                    onClick={() => {
-                      setActiveSection(section.id);
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                      activeSection === section.id 
-                        ? 'bg-brand-green/10 text-brand-green' 
-                        : 'text-stone-600 hover:bg-stone-100'
-                    }`}
-                  >
-                    {section.icon}
-                    {section.label}
-                  </button>
-                ))}
+                {sections.map((section, idx) => {
+                  const showCategoryHeader = idx === 0 || sections[idx - 1].category !== section.category;
+                  return (
+                    <React.Fragment key={section.id}>
+                      {showCategoryHeader && (
+                        <div className="pt-3 pb-1.5 px-3 text-[10px] font-black uppercase tracking-wider text-stone-400 select-none">
+                          {section.category}
+                        </div>
+                      )}
+                      <button
+                        onClick={() => {
+                          setActiveSection(section.id);
+                          setIsSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          activeSection === section.id 
+                            ? 'bg-brand-green text-white shadow-sm' 
+                            : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                        }`}
+                      >
+                        {section.icon}
+                        <span>{section.label}</span>
+                      </button>
+                    </React.Fragment>
+                  );
+                })}
               </nav>
 
               <div className="p-4 border-t border-stone-200">
@@ -2568,20 +2589,29 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-          {sections.map(section => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                activeSection === section.id 
-                  ? 'bg-brand-green/10 text-brand-green' 
-                  : 'text-stone-600 hover:bg-stone-100'
-              }`}
-            >
-              {section.icon}
-              {section.label}
-            </button>
-          ))}
+          {sections.map((section, idx) => {
+            const showCategoryHeader = idx === 0 || sections[idx - 1].category !== section.category;
+            return (
+              <React.Fragment key={section.id}>
+                {showCategoryHeader && (
+                  <div className="pt-3 pb-1.5 px-3 text-[10px] font-black uppercase tracking-wider text-stone-400 select-none">
+                    {section.category}
+                  </div>
+                )}
+                <button
+                  onClick={() => setActiveSection(section.id)}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    activeSection === section.id 
+                      ? 'bg-brand-green text-white shadow-sm' 
+                      : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                  }`}
+                >
+                  {section.icon}
+                  <span>{section.label}</span>
+                </button>
+              </React.Fragment>
+            );
+          })}
         </nav>
 
         <div className="p-4 border-t border-stone-200">
