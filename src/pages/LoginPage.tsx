@@ -225,7 +225,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
   };
 
   const handleOpenGuide = () => {
-    window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
+    if (onOpenInstallModal) {
+      onOpenInstallModal();
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   return (

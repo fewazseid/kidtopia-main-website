@@ -77,12 +77,6 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   };
 
   const handleInstallClick = async () => {
-    // If inside an iframe preview, open top-level tab so Safari's native toolbar is available
-    if (isInIframe) {
-      handleOpenInSafari();
-      return;
-    }
-
     // On Android / Chrome / Desktop with native prompt API support
     const activePrompt = (window as any).deferredPwaPrompt || deferredPrompt;
     if (activePrompt && typeof activePrompt.prompt === 'function') {
@@ -98,6 +92,8 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
       } catch (err) {
         console.error('PWA install prompt error:', err);
       }
+    } else {
+      markAppInstalled();
     }
   };
 

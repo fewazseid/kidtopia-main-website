@@ -190,17 +190,17 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
           {/* Right Actions (Desktop) */}
           <div className="hidden lg:flex items-center gap-2.5 xl:gap-3.5">
-            <button
-              type="button"
-              onClick={() => {
-                window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
-              }}
-              className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/25 text-brand-orange transition-all px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
-              title={lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}
-            >
-              <Download size={13} />
-              <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
-            </button>
+            {onOpenInstallModal && (
+              <button
+                type="button"
+                onClick={onOpenInstallModal}
+                className="text-[10px] xl:text-[11px] font-black tracking-wider uppercase bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/25 text-brand-orange transition-all px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-lg shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                title={lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}
+              >
+                <Download size={13} />
+                <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+              </button>
+            )}
 
             <Link 
               to="/login" 
@@ -256,17 +256,19 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-widest opacity-60" style={{ color: t.textColor || '#44403c' }}>Navigation</span>
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
-                      }}
-                      className="text-xs font-black tracking-wider uppercase px-3 py-2 rounded-xl cursor-pointer bg-brand-orange/10 text-brand-orange border border-brand-orange/25 flex items-center gap-1.5"
-                    >
-                      <Download size={14} />
-                      <span>{lang === 'en' ? 'Install App' : 'አፕ አውርድ'}</span>
-                    </button>
+                    {onOpenInstallModal && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          onOpenInstallModal();
+                        }}
+                        className="text-xs font-black tracking-wider uppercase px-3 py-2 rounded-xl cursor-pointer bg-brand-orange/10 text-brand-orange border border-brand-orange/25 flex items-center gap-1.5"
+                      >
+                        <Download size={14} />
+                        <span>{lang === 'en' ? 'Install App' : 'አፕ አውርድ'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
                 <Link to="/login" className="w-full text-center text-white font-bold font-display rounded-full px-6 py-2.5 text-sm shadow-[0_4px_15px_rgba(58,91,50,0.2)]" style={{ backgroundColor: t.activeColor || '#3a5b32' }} onClick={() => setIsMenuOpen(false)}>
