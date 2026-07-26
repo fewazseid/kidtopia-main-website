@@ -91,7 +91,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
                 onClick={() => {
                   if (resource.actionType) {
                     if (resource.actionType === 'url' && resource.link) {
-                      window.open(resource.link, '_blank');
+                      window.location.href = resource.link;
                     } else {
                       setActiveActionType(resource.actionType);
                     }

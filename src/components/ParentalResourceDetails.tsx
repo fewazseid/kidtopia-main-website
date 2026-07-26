@@ -324,10 +324,11 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
   // ==========================================
   // 5. DEVELOPMENT MILESTONES TRACKER
   // ==========================================
-  const [milestoneAge, setMilestoneAge] = useState<'toddler' | 'preschool' | 'kinder'>('toddler');
+  const [milestoneAge, setMilestoneAge] = useState<string>('infant');
   const [checkedMilestones, setCheckedMilestones] = useState<string[]>([]);
 
   const milestonesData = contentResources.milestonesData || {
+    infant: { title: '', items: [] },
     toddler: { title: '', items: [] },
     preschool: { title: '', items: [] },
     kinder: { title: '', items: [] }
@@ -842,26 +843,36 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                   </div>
                   
                   {/* Category select buttons */}
-                  <div className="flex bg-stone-100 p-1 rounded-xl shrink-0">
-                    {(['toddler', 'preschool', 'kinder'] as const).map((ageKey) => (
-                      <button
-                        key={ageKey}
-                        onClick={() => setMilestoneAge(ageKey)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all capitalize ${
-                          milestoneAge === ageKey
-                            ? 'bg-white text-brand-green shadow-sm'
-                            : 'text-stone-600 hover:text-stone-900'
-                        }`}
-                      >
-                        {ageKey === 'toddler' ? (lang === 'en' ? 'Toddler' : 'ታዳጊ') : ageKey === 'preschool' ? (lang === 'en' ? 'Preschool' : 'ቅድመ ትምህርት') : (lang === 'en' ? 'Kindergarten' : 'ኪንደርጋርተን')}
-                      </button>
-                    ))}
+                  <div className="flex bg-stone-100 p-1 rounded-xl shrink-0 flex-wrap gap-1">
+                    {Object.keys(milestonesData).map((ageKey) => {
+                      const isSelected = milestoneAge === ageKey;
+                      let label = ageKey;
+                      if (ageKey === 'infant') label = lang === 'en' ? 'Infants' : 'ሕፃናት';
+                      else if (ageKey === 'toddler') label = lang === 'en' ? 'Toddlers' : 'ታዳጊዎች';
+                      else if (ageKey === 'preschool') label = lang === 'en' ? 'Preschool' : 'ቅድመ ትምህርት';
+                      else if (ageKey === 'kinder') label = lang === 'en' ? 'Kindergarten' : 'ኪንደርጋርተን';
+
+                      return (
+                        <button
+                          key={ageKey}
+                          onClick={() => setMilestoneAge(ageKey)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-white text-brand-green shadow-sm'
+                              : 'text-stone-600 hover:text-stone-900'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 {(() => {
-                  const currentCategoryItems = milestonesData[milestoneAge].items;
+                  const activeCategory = milestonesData[milestoneAge] || milestonesData[Object.keys(milestonesData)[0]] || { title: '', items: [] };
+                  const currentCategoryItems = activeCategory.items || [];
                   const checkedInCat = currentCategoryItems.filter(item => checkedMilestones.includes(item.id)).length;
                   const totalInCat = currentCategoryItems.length;
                   const percent = totalInCat > 0 ? Math.round((checkedInCat / totalInCat) * 100) : 0;
@@ -870,7 +881,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                     <div className="mb-8 p-5 bg-brand-green/5 border border-brand-green/10 rounded-2.5xl">
                       <div className="flex justify-between items-center mb-2.5">
                         <span className="text-xs font-black uppercase tracking-wider text-brand-green">
-                          {milestonesData[milestoneAge].title}
+                          {activeCategory.title}
                         </span>
                         <span className="text-sm font-mono font-bold text-brand-green">{percent}% Completed</span>
                       </div>
@@ -899,7 +910,7 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
 
                 {/* Checklist Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                  {milestonesData[milestoneAge].items.map((item) => {
+                  {((milestonesData[milestoneAge] || milestonesData[Object.keys(milestonesData)[0]] || { items: [] }).items || []).map((item) => {
                     const isChecked = checkedMilestones.includes(item.id);
                     return (
                       <div 
@@ -908,12 +919,6 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                           setCheckedMilestones(prev => 
                             isChecked ? prev.filter(id => id !== item.id) : [...prev, item.id]
                           );
-                          if (!isChecked) {
-                            // Play audio guidance safely
-                            const utterance = new SpeechSynthesisUtterance(lang === 'en' ? 'Awesome!' : 'ድንቅ!');
-                            utterance.rate = 1.2;
-                            window.speechSynthesis?.speak(utterance);
-                          }
                         }}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 select-none ${
                           isChecked 

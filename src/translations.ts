@@ -463,6 +463,17 @@ export const translations = {
         }
       ],
       milestonesData: {
+        infant: {
+          title: "Infants (3 - 12 Months)",
+          items: [
+            { id: "i1", text: "Rolls over from tummy to back and back to tummy" },
+            { id: "i2", text: "Responds to own name and smiles at familiar faces" },
+            { id: "i3", text: "Reaches for and grasps toys with purpose" },
+            { id: "i4", text: "Babbles consonant sounds (e.g., 'ba-ba', 'da-da')" },
+            { id: "i5", text: "Sits without support and explores surroundings" },
+            { id: "i6", text: "Tracks moving objects smoothly with eyes" }
+          ]
+        },
         toddler: {
           title: "Toddlers (12 - 24 Months)",
           items: [
@@ -1126,6 +1137,17 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
         }
       ],
       milestonesData: {
+        infant: {
+          title: "ሕፃናት (ከ3 - 12 ወራት)",
+          items: [
+            { id: "i1", text: "ከሆድ ወደ ጀርባ እና ከጀርባ ወደ ሆድ ይገለበጣል" },
+            { id: "i2", text: "ስሙ ሲጠራ ይላመዳል እንዲሁም በሚያውቋቸው ፊቶች ላይ ፈገግ ይላል" },
+            { id: "i3", text: "እቃዎችን ለመያዝ ይዘረጋል" },
+            { id: "i4", text: "ቀለል ያሉ ድምፆችን ያወጣል (ምሳሌ፡ 'ባ-ባ'፣ 'ዳ-ዳ')" },
+            { id: "i5", text: "ያለ ድጋፍ ይቀመጣል" },
+            { id: "i6", text: "የሚንቀሳቀሱ ነገሮችን በዓይኑ ይከተላል" }
+          ]
+        },
         toddler: {
           title: "ታዳጊዎች (ከ12 - 24 ወራት)",
           items: [

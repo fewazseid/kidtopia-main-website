@@ -85,7 +85,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   }, [isOpen]);
 
   const handleOpenInSafari = () => {
-    window.open('https://kidtopia-main-u5x6pj.laravel.cloud/login', '_blank');
+    window.location.href = 'https://kidtopia-main-u5x6pj.laravel.cloud/login';
   };
 
   const handleInstallClick = async () => {
@@ -240,8 +240,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
               <div className="pt-1 flex flex-col gap-2">
                 <a
                   href="https://kidtopia-main-u5x6pj.laravel.cloud/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target="_self"
                   className="w-full py-3 px-4 bg-brand-orange hover:bg-brand-orange/90 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer border border-brand-orange/30 text-center"
                 >
                   <ExternalLink size={16} />
