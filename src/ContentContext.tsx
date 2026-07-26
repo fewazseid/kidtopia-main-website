@@ -107,7 +107,9 @@ function isConfigKey(key: string, value: any, path: string[] = []): boolean {
   const configKeys = [
     'backgroundtype', 'icon', 'logo', 'buttonlink', 'googlemapscoordinates',
     'image1', 'image2', 'rating', 'rate', 'image', 'video', 'heroimage', 'herovideo',
-    'actiontype', 'link', 'step', 'id', 'enabled', 'phones', 'emails', 'developerurl', 'url', 'externalenrollmenturl'
+    'collageimage1', 'collageimage2', 'actiontype', 'link', 'step', 'id', 'enabled',
+    'phones', 'emails', 'developerurl', 'url', 'externalenrollmenturl', 'type', 'color',
+    'theme', 'time', 'facebook', 'instagram', 'telegram', 'tiktok', 'youtube'
   ];
   if (configKeys.includes(lowerKey) || configKeys.includes(parentKey)) return true;
   if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:'))) {
@@ -298,6 +300,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setContent((prev: any) => {
           const enData = cleanResources(deepMerge(defaultTranslations.en, snapData));
           const amData = alignStructures(enData, prev.am);
+          if (enData.nav && amData.nav) {
+            amData.nav.textColor = enData.nav.textColor;
+            amData.nav.activeColor = enData.nav.activeColor;
+            amData.nav.backgroundColor = enData.nav.backgroundColor;
+          }
           return { en: enData, am: amData };
         });
       }
@@ -332,6 +339,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setContent((prev: any) => {
           const amRaw = cleanResources(deepMergeAmharic(defaultTranslations.am, snapData, defaultTranslations.en));
           const amData = alignStructures(prev.en, amRaw);
+          if (prev.en?.nav && amData.nav) {
+            amData.nav.textColor = prev.en.nav.textColor;
+            amData.nav.activeColor = prev.en.nav.activeColor;
+            amData.nav.backgroundColor = prev.en.nav.backgroundColor;
+          }
           return { en: prev.en, am: amData };
         });
       }

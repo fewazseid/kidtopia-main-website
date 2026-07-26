@@ -599,6 +599,35 @@ export const AdminDashboard: React.FC = () => {
     return new Date(dt).getTime() || 0;
   };
 
+  const syncEnToAm = (en: any, am: any): any => {
+    if (en === null || en === undefined) return am;
+    if (am === null || am === undefined) return JSON.parse(JSON.stringify(en));
+
+    if (Array.isArray(en)) {
+      if (!Array.isArray(am)) return JSON.parse(JSON.stringify(en));
+      const res = [];
+      for (let i = 0; i < en.length; i++) {
+        res.push(syncEnToAm(en[i], am[i] !== undefined ? am[i] : transformToOtherLangItem(en[i])));
+      }
+      return res;
+    }
+
+    if (typeof en === 'object') {
+      if (typeof am !== 'object' || Array.isArray(am)) return JSON.parse(JSON.stringify(en));
+      const res = { ...am };
+      for (const k of Object.keys(en)) {
+        if (isNonTextField(k, en[k])) {
+          res[k] = JSON.parse(JSON.stringify(en[k]));
+        } else {
+          res[k] = syncEnToAm(en[k], am[k]);
+        }
+      }
+      return res;
+    }
+
+    return am !== undefined && am !== null && am !== '' ? am : en;
+  };
+
   const fetchTourData = async () => {
     try {
       setBookingsLoading(true);
@@ -890,9 +919,11 @@ export const AdminDashboard: React.FC = () => {
         (enData as any).emailTemplates = { ...defaultEmailTemplatesEn, ...((enData as any).emailTemplates || {}) };
         (amData as any).emailTemplates = { ...defaultEmailTemplatesAm, ...((amData as any).emailTemplates || {}) };
 
+        const syncedAm = syncEnToAm(enData, amData);
+
         setContent({
           en: enData,
-          am: amData
+          am: syncedAm
         });
       }
     } catch (err) {
@@ -934,9 +965,11 @@ export const AdminDashboard: React.FC = () => {
     const lowerKey = key.toLowerCase();
     const parentKey = path.length > 1 ? path[path.length - 2].toLowerCase() : '';
     const nonTextKeys = [
-      'image', 'video', 'heroimage', 'herovideo', 'url', 
       'backgroundtype', 'icon', 'logo', 'buttonlink', 'googlemapscoordinates',
-      'image1', 'image2', 'rating', 'rate', 'actiontype', 'link', 'step', 'id', 'enabled', 'phones', 'emails', 'developerurl', 'externalenrollmenturl'
+      'image1', 'image2', 'rating', 'rate', 'image', 'video', 'heroimage', 'herovideo',
+      'collageimage1', 'collageimage2', 'actiontype', 'link', 'step', 'id', 'enabled',
+      'phones', 'emails', 'developerurl', 'url', 'externalenrollmenturl', 'type', 'color',
+      'theme', 'time', 'facebook', 'instagram', 'telegram', 'tiktok', 'youtube'
     ];
     if (nonTextKeys.includes(lowerKey) || nonTextKeys.includes(parentKey)) return true;
     if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:'))) {
@@ -1003,22 +1036,24 @@ export const AdminDashboard: React.FC = () => {
     return typeof current === 'string' ? current : '';
   };
 
-  const handleInlineTranslate = async (path: string[]) => {
-    const otherVal = getOtherLangValue(path);
-    if (!otherVal) return;
-    
-    const pathKey = path.join('.');
+  const handleTranslateDirection = async (path: string[], sourceLang: 'en' | 'am', targetLang: 'en' | 'am') => {
+    const sourceVal = getVal(sourceLang, path);
+    if (!sourceVal || typeof sourceVal !== 'string') {
+      alert(`No ${sourceLang === 'en' ? 'English' : 'Amharic'} text found to translate.`);
+      return;
+    }
+    const pathKey = path.join('.') + '-' + sourceLang + 'to' + targetLang;
     setTranslatingFields(prev => ({ ...prev, [pathKey]: true }));
     try {
-      const otherLang = activeLang === 'en' ? 'am' : 'en';
-      const translated = await translateTextOnServer(otherVal, otherLang, activeLang);
+      const translated = await translateTextOnServer(sourceVal, sourceLang, targetLang);
       if (translated) {
-        handleChange(path, translated);
+        handleChange(targetLang, path, translated);
       } else {
-        alert('Translation failed. Please check your network connection.');
+        alert('Translation failed. Please check network connection.');
       }
     } catch (e) {
       console.error(e);
+      alert('Translation failed.');
     } finally {
       setTranslatingFields(prev => ({ ...prev, [pathKey]: false }));
     }
@@ -1339,24 +1374,40 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleChange = (path: string[], value: any) => {
+  const handleChange = (langOrPath: 'en' | 'am' | string[], pathOrValue: string[] | any, optionalValue?: any) => {
     const newContent = JSON.parse(JSON.stringify(content));
+    let lang: 'en' | 'am' | undefined;
+    let path: string[];
+    let value: any;
+
+    if (typeof langOrPath === 'string' && (langOrPath === 'en' || langOrPath === 'am')) {
+      lang = langOrPath;
+      path = pathOrValue;
+      value = optionalValue;
+    } else {
+      path = langOrPath as string[];
+      value = pathOrValue;
+    }
+
     const lastKey = path[path.length - 1];
 
-    const writeToLang = (lang: 'en' | 'am', val: any) => {
-      let current = newContent[lang];
+    const writeToLang = (l: 'en' | 'am', val: any) => {
+      let current = newContent[l];
       for (let i = 0; i < path.length - 1; i++) {
-        if (!current[path[i]]) return;
+        if (!current[path[i]]) current[path[i]] = {};
         current = current[path[i]];
       }
       current[lastKey] = val;
     };
 
-    if (isNonTextField(lastKey, value, path)) {
+    if (lang) {
+      writeToLang(lang, value);
+    } else if (isNonTextField(lastKey, value, path)) {
       writeToLang('en', value);
       writeToLang('am', value);
     } else {
-      writeToLang(activeLang, value);
+      writeToLang('en', value);
+      writeToLang('am', value);
     }
 
     setContent(newContent);
@@ -1368,22 +1419,25 @@ export const AdminDashboard: React.FC = () => {
     const getArrayAt = (lang: 'en' | 'am') => {
       let current = newContent[lang];
       for (let i = 0; i < path.length - 1; i++) {
-        if (!current[path[i]]) return null;
+        if (!current[path[i]]) current[path[i]] = {};
         current = current[path[i]];
       }
+      if (!current[path[path.length - 1]]) current[path[path.length - 1]] = [];
       return current[path[path.length - 1]];
     };
 
-    const activeArray = getArrayAt(activeLang);
-    if (Array.isArray(activeArray)) {
+    const enArray = getArrayAt('en');
+    const amArray = getArrayAt('am');
+
+    if (Array.isArray(enArray)) {
       const key = path[path.length - 1];
       let template: any;
-      if (activeArray.length > 0) {
-        if (typeof activeArray[0] !== 'object' || activeArray[0] === null) {
+      if (enArray.length > 0) {
+        if (typeof enArray[0] !== 'object' || enArray[0] === null) {
           template = '';
         } else {
-          template = Object.keys(activeArray[0]).reduce((acc, k) => {
-            const originalValue = (activeArray[0] as any)[k];
+          template = Object.keys(enArray[0]).reduce((acc, k) => {
+            const originalValue = (enArray[0] as any)[k];
             if (typeof originalValue === 'object' && originalValue !== null && !Array.isArray(originalValue)) {
               return { 
                 ...acc, 
@@ -1426,13 +1480,8 @@ export const AdminDashboard: React.FC = () => {
         }
       }
       
-      activeArray.push(template);
-      
-      const otherLang = activeLang === 'en' ? 'am' : 'en';
-      const otherArray = getArrayAt(otherLang);
-      if (Array.isArray(otherArray)) {
-        otherArray.push(transformToOtherLangItem(template, key));
-      }
+      enArray.push(JSON.parse(JSON.stringify(template)));
+      amArray.push(transformToOtherLangItem(template, key));
       
       setContent(newContent);
     }
@@ -1782,7 +1831,22 @@ export const AdminDashboard: React.FC = () => {
     `;
   };
 
-  const renderField = (key: string, value: any, path: string[]) => {
+  const getVal = (lang: 'en' | 'am', path: string[]) => {
+    if (!content || !content[lang]) return undefined;
+    let curr = content[lang];
+    for (const seg of path) {
+      if (curr === null || curr === undefined) return undefined;
+      curr = curr[seg];
+    }
+    return curr;
+  };
+
+  const renderField = (key: string, path: string[]) => {
+    const enValue = getVal('en', path);
+    const amValue = getVal('am', path);
+    const value = enValue !== undefined ? enValue : amValue;
+    if (value === undefined) return null;
+
     const isRating = key.toLowerCase() === 'rating' || key.toLowerCase() === 'rate';
     if (typeof value === 'number' || isRating) {
       return (
@@ -1794,8 +1858,12 @@ export const AdminDashboard: React.FC = () => {
             type="number"
             min="1"
             max="5"
-            value={value}
-            onChange={(e) => handleChange(path, parseInt(e.target.value) || 0)}
+            value={enValue ?? 0}
+            onChange={(e) => {
+              const num = parseInt(e.target.value) || 0;
+              handleChange(['en', ...path], num);
+              handleChange(['am', ...path], num);
+            }}
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
           />
         </div>
@@ -1806,12 +1874,13 @@ export const AdminDashboard: React.FC = () => {
       if (key === 'type' && path[0] === 'announcement') {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Announcement Type
-            </label>
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">Announcement Type</label>
             <select
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
+              value={enValue}
+              onChange={(e) => {
+                handleChange(['en', ...path], e.target.value);
+                handleChange(['am', ...path], e.target.value);
+              }}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
               <option value="info">Info (Blue)</option>
@@ -1829,12 +1898,13 @@ export const AdminDashboard: React.FC = () => {
       if (key === 'type' && path[0] === 'leadCapture') {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Popup Style / Accent Theme
-            </label>
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">Popup Style / Accent Theme</label>
             <select
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
+              value={enValue}
+              onChange={(e) => {
+                handleChange(['en', ...path], e.target.value);
+                handleChange(['am', ...path], e.target.value);
+              }}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
               <option value="info">Primary (Green Accent)</option>
@@ -1852,12 +1922,13 @@ export const AdminDashboard: React.FC = () => {
       if (key === 'enabled' && path[0] === 'leadCapture') {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Popup Status (Active / Disabled)
-            </label>
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">Popup Status (Active / Disabled)</label>
             <select
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
+              value={enValue}
+              onChange={(e) => {
+                handleChange(['en', ...path], e.target.value);
+                handleChange(['am', ...path], e.target.value);
+              }}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
               <option value="true">Active (Show Popup after scrolling past Announcement)</option>
@@ -1870,12 +1941,13 @@ export const AdminDashboard: React.FC = () => {
       if (key === 'type' && path.includes('media')) {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Media Type
-            </label>
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">Media Type</label>
             <select
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
+              value={enValue}
+              onChange={(e) => {
+                handleChange(['en', ...path], e.target.value);
+                handleChange(['am', ...path], e.target.value);
+              }}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
               <option value="image">Image</option>
@@ -1888,12 +1960,13 @@ export const AdminDashboard: React.FC = () => {
       if (key === 'buttonLink' && (path[0] === 'announcement' || path[0] === 'leadCapture')) {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Call To Action Button Target
-            </label>
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">Call To Action Button Target</label>
             <select
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
+              value={enValue}
+              onChange={(e) => {
+                handleChange(['en', ...path], e.target.value);
+                handleChange(['am', ...path], e.target.value);
+              }}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
               {path[0] === 'announcement' && <option value="">None (Don't Show Button)</option>}
@@ -1911,38 +1984,16 @@ export const AdminDashboard: React.FC = () => {
         );
       }
 
-      if (key === 'buttonText' && (path[0] === 'announcement' || path[0] === 'leadCapture')) {
-        let parentObjTmp = content[activeLang];
-        for (let i = 0; i < path.length - 1; i++) {
-          parentObjTmp = parentObjTmp[path[i]];
-        }
-        if (path[0] === 'announcement' && !parentObjTmp.buttonLink) return null; // Don't show text if no target for announcement
-
+      if (key === 'backgroundType' && path[0] === 'hero') {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Button Display Text Label (e.g. Enroll Now, Book A Tour)
-            </label>
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
-              placeholder="e.g. Enroll Now"
-            />
-          </div>
-        );
-      }
-
-      if (key === 'backgroundType' && path[0] === 'hero') {                
-        return (
-          <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Background Type
-            </label>
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">Background Type</label>
             <select
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
+              value={enValue}
+              onChange={(e) => {
+                handleChange(['en', ...path], e.target.value);
+                handleChange(['am', ...path], e.target.value);
+              }}
               className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white"
             >
               <option value="image">Photo</option>
@@ -1951,41 +2002,30 @@ export const AdminDashboard: React.FC = () => {
           </div>
         );
       }
-      
-      // Explicitly check for video URL even if not initially present
-      if (key === 'heroVideo' && path[0] === 'hero') {
+
+      if (key === 'actionType') {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              Hero Video URL
-            </label>
-            <input
-              type="text"
-              value={value || ""}
-              onChange={(e) => handleChange(path, e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
-              placeholder="Paste YouTube or direct video URL here"
-            />
+            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">Action Type</label>
+            <select
+              value={enValue}
+              onChange={(e) => {
+                handleChange(['en', ...path], e.target.value);
+                handleChange(['am', ...path], e.target.value);
+              }}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white font-medium"
+            >
+              <option value="handbook">handbook (Interactive Handbook Reader)</option>
+              <option value="nutrition">nutrition (Nutrition & Meal Guide)</option>
+              <option value="intl_act">intl_act (Ethiopian Childcare Directive No. 1084/2025)</option>
+              <option value="intl_guidelines">intl_guidelines (Consolidated Daycare Policies & Guidelines)</option>
+              <option value="url">url (Custom External URL Link)</option>
+            </select>
           </div>
         );
       }
 
-      let parentObj = content[activeLang];
-      for (let i = 0; i < path.length - 1; i++) {
-        parentObj = parentObj[path[i]];
-      }
-      const mediaType = parentObj?.type || 'image';
-      const isMediaUrl = key === 'url' && path.includes('media');
-
-      const isImage = key.toLowerCase().includes('image') || key.toLowerCase().includes('img') || key.toLowerCase().includes('photo') || key.toLowerCase().includes('icon') || key.toLowerCase().includes('avatar') || (isMediaUrl && mediaType === 'image');
-      const isVideo = key.toLowerCase().includes('video') || key.toLowerCase().includes('movie') || key.toLowerCase().includes('clip') || (isMediaUrl && mediaType === 'video');
-      const isMoreInfo = key === 'moreInfo';
-      const isDescription = key === 'description' || key === 'desc';
-      const isAnnouncementText = (key === 'text' && path[0] === 'announcement') || (key === 'text' && path[0] === 'leadCapture');
-      const isEmailBody = key === 'body' && path[0] === 'emailTemplates';
-
       const isColor = key.toLowerCase().includes('color');
-
       if (isColor) {
         return (
           <div key={path.join('.')} className="mb-4">
@@ -1995,14 +2035,20 @@ export const AdminDashboard: React.FC = () => {
             <div className="flex items-center gap-3">
               <input
                 type="color"
-                value={value}
-                onChange={(e) => handleChange(path, e.target.value)}
+                value={enValue}
+                onChange={(e) => {
+                  handleChange(['en', ...path], e.target.value);
+                  handleChange(['am', ...path], e.target.value);
+                }}
                 className="w-10 h-10 border-0 rounded cursor-pointer"
               />
               <input
                 type="text"
-                value={value}
-                onChange={(e) => handleChange(path, e.target.value)}
+                value={enValue}
+                onChange={(e) => {
+                  handleChange(['en', ...path], e.target.value);
+                  handleChange(['am', ...path], e.target.value);
+                }}
                 className="flex-1 px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
               />
             </div>
@@ -2010,389 +2056,234 @@ export const AdminDashboard: React.FC = () => {
         );
       }
 
-      if (isAnnouncementText) {
-        return (
-          <div key={path.join('.')} className="mb-4">
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="block text-sm font-medium text-stone-700 capitalize">
-                {key}
-              </label>
-              {getOtherLangValue(path) && (
-                <button
-                  type="button"
-                  onClick={() => handleInlineTranslate(path)}
-                  disabled={translatingFields[path.join('.')]}
-                  className="text-xs text-brand-green hover:text-brand-orange hover:scale-102 transition-all flex items-center gap-1 cursor-pointer font-bold disabled:opacity-50"
-                  title="Auto-translate this field from the other language using Gemini AI"
-                >
-                  {translatingFields[path.join('.')] ? (
-                    <>
-                      <span className="w-2.5 h-2.5 border-2 border-brand-green border-t-transparent rounded-full animate-spin"></span>
-                      <span>Translating...</span>
-                    </>
-                  ) : (
-                    <>
-                      Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-            <textarea
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none min-h-[100px]"
-              placeholder={`Enter ${key}...`}
-            />
-          </div>
-        );
-      }
+      const isImage = key.toLowerCase().includes('image') || key.toLowerCase().includes('img') || key.toLowerCase().includes('photo') || key.toLowerCase().includes('icon') || key.toLowerCase().includes('avatar');
+      const isVideo = key.toLowerCase().includes('video') || key.toLowerCase().includes('movie') || key.toLowerCase().includes('clip') || key === 'heroVideo';
+      const isUrl = key.toLowerCase().includes('url') || key === 'link';
 
-      if (isImage || isVideo) {
+      if (isImage || isVideo || isUrl) {
         return (
           <div key={path.join('.')} className="mb-4">
             <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
               {key.replace(/([A-Z])/g, ' $1').trim()}
             </label>
             <div className="flex items-center gap-4">
-              {value && (
-                isImage ? (
-                  <img src={value} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200 animate-in fade-in" />
-                ) : (
-                  <div className="w-16 h-16 bg-stone-100 rounded-lg border border-stone-200 flex items-center justify-center overflow-hidden animate-in fade-in">
-                    <video src={value} className="w-full h-full object-cover" />
-                  </div>
-                )
+              {enValue && isImage && (
+                <img src={enValue} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200" />
+              )}
+              {enValue && isVideo && (
+                <div className="w-16 h-16 bg-stone-100 rounded-lg border border-stone-200 flex items-center justify-center overflow-hidden">
+                  <video src={enValue} className="w-full h-full object-cover" />
+                </div>
               )}
               <div className="flex-1">
                 <input
                   type="text"
-                  value={value}
-                  onChange={(e) => handleChange(path, e.target.value)}
+                  value={enValue || ''}
+                  onChange={(e) => {
+                    handleChange(['en', ...path], e.target.value);
+                    handleChange(['am', ...path], e.target.value);
+                  }}
                   onBlur={(e) => {
                     const converted = convertGoogleDriveUrl(e.target.value);
                     if (converted !== e.target.value) {
-                      handleChange(path, converted);
+                      handleChange(['en', ...path], converted);
+                      handleChange(['am', ...path], converted);
                     }
                   }}
                   className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none mb-2"
-                  placeholder={isImage ? "Image URL (Paste Google Drive link to auto-import!)" : "Video URL (Paste Google Drive link to auto-import!)"}
+                  placeholder="Paste URL or Google Drive link..."
                 />
-                
-                <div className="flex flex-wrap items-center gap-4">
-                  <label className="cursor-pointer flex items-center gap-1.5 text-xs text-brand-green font-semibold hover:text-brand-orange transition-colors">
-                    <ImageIcon size={14} />
-                    <span>Upload {isImage ? 'Image' : 'Video'}</span>
-                    <input
-                      type="file"
-                      accept={isImage ? "image/*" : "video/*"}
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleFileUpload(path, e.target.files[0], isImage ? 'image' : 'video');
-                        }
-                      }}
-                    />
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const link = prompt(`Please paste your shared Google Drive ${isImage ? 'image' : 'video'} link:\n(Make sure sharing in Drive is set to 'Anyone with the link can view')`);
-                      if (link) {
-                        const converted = convertGoogleDriveUrl(link);
-                        handleChange(path, converted);
-                        alert('Google Drive file successfully imported & converted to direct high-speed link!');
-                      }
-                    }}
-                    className="flex items-center gap-1.5 text-xs text-blue-600 font-semibold hover:text-blue-800 transition"
-                  >
-                    <Settings size={14} className="animate-spin text-blue-500" style={{ animationDuration: '6s' }} />
-                    <span>Select from Drive</span>
-                  </button>
-
-                  <span className="text-[10px] text-stone-400">
-                    (Drive file sharing must be enabled)
-                  </span>
-                </div>
+                {isImage || isVideo ? (
+                  <div className="flex flex-wrap items-center gap-4">
+                    <label className="cursor-pointer flex items-center gap-1.5 text-xs text-brand-green font-semibold hover:text-brand-orange transition-colors">
+                      <ImageIcon size={14} />
+                      <span>Upload {isImage ? 'Image' : 'Video'}</span>
+                      <input
+                        type="file"
+                        accept={isImage ? "image/*" : "video/*"}
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            handleFileUpload(path, e.target.files[0], isImage ? 'image' : 'video');
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
         );
       }
 
+      const isMoreInfo = key === 'moreInfo';
+      const isDescription = key === 'description' || key === 'desc';
+      const isEmailBody = key === 'body' && path[0] === 'emailTemplates';
+      const isLargeText = (enValue ?? '').length > 100 || isMoreInfo || isDescription || isEmailBody;
+
       return (
-        <div key={path.join('.')} className={`mb-4 ${isMoreInfo ? 'mt-8 pt-6 border-t border-stone-200' : ''}`}>
+        <div key={path.join('.')} className={`mb-6 p-4 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl ${isMoreInfo ? 'mt-8 pt-6 border-t' : ''}`}>
           {isMoreInfo && (
             <div className="flex items-center gap-2 mb-4 text-brand-green font-bold uppercase text-xs tracking-widest">
               <Plus size={14} />
               <span>Learn More Section Content</span>
             </div>
           )}
-          <div className="flex justify-between items-center mb-1.5">
-            <label className="block text-sm font-medium text-stone-700 capitalize">
+          <div className="flex justify-between items-center mb-3">
+            <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider">
               {isEmailBody ? 'Email Content (Line breaks are preserved)' : key.replace(/([A-Z])/g, ' $1').trim()}
             </label>
-            {getOtherLangValue(path) && (
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => handleInlineTranslate(path)}
-                disabled={translatingFields[path.join('.')]}
-                className="text-xs text-brand-green hover:text-brand-orange hover:scale-102 transition-all flex items-center gap-1 cursor-pointer font-bold disabled:opacity-50"
-                title="Auto-translate this field from the other language using Gemini AI"
+                onClick={() => handleTranslateDirection(path, 'en', 'am')}
+                className="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md border border-blue-200 transition flex items-center gap-1 cursor-pointer"
+                title="Translate English to Amharic using AI"
               >
-                {translatingFields[path.join('.')] ? (
-                  <>
-                    <span className="w-2.5 h-2.5 border-2 border-brand-green border-t-transparent rounded-full animate-spin"></span>
-                    <span>Translating...</span>
-                  </>
-                ) : (
-                  <>
-                    Translate from {activeLang === 'en' ? 'Amharic' : 'English'}
-                  </>
-                )}
+                <span>🇬🇧 ➔ 🇪🇹 EN to AM</span>
               </button>
-            )}
-          </div>
-          {key === 'actionType' ? (
-            <select
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white font-medium"
-            >
-              <option value="handbook">handbook (Interactive Handbook Reader)</option>
-              <option value="nutrition">nutrition (Nutrition & Meal Guide)</option>
-              <option value="intl_act">intl_act (Ethiopian Childcare Directive No. 1084/2025)</option>
-              <option value="intl_guidelines">intl_guidelines (Consolidated Daycare Policies & Guidelines)</option>
-              <option value="url">url (Custom External URL Link)</option>
-            </select>
-          ) : isEmailBody ? (
-            <div className="space-y-3 w-full">
-              <textarea
-                value={cleanEmailTemplateForUser(value)}
-                onChange={(e) => {
-                  const prepared = prepareEmailTemplateForSave(e.target.value);
-                  handleChange(path, prepared);
-                }}
-                className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-brand-green outline-none font-sans text-sm text-stone-800 leading-relaxed"
-                rows={8}
-                placeholder="Write your beautiful email template message here..."
-              />
-              <div className="bg-lime-50/50 p-3 rounded-xl border border-brand-green/10">
-                <span className="text-[11px] font-bold text-brand-green uppercase tracking-wider block mb-2">
-                  Tap to Insert Friendly Tags (Automatically replaced with actual booking details):
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cleaned = cleanEmailTemplateForUser(value);
-                      const updated = cleaned + " [Parent Name]";
-                      handleChange(path, prepareEmailTemplateForSave(updated));
-                    }}
-                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
-                  >
-                    Parent Name
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cleaned = cleanEmailTemplateForUser(value);
-                      const updated = cleaned + " [Date]";
-                      handleChange(path, prepareEmailTemplateForSave(updated));
-                    }}
-                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
-                  >
-                    Date
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cleaned = cleanEmailTemplateForUser(value);
-                      const updated = cleaned + " [Time]";
-                      handleChange(path, prepareEmailTemplateForSave(updated));
-                    }}
-                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
-                  >
-                    Time
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cleaned = cleanEmailTemplateForUser(value);
-                      const updated = cleaned + " [Day]";
-                      handleChange(path, prepareEmailTemplateForSave(updated));
-                    }}
-                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
-                  >
-                    Day
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cleaned = cleanEmailTemplateForUser(value);
-                      const updated = cleaned + " [Branch]";
-                      handleChange(path, prepareEmailTemplateForSave(updated));
-                    }}
-                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
-                  >
-                    Branch / Campus
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cleaned = cleanEmailTemplateForUser(value);
-                      const updated = cleaned + " [Parent Email]";
-                      handleChange(path, prepareEmailTemplateForSave(updated));
-                    }}
-                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
-                  >
-                    Parent Email
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cleaned = cleanEmailTemplateForUser(value);
-                      const updated = cleaned + " [Parent Phone]";
-                      handleChange(path, prepareEmailTemplateForSave(updated));
-                    }}
-                    className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-green hover:text-brand-green text-xs font-bold rounded-lg shadow-sm transition-all text-stone-700 cursor-pointer"
-                  >
-                    Parent Phone
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => handleTranslateDirection(path, 'am', 'en')}
+                className="text-[10px] font-bold px-2 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md border border-emerald-200 transition flex items-center gap-1 cursor-pointer"
+                title="Translate Amharic to English using AI"
+              >
+                <span>🇪🇹 ➔ 🇬🇧 AM to EN</span>
+              </button>
             </div>
-          ) : value.length > 100 || isMoreInfo || isDescription ? (
-            <textarea
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
-              rows={isMoreInfo ? 6 : 3}
-            />
-          ) : (
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => handleChange(path, e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
-            />
-          )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1 block">🇬🇧 English</span>
+              {isEmailBody ? (
+                <textarea
+                  value={cleanEmailTemplateForUser(enValue ?? '')}
+                  onChange={(e) => {
+                    const prepared = prepareEmailTemplateForSave(e.target.value);
+                    handleChange('en', path, prepared);
+                  }}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white text-stone-900 text-sm font-sans"
+                  rows={8}
+                  placeholder="English email content..."
+                />
+              ) : isLargeText ? (
+                <textarea
+                  value={enValue ?? ''}
+                  onChange={(e) => handleChange('en', path, e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white text-stone-900 text-sm"
+                  rows={isMoreInfo ? 6 : 3}
+                  placeholder="English text..."
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={enValue ?? ''}
+                  onChange={(e) => handleChange('en', path, e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white text-stone-900 text-sm"
+                  placeholder="English text..."
+                />
+              )}
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1 block">🇪🇹 አማርኛ (Amharic)</span>
+              {isEmailBody ? (
+                <textarea
+                  value={cleanEmailTemplateForUser(amValue ?? '')}
+                  onChange={(e) => {
+                    const prepared = prepareEmailTemplateForSave(e.target.value);
+                    handleChange('am', path, prepared);
+                  }}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white text-stone-900 text-sm font-sans"
+                  rows={8}
+                  placeholder="የአማርኛ ኢሜይል ጽሑፍ..."
+                />
+              ) : isLargeText ? (
+                <textarea
+                  value={amValue ?? ''}
+                  onChange={(e) => handleChange('am', path, e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white text-stone-900 text-sm"
+                  rows={isMoreInfo ? 6 : 3}
+                  placeholder="የአማርኛ ጽሑፍ..."
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={amValue ?? ''}
+                  onChange={(e) => handleChange('am', path, e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none bg-white text-stone-900 text-sm"
+                  placeholder="የአማርኛ ጽሑፍ..."
+                />
+              )}
+            </div>
+          </div>
         </div>
       );
     }
-    
+
     if (Array.isArray(value)) {
-      // Special case for addresses to ensure they are treated as objects even if empty
+      const enArray = getVal('en', path) || [];
+      const amArray = getVal('am', path) || [];
+      const maxLength = Math.max(enArray.length, amArray.length);
       const isAddresses = key === 'addresses';
-      const isPrimitiveArray = !isAddresses && (value.length > 0 ? typeof value[0] !== 'object' : true);
-      
+      const isPrimitiveArray = !isAddresses && (enArray.length > 0 ? typeof enArray[0] !== 'object' : true);
+
       return (
         <div key={path.join('.')} className="mb-6 p-4 bg-stone-50 rounded-xl border border-stone-200">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-stone-800 capitalize">{key}</h3>
           </div>
-          {value.map((item, index) => {
-            const pathKey = path.join('.');
-            const isBeingDragged = draggedArrayInfo?.pathKey === pathKey && draggedArrayInfo?.index === index;
-            const isDragOver = dragOverArrayInfo?.pathKey === pathKey && dragOverArrayInfo?.index === index;
-
-            return (
-              <div 
-                key={index} 
-                draggable={true}
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('text/plain', `${pathKey}::${index}`);
-                  e.dataTransfer.effectAllowed = 'move';
-                  setDraggedArrayInfo({ pathKey, index });
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = 'move';
-                  if (draggedArrayInfo?.pathKey === pathKey && draggedArrayInfo?.index !== index) {
-                    setDragOverArrayInfo({ pathKey, index });
-                  }
-                }}
-                onDragLeave={() => {
-                  if (dragOverArrayInfo?.index === index) {
-                    setDragOverArrayInfo(null);
-                  }
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (draggedArrayInfo && draggedArrayInfo.pathKey === pathKey) {
-                    reorderItem(path, draggedArrayInfo.index, index);
-                  }
-                  setDraggedArrayInfo(null);
-                  setDragOverArrayInfo(null);
-                }}
-                onDragEnd={() => {
-                  setDraggedArrayInfo(null);
-                  setDragOverArrayInfo(null);
-                }}
-                className={`mb-4 p-4 bg-white rounded-xl border transition-all duration-200 relative group ${
-                  isBeingDragged 
-                    ? 'opacity-40 scale-[0.99] border-dashed border-brand-green bg-brand-green/5' 
-                    : isDragOver
-                      ? 'border-2 border-brand-green ring-2 ring-brand-green/20 shadow-md bg-stone-50'
-                      : 'border-stone-200 hover:border-stone-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-100">
-                  <div className="flex items-center gap-2 cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-700 select-none" title="Drag to reorder item">
-                    <GripVertical size={18} className="text-stone-400 group-hover:text-stone-600" />
-                    <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
-                      Item {index + 1}
-                    </span>
-                    <span className="text-[10px] bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full font-medium hidden sm:inline-block">
-                      Drag to reorder
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    {index > 0 && (
-                      <button
-                        onClick={() => moveItem(path, index, 'up')}
-                        className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg cursor-pointer"
-                        title="Move Up"
-                      >
-                        <ChevronUp size={16} />
-                      </button>
-                    )}
-                    {index < value.length - 1 && (
-                      <button
-                        onClick={() => moveItem(path, index, 'down')}
-                        className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg cursor-pointer"
-                        title="Move Down"
-                      >
-                        <ChevronDown size={16} />
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => removeItem(path, index)}
-                      className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg cursor-pointer"
-                      title="Remove Item"
-                    >
-                      <Trash2 size={16} />
+          {Array.from({ length: maxLength }).map((_, index) => (
+            <div key={index} className="mb-4 p-4 bg-white rounded-xl border border-stone-200 shadow-sm relative group">
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-100">
+                <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+                  Item {index + 1} (Bilingual Dual-Edit)
+                </span>
+                <div className="flex items-center gap-1">
+                  {index > 0 && (
+                    <button onClick={() => moveItem(path, index, 'up')} className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg cursor-pointer" title="Move Up">
+                      <ChevronUp size={16} />
                     </button>
+                  )}
+                  {index < maxLength - 1 && (
+                    <button onClick={() => moveItem(path, index, 'down')} className="text-stone-500 p-1.5 hover:bg-stone-100 rounded-lg cursor-pointer" title="Move Down">
+                      <ChevronDown size={16} />
+                    </button>
+                  )}
+                  <button onClick={() => removeItem(path, index)} className="text-red-500 p-1.5 hover:bg-red-50 rounded-lg cursor-pointer" title="Remove Item">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {isPrimitiveArray ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1 block">🇬🇧 English</span>
+                    <input
+                      type="text"
+                      value={enArray[index] ?? ''}
+                      onChange={(e) => handleChange(['en', ...path, index.toString()], e.target.value)}
+                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none font-medium text-sm"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1 block">🇪🇹 አማርኛ</span>
+                    <input
+                      type="text"
+                      value={amArray[index] ?? ''}
+                      onChange={(e) => handleChange(['am', ...path, index.toString()], e.target.value)}
+                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none font-medium text-sm"
+                    />
                   </div>
                 </div>
-
-                {isPrimitiveArray ? (
-                  <input
-                    type="text"
-                    value={item}
-                    onChange={(e) => handleChange([...path, index.toString()], e.target.value)}
-                    className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none font-medium"
-                  />
-                ) : (
-                  sortObjectKeysByTemplate(item, path).map((itemKey) => 
-                    renderField(itemKey, item[itemKey], [...path, index.toString(), itemKey])
-                  )
-                )}
-              </div>
-            );
-          })}
+              ) : (
+                sortObjectKeysByTemplate(enArray[index] || amArray[index], path).map((itemKey) => 
+                  renderField(itemKey, [...path, index.toString(), itemKey])
+                )
+              )}
+            </div>
+          ))}
           <button 
             onClick={() => addItem(path)}
             className="flex items-center gap-1 text-sm text-brand-green border border-brand-green px-3 py-2 rounded-lg hover:bg-brand-green hover:text-white transition-colors w-max mt-2"
@@ -2403,7 +2294,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
       );
     }
-    
+
     if (typeof value === 'object' && value !== null) {
       const EMAIL_TEMPLATE_LABELS: Record<string, string> = {
         received: '1. Tour Request Received (Parent Confirmation Email)',
@@ -2420,16 +2311,17 @@ export const AdminDashboard: React.FC = () => {
         ? (EMAIL_TEMPLATE_LABELS[key] || key)
         : key;
 
+      const enObj = getVal('en', path) || {};
       return (
         <div key={path.join('.')} className="mb-6 p-5 bg-stone-50/50 rounded-2xl border border-stone-200/70">
           <h3 className="text-base font-black text-stone-800 mb-4">{displayTitle}</h3>
-          {sortObjectKeysByTemplate(value, path).map((objKey) => 
-            renderField(objKey, value[objKey], [...path, objKey])
+          {sortObjectKeysByTemplate(enObj, path).map((objKey) => 
+            renderField(objKey, [...path, objKey])
           )}
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -3611,22 +3503,22 @@ export const AdminDashboard: React.FC = () => {
                       <div className="space-y-6 animate-in fade-in duration-200">
                         {resourcesSubTab === 'general' && (
                           <>
-                            {renderField('title', content[activeLang].resources.title, ['resources', 'title'])}
-                            {renderField('desc', content[activeLang].resources.desc, ['resources', 'desc'])}
-                            {renderField('items', content[activeLang].resources.items, ['resources', 'items'])}
+                            {renderField('title', ['resources', 'title'])}
+                            {renderField('desc', ['resources', 'desc'])}
+                            {renderField('items', ['resources', 'items'])}
                           </>
                         )}
 
                         {resourcesSubTab === 'rules' && (
                           <>
-                            {renderField('policiesAndRegulations', content[activeLang].resources.policiesAndRegulations, ['resources', 'policiesAndRegulations'])}
+                            {renderField('policiesAndRegulations', ['resources', 'policiesAndRegulations'])}
                           </>
                         )}
 
                         {resourcesSubTab === 'policies' && (
                           <>
-                            {renderField('intlGuidelinesTitle', content[activeLang].resources.intlGuidelinesTitle, ['resources', 'intlGuidelinesTitle'])}
-                            {renderField('intlGuidelinesBody', content[activeLang].resources.intlGuidelinesBody, ['resources', 'intlGuidelinesBody'])}
+                            {renderField('intlGuidelinesTitle', ['resources', 'intlGuidelinesTitle'])}
+                            {renderField('intlGuidelinesBody', ['resources', 'intlGuidelinesBody'])}
                             
                             {/* AI Policy Assistant Card */}
                             <div className="bg-gradient-to-br from-lime-50/50 to-emerald-50/30 p-6 rounded-2xl border border-brand-green/20 shadow-sm mt-8">
@@ -3727,14 +3619,14 @@ export const AdminDashboard: React.FC = () => {
 
                         {resourcesSubTab === 'handbook' && (
                           <>
-                            {renderField('handbookChapters', content[activeLang].resources.handbookChapters, ['resources', 'handbookChapters'])}
+                            {renderField('handbookChapters', ['resources', 'handbookChapters'])}
                           </>
                         )}
 
                         {resourcesSubTab === 'directive' && (
                           <>
-                            {renderField('intlActTitle', content[activeLang].resources.intlActTitle, ['resources', 'intlActTitle'])}
-                            {renderField('intlActBody', content[activeLang].resources.intlActBody, ['resources', 'intlActBody'])}
+                            {renderField('intlActTitle', ['resources', 'intlActTitle'])}
+                            {renderField('intlActBody', ['resources', 'intlActBody'])}
                             
                             {/* AI Policy Assistant Card for directive */}
                             <div className="bg-gradient-to-br from-blue-50/30 to-emerald-50/30 p-6 rounded-2xl border border-blue-200/40 shadow-sm mt-8">
@@ -3835,8 +3727,8 @@ export const AdminDashboard: React.FC = () => {
 
                         {resourcesSubTab === 'nutrition_milestones' && (
                           <>
-                            {renderField('menuDays', content[activeLang].resources.menuDays, ['resources', 'menuDays'])}
-                            {renderField('milestonesData', content[activeLang].resources.milestonesData, ['resources', 'milestonesData'])}
+                            {renderField('menuDays', ['resources', 'menuDays'])}
+                            {renderField('milestonesData', ['resources', 'milestonesData'])}
                           </>
                         )}
                       </div>
@@ -3881,8 +3773,8 @@ export const AdminDashboard: React.FC = () => {
                           <SoftwareScreenshotsManager lang={activeLang} />
                         </div>
                       )}
-                      {sortObjectKeysByTemplate(content[activeLang][activeSection], [activeSection]).map((key) => 
-                        renderField(key, content[activeLang][activeSection][key], [activeSection, key])
+                      {sortObjectKeysByTemplate(content['en'][activeSection], [activeSection]).map((key) => 
+                        renderField(key, [activeSection, key])
                       )}
                     </>
                   )}
