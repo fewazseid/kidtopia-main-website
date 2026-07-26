@@ -214,6 +214,40 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
               </button>
             )}
 
+            {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
+            {showLanguageSwitcher && (
+              <div className="flex items-center p-0.5 rounded-xl bg-white/50 backdrop-blur-md border border-white/70 shadow-sm">
+                {isEnActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('en')}
+                    className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'en'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                    }`}
+                    title="English"
+                  >
+                    EN
+                  </button>
+                )}
+                {isAmActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('am')}
+                    className={`px-2.5 py-1 text-[10px] xl:text-[11px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'am'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 hover:text-stone-900 opacity-75 hover:opacity-100'
+                    }`}
+                    title="አማርኛ"
+                  >
+                    አማ
+                  </button>
+                )}
+              </div>
+            )}
+
             <Link 
               to="/login" 
               className="text-white font-bold font-display rounded-full px-4 xl:px-6 py-1.5 xl:py-2.5 text-[10px] xl:text-[11px] shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
@@ -225,6 +259,40 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
 
           {/* Mobile Header Right Bar Controls */}
           <div className="lg:hidden flex items-center gap-2">
+            {/* Language Switcher Pill (EN | AM) - hidden if only 1 language exists */}
+            {showLanguageSwitcher && (
+              <div className="flex items-center p-0.5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
+                {isEnActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('en')}
+                    className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'en'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 opacity-75 hover:opacity-100'
+                    }`}
+                    title="English"
+                  >
+                    EN
+                  </button>
+                )}
+                {isAmActive && (
+                  <button
+                    type="button"
+                    onClick={() => setLang('am')}
+                    className={`px-2 py-1 text-[10px] font-black tracking-wider uppercase rounded-lg transition-all cursor-pointer ${
+                      lang === 'am'
+                        ? 'bg-brand-green text-white shadow-sm scale-105'
+                        : 'text-stone-700 opacity-75 hover:opacity-100'
+                    }`}
+                    title="አማርኛ"
+                  >
+                    አማ
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Mobile Menu Toggle Button */}
             <button 
               className="p-2.5 rounded-2xl bg-white/40 border border-white/60 transition-colors cursor-pointer" 
@@ -236,21 +304,6 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
           </div>
         </div>
       </div>
-
-      {/* Single Floating Language Button Under Navigation Bar */}
-      {showLanguageSwitcher && (
-        <div className="fixed top-[84px] right-4 sm:right-8 z-40">
-          <button
-            type="button"
-            onClick={() => setLang(lang === 'en' ? 'am' : 'en')}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-xl border border-stone-200/90 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all text-stone-800 font-black text-xs sm:text-sm cursor-pointer tracking-wider uppercase group"
-            title={lang === 'en' ? 'Switch to አማርኛ' : 'Switch to English'}
-          >
-            <Globe size={15} className="text-brand-green group-hover:rotate-45 transition-transform duration-300" />
-            <span>{lang === 'en' ? 'EN' : 'አማ'}</span>
-          </button>
-        </div>
-      )}
 
       {/* Mobile Menu */}
       <AnimatePresence>

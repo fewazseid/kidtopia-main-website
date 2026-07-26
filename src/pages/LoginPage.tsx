@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Download } from 'lucide-react';
+import { Mail, Lock, User, ShieldCheck, UserCircle, Users, Eye, EyeOff, Download, Globe, LayoutDashboard, ArrowLeft, ExternalLink, Edit3 } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent } from '../ContentContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,7 +24,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const [isAdminSelect, setIsAdminSelect] = useState(false);
+  // 'select' mode by default: choose between Website Editing vs Dashboard
+  const [portalMode, setPortalMode] = useState<'select' | 'website_login'>('select');
   const [isAppInstalled, setIsAppInstalled] = useState(false);
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
 
   const handleRedirect = (role: string) => {
     if (role === 'admin') {
-      setIsAdminSelect(true);
+      navigate('/admin');
       return;
     }
     setError('Access Denied. Only administrator accounts are authorized to log in.');
@@ -76,8 +77,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
         console.warn('Using default admin config', e);
       }
 
-      // Enforce 6-digit password for non-admin shortcut if needed, 
-      // but Firebase requires at least 6 chars anyway.
       if (password.length < 6) {
         setError('Password must be at least 6 characters');
         setLoading(false);
@@ -91,49 +90,32 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
         passToUse = password;
         fallbackPass = adminConfig.firebasePassword || 'admin123';
       } else if (!username.includes('@')) {
-        // If it's a username without @, treat as internal email
         emailToUse = `${username.toLowerCase()}@kidtopiaet.com`;
       }
 
-      console.log('DEBUG: Attempting login with:', emailToUse, 'password length:', passToUse.length);
-
       try {
-        console.log('DEBUG: Attempting login with:', emailToUse);
         const result = await loginWithEmail(emailToUse, passToUse);
         user = result.user;
-        console.log('DEBUG: Login successful for:', user.email);
       } catch (err: any) {
-        console.log('DEBUG: Login failed, error code:', err.code, 'message:', err.message);
-        
-        // Migration logic: If they used the shortcut, and it failed, try the old fallback password
         if ((err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') && fallbackPass && password === adminConfig.password) {
-          console.log('DEBUG: Attempting login with fallback password...');
           try {
             const fallbackResult = await loginWithEmail(emailToUse, fallbackPass);
             user = fallbackResult.user;
-            console.log('DEBUG: Fallback login successful, updating password to match shortcut...');
-            // Update the password to match what they typed (the shortcut password)
             await updateCurrentUserPassword(password);
           } catch (fallbackErr) {
-            console.log('DEBUG: Fallback login also failed.');
+            console.log('DEBUG: Fallback login failed.');
           }
         }
 
-        // If user doesn't exist and it's the admin attempt, try to register it once
         if (!user && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') && username.toLowerCase() === adminConfig.username.toLowerCase()) {
-          console.log('DEBUG: User not found or invalid credential for admin shortcut, attempting registration/fix...');
           try {
             const result = await registerWithEmail(emailToUse, passToUse);
             user = result.user;
-            console.log('DEBUG: Registration successful for:', user.email);
             await setUserRole(user.uid, 'admin', emailToUse);
           } catch (regErr: any) {
-            // If registration fails because user already exists, it means the password was wrong
             if (regErr.code === 'auth/email-already-in-use') {
-              console.log('DEBUG: Admin user already exists, re-throwing original login error.');
-              throw err; // Re-throw the original login error
+              throw err;
             }
-            console.error('DEBUG: Registration failed:', regErr.code, regErr.message);
             throw regErr;
           }
         } else {
@@ -144,7 +126,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
       if (user) {
         let role = await getUserRole(user.uid);
         if (!role) {
-          // If no role, check if it's the admin email from config or hardcoded administrative emails
           if (user.email === adminConfig.email || 
               user.email === 'admin@kidtopiaet.com' || 
               user.email === 'fewazseidahmed@gmail.com' ||
@@ -156,7 +137,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
             role = 'admin';
             await setUserRole(user.uid, role, user.email || '');
           } else {
-            // Deny access if no role exists (user was deleted)
             throw new Error('Your account has been deactivated. Please contact the administrator.');
           }
         }
@@ -191,7 +171,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
       const result = await loginWithGoogle();
       const user = result.user;
       
-      // Fetch dynamic admin config to check if this email is the configured admin
       let adminConfig = { email: 'admin@kidtopiaet.com' };
       try {
         const remoteConfig = await getAdminConfig();
@@ -240,76 +219,136 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="w-full max-w-lg space-y-6"
       >
-        {/* Prominent Install App Banner at the VERY TOP of Login Page (Always visible for testing) */}
-        {true && (
-          <div className="bg-brand-cream text-stone-800 p-5 rounded-[28px] border border-stone-200/90 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/10 rounded-full blur-xl pointer-events-none" />
-            <div className="flex items-center gap-3.5 z-10">
-              <div className="p-3 bg-white border border-stone-200/80 rounded-2xl text-brand-green font-black shrink-0 shadow-sm">
-                <Download size={22} />
-              </div>
-              <div>
-                <h4 className="font-display font-black text-sm sm:text-base text-stone-900">
-                  {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
-                </h4>
-                <p className="text-xs text-stone-600 mt-0.5">
-                  {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
-                </p>
-              </div>
+        {/* Prominent Install App Banner at the VERY TOP of Login Page */}
+        <div className="bg-brand-cream text-stone-800 p-5 rounded-[28px] border border-stone-200/90 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/10 rounded-full blur-xl pointer-events-none" />
+          <div className="flex items-center gap-3.5 z-10">
+            <div className="p-3 bg-white border border-stone-200/80 rounded-2xl text-brand-green font-black shrink-0 shadow-sm">
+              <Download size={22} />
             </div>
-            <button
-              type="button"
-              onClick={handleOpenGuide}
-              className="w-full sm:w-auto px-5 py-3 bg-brand-green hover:bg-brand-green/90 text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap z-10 border border-brand-green/30"
-            >
-              <Download size={15} />
-              <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
-            </button>
+            <div>
+              <h4 className="font-display font-black text-sm sm:text-base text-stone-900">
+                {lang === 'en' ? 'Install Kidtopia App' : 'የኪድቶፒያ አፕሊኬሽን ጫን'}
+              </h4>
+              <p className="text-xs text-stone-600 mt-0.5">
+                {lang === 'en' ? 'Install on your device for fast 1-tap access.' : 'ለበለጠ ፍጥነት አፕሊኬሽኑን በስልክዎ ይጫኑ።'}
+              </p>
+            </div>
           </div>
-        )}
+          <button
+            type="button"
+            onClick={handleOpenGuide}
+            className="w-full sm:w-auto px-5 py-3 bg-brand-green hover:bg-brand-green/90 text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap z-10 border border-brand-green/30"
+          >
+            <Download size={15} />
+            <span>{lang === 'en' ? 'Install App' : 'አፕሊኬሽኑን ጫን'}</span>
+          </button>
+        </div>
 
         <div className="card-rounded p-8 sm:p-10">
-          {isAdminSelect ? (
+          {portalMode === 'select' ? (
             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-6 text-center"
             >
-              <div className="w-16 h-16 bg-brand-green/10 text-brand-green rounded-full flex items-center justify-center mx-auto mb-6">
-                <ShieldCheck size={36} />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 mb-2">
+                  {lang === 'en' ? 'Choose Destination' : 'መዳረሻ ይምረጡ'}
+                </h1>
+                <p className="text-stone-500 text-sm">
+                  {lang === 'en' 
+                    ? 'Select whether you want to edit website content or open the Kidtopia Dashboard.' 
+                    : 'የድረ-ገፁን ይዘት ለማስተካከል ወይም ወደ ኪድቶፒያ ዳሽቦርድ ለመሄድ ይምረጡ።'}
+                </p>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 mb-2">Welcome Back, Admin!</h1>
-              <p className="text-stone-500 mb-8 max-w-sm mx-auto">Please choose your destination to continue.</p>
 
-              <div className="space-y-4">
+              <div className="space-y-4 pt-2">
+                {/* Option 1: Website Editing */}
                 <button
-                  onClick={() => navigate('/admin')}
-                  className="w-full py-4 px-4 bg-brand-green text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-green/90 active:scale-[0.98] shadow-lg shadow-brand-green/10 flex items-center justify-center gap-2"
+                  type="button"
+                  onClick={() => {
+                    setError('');
+                    setPortalMode('website_login');
+                  }}
+                  className="w-full p-5 bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-brand-green rounded-2xl shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4 group cursor-pointer"
                 >
-                  Continue Website Editing
+                  <div className="p-3 bg-brand-green/10 text-brand-green rounded-xl group-hover:bg-brand-green group-hover:text-white transition-colors shrink-0 mt-0.5">
+                    <Edit3 size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-black text-stone-900 text-base sm:text-lg group-hover:text-brand-green transition-colors">
+                        {lang === 'en' ? 'Website Editing' : 'የድረ-ገጽ ማስተካከያ'}
+                      </h3>
+                      <span className="text-xs font-bold text-stone-400 group-hover:text-brand-green transition-colors">
+                        →
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                      {lang === 'en' 
+                        ? 'Admin sign in required to update programs, gallery, daily schedules & parent resources.' 
+                        : 'የድረ-ገፅ ይዘቶችን ለማስተካከል የአድሚን መግቢያ ያስፈልጋል።'}
+                    </p>
+                  </div>
                 </button>
 
+                {/* Option 2: Kidtopia Dashboard */}
                 <a
-                  href="https://kidtopia-main-u5x6pj.laravel.cloud/dashboard"
-                  className="w-full py-4 px-4 bg-brand-orange text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-orange/90 active:scale-[0.98] shadow-lg shadow-brand-orange/10 flex items-center justify-center gap-2 text-center"
+                  href="https://kidtopia-main-u5x6pj.laravel.cloud/login"
+                  className="w-full p-5 bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-brand-orange rounded-2xl shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4 group cursor-pointer block"
                 >
-                  Continue to Dashboard
+                  <div className="p-3 bg-brand-orange/10 text-brand-orange rounded-xl group-hover:bg-brand-orange group-hover:text-white transition-colors shrink-0 mt-0.5">
+                    <LayoutDashboard size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-black text-stone-900 text-base sm:text-lg group-hover:text-brand-orange transition-colors flex items-center gap-1.5">
+                        {lang === 'en' ? 'Kidtopia Dashboard' : 'የኪድቶፒያ ዳሽቦርድ'}
+                        <ExternalLink size={14} className="opacity-60" />
+                      </h3>
+                      <span className="text-xs font-bold text-stone-400 group-hover:text-brand-orange transition-colors">
+                        →
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                      {lang === 'en' 
+                        ? 'Open student records, staff portal, attendance, and administrative dashboard.' 
+                        : 'ወደ ተማሪዎች ዝርዝር፣ ሰራተኞች እና ዋና ዳሽቦርድ ይሂዱ።'}
+                    </p>
+                  </div>
                 </a>
-
-                <button
-                  onClick={() => setIsAdminSelect(false)}
-                  className="w-full text-center text-sm font-medium text-stone-400 hover:text-stone-600 transition-colors pt-4 block"
-                >
-                  Back to Sign In
-                </button>
               </div>
             </motion.div>
           ) : (
-            <>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setError('');
+                  setPortalMode('select');
+                }}
+                className="mb-6 flex items-center gap-1.5 text-xs font-bold text-stone-500 hover:text-brand-green transition-colors cursor-pointer"
+              >
+                <ArrowLeft size={16} />
+                <span>{lang === 'en' ? 'Back to Selection' : 'ወደ መምረጫው ተመለስ'}</span>
+              </button>
+
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-stone-900 mb-2">{t.title}</h1>
-                <p className="text-stone-500">{t.subtitle}</p>
+                <div className="w-12 h-12 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <Globe size={24} />
+                </div>
+                <h1 className="text-2xl font-bold text-stone-900 mb-1">
+                  {lang === 'en' ? 'Website Editing Sign In' : 'የድረ-ገጽ ማስተካከያ መግቢያ'}
+                </h1>
+                <p className="text-xs text-stone-500">
+                  {lang === 'en' ? 'Sign in with administrator account to edit website' : 'ድረ-ገጹን ለማስተካከል በአድሚን መለያ ይግቡ'}
+                </p>
               </div>
 
               {error && (
@@ -361,7 +400,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 px-4 bg-brand-green text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-green/90 active:scale-[0.98] disabled:opacity-50"
+                  className="w-full py-4 px-4 bg-brand-green text-white rounded-xl font-bold text-lg transition-all hover:bg-brand-green/90 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? 'Processing...' : t.submit}
                 </button>
@@ -380,7 +419,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                 <button
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-white/50 active:scale-[0.98] border border-white/60 bg-white/40 backdrop-blur-md shadow-sm disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl text-stone-700 font-bold text-lg transition-all hover:bg-white/50 active:scale-[0.98] border border-white/60 bg-white/40 backdrop-blur-md shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
                   Login with Google
@@ -395,7 +434,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                   </Link>
                 </p>
               </div>
-            </>
+            </motion.div>
           )}
         </div>
       </motion.div>
@@ -409,3 +448,4 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
     </main>
   );
 };
+
