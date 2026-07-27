@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   LogOut, Heart, Activity, FileText, Camera, Smile, 
   Sparkles, Compass, Book, Utensils, Clipboard, Clock, CheckCircle2,
-  X, ChevronLeft, ChevronRight
+  X, ChevronLeft, ChevronRight, FolderOpen, Plus, Edit, Trash2, Image as ImageIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { auth, logout, db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { GlassCard } from '../components/GlassCard';
 import { ParentalResourceDetails } from '../components/ParentalResourceDetails';
+import { ImageSelectModal, convertGoogleDriveUrl } from '../components/ImageSelectModal';
 
 export const ParentDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -18,11 +19,26 @@ export const ParentDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'portal' | 'health' | 'timeline' | 'gallery'>('portal');
   const [activeMediaIndex, setActiveMediaIndex] = useState<number | null>(null);
 
-  const galleryItems = [
+  const [galleryItems, setGalleryItems] = useState([
     { url: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&auto=format&fit=crop", title: "Indoor Creative Painting Class" },
     { url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1200&auto=format&fit=crop", title: "Circle Play & Storytelling time" },
     { url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop", title: "Nursery Block Building Workshop" }
-  ];
+  ]);
+
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [editingPhotoIndex, setEditingPhotoIndex] = useState<number | null>(null);
+
+  // Subscribe to real-time gallery photos from Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'gallery'), (snapshot) => {
+      if (snapshot.exists() && snapshot.data()?.items) {
+        setGalleryItems(snapshot.data().items);
+      }
+    }, (err) => {
+      console.warn("Could not listen to gallery photos from Firestore:", err);
+    });
+    return () => unsub();
+  }, []);
 
   const handleNextMedia = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -482,38 +498,128 @@ export const ParentDashboard: React.FC = () => {
         {/* Tab: Photos gallery */}
         {activeTab === 'gallery' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200/60 shadow-sm text-left">
-            <h2 className="text-xl font-editorial font-bold text-stone-900 mb-2">Today's Child Play Photos</h2>
-            <p className="text-xs text-stone-500 mb-6">See snapshots of your child's learning and group plays</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-xl font-editorial font-bold text-stone-900 mb-1">Today's Child Play Photos</h2>
+                <p className="text-xs text-stone-500">See snapshots of your child's learning and group play activities</p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingPhotoIndex(null);
+                  setIsPhotoModalOpen(true);
+                }}
+                className="px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-sm self-start sm:self-auto"
+              >
+                <FolderOpen size={16} />
+                <span>Import / Add Photo</span>
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {galleryItems.map((img, i) => (
                 <div 
                   key={i} 
-                  onClick={() => setActiveMediaIndex(i)}
-                  className="group rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-md transition cursor-pointer"
+                  className="group rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-md transition bg-white flex flex-col"
                 >
-                  <div className="aspect-video relative overflow-hidden bg-stone-100">
+                  <div 
+                    onClick={() => setActiveMediaIndex(i)}
+                    className="aspect-video relative overflow-hidden bg-stone-100 cursor-pointer"
+                  >
                     <img 
                       src={img.url} 
                       alt={img.title} 
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                       referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        const match = img.url.match(/thumbnail\?id=([a-zA-Z0-9_-]+)/) || img.url.match(/id=([a-zA-Z0-9_-]+)/);
+                        if (match && match[1] && !target.dataset.tried) {
+                          target.dataset.tried = 'true';
+                          target.src = `https://lh3.googleusercontent.com/d/${match[1]}`;
+                        }
+                      }}
                     />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                      <span className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-sm text-stone-900 font-bold text-xs shadow">
+                        Click to View
+                      </span>
+                    </div>
                   </div>
-                  <div className="p-3.5 bg-stone-50 border-t border-stone-150 flex justify-between items-center">
-                    <span className="font-bold text-stone-800 text-xs truncate max-w-[200px]">{img.title}</span>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setActiveMediaIndex(i); }}
-                      className="text-[10px] font-black uppercase text-brand-green hover:underline shrink-0"
-                    >
-                      View Full
-                    </button>
+                  <div className="p-3.5 bg-stone-50 border-t border-stone-150 flex justify-between items-center gap-2">
+                    <span className="font-bold text-stone-800 text-xs truncate max-w-[160px]" title={img.title}>
+                      {img.title}
+                    </span>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingPhotoIndex(i);
+                          setIsPhotoModalOpen(true);
+                        }}
+                        className="p-1.5 rounded-lg bg-stone-200/80 hover:bg-stone-300 text-stone-700 transition cursor-pointer"
+                        title="Edit / Change Photo"
+                      >
+                        <Edit size={13} />
+                      </button>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (confirm(`Are you sure you want to delete "${img.title}"?`)) {
+                            const updated = galleryItems.filter((_, idx) => idx !== i);
+                            setGalleryItems(updated);
+                            try {
+                              await setDoc(doc(db, 'settings', 'gallery'), { items: updated }, { merge: true });
+                            } catch (err) {
+                              console.error("Error updating Firestore gallery:", err);
+                            }
+                          }
+                        }}
+                        className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition cursor-pointer"
+                        title="Delete Photo"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Modal for Adding or Editing Gallery Photos */}
+        <ImageSelectModal
+          isOpen={isPhotoModalOpen}
+          onClose={() => {
+            setIsPhotoModalOpen(false);
+            setEditingPhotoIndex(null);
+          }}
+          initialUrl={editingPhotoIndex !== null ? galleryItems[editingPhotoIndex]?.url : ''}
+          initialTitle={editingPhotoIndex !== null ? galleryItems[editingPhotoIndex]?.title : ''}
+          showTitleField={true}
+          modalTitle={editingPhotoIndex !== null ? 'Edit Photo & Caption' : 'Add / Import Photo'}
+          onSelect={async (newUrl, newTitle) => {
+            let updated: { url: string; title: string }[];
+            if (editingPhotoIndex !== null) {
+              updated = [...galleryItems];
+              updated[editingPhotoIndex] = {
+                url: newUrl,
+                title: newTitle || galleryItems[editingPhotoIndex].title || 'Child Play Photo'
+              };
+            } else {
+              updated = [
+                { url: newUrl, title: newTitle || 'Child Play Photo' },
+                ...galleryItems
+              ];
+            }
+            setGalleryItems(updated);
+            try {
+              await setDoc(doc(db, 'settings', 'gallery'), { items: updated }, { merge: true });
+            } catch (err) {
+              console.error("Error saving gallery to Firestore:", err);
+            }
+          }}
+        />
 
       </div>
 

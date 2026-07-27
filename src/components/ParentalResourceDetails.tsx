@@ -3,8 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Book, FileText, CheckCircle2, Download, Upload, AlertCircle, 
   Trash2, ShieldAlert, Award, Compass, RotateCw, Smile, 
-  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart, CheckSquare
+  Sliders, Sparkles, Volume2, Search, Printer, Bookmark, Eye, Camera, Heart, CheckSquare, FolderOpen
 } from 'lucide-react';
+
+import { ImageSelectModal, convertGoogleDriveUrl } from './ImageSelectModal';
+
+export { convertGoogleDriveUrl };
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { useContent } from '../ContentContext';
@@ -279,6 +283,13 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
     }
   };
 
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+
+  const handleImportFromDrive = async () => {
+    if (!user) return;
+    setIsDriveModalOpen(true);
+  };
+
   const deleteDocument = async (id: string) => {
     if (!user) return;
     try {
@@ -544,20 +555,30 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                     </div>
                   ) : null}
 
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold mr-2 transition-all"
-                  >
-                    {lang === 'en' ? 'Select File' : 'ፋይል ምረጥ'}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!selectedFile || loading}
-                    className="px-4 py-2 bg-brand-green hover:bg-brand-green/95 disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-md transition-all"
-                  >
-                    {lang === 'en' ? 'Upload Document' : 'ሰነዱን ስቀል'}
-                  </button>
+                  <div className="flex flex-wrap gap-2 items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition-all"
+                    >
+                      {lang === 'en' ? 'Select File' : 'ፋይል ምረጥ'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleImportFromDrive}
+                      className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <FolderOpen size={14} />
+                      <span>{lang === 'en' ? 'Import from Drive' : 'ከ ድራይቭ ምረጥ'}</span>
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!selectedFile || loading}
+                      className="px-4 py-2 bg-brand-green hover:bg-brand-green/95 disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+                    >
+                      {lang === 'en' ? 'Upload Document' : 'ሰነዱን ስቀል'}
+                    </button>
+                  </div>
                 </form>
               </div>
 
@@ -1028,6 +1049,41 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
 
         </div>
       </motion.div>
+
+      {/* Image / Drive Import Modal */}
+      <ImageSelectModal
+        isOpen={isDriveModalOpen}
+        onClose={() => setIsDriveModalOpen(false)}
+        modalTitle="Import File from Drive or Device"
+        onSelect={async (convertedUrl) => {
+          if (!user) return;
+          setLoading(true);
+          try {
+            const newDoc = {
+              id: Math.random().toString(36).substr(2, 9),
+              name: docName || 'Imported Document',
+              fileName: 'Drive or Uploaded File',
+              fileUrl: convertedUrl,
+              source: 'Cloud / Drive',
+              size: 'File Link',
+              status: 'pending',
+              date: new Date().toISOString().split('T')[0]
+            };
+
+            const updatedDocs = [newDoc, ...(userProfile?.documents || [])];
+            const userDocRef = doc(db, 'users', user.uid);
+            await updateDoc(userDocRef, { documents: updatedDocs });
+
+            setUserProfile((prev: any) => ({ ...prev, documents: updatedDocs }));
+            triggerFeedback('success', lang === 'en' ? 'File linked successfully!' : 'ፋይል በተሳካ ሁኔታ ተያይዟል!');
+          } catch (err) {
+            console.error(err);
+            triggerFeedback('error', 'Import failed. Please try again.');
+          } finally {
+            setLoading(false);
+          }
+        }}
+      />
 
       {/* Floating feedback notification inside the portal */}
       <AnimatePresence>

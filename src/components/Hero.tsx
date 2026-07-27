@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import ReactPlayer from 'react-player';
 import { Shield, Users, LayoutGrid } from 'lucide-react';
 import { GlassCard } from './GlassCard';
+import { convertGoogleDriveUrl } from './ImageSelectModal';
 
 interface HeroProps {
   lang: Language;
@@ -34,10 +35,10 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               playsInline
             />
           </div>
-        ) : t.backgroundType === 'image' && t.heroImage ? (
+        ) : t.heroImage ? (
           <div className="absolute inset-0">
             <img 
-              src={t.heroImage} 
+              src={convertGoogleDriveUrl(t.heroImage)} 
               alt="Kidtopia Hero background" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
@@ -138,7 +139,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               >
                 {item.image ? (
                   <div className="flex-shrink-0 w-14 h-14 rounded-2xl overflow-hidden shadow-md">
-                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src={convertGoogleDriveUrl(item.image)} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                 ) : (
                   <div className={`flex-shrink-0 p-4 rounded-2xl shadow-sm ${

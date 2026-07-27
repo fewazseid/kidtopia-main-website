@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Laptop, Smartphone, Upload, CheckCircle2, ShieldCheck, 
   Smile, Users, ClipboardList, LogIn, Heart, Camera, Activity, Info,
-  Utensils, Clock, QrCode
+  Utensils, Clock, QrCode, FolderOpen
 } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { useContent } from '../ContentContext';
+import { ImageSelectModal, convertGoogleDriveUrl } from './ImageSelectModal';
 
 interface ScreenshotMap {
   registration: string | null;
@@ -139,15 +140,10 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
 
   // Helper to parse Google Drive link to direct web-friendly link
   const getGoogleDriveDirectLink = (url: string): string => {
-    if (!url) return '';
-    if (url.includes('drive.google.com')) {
-      const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (fileIdMatch && fileIdMatch[1]) {
-        return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
-      }
-    }
-    return url;
+    return convertGoogleDriveUrl(url);
   };
+
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
 
   const handleApplyDriveLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -806,11 +802,20 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                       {lang === 'en' ? `Updating image for "${activeTab}" tab.` : `ለ"${activeTab}" ምድብ ስክሪንሾት በመቀየር ላይ።`}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setIsDriveModalOpen(true)}
+                      className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 font-bold text-blue-700 shadow-sm cursor-pointer transition flex items-center gap-1.5 text-xs"
+                    >
+                      <FolderOpen size={14} />
+                      <span>{lang === 'en' ? 'Select from Drive / Device' : 'ከ ድራይቭ / መሳሪያ ምረጥ'}</span>
+                    </button>
+
                     <button 
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 font-bold text-stone-700 shadow-sm cursor-pointer transition flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 font-bold text-stone-700 shadow-sm cursor-pointer transition flex items-center gap-1.5 text-xs"
                     >
                       <Upload size={13} className="text-stone-500" />
                       <span>{uploadedScreenshots[activeTab] ? t.changeScreenshot : (lang === 'am' ? 'ምስል ጫን' : 'Upload Image')}</span>
@@ -820,13 +825,33 @@ export const SoftwareShowcase: React.FC<SoftwareShowcaseProps> = ({ lang, isAdmi
                       <button 
                         type="button"
                         onClick={removeScreenshot}
-                        className="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 font-bold text-stone-500 cursor-pointer transition"
+                        className="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 font-bold text-stone-500 cursor-pointer transition text-xs"
                       >
                         {t.useFallback}
                       </button>
                     )}
                   </div>
                 </div>
+
+                <ImageSelectModal
+                  isOpen={isDriveModalOpen}
+                  onClose={() => setIsDriveModalOpen(false)}
+                  initialUrl={uploadedScreenshots[activeTab] || ''}
+                  modalTitle="Select Software Screenshot"
+                  onSelect={async (selectedUrl) => {
+                    setUploadedScreenshots(prev => ({
+                      ...prev,
+                      [activeTab]: selectedUrl
+                    }));
+                    try {
+                      await setDoc(doc(db, 'settings', 'screenshots'), {
+                        [activeTab]: selectedUrl
+                      }, { merge: true });
+                    } catch (error) {
+                      console.error("Error saving screenshot to Firestore:", error);
+                    }
+                  }}
+                />
 
                 {/* Google Drive Link Input Form */}
                 <form onSubmit={handleApplyDriveLink} className="space-y-2">

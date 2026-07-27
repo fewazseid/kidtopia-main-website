@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload, Globe, Check, GripVertical } from 'lucide-react';
+import { Save, LogOut, Settings, Layout, Users, Shield, Image as ImageIcon, Trash2, Plus, Menu, X, ChevronDown, ChevronUp, Eye, EyeOff, Megaphone, Bell, FileText, HelpCircle, Compass, ArrowLeft, Mail, Send, Upload, Globe, Check, GripVertical, FolderOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useContentRefresh, ContentContext, useLanguageConfig } from '../ContentContext';
 import { AnimatePresence } from 'motion/react';
@@ -30,25 +30,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
 import { ThreeSixtyViewer } from '../components/ThreeSixtyViewer';
 import { DailyExperienceScheduleManager } from '../components/DailyExperienceScheduleManager';
+import { ImageSelectModal, convertGoogleDriveUrl } from '../components/ImageSelectModal';
 
-export function convertGoogleDriveUrl(url: string): string {
-  if (!url) return '';
-  const trimmed = url.trim();
-  
-  // Matches standard file/d/FILE_ID/view format
-  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (fileDMatch && fileDMatch[1]) {
-    return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
-  }
-  
-  // Matches open?id=FILE_ID query parameter format
-  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (idMatch && idMatch[1]) {
-    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-  }
-  
-  return trimmed;
-}
+export { convertGoogleDriveUrl };
 
 interface SoftwareScreenshotsManagerProps {
   lang: 'en' | 'am';
@@ -219,9 +203,25 @@ export const SoftwareScreenshotsManager: React.FC<SoftwareScreenshotsManagerProp
 
       {/* Google Drive Link Input Form */}
       <form onSubmit={handleApplyDriveLink} className="space-y-2">
-        <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
-          {lang === 'en' ? 'Or Paste Google Drive Image Link' : 'ወይም የጉግል ድራይቭ ምስል ሊንክ እዚህ ይለጥፉ'}
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
+            {lang === 'en' ? 'Or Paste Google Drive Image Link' : 'ወይም የጉግል ድራይቭ ምስል ሊንክ እዚህ ይለጥፉ'}
+          </label>
+          <button
+            type="button"
+            onClick={() => {
+              const link = prompt(lang === 'en' ? 'Paste shared Google Drive image link:\n(Make sure sharing is set to "Anyone with the link can view")' : 'የጉግል ድራይቭ ምስል ሊንክ ይለጥፉ:');
+              if (link) {
+                const converted = convertGoogleDriveUrl(link);
+                setDriveLink(converted);
+              }
+            }}
+            className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <FolderOpen size={12} />
+            <span>{lang === 'en' ? 'Select from Drive' : 'ከ ድራይቭ ምረጥ'}</span>
+          </button>
+        </div>
         <div className="flex gap-2">
           <input
             type="text"
@@ -316,6 +316,12 @@ export const AdminDashboard: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<string | null>(null);
 
   const [tourSchedule, setTourSchedule] = useState<any>(null);
+  const [activeImageSelectModal, setActiveImageSelectModal] = useState<{
+    isOpen: boolean;
+    initialUrl?: string;
+    path?: string[];
+    title?: string;
+  }>({ isOpen: false });
   const [scheduleViewDay, setScheduleViewDay] = useState('Default');
   const daysOfWeek = ['Default', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const [bookings, setBookings] = useState<any[]>([]);
@@ -1375,7 +1381,6 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleChange = (langOrPath: 'en' | 'am' | string[], pathOrValue: string[] | any, optionalValue?: any) => {
-    const newContent = JSON.parse(JSON.stringify(content));
     let lang: 'en' | 'am' | undefined;
     let path: string[];
     let value: any;
@@ -1384,33 +1389,51 @@ export const AdminDashboard: React.FC = () => {
       lang = langOrPath;
       path = pathOrValue;
       value = optionalValue;
-    } else {
-      path = langOrPath as string[];
+    } else if (Array.isArray(langOrPath)) {
+      if (langOrPath.length > 0 && (langOrPath[0] === 'en' || langOrPath[0] === 'am')) {
+        lang = langOrPath[0] as 'en' | 'am';
+        path = langOrPath.slice(1);
+      } else {
+        path = langOrPath;
+      }
       value = pathOrValue;
+    } else {
+      return;
     }
+
+    if (Array.isArray(path) && path.length > 0 && (path[0] === 'en' || path[0] === 'am')) {
+      if (!lang) lang = path[0] as 'en' | 'am';
+      path = path.slice(1);
+    }
+
+    if (!path || path.length === 0) return;
 
     const lastKey = path[path.length - 1];
 
-    const writeToLang = (l: 'en' | 'am', val: any) => {
-      let current = newContent[l];
-      for (let i = 0; i < path.length - 1; i++) {
-        if (!current[path[i]]) current[path[i]] = {};
-        current = current[path[i]];
+    setContent((prevContent) => {
+      const newContent = JSON.parse(JSON.stringify(prevContent));
+
+      const writeToLang = (l: 'en' | 'am', val: any) => {
+        if (!newContent[l]) newContent[l] = {};
+        let current = newContent[l];
+        for (let i = 0; i < path.length - 1; i++) {
+          if (!current[path[i]] || typeof current[path[i]] !== 'object') {
+            current[path[i]] = {};
+          }
+          current = current[path[i]];
+        }
+        current[lastKey] = val;
+      };
+
+      if (lang) {
+        writeToLang(lang, value);
+      } else {
+        writeToLang('en', value);
+        writeToLang('am', value);
       }
-      current[lastKey] = val;
-    };
 
-    if (lang) {
-      writeToLang(lang, value);
-    } else if (isNonTextField(lastKey, value, path)) {
-      writeToLang('en', value);
-      writeToLang('am', value);
-    } else {
-      writeToLang('en', value);
-      writeToLang('am', value);
-    }
-
-    setContent(newContent);
+      return newContent;
+    });
   };
 
   const addItem = (path: string[]) => {
@@ -2063,12 +2086,31 @@ export const AdminDashboard: React.FC = () => {
       if (isImage || isVideo || isUrl) {
         return (
           <div key={path.join('.')} className="mb-4">
-            <label className="block text-sm font-medium text-stone-700 mb-1 capitalize">
-              {key.replace(/([A-Z])/g, ' $1').trim()}
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-stone-700 capitalize">
+                {key.replace(/([A-Z])/g, ' $1').trim()}
+              </label>
+              {isImage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveImageSelectModal({
+                      isOpen: true,
+                      initialUrl: enValue || '',
+                      path,
+                      title: `Select / Change Image for ${key.replace(/([A-Z])/g, ' $1').trim()}`
+                    });
+                  }}
+                  className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <FolderOpen size={12} />
+                  <span>{activeLang === 'en' ? 'Select / Upload Image' : 'ምስል ምረጥ / ስቀል'}</span>
+                </button>
+              )}
+            </div>
             <div className="flex items-center gap-4">
               {enValue && isImage && (
-                <img src={enValue} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200" />
+                <img src={convertGoogleDriveUrl(enValue)} alt={key} className="w-16 h-16 object-cover rounded-lg border border-stone-200" />
               )}
               {enValue && isVideo && (
                 <div className="w-16 h-16 bg-stone-100 rounded-lg border border-stone-200 flex items-center justify-center overflow-hidden">
@@ -3847,6 +3889,20 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Image / Drive Select Modal */}
+      <ImageSelectModal
+        isOpen={activeImageSelectModal.isOpen}
+        onClose={() => setActiveImageSelectModal(prev => ({ ...prev, isOpen: false }))}
+        initialUrl={activeImageSelectModal.initialUrl}
+        modalTitle={activeImageSelectModal.title || 'Select or Upload Image'}
+        onSelect={(selectedUrl) => {
+          if (activeImageSelectModal.path) {
+            handleChange(['en', ...activeImageSelectModal.path], selectedUrl);
+            handleChange(['am', ...activeImageSelectModal.path], selectedUrl);
+          }
+        }}
+      />
     </div>
   );
 };

@@ -36,24 +36,9 @@ export interface Scene {
   startLat?: number;  // Optional custom starting camera latitude angle
 }
 
-export function convertGoogleDriveUrl(url: string): string {
-  if (!url) return '';
-  const trimmed = url.trim();
-  
-  // Matches standard file/d/FILE_ID/view format
-  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (fileDMatch && fileDMatch[1]) {
-    return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
-  }
-  
-  // Matches open?id=FILE_ID query parameter format
-  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (idMatch && idMatch[1]) {
-    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-  }
-  
-  return trimmed;
-}
+import { ImageSelectModal, convertGoogleDriveUrl } from './ImageSelectModal';
+
+export { convertGoogleDriveUrl };
 
 // Extract low and high resolution URLs for progressive texture loading
 export function getLowResAndHighResUrls(url: string): { low: string; high: string } {
