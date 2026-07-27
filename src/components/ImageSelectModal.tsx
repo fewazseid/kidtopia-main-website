@@ -19,7 +19,7 @@ export function convertGoogleDriveUrl(url: string): string {
   }
 
   if (fileId) {
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
 
   return trimmed;

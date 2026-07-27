@@ -3786,7 +3786,7 @@ export const AdminDashboard: React.FC = () => {
                           <p className="text-sm text-stone-600 dark:text-stone-400 mb-6 font-sans">
                             Drag to look around the virtual room, and use the "Edit 360 Tour" button inside the viewer below to add/delete 360 rooms or link rooms with interactive connection hotspots.
                           </p>
-                          <ThreeSixtyViewer isAdminMode={true} />
+                          <ThreeSixtyViewer isAdminMode={true} lang={activeLang} />
                         </div>
                       )}
                       {activeSection === 'dailyExperience' && (

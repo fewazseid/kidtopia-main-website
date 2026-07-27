@@ -5,6 +5,7 @@ import { useContent } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Video, Calendar, Shield, Compass, X, ChevronLeft, ChevronRight, Maximize2, ChevronDown, ChevronUp } from 'lucide-react';
 import { ThreeSixtyViewer } from './ThreeSixtyViewer';
+import { convertGoogleDriveUrl } from './ImageSelectModal';
 
 interface VirtualTourProps {
   lang: Language;
@@ -230,7 +231,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             className="inline-flex items-center gap-1.5 bg-white/10 text-brand-yellow text-xs font-black tracking-widest uppercase font-accent px-4.5 py-2 rounded-full mb-4"
           >
             <Compass size={14} className="stroke-[2.5] animate-spin" style={{ animationDuration: '10s' }} />
-            Interactive 360° Experience
+            {lang === 'am' ? 'በይነተገናኝ የ360° ጉብኝት' : 'Interactive 360° Experience'}
           </motion.div>
           
           <motion.h2 
@@ -248,10 +249,10 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
         {/* Traditional Media Gallery Divider Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h3 className="text-xl sm:text-2xl font-sans font-bold text-stone-200 mb-2">
-            Photo Gallery & Highlights
+            {lang === 'am' ? 'የፎቶ ማዕከለ-ስዕላት እና ድምቀቶች' : 'Photo Gallery & Highlights'}
           </h3>
           <p className="text-stone-400 text-sm font-sans">
-            Take a look at some of our daycare spaces and happy moments
+            {lang === 'am' ? 'ከእኛ የማቆያ ክፍሎች እና ደስተኛ አፍታዎች ጥቂቶቹን ይመልከቱ' : 'Take a look at some of our daycare spaces and happy moments'}
           </p>
         </div>
 
@@ -271,7 +272,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             {/* Organic Frame 1 */}
             <div className="absolute top-0 left-0 sm:left-12 w-[65%] sm:w-[55%] aspect-[4/5] rounded-[24px] sm:rounded-[48px] overflow-hidden border-4 sm:border-8 border-white shadow-2xl rotate-[-3deg] hover:rotate-0 transition-transform duration-500 group z-10">
               <img 
-                src={t.collageImage1 || "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop"} 
+                src={convertGoogleDriveUrl(t.collageImage1) || "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop"} 
                 alt="Happy children learning and playing" 
                 className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
                 referrerPolicy="no-referrer"
@@ -282,7 +283,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             {/* Organic Frame 2 */}
             <div className="absolute bottom-4 right-0 sm:right-12 w-[55%] sm:w-[45%] aspect-[1/1] rounded-[20px] sm:rounded-[40px] overflow-hidden border-4 sm:border-6 border-white shadow-xl rotate-[6deg] hover:rotate-0 transition-transform duration-500 group z-20">
               <img 
-                src={t.collageImage2 || "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"} 
+                src={convertGoogleDriveUrl(t.collageImage2) || "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"} 
                 alt="Daycare active play" 
                 className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
                 referrerPolicy="no-referrer"
@@ -316,7 +317,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
             viewport={{ once: true }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <ThreeSixtyViewer />
+            <ThreeSixtyViewer lang={lang} />
           </motion.div>
         </div>
 
@@ -348,7 +349,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                       </div>
                     ) : (
                       <img 
-                        src={item.url} 
+                        src={convertGoogleDriveUrl(item.url)} 
                         alt={item.description || `Virtual Tour ${cardIndex + 1}`} 
                         className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 ease-out"
                         referrerPolicy="no-referrer"
@@ -459,7 +460,7 @@ export const VirtualTour: React.FC<VirtualTourProps> = ({ lang }) => {
                       <VideoPlayer url={t.media[activeMediaIndex].url} title={t.media[activeMediaIndex].description} autoplay={true} />
                     ) : (
                       <img
-                        src={t.media[activeMediaIndex].url}
+                        src={convertGoogleDriveUrl(t.media[activeMediaIndex].url)}
                         alt={t.media[activeMediaIndex].description || "Lightbox View"}
                         className="w-full h-full object-contain rounded-2xl select-none"
                         referrerPolicy="no-referrer"

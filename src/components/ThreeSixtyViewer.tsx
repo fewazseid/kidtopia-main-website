@@ -45,14 +45,6 @@ export function getLowResAndHighResUrls(url: string): { low: string; high: strin
   const converted = convertGoogleDriveUrl(url);
   if (!converted) return { low: '', high: '' };
   
-  if (converted.includes('lh3.googleusercontent.com/d/')) {
-    const cleanUrl = converted.split('=')[0];
-    return {
-      low: `${cleanUrl}=w800`,
-      high: `${cleanUrl}=w8192` // Upgrade to 8K for maximum sharpness
-    };
-  }
-  
   if (converted.includes('unsplash.com')) {
     const cleanUrl = converted.split('?')[0];
     return {
@@ -1177,9 +1169,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         if (textureCacheRef.current.has(scene.id)) return;
 
         const urls = getLowResAndHighResUrls(scene.imageUrl);
-        const loadUrl = urls.high.startsWith('http')
-          ? urls.high + (urls.high.includes('?') ? '&' : '?') + 't=' + Date.now()
-          : urls.high;
+        const loadUrl = urls.high;
 
         textureLoaderRef.current.load(
           loadUrl,
@@ -1230,7 +1220,7 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         }
       } else {
         // Progressive Enhancement
-        const placeholder = createLowResPlaceholderTexture(currentScene.title);
+        const placeholder = createLowResPlaceholderTexture(getSceneTitle(currentScene));
         sphereMaterialRef.current.map = placeholder;
         sphereMaterialRef.current.needsUpdate = true;
         if (rendererRef.current && sceneRef.current && cameraRef.current) {
@@ -1244,27 +1234,50 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           (lowResTexture) => {
             lowResTexture.wrapS = THREE.RepeatWrapping;
             lowResTexture.repeat.x = -1;
+            lowResTexture.colorSpace = THREE.SRGBColorSpace;
             if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current && !textureCacheRef.current.has(currentScene.id)) {
               sphereMaterialRef.current.map = lowResTexture;
               sphereMaterialRef.current.needsUpdate = true;
             }
             
-            textureLoaderRef.current.load(urls.high, (highResTexture) => {
-              highResTexture.minFilter = THREE.LinearFilter; // Change to LinearFilter for sharper close-ups
-              highResTexture.magFilter = THREE.LinearFilter;
-              highResTexture.generateMipmaps = false; // Disable mipmaps for max sharpness on static high-res textures
-              highResTexture.colorSpace = THREE.SRGBColorSpace;
-              highResTexture.wrapS = THREE.RepeatWrapping;
-              highResTexture.repeat.x = -1;
-              if (rendererRef.current) {
-                highResTexture.anisotropy = Math.min(rendererRef.current.capabilities.getMaxAnisotropy(), 16);
-              }
-              textureCacheRef.current.set(currentScene.id, highResTexture);
-              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
-                sphereMaterialRef.current.map = highResTexture;
-                sphereMaterialRef.current.needsUpdate = true;
-              }
-            });
+            if (urls.high !== urls.low) {
+              textureLoaderRef.current.load(urls.high, (highResTexture) => {
+                highResTexture.minFilter = THREE.LinearFilter;
+                highResTexture.magFilter = THREE.LinearFilter;
+                highResTexture.generateMipmaps = false;
+                highResTexture.colorSpace = THREE.SRGBColorSpace;
+                highResTexture.wrapS = THREE.RepeatWrapping;
+                highResTexture.repeat.x = -1;
+                if (rendererRef.current) {
+                  highResTexture.anisotropy = Math.min(rendererRef.current.capabilities.getMaxAnisotropy(), 16);
+                }
+                textureCacheRef.current.set(currentScene.id, highResTexture);
+                if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                  sphereMaterialRef.current.map = highResTexture;
+                  sphereMaterialRef.current.needsUpdate = true;
+                }
+              });
+            } else {
+              textureCacheRef.current.set(currentScene.id, lowResTexture);
+            }
+          },
+          undefined,
+          (err) => {
+            console.error(`Failed loading primary texture for scene: ${currentScene.id}`, err);
+            // Fallback: try loading directly via convertGoogleDriveUrl
+            if (currentScene.imageUrl) {
+              const fallbackUrl = convertGoogleDriveUrl(currentScene.imageUrl);
+              textureLoaderRef.current.load(fallbackUrl, (fallbackTexture) => {
+                fallbackTexture.wrapS = THREE.RepeatWrapping;
+                fallbackTexture.repeat.x = -1;
+                fallbackTexture.colorSpace = THREE.SRGBColorSpace;
+                textureCacheRef.current.set(currentScene.id, fallbackTexture);
+                if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                  sphereMaterialRef.current.map = fallbackTexture;
+                  sphereMaterialRef.current.needsUpdate = true;
+                }
+              });
+            }
           }
         );
       }
