@@ -485,9 +485,9 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                         <p className="text-xs text-stone-500">Size: 1.4 MB | PDF Forms</p>
                       </div>
                     </div>
-                    <a href="#" className="p-2 bg-white border border-stone-200 text-stone-700 rounded-xl hover:bg-stone-100 transition shadow-sm">
+                    <button type="button" onClick={(e) => e.preventDefault()} className="p-2 bg-white border border-stone-200 text-stone-700 rounded-xl hover:bg-stone-100 transition shadow-sm">
                       <Download size={16} />
-                    </a>
+                    </button>
                   </div>
                   <div className="p-4 border border-stone-200 rounded-2xl flex justify-between items-center bg-stone-50/50 hover:bg-stone-50 transition">
                     <div className="flex items-center gap-3">
@@ -499,9 +499,9 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                         <p className="text-xs text-stone-500">Size: 950 KB | Doctor Approved</p>
                       </div>
                     </div>
-                    <a href="#" className="p-2 bg-white border border-stone-200 text-stone-700 rounded-xl hover:bg-stone-100 transition shadow-sm">
+                    <button type="button" onClick={(e) => e.preventDefault()} className="p-2 bg-white border border-stone-200 text-stone-700 rounded-xl hover:bg-stone-100 transition shadow-sm">
                       <Download size={16} />
-                    </a>
+                    </button>
                   </div>
                 </div>
 

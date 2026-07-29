@@ -297,6 +297,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                 {/* Option 2: Kidtopia Dashboard */}
                 <a
                   href="https://kidtopia-main-u5x6pj.laravel.cloud/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full p-5 bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-brand-orange rounded-2xl shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4 group cursor-pointer block"
                 >
                   <div className="p-3 bg-brand-orange/10 text-brand-orange rounded-xl group-hover:bg-brand-orange group-hover:text-white transition-colors shrink-0 mt-0.5">

@@ -465,7 +465,8 @@ export const EnrollPage: React.FC<EnrollPageProps> = ({ lang }) => {
           {termsAccepted ? (
             <a 
               href={data.externalEnrollmentUrl || "https://kidtopia-main-u5x6pj.laravel.cloud/enroll"} 
-              target="_self"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 btn-secondary text-base font-bold tracking-wide px-8 py-4 px-10 shadow-lg shadow-brand-orange/20 hover:scale-[1.02] transition-transform"
             >
               <span>{data.proceedButton}</span>
