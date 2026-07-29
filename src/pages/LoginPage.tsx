@@ -295,11 +295,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                 </button>
 
                 {/* Option 2: Kidtopia Dashboard */}
-                <a
-                  href="https://kidtopia-main-u5x6pj.laravel.cloud/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full p-5 bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-brand-orange rounded-2xl shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4 group cursor-pointer block"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError('');
+                    setPortalMode('website_login');
+                  }}
+                  className="w-full p-5 bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-brand-orange rounded-2xl shadow-sm hover:shadow-md transition-all text-left flex items-start gap-4 group cursor-pointer"
                 >
                   <div className="p-3 bg-brand-orange/10 text-brand-orange rounded-xl group-hover:bg-brand-orange group-hover:text-white transition-colors shrink-0 mt-0.5">
                     <LayoutDashboard size={24} />
@@ -308,7 +310,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                     <div className="flex items-center justify-between">
                       <h3 className="font-black text-stone-900 text-base sm:text-lg group-hover:text-brand-orange transition-colors flex items-center gap-1.5">
                         {lang === 'en' ? 'Kidtopia Dashboard' : 'የኪድቶፒያ ዳሽቦርድ'}
-                        <ExternalLink size={14} className="opacity-60" />
                       </h3>
                       <span className="text-xs font-bold text-stone-400 group-hover:text-brand-orange transition-colors">
                         →
@@ -320,7 +321,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ lang, onOpenInstallModal }
                         : 'ወደ ተማሪዎች ዝርዝር፣ ሰራተኞች እና ዋና ዳሽቦርድ ይሂዱ።'}
                     </p>
                   </div>
-                </a>
+                </button>
               </div>
             </motion.div>
           ) : (

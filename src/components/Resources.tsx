@@ -92,7 +92,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
                   if (resource.actionType) {
                     if (resource.actionType === 'url' && resource.link) {
                       if (resource.link.startsWith('http://') || resource.link.startsWith('https://')) {
-                        window.open(resource.link, '_blank', 'noopener,noreferrer');
+                        window.open(resource.link, '_self');
                       } else {
                         window.location.hash = resource.link;
                       }
