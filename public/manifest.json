@@ -1,6 +1,18 @@
 {
   "short_name": "Kidtopia",
   "name": "Kidtopia International Daycare & Preschool",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#F8F6F0",
+  "theme_color": "#3A5B32",
+  "orientation": "any",
+  "description": "Kidtopia International Daycare & Preschool Application - Live camera feeds, virtual tours, parent updates, and attendance tracking.",
   "icons": [
     {
       "src": "/favicon.png",
@@ -14,11 +26,5 @@
       "sizes": "any",
       "purpose": "any maskable"
     }
-  ],
-  "start_url": "/",
-  "background_color": "#F8F6F0",
-  "theme_color": "#3A5B32",
-  "display": "standalone",
-  "orientation": "any",
-  "description": "Kidtopia International Daycare & Preschool Application - Live camera feeds, virtual tours, parent updates, and attendance tracking."
+  ]
 }
