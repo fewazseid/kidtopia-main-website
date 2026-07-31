@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { auth, getUserRole } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { LARAVEL_LOGIN_URL } from '../config';
 
 export const ProtectedRoute: React.FC<{ children: React.ReactNode, adminOnly?: boolean }> = ({ children, adminOnly }) => {
   const [loading, setLoading] = useState(true);
@@ -14,6 +14,8 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode, adminOnly?: b
       if (currentUser) {
         const userRole = await getUserRole(currentUser.uid);
         setRole(userRole);
+      } else {
+        setRole(null);
       }
       setLoading(false);
     });
@@ -29,11 +31,21 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode, adminOnly?: b
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    window.location.href = LARAVEL_LOGIN_URL;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+      </div>
+    );
   }
 
   if (adminOnly && role !== 'admin') {
-    return <Navigate to="/" replace />;
+    window.location.href = LARAVEL_LOGIN_URL;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+      </div>
+    );
   }
 
   return <>{children}</>;

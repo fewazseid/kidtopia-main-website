@@ -18,9 +18,10 @@ import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
 import { BookTourPage } from './pages/BookTourPage';
 import { RescheduleTourPage } from './pages/RescheduleTourPage';
-import { LoginPage } from './pages/LoginPage';
+import { LoginRedirect } from './pages/LoginRedirect';
 import { EnrollPage } from './pages/EnrollPage';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { AdminSsoPage } from './pages/AdminSsoPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ContentProvider, useLanguageConfig } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
@@ -31,7 +32,7 @@ import { X, Smartphone, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scrollToSection: (id: string) => void }> = ({ lang, setLang, scrollToSection }) => {
   const location = useLocation();
-  const isMinimalLayout = ['/login', '/admin'].includes(location.pathname) || location.pathname.startsWith('/reschedule');
+  const isMinimalLayout = ['/login', '/admin'].includes(location.pathname) || location.pathname.startsWith('/admin/') || location.pathname.startsWith('/reschedule');
   
   // State for expanded image viewer and Install App modal
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
@@ -142,8 +143,9 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
         <Route path="/contact" element={<ContactPage lang={lang} />} />
         <Route path="/book-tour" element={<BookTourPage lang={lang} />} />
         <Route path="/reschedule/:id" element={<RescheduleTourPage lang={lang} setLang={setLang} />} />
-        <Route path="/login" element={<LoginPage lang={lang} onOpenInstallModal={() => setIsInstallModalOpen(true)} />} />
+        <Route path="/login" element={<LoginRedirect />} />
         <Route path="/enroll" element={<EnrollPage lang={lang} />} />
+        <Route path="/admin/sso" element={<AdminSsoPage />} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
       </Routes>
 

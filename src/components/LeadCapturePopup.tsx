@@ -16,7 +16,7 @@ export const LeadCapturePopup: React.FC<LeadCapturePopupProps> = ({ lang, forceV
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isDashboard = ['/login', '/admin', '/staff', '/parent', '/book-tour'].includes(location.pathname);
+  const isDashboard = ['/login', '/admin', '/staff', '/parent', '/book-tour'].includes(location.pathname) || location.pathname.startsWith('/admin/');
 
   useEffect(() => {
     if (forceVisible) {
