@@ -14,10 +14,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
-      .then((reg) => {
-        console.log('Kidtopia Service Worker registered successfully:', reg.scope);
-        reg.update();
-      })
+      .then((reg) => console.log('Kidtopia Service Worker registered successfully:', reg.scope))
       .catch((err) => console.error('Kidtopia Service Worker registration failed:', err));
   });
 }

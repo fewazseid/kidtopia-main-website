@@ -16,9 +16,13 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
   const t = useContent(lang).hero;
 
+  const hasBgImageOrVideo = (t.backgroundType === 'video' && Boolean(t.heroVideo)) || Boolean(t.heroImage);
+  const textColorToUse = hasBgImageOrVideo ? (t.textColor || '#ffffff') : '#1c1917';
+
   console.log('Hero t object:', t);
   console.log('Hero backgroundType:', t.backgroundType);
   console.log('Hero heroVideo:', t.heroVideo);
+  console.log('Hero resolved text color:', textColorToUse);
 
   return (
     <section className="relative min-h-screen flex items-center pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
@@ -34,15 +38,23 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               muted 
               playsInline
             />
+            {/* Subtle dark overlay for maximum legibility of white text on top of video */}
+            {textColorToUse === '#ffffff' && (
+              <div className="absolute inset-0 bg-stone-950/40 pointer-events-none" />
+            )}
           </div>
         ) : t.heroImage ? (
           <div className="absolute inset-0">
             <img 
               src={convertGoogleDriveUrl(t.heroImage)} 
               alt="Kidtopia Hero background" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover no-expand"
               referrerPolicy="no-referrer"
             />
+            {/* Subtle dark overlay for maximum legibility of white text on top of image */}
+            {textColorToUse === '#ffffff' && (
+              <div className="absolute inset-0 bg-stone-950/35 pointer-events-none" />
+            )}
             {/* Smooth gradient transition to the page's brand-cream background color at the bottom */}
             <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-brand-cream via-brand-cream/60 to-transparent pointer-events-none" />
           </div>
@@ -67,7 +79,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-orange"></span>
               </span>
-              <span className="text-[9px] sm:text-xs font-black tracking-widest uppercase font-accent" style={{ color: t.textColor }}>{t.badgeText}</span>
+              <span className="text-[9px] sm:text-xs font-black tracking-widest uppercase font-accent" style={{ color: textColorToUse }}>{t.badgeText}</span>
             </motion.div>
 
             <motion.h1 
@@ -75,10 +87,10 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-editorial font-bold leading-[1.08] mb-6 tracking-tight text-left"
-              style={{ color: t.textColor }}
+              style={{ color: textColorToUse }}
             >
               {(() => {
-                const heroTitle = t.title || t.headline || '';
+                const heroTitle = t.headline || t.title || '';
                 const titleHighlight = t.titleHighlight || '';
                 
                 if (titleHighlight && heroTitle.includes(titleHighlight)) {
@@ -86,7 +98,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
                     <React.Fragment key={i}>
                       {part}
                       {i < arr.length - 1 && (
-                        <span className="underline decoration-brand-yellow decoration-wavy decoration-3 underline-offset-8" style={{ color: t.textColor || '#ffffff' }}>
+                        <span className="underline decoration-brand-yellow decoration-wavy decoration-3 underline-offset-8" style={{ color: textColorToUse }}>
                           {titleHighlight}
                         </span>
                       )}
@@ -102,7 +114,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="text-base sm:text-lg md:text-xl mb-10 leading-relaxed font-medium text-left max-w-2xl"
-              style={{ color: t.textColor }}
+              style={{ color: textColorToUse }}
             >
               {t.subheadline}
             </motion.p>
@@ -116,7 +128,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
               <Link to="/enroll" className="btn-secondary text-center whitespace-nowrap text-sm sm:text-base font-bold shadow-[0_10px_25px_rgba(200,106,61,0.25)] hover:scale-105 active:scale-95 transition-all py-3.5 px-6">
                 {t.enroll}
               </Link>
-              <Link to="/virtual-tour" className="btn-glass text-center whitespace-nowrap text-sm sm:text-base font-bold hover:scale-105 active:scale-95 transition-all py-3.5 px-6" style={{ color: t.textColor }}>
+              <Link to="/virtual-tour" className="btn-glass text-center whitespace-nowrap text-sm sm:text-base font-bold hover:scale-105 active:scale-95 transition-all py-3.5 px-6" style={{ color: textColorToUse }}>
                 {t.virtualTour}
               </Link>
             </motion.div>
@@ -127,7 +139,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onScrollTo }) => {
         {/* Highlights Bar */}
         <div className="mt-20 lg:mt-28">
           <div className="text-center mb-10">
-            <span className="text-xs font-black uppercase tracking-widest font-accent" style={{ color: t.textColor, opacity: 0.8 }}>{t.highlightSectionTitle}</span>
+            <span className="text-xs font-black uppercase tracking-widest font-accent" style={{ color: textColorToUse, opacity: 0.8 }}>{t.highlightSectionTitle}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {t.highlights.map((item: any, idx: number) => (

@@ -25,7 +25,6 @@ import { EnrollPage } from './EnrollPage';
 import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { IframePreview } from '../components/IframePreview';
 import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking, getNewsletterSubscribers, deleteNewsletterSubscriber } from '../firebase';
-import { LARAVEL_LOGIN_URL } from '../config';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { translations as defaultTranslations } from '../translations';
@@ -458,7 +457,7 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        window.location.href = LARAVEL_LOGIN_URL;
+        navigate('/login');
       } else {
         // User is authenticated, now safe to fetch protected data
         fetchContent();
@@ -1356,7 +1355,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleLogout = async () => {
     await firebaseLogout();
-    window.location.href = LARAVEL_LOGIN_URL;
+    navigate('/login');
   };
 
   const handleFileUpload = async (path: string[], file: File, type: 'image' | 'video' = 'image') => {
@@ -2971,19 +2970,55 @@ export const AdminDashboard: React.FC = () => {
             ) : activeSection === 'security' ? (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-xl font-bold text-stone-900 mb-2">Admin access</h2>
-                  <p className="text-sm text-stone-500 mb-4">
-                    Website editing is opened from the Laravel system via <strong>Manage Website</strong>. There is no separate website password.
-                  </p>
-                  <a
-                    href={LARAVEL_LOGIN_URL}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-green text-white text-sm font-bold hover:opacity-90"
-                  >
-                    Open Laravel login
-                  </a>
-                </div>
+                  <h2 className="text-xl font-bold text-stone-900 mb-2">Admin Account Settings</h2>
+                  <p className="text-sm text-stone-500 mb-6">Configure your login username and password. This updates both the shortcut and your actual account password.</p>
+                  
+                  <form onSubmit={handleUpdateSecurity} className="space-y-4 max-w-md">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-stone-700">Login Username</label>
+                      <input 
+                        type="text"
+                        value={adminConfig?.username || ''}
+                        onChange={(e) => setAdminConfig({ ...adminConfig, username: e.target.value })}
+                        className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green"
+                        placeholder="e.g. admin"
+                        required
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-stone-700">New Password (leave blank to keep current)</label>
+                      <div className="relative">
+                        <input 
+                          type={showNewPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="w-full px-4 py-2 border border-stone-200 rounded-xl outline-none focus:border-brand-green pr-12"
+                          placeholder="••••••••"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-brand-green transition-colors p-1"
+                        >
+                          {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      type="submit"
+                      disabled={securityLoading}
+                      className="w-full py-3 bg-brand-green text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      {securityLoading ? 'Updating...' : 'Save Security Settings'}
+                    </button>
+                  </form>
 
-                <div className="pt-8 border-t border-stone-100">
+                  <div className="mt-12 pt-8 border-t border-stone-100">
                     <h3 className="text-lg font-bold text-stone-900 mb-2">Central Operations & Notifications Email</h3>
                     <p className="text-sm text-stone-500 mb-4">
                       Enter the single, central email address used to receive "Contact Us" submissions, receive {adminConfig?.reminderHours || 2}-hour pending review alerts, and serve as the reply-to destination for tour schedule emails.
@@ -3114,6 +3149,7 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
             ) : activeSection === 'bookings' ? (
               <div className="space-y-8">
                 {/* Pending Actions / Notification Panel */}

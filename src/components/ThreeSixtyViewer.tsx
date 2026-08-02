@@ -118,7 +118,7 @@ const DEFAULT_SCENES: Scene[] = [
     id: 'classroom',
     title: 'Toddler Playroom & Learning Area',
     titleAm: 'የታዳጊዎች መጫወቻ እና መማሪያ ክፍል',
-    imageUrl: 'https://pannellum.org/images/cerebra.jpg',
+    imageUrl: 'https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg',
     isStart: false,
     hotspots: [
       {
@@ -448,13 +448,13 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
         let loadedScenes = configDoc.data().scenes as Scene[];
         let mutated = false;
         
-        // Auto-migrate flat Unsplash images to proper equirectangular room panorama with CORS support
+        // Auto-migrate flat Unsplash or broken pannellum.org images to proper equirectangular room panorama with CORS support
         loadedScenes = loadedScenes.map(s => {
-          if (s.imageUrl && s.imageUrl.includes('unsplash.com')) {
+          if (s.imageUrl && (s.imageUrl.includes('unsplash.com') || s.imageUrl.includes('pannellum.org'))) {
             mutated = true;
             return {
               ...s,
-              imageUrl: 'https://pannellum.org/images/cerebra.jpg'
+              imageUrl: 'https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg'
             };
           }
           return s;
@@ -1263,20 +1263,38 @@ export const ThreeSixtyViewer: React.FC<ThreeSixtyViewerProps> = ({ isAdminMode 
           },
           undefined,
           (err) => {
-            console.error(`Failed loading primary texture for scene: ${currentScene.id}`, err);
-            // Fallback: try loading directly via convertGoogleDriveUrl
+            console.warn(`Failed loading primary texture for scene: ${currentScene.id}`, err);
+            const applyCanvasFallback = () => {
+              const canvasTexture = createFallbackPanoTexture();
+              textureCacheRef.current.set(currentScene.id, canvasTexture);
+              if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                sphereMaterialRef.current.map = canvasTexture;
+                sphereMaterialRef.current.needsUpdate = true;
+              }
+            };
+
+            // Fallback: try loading directly via convertGoogleDriveUrl if different
             if (currentScene.imageUrl) {
               const fallbackUrl = convertGoogleDriveUrl(currentScene.imageUrl);
-              textureLoaderRef.current.load(fallbackUrl, (fallbackTexture) => {
-                fallbackTexture.wrapS = THREE.RepeatWrapping;
-                fallbackTexture.repeat.x = -1;
-                fallbackTexture.colorSpace = THREE.SRGBColorSpace;
-                textureCacheRef.current.set(currentScene.id, fallbackTexture);
-                if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
-                  sphereMaterialRef.current.map = fallbackTexture;
-                  sphereMaterialRef.current.needsUpdate = true;
+              textureLoaderRef.current.load(
+                fallbackUrl,
+                (fallbackTexture) => {
+                  fallbackTexture.wrapS = THREE.RepeatWrapping;
+                  fallbackTexture.repeat.x = -1;
+                  fallbackTexture.colorSpace = THREE.SRGBColorSpace;
+                  textureCacheRef.current.set(currentScene.id, fallbackTexture);
+                  if (currentSceneRef.current?.id === currentScene.id && sphereMaterialRef.current) {
+                    sphereMaterialRef.current.map = fallbackTexture;
+                    sphereMaterialRef.current.needsUpdate = true;
+                  }
+                },
+                undefined,
+                () => {
+                  applyCanvasFallback();
                 }
-              });
+              );
+            } else {
+              applyCanvasFallback();
             }
           }
         );

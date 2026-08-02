@@ -1,0 +1,2448 @@
+{
+  "content_en": {
+    "leadCapture": {
+      "type": "info",
+      "buttonLink": "/book-tour",
+      "text": "Schedule a visit to Kidtopia and see our wonderful environment.",
+      "title": "Would you like to schedule a tour?",
+      "laterText": "Later",
+      "buttonText": "Book Tour",
+      "enabled": "true"
+    },
+    "reschedule": {
+      "noSlots": "No available slots in schedule.",
+      "title": "Reschedule Your Tour",
+      "currentRequest": "Current Request:",
+      "notFound": "Booking not found.",
+      "successDesc": "Your new requested tour time is {date} at {time}. We will notify you once your booking is approved.",
+      "pleaseSelectDate": "Please select a date first.",
+      "failedToLoad": "Failed to load booking details.",
+      "updating": "Updating...",
+      "backToHome": "Back to Home",
+      "selectNewDate": "Select New Date",
+      "alreadyProcessed": "This booking has already been processed and cannot be rescheduled here. Please contact us directly.",
+      "failedToUpdate": "Failed to update booking. Please try again.",
+      "time": "Time:",
+      "success": "Tour Rescheduled Successfully!",
+      "date": "Date:",
+      "selectNewTime": "Select New Time",
+      "updateButton": "Update Tour Time"
+    },
+    "safety": {
+      "trustSafetyBadge": "Your Peace of Mind is Our Priority",
+      "cards": [
+        {
+          "desc": "All children must provide immunization, TB, HIV, and hepatitis screening before enrollment.",
+          "title": "Health Screening",
+          "image": ""
+        },
+        {
+          "desc": "Every Kidtopia staff member undergoes strict recruitment and identity verification.",
+          "title": "Staff Background Verification",
+          "image": ""
+        },
+        {
+          "image": "",
+          "title": "Secure Check-In and Check-Out",
+          "desc": "Our digital system ensures only authorized people can pick up your child."
+        },
+        {
+          "desc": "Blankets and daycare materials are cleaned regularly using our internal laundry system.",
+          "title": "Clean Environment",
+          "image": ""
+        }
+      ],
+      "title": "Your Child’s Safety is Our Priority"
+    },
+    "cta": {
+      "virtualTour": "Take a Virtual Tour",
+      "bookTour": "Book a Tour",
+      "enroll": "Start Enrollment",
+      "title": "Give Your Child the Best Start",
+      "desc": "Join Kidtopia International Daycare and Preschool today."
+    },
+    "programs": {
+      "cards": [
+        {
+          "age": "3 – 18 Months",
+          "desc": "Nurturing care, sensory play, and individualized daily routines for infants.",
+          "image": "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=800&auto=format&fit=crop",
+          "name": "Infant Program",
+          "moreInfo": "Our Infant Care Program provides a safe, peaceful, and warm environment tailored to your baby's individual rhythm. We focus on sensory exploration, gentle physical touch, motor skill development, and attentive care from certified infant caregivers.",
+          "btn": "Learn More"
+        },
+        {
+          "age": "1.5 – 3 Years",
+          "desc": "Focus on communication, behavior development, and social interaction.",
+          "image": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+          "name": "Toddler Program",
+          "moreInfo": "Our toddler program is designed to provide a safe and stimulating environment where young children can explore and learn. We focus on sensory play, language development, and building social skills through group activities. Our experienced caregivers provide personalized attention to help each child reach their milestones.",
+          "btn": "Learn More"
+        },
+        {
+          "btn": "Learn More",
+          "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+          "desc": "Early learning activities that prepare children for school success.",
+          "name": "Preschool Program",
+          "moreInfo": "The preschool program at Kidtopia focuses on preparing children for the transition to primary school. We introduce basic literacy and numeracy concepts through fun, hands-on activities. Our curriculum also emphasizes emotional intelligence, problem-solving, and creative expression through art and music.",
+          "age": "3 – 5 Years"
+        }
+      ],
+      "title": "Our Learning Programs"
+    },
+    "footer": {
+      "copyright": "© 2026 Kidtopia International Daycare and Preschool. All rights reserved.",
+      "emails": [
+        "info@kidtopia.com"
+      ],
+      "resources": "Parent Resources",
+      "developedBy": "Developed by Arho Technology",
+      "addresses": [
+        {
+          "locationName": "Kidtopia International Daycare and Preschool, Addis Ababa, Ethiopia",
+          "googleMapsCoordinates": "9.0054,38.8475"
+        }
+      ],
+      "links": "Quick Links",
+      "phones": [
+        "+251 911 000 000"
+      ],
+      "contact": "Contact Information",
+      "developerUrl": "https://arhotechnology.com",
+      "resourceLinks": [
+        {
+          "actionType": "handbook",
+          "label": "Parent Handbook"
+        },
+        {
+          "label": "Nutrition Guide",
+          "actionType": "nutrition"
+        },
+        {
+          "actionType": "intl_act",
+          "label": "Ethiopian Childcare Directive"
+        },
+        {
+          "label": "Policies & Guidelines",
+          "actionType": "intl_guidelines"
+        }
+      ],
+      "social": {
+        "facebook": "https://facebook.com",
+        "instagram": "https://instagram.com",
+        "tiktok": "https://tiktok.com",
+        "youtube": "https://youtube.com",
+        "telegram": "https://t.me"
+      }
+    },
+    "whyChoose": {
+      "image2": "",
+      "features": [
+        "Real-time parent communication with photo updates",
+        "Comprehensive daily digital activity reports",
+        "Healthy, sanitized and child-proof environments",
+        "Small class sizes with certified loving caregivers",
+        "Secure QR Code scanning and verified parent pickup system",
+        "Transparent daycare operations & open communication",
+        "Premium modern cognitive & motor skill development curriculum",
+        "First aid & pediatric CPR certified staff members"
+      ],
+      "title": "Why Families Trust Kidtopia",
+      "image1": ""
+    },
+    "testimonials": {
+      "list": [
+        {
+          "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop",
+          "text": "Leaving my child was difficult at first, but the teachers made us feel comfortable and supported from day one.",
+          "workInfo": "Enterpreneur",
+          "name": "Rediet Sisay",
+          "rating": 5
+        },
+        {
+          "name": "Selamawit Gebretensay",
+          "workInfo": "Pharmacist",
+          "rating": 5,
+          "text": "Kidtopia daycare helped my child interact with other children, its the place where my child learned to talk well, the staff make him loved and generally it is the best daycare i have seen in Addis Ababa. I would 100% recommened it.",
+          "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&h=100&auto=format&fit=crop"
+        },
+        {
+          "text": "We are very grateful to be part of Kidtopia International Daycare and Preschool. It has truly been a wonderful experience for both me and my daughter. One of the things I appreciate most is the daily communication book. It keeps me fully informed about my child’s day—what she eats, when she sleeps, her activities, and even small details. This level of care and transparency gives me great peace of mind. The teachers are incredibly kind, protective, and truly loving toward the children.",
+          "rating": 5,
+          "name": "Samrawit Kassa",
+          "image": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=100&h=100&auto=format&fit=crop",
+          "workInfo": "Kidtopia Parent"
+        },
+        {
+          "name": "Rihanna Yimam Hassen",
+          "image": "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&h=100&auto=format&fit=crop",
+          "workInfo": "Consultant at AFSIC",
+          "rating": 5,
+          "text": "Kidtopia has truly been the safest and most nurturing place for my baby. Since joining I’ve seen incredible progress in her communication skills, her play, and even her eating habits. Knowing she’s in such a caring and supportive environment gives me complete peace of mind."
+        },
+        {
+          "workInfo": "Kidtopia Parent",
+          "image": "https://images.unsplash.com/photo-1550525811-e5869dd03032?q=80&w=100&h=100&auto=format&fit=crop",
+          "text": "At kidtopia our child has found a loving nurturing environment. We live getting updates on his day. He is very happy and looks forward to being there. I definitely recommend kidtopia.",
+          "rating": 5,
+          "name": "Dr. Serkalem Nurlegn"
+        },
+        {
+          "image": "https://images.unsplash.com/photo-1463453091185-61582044d556?q=80&w=100&h=100&auto=format&fit=crop",
+          "text": "I have visited multiple daycares and preschools but I felt a sense of comfort and “hominess” with kidtopia.The dedicated staff is warm,caring and hardworking combined with fun and educational classroom structure, has truly made a positive impact on our family. I couldn’t imagine my daughter going anywhere else!",
+          "rating": 5,
+          "name": "Mehret Behailu",
+          "workInfo": "Kidtopia Parent"
+        }
+      ],
+      "title": "What Parents Say"
+    },
+    "virtualTour": {
+      "editButton": "Edit 360 Tour",
+      "ratingSubtext": "Parent Rating in Addis Ababa",
+      "collageImage1": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop",
+      "media": [
+        {
+          "description": "Our beautiful and spacious play area.",
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop"
+        },
+        {
+          "description": "Happy children learning and playing in a safe space.",
+          "url": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+          "type": "image"
+        },
+        {
+          "type": "image",
+          "description": "Daycare active play and creative group learning.",
+          "url": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"
+        }
+      ],
+      "instructions": "Click and drag to explore",
+      "schedule": "Schedule a Physical Visit",
+      "trustSubtext": "Doctor Approved",
+      "collageImage2": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+      "trustText": "100% Secure",
+      "title": "Explore Our Daycare",
+      "welcome": "Welcome to Kidtopia 360° Virtual Tour!",
+      "ratingText": "★ 4.9",
+      "watchFull": "Watch Full Virtual Tour"
+    },
+    "dailyExperience": {
+      "title": "A Day at Kidtopia",
+      "timeline": [
+        {
+          "image": "",
+          "activity": "Welcome and check-in",
+          "time": "Morning"
+        },
+        {
+          "activity": "Learning activities",
+          "image": "",
+          "time": "Mid-morning"
+        },
+        {
+          "image": "",
+          "activity": "Healthy meal time",
+          "time": "Lunch"
+        },
+        {
+          "activity": "Nap and quiet time",
+          "time": "Afternoon",
+          "image": ""
+        },
+        {
+          "activity": "Play and creative activities",
+          "time": "Late afternoon",
+          "image": ""
+        },
+        {
+          "image": "",
+          "activity": "Secure parent pickup",
+          "time": "Evening"
+        }
+      ],
+      "schedules": [
+        {
+          "ageRange": "3 to 12 Months",
+          "nameAm": "ሕፃናት",
+          "timeline": [
+            {
+              "image": "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=800&auto=format&fit=crop",
+              "activity": "Warm arrival, bottle feeding & gentle sensory play",
+              "time": "7:30 AM - 9:00 AM",
+              "activityAm": "ሞቅ ያለ አቀባበል፣ የምግብ/ወተት ሰዓት እና ቀላል የጨዋታ ጊዜ"
+            },
+            {
+              "activity": "Morning nap & soothing music relaxation",
+              "activityAm": "የጠዋት እንቅልፍ እና በሙዚቃ የተቀነባበረ የእረፍት ጊዜ",
+              "time": "9:00 AM - 10:30 AM",
+              "image": ""
+            },
+            {
+              "activity": "Tummy time, motor skill practice & outdoor buggy stroll",
+              "time": "10:30 AM - 11:30 AM",
+              "activityAm": "የሆድ ላይ ልምምድ፣ የእንቅስቃሴ ችሎታ ማሳደጊያ እና የውጪ አየር እረፍት",
+              "image": ""
+            },
+            {
+              "activityAm": "የምሳ ሰዓት እና የተመጣጠነ ምግብ ቅመሳ",
+              "image": "",
+              "activity": "Midday feeding & organic puree tasting",
+              "time": "11:30 AM - 12:30 PM"
+            },
+            {
+              "time": "12:30 PM - 2:30 PM",
+              "activity": "Restful afternoon sleep & quiet story nursery rhymes",
+              "image": "",
+              "activityAm": "የከሰአት እንቅልፍ እና የልጆች ታሪክ ማዳመጥ"
+            },
+            {
+              "activity": "Interactive puppet play & soft block exploration",
+              "activityAm": "የአሻንጉሊት ጨዋታዎች እና ለስላሳ እቃዎች አሰሳ",
+              "time": "2:30 PM - 4:00 PM",
+              "image": ""
+            },
+            {
+              "activity": "Evening wind-down, infant massage & parent pickup",
+              "activityAm": "የቀኑ ማጠቃለያ፣ የእጅና እግር ማሳጅ እና ለወላጆች ማስረከብ",
+              "time": "4:00 PM - 5:30 PM",
+              "image": ""
+            }
+          ],
+          "descriptionAm": "ለቀዳሚ እድሜ ታዳጊዎቻችን ፍቅር የተሞላበት እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች፣ አመጋገብ እና ሰላማዊ የእረፍት ጊዜ።",
+          "description": "Nurturing care, sensory play, personalized feeding, and peaceful sleep routines for our youngest learners.",
+          "name": "Infants",
+          "ageRangeAm": "ከ 3 እስከ 12 ወራት",
+          "id": "infants"
+        },
+        {
+          "nameAm": "ታዳጊዎች",
+          "descriptionAm": "ንቁ አሰሳ፣ የቋንቋ እድገት ልምምድ፣ የውጪ ጨዋታ እና የማህበራዊ ግንኙነት ትምህርት።",
+          "id": "toddlers",
+          "ageRangeAm": "ከ 1 እስከ 2.5 ዓመት",
+          "name": "Toddlers",
+          "ageRange": "1 to 2.5 Years",
+          "timeline": [
+            {
+              "time": "7:30 AM - 8:30 AM",
+              "activityAm": "አቀባበል፣ የጠረጴዛ ጨዋታዎች እና የቁርስ ክበብ",
+              "image": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=800&auto=format&fit=crop",
+              "activity": "Arrival, table toys & breakfast circle"
+            },
+            {
+              "activity": "Morning greeting circle, song & fingerplay",
+              "activityAm": "የጠዋት ሰላምታ፣ መዝሙር እና የጣት ጨዋታዎች",
+              "time": "8:30 AM - 9:30 AM",
+              "image": ""
+            },
+            {
+              "time": "9:30 AM - 10:30 AM",
+              "activity": "Guided sensory exploration & finger painting",
+              "image": "",
+              "activityAm": "የስሜት ህዋሳት ጨዋታ እና በቀለም የመሳል ልምምድ"
+            },
+            {
+              "activityAm": "የሜዳ ላይ ጨዋታዎች እና የአካል ብቃት እንቅስቃሴ",
+              "activity": "Outdoor playground time & gross motor obstacle course",
+              "image": "",
+              "time": "10:30 AM - 11:30 AM"
+            },
+            {
+              "activityAm": "የምሳ ሰዓት እና የእጅ መታጠብ ልምድ ማሳደጊያ",
+              "time": "11:30 AM - 12:30 PM",
+              "image": "",
+              "activity": "Nutritious hot lunch & handwashing routine"
+            },
+            {
+              "activityAm": "የእረፍት እና የእንቅስቃሴ ማደሻ ጊዜ",
+              "activity": "Recharging nap time with soft lullabies",
+              "image": "",
+              "time": "12:30 PM - 2:30 PM"
+            },
+            {
+              "activityAm": "የከሰአት መክሰስ እና የታሪክ መጽሐፍት ንባብ",
+              "image": "",
+              "time": "2:30 PM - 3:30 PM",
+              "activity": "Afternoon healthy snack & storybook corner"
+            },
+            {
+              "activity": "Free play, music & movement circle, pickup",
+              "time": "3:30 PM - 5:30 PM",
+              "activityAm": "ነፃ ጨዋታ፣ የሙዚቃ እንቅስቃሴ እና ለወላጆች ማስረከብ",
+              "image": ""
+            }
+          ],
+          "description": "Active discovery, early language building, outdoor play, and social interaction."
+        },
+        {
+          "description": "Structured STEM learning, phonics, creative art, character building, and school readiness.",
+          "ageRangeAm": "ከ 2.5 እስከ 5 ዓመት",
+          "nameAm": "ቅድመ-ትምህርት ቤት",
+          "timeline": [
+            {
+              "activity": "Welcome, morning table challenges & breakfast",
+              "time": "7:30 AM - 8:30 AM",
+              "activityAm": "አቀባበል፣ የጠዋት አእምሮ ማነቃቂያ እና ቁርስ",
+              "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "activity": "Morning assembly, calendar, weather & bilingual phonics",
+              "image": "",
+              "activityAm": "የጠዋት ሰብሰባ፣ የቀን መቁጠሪያ፣ የአየር ሁኔታ እና ባለሁለት ቋንቋ ልምምድ",
+              "time": "8:30 AM - 9:30 AM"
+            },
+            {
+              "activityAm": "የSTEM ሳይንስ ማዕከላት፣ የሒሳብ እንቆቅልሾች እና የጽሑፍ ልምምድ",
+              "time": "9:30 AM - 10:45 AM",
+              "image": "",
+              "activity": "STEM learning centers, math puzzles & early writing"
+            },
+            {
+              "activityAm": "የስፖርት እንቅስቃሴዎች፣ የቡድን ጨዋታዎች እና ከተፈጥሮ ጋር መተዋወቅ",
+              "image": "",
+              "time": "10:45 AM - 11:45 AM",
+              "activity": "Outdoor sports, cooperative games & nature exploration"
+            },
+            {
+              "activity": "Family-style lunch & social etiquette lessons",
+              "activityAm": "የቤተሰብ አይነት የምሳ ሰዓት እና የማህበራዊ ስነ-ምግባር ትምህርት",
+              "image": "",
+              "time": "11:45 AM - 12:45 PM"
+            },
+            {
+              "image": "",
+              "activity": "Rest or quiet reading & mindfulness relaxation",
+              "time": "12:45 PM - 2:15 PM",
+              "activityAm": "የእረፍት ወይም የፀጥታ ንባብ እና የአእምሮ ማረጋጊያ"
+            },
+            {
+              "activity": "Creative art studio, drama play & language lab",
+              "activityAm": "የስነ-ጥበብ ስቱዲዮ፣ ድራማ እና የቋንቋ ቤተ-ሙከራ",
+              "time": "2:15 PM - 3:30 PM",
+              "image": ""
+            },
+            {
+              "activityAm": "የከሰአት መክሰስ፣ የቀኑ ማጠቃለያ እና ጉዞ ወደ ቤት",
+              "time": "3:30 PM - 5:30 PM",
+              "activity": "Afternoon snack, reflection circle & departure",
+              "image": ""
+            }
+          ],
+          "ageRange": "2.5 to 5 Years",
+          "id": "preschool",
+          "descriptionAm": "የሳይንስና ቴክኖሎጂ ትምህርት፣ የቋንቋና ፊደላት ልምምድ፣ ስነ-ጥበብ እና ለትምህርት ቤት ዝግጁ የማድረግ ፕሮግራም።",
+          "name": "Preschool"
+        }
+      ],
+      "subtitle": "Tailored daily routines designed specifically for each developmental age group"
+    },
+    "hero": {
+      "subheadline": "Welcome to Kidtopia International Daycare and Preschool — fully managed by our custom web-based daycare system, from online registration to QR Code parent checkout, with a dedicated parent dashboard.",
+      "heroImage": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
+      "badgeText": "Now Enrolling for 2027",
+      "bookTour": "Book a Tour",
+      "title": "A Safe, Caring, and Inspiring Space for Your Child.",
+      "enroll": "Enroll Your Child",
+      "textColor": "#ffffff",
+      "backgroundType": "image",
+      "heroVideo": "",
+      "virtualTour": "Take a Virtual Tour",
+      "titleHighlight": "Safe, Caring",
+      "highlights": [
+        {
+          "title": "Safe Environment",
+          "image": "",
+          "desc": "Strict health and security protocols"
+        },
+        {
+          "desc": "Trained and carefully selected nannies",
+          "image": "",
+          "title": "Qualified Staff"
+        },
+        {
+          "desc": "End-to-end software & Parent Dashboard",
+          "image": "",
+          "title": "Kidtopia Web Portal"
+        }
+      ],
+      "highlightSectionTitle": "What makes us special"
+    },
+    "faq": {
+      "items": [
+        {
+          "answer": "We require all children to provide immunization, TB, HIV, and Hepatitis screening before enrollment. Children who are actively sick must stay home to ensure a healthy environment for everyone.",
+          "question": "What are your health and immunization policies?"
+        },
+        {
+          "question": "How do you handle pick-up and drop-off security?",
+          "answer": "We use a secure digital check-in and check-out system. Only pre-authorized individuals with verified identification can pick up your child. Any changes must be communicated in advance."
+        },
+        {
+          "question": "How often are the toys and facilities cleaned?",
+          "answer": "Our daycare materials, blankets, and toys are regularly cleaned and sanitized daily. We use a professional internal laundry system and eco-friendly, non-toxic sanitizing products."
+        },
+        {
+          "question": "What is the child-to-teacher ratio?",
+          "answer": "We maintain small class sizes to ensure high-quality personalized attention. Our ratios strictly align with or exceed safety standards, with dedicated nannies and educators present at all times."
+        }
+      ],
+      "title": "Frequently Asked Questions"
+    },
+    "softwareShowcase": {
+      "subtitle": "We believe transparency is the ultimate foundation of trust. That's why we built our custom web-based daycare system to keep you connected, secured, and informed every single second.",
+      "dashDesc": "Real-time feeding updates, nap timers, and activity checklists. View exclusive daily photo streams of your children participating in cognitive activities.",
+      "parentDashboardTitle": "Exclusive Parent Dashboard",
+      "infoHighlight": "Every parent receives secure custom dashboard credentials to view their child's digital journal. Accessible via the \"Login\" button on the navigation bar.",
+      "regBullet3": "Instant Email Confirmation & Onboarding",
+      "dashBullet2": "Secure Daily Classroom Photo streams",
+      "regDesc": "Say goodbye to physical paper stacks. Register your child, sign secure medical declarations, upload immunizations, and select learning tracks in 5 minutes.",
+      "dashBullet3": "Dynamic Health Status & Temperature logs",
+      "tabRegistration": "1. Online Registration",
+      "dashBullet1": "Nap, Diet & Feeding Timer Indicators",
+      "qrcodeBullet1": "Secure Dynamic QR Code generation for Parents",
+      "badge": "Web-Based Daycare System",
+      "qrcodeBullet2": "Full Child Routine Status and analyzed report",
+      "qrcodeBullet3": "Instant Child Checkout SMS alert to parents",
+      "parentDashboardDesc": "Parents get full access to a modern portal with real-time updates, child health logs, daily diet details, and direct communication with nannies.",
+      "title": "From Registration to Kids' Checkout, Powered by Kidtopia's Web Portal",
+      "tabDashboard": "2. Parent Dashboard",
+      "qrcodeDesc": "Checkout is facilitated by secure QR Code scanning from parents' phones based on their login credentials. Parents can also view automated analyzed reports of their child's daily habits, activity logs, and routine highlights.",
+      "regBullet1": "Digital Immunization & Medical Submissions",
+      "useFallback": "Reset to Default Interface Preview",
+      "dashTitle": "Secure Parent Control Panel & Live Feed",
+      "regBullet2": "Daily Schedule & Custom Track Setup",
+      "uploadLabel": "Upload actual screenshot in Admin panel to replace this preview",
+      "tabQrcode": "3. QR Code Checkout",
+      "uploadFormat": "Supports PNG, JPG or WebP. Replaces mock preview.",
+      "qrcodeTitle": "Secure QR Code Kids' Checkout & Analysis",
+      "regTitle": "Streamlined Online Registration Portal",
+      "changeScreenshot": "Replace Custom Screenshot"
+    },
+    "staff": {
+      "showLess": "Show Less",
+      "title": "Our Professional Staff",
+      "seeMore": "See More Staff",
+      "members": [
+        {
+          "image": "https://images.unsplash.com/photo-1594824813573-246434de83fb?q=80&w=600&auto=format&fit=crop",
+          "role": "School Nurse",
+          "desc": "Dedicated to the health and well-being of every child at Kidtopia.",
+          "name": "Faeza Ebrahim"
+        },
+        {
+          "name": "Miss Mekdes Alemu",
+          "role": "Lead Teacher",
+          "desc": "Expert in early childhood education and child development.",
+          "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=600&auto=format&fit=crop"
+        },
+        {
+          "name": "Miss Hayat Seid",
+          "role": "Caregiver",
+          "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop",
+          "desc": "Providing a nurturing and supportive environment for our toddlers."
+        },
+        {
+          "image": "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=600&auto=format&fit=crop",
+          "role": "Preschool Educator",
+          "desc": "Preparing our older children for a smooth transition to school.",
+          "name": "Miss Alemitu Abebe"
+        }
+      ]
+    },
+    "announcement": {
+      "buttonLink": "",
+      "type": "info",
+      "buttonText": "",
+      "text": "",
+      "title": ""
+    },
+    "resources": {
+      "intlGuidelinesBody": "KIDTOPIA INTERNATIONAL DAYCARE - CONSOLIDATED OPERATIONAL POLICIES\n\nWelcome to the Kidtopia parent community! By enrolling your child, you enter into a partnership with us. Below are our consolidated operational terms, payment systems, safety protocols, and behavioral rules:\n\n1. ADMISSION, HOURS & LATE PICK-UP\n• Operational Hours: The center is open Monday through Friday from 7:30 AM to 6:00 PM.\n• Prompt Arrival: We recommend arriving before 8:30 AM so children can participate in our morning circle activities.\n• Late Pick-Up Fee: Children must be picked up by 6:00 PM. A late pick-up fee of 200 ETB is charged for every 15 minutes of delay, payable directly to the administration.\n\n2. FINANCIAL TERMS & PAYMENT SYSTEMS\n• Monthly Tuition: Tuition is paid monthly in advance. Invoice statements are sent on the 25th of the preceding month.\n• Payment Deadline: Tuition is due on or before the 1st of each month. A late payment penalty of 10% is applied on the 6th.\n• Withdrawal Policy: To withdraw your child, you must submit a 30-day written advance notice. Failure to do so will result in the forfeiture of the security deposit.\n\n3. HEALTH, ILLNESS & MEDICATION POLICY\n• Sick Child Rule: To protect other students, children must stay home if they have:\n  - Fever greater than 38°C\n  - Vomiting or diarrhea within the last 24 hours\n  - Unexplained skin rashes or contagious infections\n• Return to Care: Children may return to the center only when fever-free and symptom-free for at least 24 hours without the use of fever-reducing medication.\n• Prescribed Medication: Center staff will administer prescribed medication only if accompanied by a signed doctor’s note and in its original pharmaceutical bottle.\n\n4. PICK-UP SECURITY & QR CODES\n• Authorized Pick-Up: Only guardians registered in the portal with authorized government photo IDs or registered secure QR Codes on their logged-in phones can pick up a child.\n• Emergency Contact Update: If someone else needs to pick up your child, you must submit written notice in the portal or call the office at least 2 hours in advance. No child will be released to an unverified individual.\n\n5. BEHAVIORAL CODE & DISCIPLINE\n• Positive Guidance: We use positive reinforcement, redirection, and active conflict resolution. Physical punishment or shouting is strictly prohibited.\n• Parent Conduct: Kidtopia enforces a zero-tolerance policy for verbal abuse, shouting, threats, or harassment of our teachers and administrative staff. Aggressive parental behavior will lead to the immediate expulsion of the child with zero refund.\n\n6. MOBILE & DIGITAL DEVICE POLICY\n• No Personal Screens: Personal tablets, cell phones, or electronic gaming devices are not allowed in classrooms.\n• Focus: We promote cognitive development and social bonding through hands-on play, books, and interactive educational workshops.",
+      "milestonesData": {
+        "kinder": {
+          "items": [
+            {
+              "id": "k1",
+              "text": "Speaks very clearly and tells simple stories"
+            },
+            {
+              "id": "k2",
+              "text": "Can count 10 or more objects"
+            },
+            {
+              "id": "k3",
+              "text": "Draws a person with at least 6 body parts"
+            },
+            {
+              "text": "Writes some letters or numbers, and copies triangle",
+              "id": "k4"
+            },
+            {
+              "text": "Stands on one foot for 10 seconds or longer",
+              "id": "k5"
+            },
+            {
+              "text": "Understands the difference between real and make-believe",
+              "id": "k6"
+            }
+          ],
+          "title": "Kindergarten (4 - 5 Years)"
+        },
+        "preschool": {
+          "title": "Preschoolers (2 - 4 Years)",
+          "items": [
+            {
+              "text": "Climbs well and runs easily",
+              "id": "p1"
+            },
+            {
+              "id": "p2",
+              "text": "Speaks in sentences of 3-4 words"
+            },
+            {
+              "text": "Can work toys with buttons, levers, and moving parts",
+              "id": "p3"
+            },
+            {
+              "id": "p4",
+              "text": "Copies a circle with crayon or pencil"
+            },
+            {
+              "id": "p5",
+              "text": "Shows affection for friends and expresses wide range of emotions"
+            },
+            {
+              "text": "Takes turns in games and understands 'mine' and 'theirs'",
+              "id": "p6"
+            }
+          ]
+        },
+        "toddler": {
+          "title": "Toddlers (12 - 24 Months)",
+          "items": [
+            {
+              "id": "t1",
+              "text": "Walks independently and starts to run"
+            },
+            {
+              "text": "Says several single words and simple 2-word phrases",
+              "id": "t2"
+            },
+            {
+              "id": "t3",
+              "text": "Points to objects or pictures when they are named"
+            },
+            {
+              "text": "Begins to sort shapes and colors",
+              "id": "t4"
+            },
+            {
+              "text": "Plays simple pretend games (e.g., feeding a doll)",
+              "id": "t5"
+            },
+            {
+              "id": "t6",
+              "text": "Follows simple one-step verbal instructions"
+            }
+          ]
+        },
+        "infant": {
+          "items": [
+            {
+              "id": "i1",
+              "text": "Rolls over from tummy to back and back to tummy"
+            },
+            {
+              "id": "i2",
+              "text": "Responds to own name and smiles at familiar faces"
+            },
+            {
+              "text": "Reaches for and grasps toys with purpose",
+              "id": "i3"
+            },
+            {
+              "id": "i4",
+              "text": "Babbles consonant sounds (e.g., 'ba-ba', 'da-da')"
+            },
+            {
+              "text": "Sits without support and explores surroundings",
+              "id": "i5"
+            },
+            {
+              "id": "i6",
+              "text": "Tracks moving objects smoothly with eyes"
+            }
+          ],
+          "title": "Infants (3 - 12 Months)"
+        }
+      },
+      "policiesAndRegulations": [
+        {
+          "content": "Welcome Letter\n\nDear Parents and Guardians,\n\nWelcome to Kidtopia International Daycare & Preschool.\n\nThank you for trusting us with your child’s care, development, and early learning journey. At Kidtopia, we believe every child deserves a safe, caring, respectful, and stimulating environment where they can explore, learn, and grow with confidence.\n\nWe believe that children develop best when families and educators work together. Strong communication, mutual respect, and partnership between parents and our team help us provide the best possible experience for every child.\n\nThis Parent Handbook explains our policies, procedures, and expectations to create a safe, organized, and positive environment for children, families, and staff.\n\nWe appreciate your trust and partnership.\n\nKidtopia Management\n\n“Growing, Learning, and Thriving Together”",
+          "title": "Parent Handbook Academic Year 2026/2027"
+        },
+        {
+          "title": "1. Our Philosophy",
+          "content": "Kidtopia International Daycare & Preschool provides a child-centered learning environment inspired by:\n• Montessori principles\n• Reggio Emilia approach\n• EYFS early childhood practices\n\nWe believe children learn best through play, exploration, creativity, and meaningful experiences.\n\nOur focus is to support:\n• Independence\n• Confidence\n• Communication skills\n• Creativity\n• Problem-solving\n• Social and emotional development\n• Respect and kindness\n\nEvery child is valued as an individual, and we support each child according to their developmental needs."
+        },
+        {
+          "content": "Kidtopia provides developmentally appropriate programs designed to support children’s growth.\n\nToddler Program\nOur toddler program focuses on:\n• Language development\n• Independence skills\n• Social interaction\n• Sensory exploration\n• Early learning foundations\n• Emotional development\n\nPreschool Program\nOur preschool program focuses on:\n• School readiness\n• Early literacy and numeracy\n• Communication skills\n• Creativity\n• Critical thinking\n• Independence\n• Social skills",
+          "title": "2. Programs & Age Groups"
+        },
+        {
+          "content": "Monday – Friday: 7:30 AM – 6:00 PM\nSaturday: 7:30 AM – 12:30 PM\n\nArrival Policy\nParents are encouraged to bring children on time to support classroom routines and learning activities.\n\nPreschool arrival time: 7:30 AM – 9:30 AM\n\nLate arrivals may affect classroom activities and your child’s daily routine.\n\nPick-Up Policy\nParents or authorized guardians must pick up children before closing time.\nIf a parent expects to be late, they must inform Kidtopia as soon as possible.",
+          "title": "3. Operating Hours"
+        },
+        {
+          "content": "Before a child begins attendance, parents must provide:\n☐ Child birth certificate\n☐ Immunization record\n☐ Two child photos\n☐ Guardian photo\n☐ Guardian identification copy\n☐ Completed enrollment forms\n☐ Emergency contact information\n\nParents are responsible for keeping all information updated, including:\n• Phone numbers\n• Emergency contacts\n• Medical information\n• Authorized pick-up persons",
+          "title": "4. Enrollment Requirements"
+        },
+        {
+          "content": "Regular attendance helps children develop routines, relationships, and learning progress.\n\nParents should:\n• Inform Kidtopia if their child will be absent.\n• Notify the daycare about extended absences.\n\nTuition fees are based on enrollment and reserved space, not daily attendance.\n\nAbsences due to:\n• Holidays\n• Family travel\n• Personal reasons\n• Missed days\ndo not reduce tuition fees.",
+          "title": "5. Attendance Policy"
+        },
+        {
+          "content": "Kidtopia’s tuition policies are designed to maintain quality care, staffing, and learning programs.\n\nParents agree to:\n• Pay tuition according to the selected payment plan.\n• Complete payments within the announced payment period.\n• Follow registration and payment requirements.\n\nAdditional policies:\n• Registration fees are non-refundable.\n• Applicable payment plan discounts are provided according to Kidtopia’s fee structure.\n• Late payments may result in penalties or suspension of services.\n\nA child’s place is reserved based on enrollment commitment and payment status.",
+          "title": "6. Tuition & Payment Policy"
+        },
+        {
+          "content": "Parents who wish to withdraw their child must notify Kidtopia management according to the required notice procedure.\n\nBefore withdrawal is completed:\n• All outstanding payments must be cleared.\n• All daycare belongings must be collected.",
+          "title": "7. Withdrawal Policy"
+        },
+        {
+          "content": "Kidtopia uses an online communication system to provide organized and effective communication between parents and the daycare.\n\nParents can use the system for:\n• Messages\n• Requests\n• Child updates\n• Concerns\n• Important information\n\nFor urgent matters related to health or safety, parents may contact management directly.\n\nParents and staff are expected to communicate respectfully and professionally.",
+          "title": "8. Communication Policy"
+        },
+        {
+          "content": "Parents agree to:\n• Provide accurate information about their child.\n• Keep emergency information updated.\n• Inform Kidtopia about health concerns.\n• Follow payment policies.\n• Follow safety procedures.\n• Respect staff, children, and other families.\n• Support classroom routines.\n• Communicate concerns through appropriate channels.",
+          "title": "9. Parent Responsibilities"
+        },
+        {
+          "title": "10. Drop-Off & Pick-Up Policy",
+          "content": "Drop-Off\nParents must:\n• Bring their child to the designated check-in area.\n• Ensure the child is received by a Kidtopia staff member before leaving.\n• Inform staff of important updates about the child.\n\nPick-Up\nChildren will only be released to authorized individuals.\nParents must:\n• Provide authorized pick-up information.\n• Inform Kidtopia before sending a different person.\n• Understand that identification may be requested for safety purposes."
+        },
+        {
+          "content": "Child safety is our highest priority.\n\nTo maintain a secure environment:\n• All visitors must report to administration/security before entering childcare areas.\n• Visitors may be required to show identification.\n• Unauthorized individuals are not allowed in childcare areas.\n• Security procedures apply to all visitors and guardians.",
+          "title": "11. Security & Visitor Policy"
+        },
+        {
+          "content": "To protect all children and staff, children should remain home if they have:\n• Fever\n• Vomiting\n• Diarrhea\n• Contagious illness symptoms\n• Unexplained rash\n• Symptoms preventing normal participation\n\nParents must inform Kidtopia if their child has been diagnosed with a contagious illness.\n\nChildren may return when they meet Kidtopia’s health requirements.",
+          "title": "12. Health & Illness Policy"
+        },
+        {
+          "title": "13. Medication Policy",
+          "content": "Kidtopia prioritizes children’s safety when handling medication.\n\nMedication may only be given when:\n• A parent/guardian provides written authorization.\n• The medication is clearly labeled with the child’s name.\n• Instructions and dosage information are provided.\n\nKidtopia staff will not administer medication without proper approval.\n\nParents must inform management about any medical needs that may affect their child’s care."
+        },
+        {
+          "title": "14. Allergy & Dietary Information Policy",
+          "content": "Parents must provide complete and accurate information regarding:\n• Food allergies\n• Medical conditions\n• Dietary restrictions\n• Food sensitivities\n\nParents must update Kidtopia immediately if there are any changes.\n\nFamilies are responsible for informing the daycare of any health or dietary concerns that may affect their child’s safety."
+        },
+        {
+          "title": "15. Emergency Contact & Medical Authorization Policy",
+          "content": "Parents must provide updated emergency contact information.\n\nIn case of an emergency, Kidtopia will:\n1. Provide immediate care and first aid support according to the situation.\n2. Contact parents/guardians.\n3. Contact emergency medical services if necessary.\n\nParents authorize Kidtopia to seek emergency medical assistance when required to protect the child’s health and safety."
+        },
+        {
+          "title": "16. Incident & Injury Reporting Policy",
+          "content": "At Kidtopia, children learn through active play and exploration. Minor incidents may happen as children develop physical skills and interact with their environment.\n\nAll incidents are taken seriously, documented, and reviewed by staff.\n\nParents/Guardians Will Be Contacted Immediately For:\n• Loss of consciousness\n• Difficulty breathing\n• Seizures\n• Significant bleeding\n• Suspected fracture\n• Serious injury\n• Head injury with concerning symptoms\n• Vomiting following an injury\n• Injury requiring medical evaluation\n• Any emergency situation requiring immediate parent involvement\n\nMinor Incidents\nExamples include:\n• Small bumps\n• Minor scratches\n• Minor falls without concerning symptoms\n\nFor minor incidents:\n• Staff will provide comfort and care.\n• The child will be monitored.\n• The incident will be documented.\n• Parents may be informed through the online communication system or at pick-up depending on the situation.\n\nKidtopia staff will determine the appropriate communication method based on the child’s safety, condition, and wellbeing."
+        },
+        {
+          "title": "17. Emergency & Evacuation Procedures",
+          "content": "Kidtopia maintains emergency procedures to protect children and staff during situations such as:\n• Fire\n• Natural disasters\n• Security concerns\n• Medical emergencies\n\nEmergency procedures and safety practices are reviewed with staff regularly.\n\nIf an emergency occurs, parents will be notified according to the situation and emergency communication procedure.\n\nThe safety of children remains the first priority."
+        },
+        {
+          "title": "18. Child Guidance & Positive Behavior Policy",
+          "content": "Kidtopia believes children learn through guidance, understanding, and positive support.\n\nOur approach encourages children to:\n• Express emotions appropriately\n• Respect others\n• Develop self-control\n• Solve problems\n• Build confidence\n\nKidtopia does not allow:\n• Physical punishment\n• Shaming or humiliation\n• Threatening language\n• Any form of abuse or inappropriate treatment\n\nChildren receive guidance appropriate to their age and developmental level."
+        },
+        {
+          "title": "19. Biting, Hitting & Challenging Behavior Policy",
+          "content": "Young children are still developing emotional regulation and communication skills. Some children may express frustration through behaviors such as biting, hitting, or pushing.\n\nWhen these situations occur:\n• The child who is hurt receives immediate care and support.\n• The child displaying the behavior receives guidance and support.\n• Teachers observe patterns and develop strategies to help the child.\n• Parents may be informed when appropriate.\n\nKidtopia’s goal is to teach children appropriate ways to communicate feelings and solve problems."
+        },
+        {
+          "content": "Starting daycare or moving to a new classroom can be a big transition for children.\n\nParents can support adjustment by:\n• Creating a short and positive goodbye routine.\n• Reassuring children that they are safe.\n• Avoiding long emotional goodbyes.\n• Communicating concerns with teachers.\n\nKidtopia staff will support children as they build comfort, trust, and confidence.",
+          "title": "20. Separation Anxiety & Adjustment Policy"
+        },
+        {
+          "title": "21. Classroom Routine & Learning Policy",
+          "content": "Children participate in age-appropriate daily activities including:\n• Learning activities\n• Creative experiences\n• Outdoor play\n• Social activities\n• Movement activities\n• Rest time\n• Life skills activities\n\nClassroom routines help children feel secure and support learning."
+        },
+        {
+          "title": "22. Nap & Rest Time Policy",
+          "content": "Rest time is an important part of children’s daily routine.\n\nChildren are provided with a safe and comfortable rest period appropriate for their age.\n\nStaff support children by:\n• Maintaining a calm environment.\n• Following safe rest practices.\n• Respecting individual needs."
+        },
+        {
+          "title": "23. Personal Belongings Policy",
+          "content": "Children should only bring items necessary for their daily care and learning.\n\nParents are encouraged to:\n• Label all personal belongings with their child’s name.\n• Avoid sending expensive toys, jewelry, or valuable items.\n• Send only approved comfort items when needed.\n\nKidtopia staff will make reasonable efforts to organize and protect children’s belongings; however, the daycare cannot guarantee prevention of lost, misplaced, or damaged personal items.\n\nKidtopia is not responsible for the loss or damage of personal belongings brought from home."
+        },
+        {
+          "title": "24. Photo, Video & Media Consent Policy",
+          "content": "Photos and videos may be taken during activities for:\n• Classroom documentation\n• Learning updates\n• Parent communication\n• Special events\n\nParents must complete the required photo/video consent form.\n\nKidtopia respects children’s privacy and only uses photos according to parental permission."
+        },
+        {
+          "content": "CCTV is used to support:\n• Child safety\n• Security\n• Incident review\n\nCCTV footage is confidential and can only be reviewed by authorized management when necessary.\n\nCCTV is not provided as a live viewing service for parents.",
+          "title": "25. CCTV & Privacy Policy"
+        },
+        {
+          "title": "26. Parent Communication Response Policy",
+          "content": "Kidtopia values communication with families.\n\nParents should use official communication channels for questions, requests, and concerns.\n• Non-urgent messages will be responded to during working hours.\n• Urgent health or safety matters will receive priority.\n• Parents should keep emergency phone numbers active."
+        },
+        {
+          "content": "Kidtopia values feedback from parents and believes that open communication helps us improve our services.\n\nParents are encouraged to share:\n• Questions\n• Suggestions\n• Concerns\n• Feedback\n\nTo ensure concerns are handled properly:\n1. Parents should communicate concerns through the official communication channels.\n2. Management will review and investigate concerns professionally.\n3. Parents and staff should work together respectfully toward solutions.\n\nConfidential matters involving children, families, or staff will be handled privately.",
+          "title": "27. Parent Complaints & Feedback Policy"
+        },
+        {
+          "title": "28. Classroom Observation Policy",
+          "content": "Kidtopia welcomes parent involvement while maintaining a safe and consistent learning environment.\n\nTo protect children’s routines:\n• Classroom visits must be scheduled and approved by management.\n• Unplanned visits may interrupt children’s learning and activities.\n• Parents may not enter classrooms without permission.\n• Information about other children and families must remain confidential."
+        },
+        {
+          "content": "Children may transition between classrooms based on:\n• Age\n• Developmental readiness\n• Social and emotional development\n• Learning needs\n• Available space\n\nParents will be informed when a classroom transition is planned.\n\nKidtopia’s goal is to ensure every child moves to the next stage when they are ready.",
+          "title": "29. Classroom Transition Policy"
+        },
+        {
+          "title": "30. Birthday Celebration Policy",
+          "content": "Kidtopia celebrates children’s special moments while maintaining safety and inclusiveness.\n\nParents who wish to celebrate a child’s birthday should coordinate with management.\n\nBirthday celebrations must:\n• Follow Kidtopia guidelines.\n• Consider allergies and dietary needs of all children.\n• Maintain a safe and appropriate environment."
+        },
+        {
+          "content": "Kidtopia maintains professional relationships between families and staff.\n\nParents and staff are expected to:\n• Communicate respectfully.\n• Follow official communication procedures.\n• Respect confidentiality.\n• Avoid discussing information about other children or families.\n\nStaff members are responsible for maintaining appropriate professional boundaries at all times.",
+          "title": "31. Staff Professional Boundaries Policy"
+        },
+        {
+          "title": "32. Parent Partnership Statement",
+          "content": "At Kidtopia, we believe children succeed when families and educators work together.\n\nParents are an important part of their child’s learning journey. We encourage families to:\n• Communicate openly.\n• Participate in their child’s development.\n• Support daycare policies.\n• Work together with teachers and management.\n\nTogether, we create a safe, caring, and enriching environment where every child can grow."
+        },
+        {
+          "title": "Parent Handbook Acknowledgment & Agreement Form",
+          "content": "Kidtopia International Daycare & Preschool - Academic Year 2026/2027\n\nDear Parent/Guardian,\n\nPlease confirm that you have read and understood the Kidtopia Parent Handbook.\n\nBy signing this form, you acknowledge that:\n\n☐ I have received and read the Kidtopia Parent Handbook.\n☐ I understand the daycare policies and procedures.\n☐ I understand the health, safety, incident reporting, communication, attendance, and payment policies.\n☐ I understand that emergency situations will be handled according to Kidtopia’s safety procedures and parents/guardians will be contacted when required.\n☐ I agree to provide accurate and updated information about my child.\n☐ I agree to follow Kidtopia’s policies and communicate respectfully with staff and management.\n☐ I understand that policies are designed to protect the safety and wellbeing of all children."
+        }
+      ],
+      "menuDays": [
+        {
+          "day": "Monday",
+          "breakfast": "Organic Oat Porridge with fresh bananas and raw honey",
+          "lunch": "Lentil Stew (Misir Wot) with high-fiber Injera & steamed spinach",
+          "allergens": [
+            "gluten",
+            "dairy"
+          ],
+          "snack": "Assorted fruit skewers with low-fat organic yogurt"
+        },
+        {
+          "allergens": [
+            "egg",
+            "gluten"
+          ],
+          "snack": "Pumpkin seed kernels and sliced local red apples",
+          "day": "Tuesday",
+          "breakfast": "Scrambled organic eggs with whole wheat toast",
+          "lunch": "Mild chicken breast cubes with mashed sweet potatoes and carrots"
+        },
+        {
+          "lunch": "Mixed vegetable and chickpea Shiro stew with soft wheat Injera",
+          "breakfast": "Barley Besso shake with dairy-free almond milk",
+          "day": "Wednesday",
+          "snack": "Toasted whole grain crackers with avocado puree spread",
+          "allergens": [
+            "gluten"
+          ]
+        },
+        {
+          "lunch": "Steamed local white fish with brown rice and sauteed green beans",
+          "day": "Thursday",
+          "allergens": [
+            "fish",
+            "gluten"
+          ],
+          "snack": "Dehydrated banana chips and organic orange slices",
+          "breakfast": "Whole wheat pancakes with natural organic maple syrup"
+        },
+        {
+          "lunch": "Traditional beef stew (Siga Alicha) with fluffy teff Injera",
+          "allergens": [
+            "dairy",
+            "gluten"
+          ],
+          "day": "Friday",
+          "snack": "Baked sweet potato chips with honey cinnamon drizzle",
+          "breakfast": "Mashed avocado toast with organic soft cheese crumble"
+        }
+      ],
+      "intlActTitle": "Ethiopian Childcare Directive No. 1084/2025 Criteria",
+      "intlActBody": "OVERVIEW OF ETHIOPIAN CHILD-CARE CENTERS DIRECTIVE NO. 1084/2025\n\nKidtopia International Daycare fully complies with the safety, structural, educational, and hygienic requirements set by the Ethiopian Ministry of Justice (under Directive No. 1084/2025). Below are the core regulatory criteria and standard operational procedures enforced at our center:\n\n1. LICENSING & REGULATORY STANDARDS (Articles 4 & 7)\n• Licensing Authority: Any childcare center in Ethiopia must obtain official registration and undergo annual inspections from the competent municipal/regional regulatory bureaus.\n• Operating License: Kidtopia holds a valid operating certificate, meeting all technical, environmental, and spatial safety benchmarks.\n\n2. PHYSICAL SPACE & INFRASTRUCTURE (Articles 10 & 11)\n• Space Requirements: Childcare centers are required to provide a minimum of 2.5 square meters of clean indoor space per child.\n• Classroom Safety: Classrooms must have adequate natural ventilation, bright light, kid-friendly furniture with rounded edges, and no exposure to sharp materials or hazardous substances.\n• Outdoor Play Space: Fenced, safe playground area is mandatory to ensure children have active daily recreation without exposure to external traffic.\n\n3. CAREGIVER STAFF-TO-CHILD RATIOS (Article 14)\nTo ensure high-quality individual attention, caregiver ratios are legally mandated by age groups:\n• Infants (under 1 year): 1 Caregiver per 3 Infants (1:3 Ratio)\n• Toddlers (1 to 2 years): 1 Caregiver per 5 Toddlers (1:5 Ratio)\n• Preschoolers (3 to 5 years): 1 Caregiver per 8 Children (1:8 Ratio)\nKidtopia strictly adheres to or exceeds these ratios to maintain safety.\n\n4. STAFF CREDENTIALS & HEALTH (Articles 15 & 16)\n• Certification: Lead educators and care staff must hold validated certifications in Early Childhood Education (ECE) or equivalent training.\n• Background Checks: All employees undergo absolute criminal background screening to ensure student protection.\n• Medical Clearance: Staff must obtain physical health clearances, showing they are free of contagious, mental, or physical conditions that could impede children’s well-being.\n\n5. HEALTH, HYGIENE & MEDICAL CHECKS (Article 18)\n• Children’s Health Cards: All children must submit a certified health record, including an up-to-date vaccination chart (Measles, Polio, BCG, DPT) and infectious disease clearance.\n• Daily Health Inspection: Upon daily arrival, children are screened for visible symptoms of illness.\n• Cleaning Routines: Routine disinfection of toys, sanitizing of toilets, and commercial washing of sleeping linens are performed daily.\n\n6. SAFETY, EMERGENCY & UTILITY SECURITY\n• Evacuation Plans: Emergency fire drills are conducted twice a year.\n• Controlled Ingress/Egress: Access gates are securely locked. Only pre-authorized administrative staff and verified guardians with secure QR Code scanning from parents' phones can enter the premises.\n• First Aid: Fully stocked medical boxes are present in every classroom, and staff are trained in child CPR.",
+      "intlGuidelinesTitle": "Consolidated Daycare Policies & Terms",
+      "handbookChapters": [
+        {
+          "content": "Welcome Letter\n\nDear Parents and Guardians,\n\nWelcome to Kidtopia International Daycare & Preschool.\n\nThank you for trusting us with your child’s care, development, and early learning journey. At Kidtopia, we believe every child deserves a safe, caring, respectful, and stimulating environment where they can explore, learn, and grow with confidence.\n\nWe believe that children develop best when families and educators work together. Strong communication, mutual respect, and partnership between parents and our team help us provide the best possible experience for every child.\n\nThis Parent Handbook explains our policies, procedures, and expectations to create a safe, organized, and positive environment for children, families, and staff.\n\nWe appreciate your trust and partnership.\n\nKidtopia Management\n\n“Growing, Learning, and Thriving Together”",
+          "title": "Parent Handbook Academic Year 2026/2027"
+        },
+        {
+          "title": "1. Our Philosophy",
+          "content": "Kidtopia International Daycare & Preschool provides a child-centered learning environment inspired by:\n• Montessori principles\n• Reggio Emilia approach\n• EYFS early childhood practices\n\nWe believe children learn best through play, exploration, creativity, and meaningful experiences.\n\nOur focus is to support:\n• Independence\n• Confidence\n• Communication skills\n• Creativity\n• Problem-solving\n• Social and emotional development\n• Respect and kindness\n\nEvery child is valued as an individual, and we support each child according to their developmental needs."
+        },
+        {
+          "title": "2. Programs & Age Groups",
+          "content": "Kidtopia provides developmentally appropriate programs designed to support children’s growth.\n\nToddler Program\nOur toddler program focuses on:\n• Language development\n• Independence skills\n• Social interaction\n• Sensory exploration\n• Early learning foundations\n• Emotional development\n\nPreschool Program\nOur preschool program focuses on:\n• School readiness\n• Early literacy and numeracy\n• Communication skills\n• Creativity\n• Critical thinking\n• Independence\n• Social skills"
+        },
+        {
+          "content": "Monday – Friday: 7:30 AM – 6:00 PM\nSaturday: 7:30 AM – 12:30 PM\n\nArrival Policy\nParents are encouraged to bring children on time to support classroom routines and learning activities.\n\nPreschool arrival time: 7:30 AM – 9:30 AM\n\nLate arrivals may affect classroom activities and your child’s daily routine.\n\nPick-Up Policy\nParents or authorized guardians must pick up children before closing time.\nIf a parent expects to be late, they must inform Kidtopia as soon as possible.",
+          "title": "3. Operating Hours"
+        },
+        {
+          "content": "Before a child begins attendance, parents must provide:\n☐ Child birth certificate\n☐ Immunization record\n☐ Two child photos\n☐ Guardian photo\n☐ Guardian identification copy\n☐ Completed enrollment forms\n☐ Emergency contact information\n\nParents are responsible for keeping all information updated, including:\n• Phone numbers\n• Emergency contacts\n• Medical information\n• Authorized pick-up persons",
+          "title": "4. Enrollment Requirements"
+        },
+        {
+          "content": "Regular attendance helps children develop routines, relationships, and learning progress.\n\nParents should:\n• Inform Kidtopia if their child will be absent.\n• Notify the daycare about extended absences.\n\nTuition fees are based on enrollment and reserved space, not daily attendance.\n\nAbsences due to:\n• Holidays\n• Family travel\n• Personal reasons\n• Missed days\ndo not reduce tuition fees.",
+          "title": "5. Attendance Policy"
+        },
+        {
+          "title": "6. Tuition & Payment Policy",
+          "content": "Kidtopia’s tuition policies are designed to maintain quality care, staffing, and learning programs.\n\nParents agree to:\n• Pay tuition according to the selected payment plan.\n• Complete payments within the announced payment period.\n• Follow registration and payment requirements.\n\nAdditional policies:\n• Registration fees are non-refundable.\n• Applicable payment plan discounts are provided according to Kidtopia’s fee structure.\n• Late payments may result in penalties or suspension of services.\n\nA child’s place is reserved based on enrollment commitment and payment status."
+        },
+        {
+          "content": "Parents who wish to withdraw their child must notify Kidtopia management according to the required notice procedure.\n\nBefore withdrawal is completed:\n• All outstanding payments must be cleared.\n• All daycare belongings must be collected.",
+          "title": "7. Withdrawal Policy"
+        },
+        {
+          "title": "8. Communication Policy",
+          "content": "Kidtopia uses an online communication system to provide organized and effective communication between parents and the daycare.\n\nParents can use the system for:\n• Messages\n• Requests\n• Child updates\n• Concerns\n• Important information\n\nFor urgent matters related to health or safety, parents may contact management directly.\n\nParents and staff are expected to communicate respectfully and professionally."
+        },
+        {
+          "content": "Parents agree to:\n• Provide accurate information about their child.\n• Keep emergency information updated.\n• Inform Kidtopia about health concerns.\n• Follow payment policies.\n• Follow safety procedures.\n• Respect staff, children, and other families.\n• Support classroom routines.\n• Communicate concerns through appropriate channels.",
+          "title": "9. Parent Responsibilities"
+        },
+        {
+          "title": "10. Drop-Off & Pick-Up Policy",
+          "content": "Drop-Off\nParents must:\n• Bring their child to the designated check-in area.\n• Ensure the child is received by a Kidtopia staff member before leaving.\n• Inform staff of important updates about the child.\n\nPick-Up\nChildren will only be released to authorized individuals.\nParents must:\n• Provide authorized pick-up information.\n• Inform Kidtopia before sending a different person.\n• Understand that identification may be requested for safety purposes."
+        },
+        {
+          "content": "Child safety is our highest priority.\n\nTo maintain a secure environment:\n• All visitors must report to administration/security before entering childcare areas.\n• Visitors may be required to show identification.\n• Unauthorized individuals are not allowed in childcare areas.\n• Security procedures apply to all visitors and guardians.",
+          "title": "11. Security & Visitor Policy"
+        },
+        {
+          "title": "12. Health & Illness Policy",
+          "content": "To protect all children and staff, children should remain home if they have:\n• Fever\n• Vomiting\n• Diarrhea\n• Contagious illness symptoms\n• Unexplained rash\n• Symptoms preventing normal participation\n\nParents must inform Kidtopia if their child has been diagnosed with a contagious illness.\n\nChildren may return when they meet Kidtopia’s health requirements."
+        },
+        {
+          "title": "13. Medication Policy",
+          "content": "Kidtopia prioritizes children’s safety when handling medication.\n\nMedication may only be given when:\n• A parent/guardian provides written authorization.\n• The medication is clearly labeled with the child’s name.\n• Instructions and dosage information are provided.\n\nKidtopia staff will not administer medication without proper approval.\n\nParents must inform management about any medical needs that may affect their child’s care."
+        },
+        {
+          "title": "14. Allergy & Dietary Information Policy",
+          "content": "Parents must provide complete and accurate information regarding:\n• Food allergies\n• Medical conditions\n• Dietary restrictions\n• Food sensitivities\n\nParents must update Kidtopia immediately if there are any changes.\n\nFamilies are responsible for informing the daycare of any health or dietary concerns that may affect their child’s safety."
+        },
+        {
+          "title": "15. Emergency Contact & Medical Authorization Policy",
+          "content": "Parents must provide updated emergency contact information.\n\nIn case of an emergency, Kidtopia will:\n1. Provide immediate care and first aid support according to the situation.\n2. Contact parents/guardians.\n3. Contact emergency medical services if necessary.\n\nParents authorize Kidtopia to seek emergency medical assistance when required to protect the child’s health and safety."
+        },
+        {
+          "content": "At Kidtopia, children learn through active play and exploration. Minor incidents may happen as children develop physical skills and interact with their environment.\n\nAll incidents are taken seriously, documented, and reviewed by staff.\n\nParents/Guardians Will Be Contacted Immediately For:\n• Loss of consciousness\n• Difficulty breathing\n• Seizures\n• Significant bleeding\n• Suspected fracture\n• Serious injury\n• Head injury with concerning symptoms\n• Vomiting following an injury\n• Injury requiring medical evaluation\n• Any emergency situation requiring immediate parent involvement\n\nMinor Incidents\nExamples include:\n• Small bumps\n• Minor scratches\n• Minor falls without concerning symptoms\n\nFor minor incidents:\n• Staff will provide comfort and care.\n• The child will be monitored.\n• The incident will be documented.\n• Parents may be informed through the online communication system or at pick-up depending on the situation.\n\nKidtopia staff will determine the appropriate communication method based on the child’s safety, condition, and wellbeing.",
+          "title": "16. Incident & Injury Reporting Policy"
+        },
+        {
+          "content": "Kidtopia maintains emergency procedures to protect children and staff during situations such as:\n• Fire\n• Natural disasters\n• Security concerns\n• Medical emergencies\n\nEmergency procedures and safety practices are reviewed with staff regularly.\n\nIf an emergency occurs, parents will be notified according to the situation and emergency communication procedure.\n\nThe safety of children remains the first priority.",
+          "title": "17. Emergency & Evacuation Procedures"
+        },
+        {
+          "title": "18. Child Guidance & Positive Behavior Policy",
+          "content": "Kidtopia believes children learn through guidance, understanding, and positive support.\n\nOur approach encourages children to:\n• Express emotions appropriately\n• Respect others\n• Develop self-control\n• Solve problems\n• Build confidence\n\nKidtopia does not allow:\n• Physical punishment\n• Shaming or humiliation\n• Threatening language\n• Any form of abuse or inappropriate treatment\n\nChildren receive guidance appropriate to their age and developmental level."
+        },
+        {
+          "content": "Young children are still developing emotional regulation and communication skills. Some children may express frustration through behaviors such as biting, hitting, or pushing.\n\nWhen these situations occur:\n• The child who is hurt receives immediate care and support.\n• The child displaying the behavior receives guidance and support.\n• Teachers observe patterns and develop strategies to help the child.\n• Parents may be informed when appropriate.\n\nKidtopia’s goal is to teach children appropriate ways to communicate feelings and solve problems.",
+          "title": "19. Biting, Hitting & Challenging Behavior Policy"
+        },
+        {
+          "title": "20. Separation Anxiety & Adjustment Policy",
+          "content": "Starting daycare or moving to a new classroom can be a big transition for children.\n\nParents can support adjustment by:\n• Creating a short and positive goodbye routine.\n• Reassuring children that they are safe.\n• Avoiding long emotional goodbyes.\n• Communicating concerns with teachers.\n\nKidtopia staff will support children as they build comfort, trust, and confidence."
+        },
+        {
+          "content": "Children participate in age-appropriate daily activities including:\n• Learning activities\n• Creative experiences\n• Outdoor play\n• Social activities\n• Movement activities\n• Rest time\n• Life skills activities\n\nClassroom routines help children feel secure and support learning.",
+          "title": "21. Classroom Routine & Learning Policy"
+        },
+        {
+          "content": "Rest time is an important part of children’s daily routine.\n\nChildren are provided with a safe and comfortable rest period appropriate for their age.\n\nStaff support children by:\n• Maintaining a calm environment.\n• Following safe rest practices.\n• Respecting individual needs.",
+          "title": "22. Nap & Rest Time Policy"
+        },
+        {
+          "title": "23. Personal Belongings Policy",
+          "content": "Children should only bring items necessary for their daily care and learning.\n\nParents are encouraged to:\n• Label all personal belongings with their child’s name.\n• Avoid sending expensive toys, jewelry, or valuable items.\n• Send only approved comfort items when needed.\n\nKidtopia staff will make reasonable efforts to organize and protect children’s belongings; however, the daycare cannot guarantee prevention of lost, misplaced, or damaged personal items.\n\nKidtopia is not responsible for the loss or damage of personal belongings brought from home."
+        },
+        {
+          "title": "24. Photo, Video & Media Consent Policy",
+          "content": "Photos and videos may be taken during activities for:\n• Classroom documentation\n• Learning updates\n• Parent communication\n• Special events\n\nParents must complete the required photo/video consent form.\n\nKidtopia respects children’s privacy and only uses photos according to parental permission."
+        },
+        {
+          "title": "25. CCTV & Privacy Policy",
+          "content": "CCTV is used to support:\n• Child safety\n• Security\n• Incident review\n\nCCTV footage is confidential and can only be reviewed by authorized management when necessary.\n\nCCTV is not provided as a live viewing service for parents."
+        },
+        {
+          "title": "26. Parent Communication Response Policy",
+          "content": "Kidtopia values communication with families.\n\nParents should use official communication channels for questions, requests, and concerns.\n• Non-urgent messages will be responded to during working hours.\n• Urgent health or safety matters will receive priority.\n• Parents should keep emergency phone numbers active."
+        },
+        {
+          "title": "27. Parent Complaints & Feedback Policy",
+          "content": "Kidtopia values feedback from parents and believes that open communication helps us improve our services.\n\nParents are encouraged to share:\n• Questions\n• Suggestions\n• Concerns\n• Feedback\n\nTo ensure concerns are handled properly:\n1. Parents should communicate concerns through the official communication channels.\n2. Management will review and investigate concerns professionally.\n3. Parents and staff should work together respectfully toward solutions.\n\nConfidential matters involving children, families, or staff will be handled privately."
+        },
+        {
+          "title": "28. Classroom Observation Policy",
+          "content": "Kidtopia welcomes parent involvement while maintaining a safe and consistent learning environment.\n\nTo protect children’s routines:\n• Classroom visits must be scheduled and approved by management.\n• Unplanned visits may interrupt children’s learning and activities.\n• Parents may not enter classrooms without permission.\n• Information about other children and families must remain confidential."
+        },
+        {
+          "content": "Children may transition between classrooms based on:\n• Age\n• Developmental readiness\n• Social and emotional development\n• Learning needs\n• Available space\n\nParents will be informed when a classroom transition is planned.\n\nKidtopia’s goal is to ensure every child moves to the next stage when they are ready.",
+          "title": "29. Classroom Transition Policy"
+        },
+        {
+          "title": "30. Birthday Celebration Policy",
+          "content": "Kidtopia celebrates children’s special moments while maintaining safety and inclusiveness.\n\nParents who wish to celebrate a child’s birthday should coordinate with management.\n\nBirthday celebrations must:\n• Follow Kidtopia guidelines.\n• Consider allergies and dietary needs of all children.\n• Maintain a safe and appropriate environment."
+        },
+        {
+          "title": "31. Staff Professional Boundaries Policy",
+          "content": "Kidtopia maintains professional relationships between families and staff.\n\nParents and staff are expected to:\n• Communicate respectfully.\n• Follow official communication procedures.\n• Respect confidentiality.\n• Avoid discussing information about other children or families.\n\nStaff members are responsible for maintaining appropriate professional boundaries at all times."
+        },
+        {
+          "title": "32. Parent Partnership Statement",
+          "content": "At Kidtopia, we believe children succeed when families and educators work together.\n\nParents are an important part of their child’s learning journey. We encourage families to:\n• Communicate openly.\n• Participate in their child’s development.\n• Support daycare policies.\n• Work together with teachers and management.\n\nTogether, we create a safe, caring, and enriching environment where every child can grow."
+        },
+        {
+          "title": "Parent Handbook Acknowledgment & Agreement Form",
+          "content": "Kidtopia International Daycare & Preschool - Academic Year 2026/2027\n\nDear Parent/Guardian,\n\nPlease confirm that you have read and understood the Kidtopia Parent Handbook.\n\nBy signing this form, you acknowledge that:\n\n☐ I have received and read the Kidtopia Parent Handbook.\n☐ I understand the daycare policies and procedures.\n☐ I understand the health, safety, incident reporting, communication, attendance, and payment policies.\n☐ I understand that emergency situations will be handled according to Kidtopia’s safety procedures and parents/guardians will be contacted when required.\n☐ I agree to provide accurate and updated information about my child.\n☐ I agree to follow Kidtopia’s policies and communicate respectfully with staff and management.\n☐ I understand that policies are designed to protect the safety and wellbeing of all children."
+        }
+      ],
+      "title": "Parent Resources",
+      "items": [
+        {
+          "title": "Parent Handbook",
+          "image": "",
+          "actionType": "handbook",
+          "link": "",
+          "type": "PDF Document",
+          "description": "Everything you need to know about our policies, daily schedules, and what to expect."
+        },
+        {
+          "type": "Guide",
+          "image": "",
+          "link": "",
+          "actionType": "nutrition",
+          "description": "Learn about our healthy meal plans and get tips for nutritious eating at home.",
+          "title": "Nutrition Guide"
+        },
+        {
+          "actionType": "intl_act",
+          "image": "",
+          "description": "Official criteria, procedures, licensing, spatial, and hygienic regulations for childcare centers in Ethiopia.",
+          "title": "Ethiopian Childcare Directive No. 1084/2025",
+          "type": "Regulatory Directive",
+          "link": ""
+        },
+        {
+          "actionType": "intl_guidelines",
+          "image": "",
+          "type": "Parent Handbook Policy",
+          "link": "",
+          "description": "Review our comprehensive daycare terms and conditions, refund policies, illness rules, and parental codes of conduct.",
+          "title": "Consolidated Daycare Policies & Guidelines"
+        },
+        {
+          "actionType": "comms",
+          "image": "",
+          "description": "Access our daycare control and communication software for parents.",
+          "type": "Web Portal",
+          "link": "",
+          "title": "Daycare Communication Software"
+        },
+        {
+          "link": "",
+          "type": "Milestone Tracker",
+          "description": "Track your child's age-appropriate developmental stages, cognitive and motor skills.",
+          "title": "Development Milestones",
+          "actionType": "milestones",
+          "image": ""
+        }
+      ],
+      "desc": "Helpful materials and guides to support you and your child's journey with us."
+    },
+    "enrollmentPage": {
+      "processSteps": [
+        {
+          "step": "1",
+          "title": "Review Prerequisites",
+          "desc": "Ensure your child meets the age requirement (1.5 – 6 years) and you have all documents ready."
+        },
+        {
+          "title": "Prepare Documents",
+          "step": "2",
+          "desc": "Gather copies of identification, medical records, and specialized health screenings."
+        },
+        {
+          "desc": "Click the proceed button at the bottom of the page to fill out the official application form.",
+          "step": "3",
+          "title": "Fill Registration Form"
+        },
+        {
+          "step": "4",
+          "title": "Confirmation & Intake",
+          "desc": "Our admissions office will verify documents, confirm placement, and schedule an intake session."
+        }
+      ],
+      "subtitle": "Welcome to the Kidtopia enrollment guide. Please prepare the following documents before proceeding to our online registration form.",
+      "documentsList": [
+        {
+          "title": "Parent/Guardian National ID or Passport",
+          "desc": "A clear copy of a valid government-issued ID of the primary guardian (National ID card or passport)."
+        },
+        {
+          "title": "Child's Birth Certificate",
+          "desc": "An official birth certificate copy to verify age and parental relationship."
+        },
+        {
+          "desc": "Up-to-date immunization card showing yellow fever, polio, pentavalent, and other childhood vaccines.",
+          "title": "Vaccination & Immunization Record"
+        },
+        {
+          "desc": "Detailed records or declarations of any pre-existing medical conditions, food allergies, or special care requirements.",
+          "title": "Medical Conditions & History report"
+        },
+        {
+          "desc": "Recent official lab test results/medical clearance papers for Hepatitis B, HIV, and Tuberculosis (TB) screening.",
+          "title": "Infant/Child Screening Results (Hepatitis, HIV, TB)"
+        },
+        {
+          "desc": "Recent passport-sized photographs of the child and parents/authorized pick-up persons.",
+          "title": "Passport Photos"
+        }
+      ],
+      "processTitle": "Our 4-Step Enrollment Process",
+      "proceedButton": "Proceed to Online Enrollment Form",
+      "documentsTitle": "Required Enrollment Documents",
+      "documentsDesc": "All documents below must be uploaded or presented during registration to secure your child's spot.",
+      "externalEnrollmentUrl": "https://kidtopia-main-u5x6pj.laravel.cloud/enroll",
+      "title": "Enrollment Information & Required Documents"
+    },
+    "nav": {
+      "textColor": "#44403c",
+      "aboutCompany": "About the Company",
+      "socialMedia": "Social Media",
+      "bookTour": "Book a Tour",
+      "login": "Login",
+      "resources": "Parent Resources",
+      "activeColor": "#3a5b32",
+      "parentResources": "Parent Resources",
+      "aboutStaff": "Our Staff",
+      "about": "About Us",
+      "virtualTour": "Virtual Tour",
+      "language": "Language",
+      "enrollNow": "Enroll Now",
+      "testimonials": "Testimonials",
+      "contact": "Contact",
+      "programs": "Programs",
+      "backgroundColor": "#ffffff",
+      "home": "Home"
+    },
+    "emailTemplates": {
+      "adminCancellationAlert": {
+        "body": "Tour Cancellation Alert\n\nA tour booking request has been cancelled by the parent.\n\nParent Name: {name}\nParent Email: {email}\nCampus Location: {branch}\nOriginal Date: {dayName}, {date}\nOriginal Time: {time}",
+        "subject": "Alert: Tour Booking Cancelled by Parent"
+      },
+      "adminReminder": {
+        "subject": "Reminder: Pending Booking for {name}",
+        "body": "Action Required: Pending Tour Booking\n\nThe following tour booking has been pending and requires review:\n\nParent Name: {name}\nCampus Location: {branch}\nRequested Date: {date}\nRequested Time: {time}\n\nPlease log in to the admin dashboard to approve or decline this request."
+      },
+      "rejection": {
+        "body": "Tour Booking Update\n\nHi {name},\n\nUnfortunately, we are unable to accommodate your physical tour request for {dayName}, {date} at {time}.\n\nPlease feel free to submit a new request with a different time, or contact our office for further assistance.",
+        "subject": "Tour Booking Update"
+      },
+      "adminPendingAlert": {
+        "body": "New Pending Tour Request\n\nA new physical tour booking request has been submitted and is pending review in the admin dashboard.\n\nParent Name: {name}\nParent Email: {email}\nParent Phone: {phone}\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nPlease log in to your admin panel to approve or reject this tour request.",
+        "subject": "Alert: New Pending Tour Booking Request"
+      },
+      "adminRescheduleAlert": {
+        "body": "Tour Rescheduled Alert\n\nA parent has updated their physical tour booking schedule.\n\nParent Name: {name}\nParent Email: {email}\nParent Phone: {phone}\nCampus Location: {branch}\nUpdated Date: {dayName}, {date}\nUpdated Time: {time}\n\nPlease check the admin dashboard for details.",
+        "subject": "Alert: Tour Booking Rescheduled by Parent"
+      },
+      "approval": {
+        "subject": "Kidtopia Tour Booking - Confirmed",
+        "body": "Your Tour is Confirmed!\n\nHi {name},\n\nGreat news! Your physical tour at Kidtopia has been approved.\n\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nWe look forward to meeting you! If you have any questions, please contact us."
+      },
+      "reschedule": {
+        "body": "Tour Rescheduled Successfully\n\nDear {name},\n\nYour physical tour booking has been updated.\n\nCampus Location: {branch}\nNew Date: {dayName}, {date}\nNew Time: {time}\n\nOur team will review your updated schedule and notify you if any further changes are needed.",
+        "subject": "Tour Booking Rescheduled"
+      },
+      "cancellation": {
+        "subject": "Tour Booking Cancelled",
+        "body": "Tour Booking Cancelled\n\nDear {name},\n\nYour physical tour request for {date} at {time} has been cancelled as requested.\n\nYou can book a new tour anytime through our website."
+      },
+      "received": {
+        "body": "Kidtopia Tour Request Received\n\nDear {name},\n\nThank you for booking a physical tour at Kidtopia International Daycare and Preschool! We are excited to show you our campus.\n\nHere are your request details:\nCampus Location: {branch}\nDate: {dayName}, {date}\nTime: {time}\n\nOur admissions team will review your request shortly and send you an email once your tour is confirmed.\n\nIf you need to change your requested time before it is finalized, you can use the reschedule link provided.",
+        "subject": "Kidtopia Tour Booking Request Received"
+      }
+    },
+    "login": {
+      "submit": "Login",
+      "title": "Welcome Back",
+      "forgotPassword": "Forgot Password?",
+      "parent": "Parent",
+      "subtitle": "Login to access your parent or staff portal",
+      "password": "Password",
+      "contactUs": "Contact Us",
+      "staff": "Staff",
+      "email": "Email Address",
+      "role": "Select Role",
+      "noAccount": "Don't have an account?",
+      "admin": "Administrator"
+    }
+  },
+  "content_am": {
+    "reschedule": {
+      "noSlots": "በጊዜ ሰሌዳው ውስጥ ምንም ክፍት ቦታ የለም።",
+      "selectNewDate": "አዲስ ቀን ይምረጡ",
+      "updating": "በማዘመን ላይ...",
+      "alreadyProcessed": "ይህ ቀጠሮ ቀድሞ ተካሂዷል እና እዚህ እንደገና ሊዘጋጅ አይችልም። እባክዎ በቀጥታ ያግኙን።",
+      "selectNewTime": "አዲስ ሰዓት ይምረጡ",
+      "updateButton": "የጉብኝት ሰዓቱን ያዘምኑ",
+      "currentRequest": "የአሁኑ ጥያቄ:",
+      "notFound": "ቀጠሮው አልተገኘም።",
+      "pleaseSelectDate": "እባክዎ መጀመሪያ ቀን ይምረጡ።",
+      "backToHome": "ወደ መነሻ ይመለሱ",
+      "failedToUpdate": "ቀጠሮውን ማዘመን አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
+      "successDesc": "አዲሱ የጠየቁት የጉብኝት ሰዓት በ {date} በ {time} ነው። ቀጠሮዎ ሲጸድቅ እናሳውቅዎታለን።",
+      "title": "ጉብኝትዎን እንደገና ያስይዙ",
+      "date": "ቀን፡",
+      "time": "Time:",
+      "failedToLoad": "የቀጠሮ ዝርዝሮችን መጫን አልተቻለም።",
+      "success": "ጉብኝቱ በተሳካ ሁኔታ እንደገና ተቀጥሯል!"
+    },
+    "cta": {
+      "enroll": "ምዝገባ ይጀምሩ",
+      "bookTour": "ጉብኝት ያስይዙ",
+      "desc": "ዛሬ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤትን ይቀላቀሉ።",
+      "title": "ለልጅዎ ምርጡን ጅምር ይስጡ",
+      "virtualTour": "ቪርቹዋል ጉብኝት ያድርጉ"
+    },
+    "softwareShowcase": {
+      "dashTitle": "የወላጅ መቆጣጠሪያ እና የቀጥታ መረጃ ፍሰት",
+      "regTitle": "ቀላል እና ፈጣን የበይነመረብ ምዝገባ",
+      "tabQrcode": "3. በQR ኮድ መውሰጃ",
+      "regBullet1": "ዲጂታል የክትባት ካርድና የህክምና ፎርሞች ማቅረቢያ",
+      "qrcodeDesc": "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ። ወላጆች በስልካቸው የሚመነጨውን የQR ኮድ በመጠቀም ልጆቻቸውን በታማኝነት መውሰድ ይችላሉ። በተጨማሪም የልጃቸውን የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ትንተና ሪፖርቶች ማየት ይችላሉ።",
+      "useFallback": "ወደ ነባሪው የሶፍትዌር ንድፍ ይመለሱ",
+      "regBullet3": "ፈጣን የኢሜይል ማረጋገጫና የመቀበያ ሰነዶች ዝግጅት",
+      "uploadLabel": "ለመቀየር በአድሚን ፓነል ውስጥ እውነተኛ ስክሪንሾት ይጫኑ",
+      "parentDashboardTitle": "የወላጆች መቆጣጠሪያ ሰሌዳ (Dashboard)",
+      "regDesc": "የወረቀት ስራዎችን ያስቀሩ። በ 5 ደቂቃዎች ውስጥ ልጅዎን ይመዝግቡ፣ የህክምና መግለጫዎችን ይሙሉ፣ እና የክትባት ካርዶችን በቀላሉ ያስገቡ።",
+      "tabDashboard": "2. የወላጅ ዳሽቦርድ",
+      "qrcodeTitle": "ደህንነቱ የተጠበቀ የQR ኮድ መውሰጃ እና የዕለት ሪፖርት",
+      "dashBullet3": "የጤና እና የሰውነት ሙቀት መለኪያ ሪፖርት መዝገብ",
+      "dashBullet1": "የእንቅልፍ፣ የምግብና የፈሳሽ ዝርዝር ዝመናዎች ማሳያ",
+      "title": "ከምዝገባ እስከ ህፃናት መውጫ - በኪድቶፒያ ዌብ ፖርታል የተደገፈ",
+      "badge": "የቀን ማቆያ ዌብ ሲስተም",
+      "uploadFormat": "PNG፣ JPG ወይም WebP ይደግፋል። ነባሪውን ምስል ይቀይራል።",
+      "infoHighlight": "ወላጆች የራሳቸው የዳሽቦርድ መለያ አላቸው። በምናሌው ላይ ያለውን \"ግባ\" ቁልፍ በመጫን መግባት ይችላሉ።",
+      "regBullet2": "ዕለታዊ የሰዓት መርሐ-ግብር ምርጫና መለያ ማስተካከያ",
+      "dashDesc": "ምግብ፣ እንቅልፍ እና የእንቅስቃሴ ሪፖርቶች። ልጆችዎ በእውቀት ማሳደጊያ ስራዎች ላይ ሲሳተፉ የሚያሳዩ ልዩ የፎቶ ዝመናዎችን ያግኙ።",
+      "qrcodeBullet3": "ልጁ ሲወጣ ለወላጆች ፈጣን የኤስኤምኤስ (SMS) መልእክት",
+      "qrcodeBullet2": "የልጁ የዕለት ተዕለት የእንቅስቃሴ፣ የባህሪ እና የአመጋገብ ሪፖርት",
+      "dashBullet2": "ደህንነቱ የተጠበቀ የዕለት ተዕለት የእንቅስቃሴ ቀጥታ ፎቶዎች",
+      "subtitle": "ግልጽነት ለታማኝነት ዋናው መሠረት እንደሆነ እናምናለን። ለዚህም ነው በእያንዳንዱ ሰከንድ ደህንነትዎን ለመጠበቅ እና መረጃ ለማድረስ የእኛን ልዩ የሶፍትዌር ስርዓት የዘረጋነው።",
+      "parentDashboardDesc": "ወላጆች የእውነተኛ ጊዜ ዝመናዎችን፣ የጤና ሁኔታዎችን፣ ዕለታዊ አመጋገብን እና ከተንከባካቢዎች ጋር ቀጥተኛ ግንኙነትን የሚያገኙበት ዘመናዊ ፖርታል አላቸው።",
+      "tabRegistration": "1. የኢንተርኔት ምዝገባ",
+      "qrcodeBullet1": "ለወላጆች ደህንነቱ የተጠበቀ የQR ኮድ ማመንጫ",
+      "changeScreenshot": "አዲስ ስክሪንሾት ለመቀየር"
+    },
+    "leadCapture": {
+      "text": "የኪድቶፒያ ድንቅ አካባቢን ለማየት የአካል ጉብኝት ቀጠሮ ይያዙ።",
+      "title": "የጉብኝት ቀጠሮ መያዝ ይፈልጋሉ?",
+      "enabled": "true",
+      "laterText": "በኋላ",
+      "type": "info",
+      "buttonText": "ጉብኝት ያስይዙ",
+      "buttonLink": "/book-tour"
+    },
+    "resources": {
+      "intlActTitle": "የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025 መስፈርቶች",
+      "handbookChapters": [
+        {
+          "content": "የእንኳን ደህና መጣችሁ መልእክት\n\nውድ ወላጆች እና አሳዳጊዎች፣\n\nወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ።\n\nየልጅዎን እንክብካቤ፣ እድገት እና የመማር ጉዞ ለእኛ ስለአመኑብን እናመሰግናለን። በኪድቶፒያ፣ እያንዳንዱ ልጅ በልበ ሙሉነት የሚዳስስበት፣ የሚማርበት እና የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ፣ አክብሮት ያለው እና አነቃቂ አካባቢ ይገባዋል ብለን እንምናምናለን።\n\nቤተሰቦች እና አስተማሪዎች አብረው ሲሰሩ ህፃናት በጥሩ ሁኔታ እንደሚያድጉ እንገነዘባለን። በወላጆች እና በቡድናችን መካከል ያለው ጠንካራ ግንኙነት፣ እርስ በርስ መከባበር እና አጋርነት ለእያንዳንዱ ልጅ ምርጥ ልምድ እንድንሰጥ ይረዳናል።\n\nይህ የወላጆች መመሪያ ለህፃናት፣ ለቤተሰቦች እና ለሰራተኞች ደህንነቱ የተጠበቀ፣ የተደራጀ እና አወንታዊ አካባቢን ለመፍጠር የእኛን ፖሊሲዎች፣ አሰራሮች እና እቅዶች ያብራራል።\n\nእምነትዎን እና አጋርነትዎን እናደንቃለን።\n\nየኪድቶፒያ አስተዳደር\n\n“አብሮ ማደግ፣ መማር እና መበልጸግ”",
+          "title": "የወላጆች መመሪያ የ2026/2027 ትምህርት ዘመን"
+        },
+        {
+          "content": "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት በሚከተሉት መመሪያዎች ላይ የተመሰረተ ህፃናትን ማዕከል ያደረገ የመማር አካባቢ ያዘጋጃል፡\n• የሞንቴሶሪ መبادኦች (Montessori)\n• የሬጂዮ ኤሚሊያ አቀራረብ (Reggio Emilia)\n• የEYFS ቅድመ ህፃናት ልምዶች\n\nህፃናት በጥሩ ሁኔታ የሚማሩት በጨዋታ፣ በዳሰሳ፣ በፈጠራ እና ባላቸው ትርጉም ባላቸው ልምዶች ነው ብለን እንምናምናለን።\n\nየእኛ ትኩረት፡\n• እራስን መቻል\n• ልበ ሙሉነት\n• የቋንቋ እና የመገናኘት ክህሎት\n• የፈጠራ ችሎታ\n• ችግር የመፍታት ችሎታ\n• ማህበራዊ እና ስሜታዊ እድገት\n• መከባበር እና ደግነት",
+          "title": "1. የእኛ ፍልስፍና"
+        },
+        {
+          "content": "ኪድቶፒያ የህፃናትን እድገት ለመደገፍ ተappropriate የሆኑ ፕሮግራሞችን ያቀርባል።\n\nየታዳጊዎች ፕሮግራም (Toddler Program)፡\n• የቋንቋ እድገት\n• የእራስ ችሎታ\n• ማህበራዊ ግንኙነት\n• የስሜት ዳሰሳ\n• የቅድመ ትምህርት መሰረቶች\n\nየቅድመ ትምህርት ቤት ፕሮግራም (Preschool Program)፡\n• ለትምህርት ቤት ዝግጁነት\n• ማንበብ፣ መጻፍ እና ሂሳብ\n• የመገናኘት ክህሎት\n• የፈጠራ እና የትችት አስተሳሰብ",
+          "title": "2. ፕሮግራሞች እና የእድሜ ቡድኖች"
+        },
+        {
+          "title": "3. የሥራ ሰዓት እና መርሃግብር",
+          "content": "ከሰኞ እስከ አርብ፡ ከጠዋቱ 1:30 እስከ ምሽቱ 12:00 ሰዓት\nቅዳሜ፡ ከጠዋቱ 1:30 እስከ ቀትሉ 6:30 ሰዓት\n\nየመድረሻ ፖሊሲ፡\nወላጆች ህፃናትን በሰዓቱ እንዲያደርሱ እንመክራለን። የቅድመ ትምህርት ቤት መድረሻ ሰዓት ከጠዋቱ 1:30 እስከ 3:30 ነው።\n\nየመውጫ ፖሊሲ፡\nወላጆች ወይም የተፈቀደላቸው አሳዳጊዎች ህፃናትን ከማዕከሉ መዝጊያ ሰዓት በፊት መውሰድ አለባቸው።"
+        },
+        {
+          "title": "4. የምዝገባ መስፈርቶች",
+          "content": "ህፃናት ትምህርት ከመጀመራቸው በፊት ወላጆች የሚያስፈልጉ ሰነዶችን ማቅረብ አለባቸው፡\n☐ የልጁ የልደት ምስክር ወረቀት\n☐ የክትባት ካርድ\n☐ የልጁ 2 ፎቶዎች\n☐ የወላጅ ፎቶ\n☐ የወላጅ መታወቂያ ኮፒ\n☐ የተሞሉ የምዝገባ ፎርሞች\n☐ የአደጋ ጊዜ መረጃዎች"
+        },
+        {
+          "title": "5. የትምህርት አattendance ፖሊሲ",
+          "content": "መደበኛ አattendance ህፃናት ልምድ እና ማህበራዊ ግንኙነት እንዲያዳብሩ ይረዳል።\nህፃኑ በሚቀርበት ጊዜ ወላጆች ማሳወቅ አለባቸው። የትምህርት ክፍያ በምዝገባ ቦታ ላይ የተመሰረተ እንጂ በቀን አattendance ላይ አይደለም፤ በመሆኑም በበዓላት ወይም በዕረፍት ምክንያት ክፍያ አይቀነስም።"
+        },
+        {
+          "title": "6. የትምህርት ክፍያ እና የክፍያ ፖሊሲ",
+          "content": "የኪድቶፒያ የክፍያ ፖሊሲዎች ጥራት ያለው እንክብካቤ እና አስተማሪዎችን ለመጠበቅ የተዘጋጁ ናቸው።\n• ክፍያዎች በተወሰነው ጊዜ ውስጥ መከፈል አለባቸው።\n• የምዝገባ ክፍያዎች አይመለሱም።\n• የዘገዩ ክፍያዎች ቅጣት ወይም የአገልግሎት እግድ ሊያስከትሉ ይችላሉ።"
+        },
+        {
+          "content": "ልጃቸውን ማስወጣት የሚፈልጉ ወላጆች ለአስተዳደሩ ቅድመ ማስጠንቀቂያ መስጠት አለባቸው።\nከመውጣታቸው በፊት፡\n• ሁሉም ክፍያዎች መጠናቀቅ አለባቸው።\n• የልጁ ቁሳቁሶች በሙሉ መሰብሰብ አለባቸው።",
+          "title": "7. ምዝገባ የመሰረዝ ፖሊሲ (Withdrawal Policy)"
+        },
+        {
+          "content": "ኪድቶፒያ በወላጆች እና በማዕከሉ መካከል የተቀናጀ መረጃ ለመለዋወጥ የኦንላይን መገናኛ ሶፍትዌር ይጠቀማል።\nወላጆች መልእክቶችን፣ ጥያቄዎችን እና የልጃቸውን መረጃ ለመከታተል መጠቀም ይችላሉ። ለተጣደፉ የጤና ጉዳዮች በቀጥታ ከአስተዳደሩ ጋር መገናኘት ይቻላል።",
+          "title": "8. የመገናኛ ፖሊሲ (Communication Policy)"
+        },
+        {
+          "title": "9. የወላጆች ኃላፊነቶች",
+          "content": "ወላጆች፡\n• ትክክለኛ መረጃ ማቅረብ\n• የአደጋ ጊዜ መረጃዎችን ማዘመን\n• የጤና ስጋቶችን ማሳወቅ\n• የክፍያ እና የደህንነት ደንቦችን ማክበር\n• ሰራተኞችን እና ሌሎች ቤተሰቦችን ማክበር አለባቸው።"
+        },
+        {
+          "title": "10. የልጅ ማድረሻ እና መውሰጃ ፖሊሲ",
+          "content": "ማድረሻ፡ ወላጆች ህፃኑን በተሰየመው ቦታ ማስረከብ አለባቸው።\nመውሰጃ፡ ህፃናት የሚለቀቁት ለተፈቀደላቸው ሰዎች ብቻ ነው። ሌላ ሰው የሚልክ ከሆነ ወላጆች አስቀድመው ማሳወቅ አለባቸው።"
+        },
+        {
+          "title": "11. የደህንነት እና የጎብኝዎች ፖሊሲ",
+          "content": "የልጆች ደህንነት የእኛ ከፍተኛ ቅድሚያ የሚሰጠው ጉዳይ ነው።\n• ሁሉም ጎብኝዎች ከመግባታቸው በፊት ለአስተዳደሩ ማሳወቅ አለባቸው።\n• መታወቂያ ሊጠየቅ ይችላል።\n• ያልተፈቀደላቸው ሰዎች ወደ ህፃናት ክፍሎች መግባት አይችሉም።"
+        },
+        {
+          "content": "ትኩሳት፣ ማስታወክ፣ ተቅማጥ፣ ወይም ተላላፊ የበሽታ ምልክቶች ያሏቸው ህፃናት ቤት መቆየት አለባቸው። ተላላፊ በሽታ ከተገኘበት ወላጆች ማሳወቅ አለባቸው።",
+          "title": "12. የጤና እና የታመመ ልጅ ፖሊሲ"
+        },
+        {
+          "title": "13. የመድኃኒት አሰጣጥ ፖሊሲ",
+          "content": "መድኃኒት የሚሰጠው የወላጅ የጽሁፍ ፈቃድ ሲኖር፣ ስም እና የመድኃኒት አጠቃቀም መመሪያ በግልጽ ሲቀመጥ ብቻ ነው።"
+        },
+        {
+          "content": "ወላጆች ስለ ምግብ አለርጂ፣ የህክምና ሁኔታዎች እና ልዩ የምግብ ፍላጎቶች ሙሉ መረጃ ማቅረብ አለባቸው።",
+          "title": "14. የአለርጂ እና የምግብ መረጃ ፖሊሲ"
+        },
+        {
+          "title": "15. የአደጋ ጊዜ እና የህክምና ፈቃድ ፖሊሲ",
+          "content": "በአደጋ ጊዜ የመጀመሪያ እርዳታ ይሰጣል፣ ወላጆች ይደወላሉ፣ አስፈላጊ ከሆነም የአደጋ ጊዜ ህክምና አገልግሎት ይጠራል። ወላጆች ህክምና ለማስገኘት ፈቃድ ይሰጣሉ።"
+        },
+        {
+          "title": "16. የአደጋ እና የጉዳት ሪፖርት ፖሊሲ",
+          "content": "በከባድ አደጋዎች (ራስ መሳት፣ የመተንፈስ ችግር፣ ከባድ ደም መፈሰስ፣ ስብራት) ወላጆች ወዲያውኑ ይደወላቸዋል። ለአናሳ ጉዳቶች የመጀመሪያ እርዳታ ተሰጥቶ በሶፍትዌር ወይም በመውጫ ሰዓት ይነገራል።"
+        },
+        {
+          "title": "17. የአደጋ ጊዜ እና የማስወጣት ሂደቶች",
+          "content": "በእሳት፣ በተፈጥሮ አደጋ ወይም በደህንነት ስጋት ጊዜ ህፃናትን እና ሰራተኞችን የመጠበቅ አሰራሮች አሉ። የልጆች ደህንነት የመጀመሪያ ቅድሚያ ነው።"
+        },
+        {
+          "title": "18. የልጅ መመሪያ እና አወንታዊ ስነ-ምግባር",
+          "content": "በአወንታዊ ማበረታቻ እና ግንዛቤ ላይ የተመሰረተ ነው። አካላዊ ቅጣት፣ ማሳፈር፣ ማስፈራራት ወይም ማንኛውም አይነት በደል በጥብቅ የተከለከለ ነው።"
+        },
+        {
+          "content": "የተጎዳው ልጅ ወዲያውኑ እንክብካቤ ያገኛል፤ ባህሪ ያሳየው ልጅ ደግሞ መመሪያ እና ድጋፍ ይሰጠዋል። መምህራን ተappropriate መፍትሄዎችን ያዘጋጃሉ።",
+          "title": "19. የመነከስ፣ የመደባደብ እና አስቸጋሪ ባህሪያት ፖሊሲ"
+        },
+        {
+          "content": "ወላጆች አጭር እና አወንታዊ የመለያየት ስነ-ስርዓት በማድረግ፣ ደህንነታቸው የተጠበቀ መሆኑን በማረጋገጥ ድጋፍ ማድረግ ይችላሉ።",
+          "title": "20. የመለያየት ጭንቀት እና የማመቻቸት ፖሊሲ"
+        },
+        {
+          "content": "ህፃናት በእድሜያቸው ልክ በተዘጋጁ ትምህርታዊ፣ የፈጠራ፣ የውጭ ጨዋታዎች፣ የእንቅልፍ እና የክህሎት ማሳደጊያ እንቅስቃሴዎች ላይ ይሳተፋሉ።",
+          "title": "21. የክፍል መርሃግብር እና የመማር ፖሊሲ"
+        },
+        {
+          "title": "22. የእንቅልፍ እና የእረፍት ሰዓት ፖሊሲ",
+          "content": "ሰላማዊ እና ምቹ የእረፍት ሰዓት ይዘጋጃል። ሰራተኞች የእያንዳንዱን ልጅ ፍላጎት ያከብራሉ።"
+        },
+        {
+          "content": "የልጁ ንብረቶች በስም መጻፍ አለባቸው። ውድ እቃዎችን እና ጌጣጌጦችን መላክ አይመከርም። ማዕከሉ ለሚጠፉ ወይም ለሚበላሹ የግል እቃዎች ኃላፊነት አይወስድም።",
+          "title": "23. የግል ንብረቶች ፖሊሲ"
+        },
+        {
+          "title": "24. የፎቶ፣ ቪዲዮ እና ሚዲያ ፈቃድ ፖሊሲ",
+          "content": "ፎቶዎች እና ቪዲዮዎች ለትምህርት እና ለወላጅ መገናኛ ሊነሱ ይችላሉ። ወላጆች የፈቃድ ፎርም መሙላት አለባቸው።"
+        },
+        {
+          "title": "25. የCCTV እና የግላዊነት ፖሊሲ",
+          "content": "CCTV ለደህንነት እና ክትትል ያገለግላል። የቀረጸው ቪዲዮ ምስጢራዊ ሲሆን ለወላጆች የቀጥታ ስርጭት አይሰጥም።"
+        },
+        {
+          "title": "26. የወላጆች የመገናኛ ምላሽ ፖሊሲ",
+          "content": "መደበኛ መልእክቶች በሥራ ሰዓት ይመለሳሉ። ለተጣደፉ የጤና እና የደህንነት ጉዳዮች ቅድሚያ ይሰጣል።"
+        },
+        {
+          "title": "27. የወላጅ ቅሬታዎች እና አስተያየቶች ፖሊሲ",
+          "content": "ቅሬታዎች እና አስተያየቶች በመደበኛ መገናኛ ሶፍትዌር በኩል መቅረብ አለባቸው። አስተዳደሩ በባለሙያነት መርምሮ መፍትሄ ይሰጣል።"
+        },
+        {
+          "content": "የክፍል ጉብኝቶች በአስተዳደሩ አስቀድመው መፈቀድ አለባቸው። ያልታቀዱ ጉብኝቶች የህፃናትን የመማር ሂደት ሊያስተጉሉ ይችላሉ።",
+          "title": "28. የክፍል ምልከታ ፖሊሲ (Classroom Observation)"
+        },
+        {
+          "content": "ህፃናት እንደ እድሜያቸው፣ የዕውቀት እና የማህበራዊ ዝግጁነታቸው ወደ ሚቀጥለው ክፍል ይሸጋገራሉ። ወላጆች አስቀድመው ይነገራቸዋል።",
+          "title": "29. የክፍል ሽግግር ፖሊሲ (Classroom Transition)"
+        },
+        {
+          "title": "30. የልደት በዓል አከባበር ፖሊሲ",
+          "content": "የልደት በዓላት ከአስተዳደሩ ጋር በመቀናጀት ይከበራሉ። የአለርጂ እና የደህንነት መመሪያዎችን ማከበር አለባቸው።"
+        },
+        {
+          "title": "31. የሰራተኞች ሙያዊ ወሰኖች ፖሊሲ",
+          "content": "ወላጆች እና ሰራተኞች በመከባበር እና በመደበኛ አሰራር መገናኘት አለባቸው። የሌሎችን መረጃ ምስጢራዊነት መጠበቅ ግዴታ ነው።"
+        },
+        {
+          "content": "ቤተሰቦች እና አስተማሪዎች አብረው ሲሰሩ ህፃናት ያካሂዳሉ። ወላጆች ክፍት ግንኙነት በማድረግ እና ፖሊሲዎችን በመደገፍ እንዲሳተፉ እንመክራለን።",
+          "title": "32. የወላጅ አጋርነት መግለጫ"
+        },
+        {
+          "title": "የወላጆች መመሪያ የማረጋገጫ እና የስምምነት ፎርም",
+          "content": "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት - የ2026/2027 ትምህርት ዘመን\n\nውድ ወላጅ/አሳዳጊ፣\n\nእባክዎን የኪድቶፒያ የወላጆች መመሪያን ማንበብዎን እና መረዳትዎን ያረጋግጡ።\n\nይህንን ፎርም በማረጋገጥ የሚከተሉትን ይቀበላሉ፡\n☐ የኪድቶፒያ የወላጆች መመሪያ ደርሶኛል፣ አንብቤዋለሁ።\n☐ የህፃናት ማቆያውን ፖሊሲዎች እና አሰራሮች ተረድቻለሁ።\n☐ የጤና፣ የደህንነት፣ የአደጋ ሪፖርት፣ የመገናኛ፣ የአattendance እና የክፍያ ፖሊሲዎችን ተረድቻለሁ።\n☐ የአደጋ ጊዜ ሁኔታዎች በደህንነት አሰራር መሰረት እንደሚስተናገዱ እና ወላጆች እንደሚደወሉላቸው ተረድቻለሁ።\n☐ ስለልጄ ትክክለኛ እና ወቅታዊ መረጃ ለመስጠት እስማማለሁ።\n☐ የኪድቶፒያን ፖሊሲዎች ለማከበር እና ከሰራተኞች ጋር በአክብሮት ለመነጋገር እስማማለሁ።\n☐ ፖሊሲዎቹ የሁሉም ህፃናት ደህንነት እና ደስታ ለመጠበቅ የተዘጋጁ መሆናቸውን ተረድቻለሁ።"
+        }
+      ],
+      "intlGuidelinesBody": "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ - የተዋሃዱ የአሠራር ፖሊሲዎች\n\nወደ ኪድቶፒያ ወላጆች ማህበረሰብ እንኳን በደህና መጡ! ልጅዎን በማስመዝገብ ከእኛ ጋር አጋርነት ውስጥ ይገባሉ። የእኛ የተዋሃዱ የአሠራር ደንቦች፣ የክፍያ ሥርዓቶች፣ የደህንነት ፕሮቶኮሎች እና የስነ-ምግባር ደንቦች የሚከተሉት ናቸው፡-\n\n1. ምዝገባ፣ የሥራ ሰዓት እና የዘግይቶ መውጫ ክፍያ\n• የሥራ ሰዓት፡ ማዕከሉ ከሰኞ እስከ አርብ ከጠዋቱ 1:30 እስከ ምሽቱ 12:00 ሰዓት ክፍት ነው።\n• በሰዓቱ መድረስ፡ ህጻናት በጠዋቱ የቡድን እንቅስቃሴዎች ላይ እንዲሳተፉ ከጠዋቱ 2:30 በፊት እንዲደርሱ እንመክራለን።\n• የዘግይቶ መውጫ ክፍያ፡ ህጻናት እስከ ምሽቱ 12:00 ሰዓት መወሰድ አለባቸው። ከዚያ በኋላ ለሚዘገይ ለእያንዳንዱ 15 ደቂቃ 200 የኢትዮጵያ ብር የቅጣት ክፍያ ይታሰባል።\n\n2. የክፍያ ውሎች እና የአሠራር ሥርዓቶች\n• የወር ክፍያ፡ የትምህርት ክፍያ በየወሩ አስቀድሞ ይከፈላል። የክፍያ መጠየቂያ ደረሰኞች በየወሩ በ25ኛው ቀን ይላካሉ።\n• የክፍያ የመጨረሻ ቀን፡ የትምህርት ክፍያ በየወሩ ከ1ኛው ቀን በፊት መከፈል አለበት። ከ6ኛው ቀን በኋላ ክፍያው ካልተፈጸመ የ10% ቅጣት ይታሰባል።\n• ምዝገባ የመሰረዝ ፖሊሲ፡ ልጅዎን ለማስወጣት የ30 ቀናት የጽሁፍ ቅድመ ማስጠንቀቂያ መስጠት አለብዎት። ይህ ካልሆነ የያዙት የዋስትና ክፍያ አይመለስም።\n\n3. የጤና፣ የበሽታ እና የመድኃኒት አሰጣጥ ፖሊሲ\n• የታመመ ልጅ መመሪያ፡ ሌሎችን ለመጠበቅ፣ ህጻናት የሚከተሉት ምልክቶች ካሏቸው ቤት መቆየት አለባቸው፡-\n  - ትኩሳት ከ 38 ዲግሪ ሴልሺየስ በላይ ከሆነ\n  - ባለፉት 24 ሰዓታት ውስጥ ማስታወክ ወይም ተቅማጥ ካጋጠማቸው\n  - ያልታወቀ የቆዳ ሽፍታ ወይም ተላላፊ በሽታዎች ካሉ\n• ወደ ማቆያ መመለስ፡ ህጻናት ትኩሳትን የሚቀንሱ መድኃኒቶችን ሳይጠቀሙ ቢያንስ ለ24 ሰዓታት ከትኩሳት እና ከምልክቶች ነጻ መሆናቸው ሲረጋገጥ ብቻ ይመለሳሉ።\n• የታዘዘ መድኃኒት፡ ሰራተኞች መድኃኒት የሚሰጡት በሐኪም የታዘዘ ማስታወሻ ከዋናው የመድኃኒት መያዣ ጋር ሲቀርብ ብቻ ነው።\n\n4. የደህንነት እና የQR ኮድ አጠቃቀም\n• የተፈቀደለት ሰው፡ በፖርታሉ ላይ የተመዘገቡ እና ህጋዊ መታወቂያ ያላቸው ወይም ደህንነቱ የተጠበቀ የQR ኮድ ያሏቸው ወላጆች ብቻ ህጻናትን መውሰድ ይችላሉ።\n• የአደጋ ጊዜ እውቂያ፡ ሌላ ሰው ልጅዎን እንዲወስድ ከፈለጉ ቢያንስ ከ2 ሰዓታት በፊት በጽሁፍ ማሳወቅ ወይም መደወል አለብዎት።\n\n5. የስነ-ምግባር ደንብ እና ዲሲፕሊን\n• አዎንታዊ መመሪያ፡ እኛ የምንጠቀመው አዎንታዊ ማበረታቻን፣ ትኩረትን ማዞር እና ንቁ ግጭት መፍታትን ነው። የአካል ቅጣት ወይም መጮህ በጥብቅ የተከለከለ ነው።\n• የወላጆች ባህሪ፡ ኪድቶፒያ በአስተማሪዎች እና በሰራተኞች ላይ ለሚሰነዘሩ ጩኸቶች፣ ዛቻዎች ወይም ትንኮሳዎች ምንም አይነት መቻቻል የለውም። ይህንን የሚጥሱ ወላጆች ያለ ምንም የክፍያ ተመላሽ ልጅ ከተቋሙ ወዲያውኑ እንዲሰረዝ ይደረጋል።\n\n6. የሞባይል እና ዲጂታል መሳሪያዎች ፖሊሲ\n• የኤሌክትሮኒክስ መጫወቻዎች ክልክል ናቸው፡ ታብሌቶች፣ ሞባይል ስል科ች ወይም የኤሌክትሮኒክስ መጫወቻዎች ወደ መማሪያ ክፍል ይዞ መግባት በጥብቅ የተከለከለ ነው።\n• ዓላማ፡ በንቃት መጫወት፣ መጽሐፍትን ማንበብ እና ማህበራዊ ግንኙነትን ማሳደግ ላይ እናተኩራለን።",
+      "intlGuidelinesTitle": "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች እና ውሎች",
+      "intlActBody": "የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025 ዝርዝር\n\nኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ በኢትዮጵያ ፍትህ ሚኒስቴር (በመመሪያ ቁጥር 1084/2025 መሠረት) የወጡትን የደህንነት፣ የቦታ፣ የትምህርት እና የንጽህና መስፈርቶች ሙሉ በሙሉ ያከብራል። በማዕከላችን ውስጥ ተግባራዊ የሚደረጉት ዋና ዋና የቁጥጥር መስፈርቶች እና ደረጃዎች የሚከተሉት ናቸው፡-\n\n1. ፈቃድ እና የቁጥጥር ደረጃዎች (አንቀጽ 4 እና 7)\n• የፈቃድ ሰጪ አካል፡ በኢትዮጵያ ውስጥ የሚገኝ ማንኛውም የህፃናት ማቆያ ማዕከል ከሚመለከተው የማዘጋጃ ቤት/የክልል የቁጥጥር ቢሮዎች ኦፊሴላዊ ምዝገባ ማግኘት እና አመታዊ ምርመራ ማድረግ አለበት።\n• የሥራ ፈቃድ፡ ኪድቶፒያ ሁሉንም ቴክኒካዊ፣ አካባቢያዊ እና የቦታ ደህንነት መስፈርቶችን የሚያሟላ ህጋዊ የሥራ ፈቃድ አለው።\n\n2. አካላዊ ቦታ እና መሰረተ ልማት (አንቀጽ 10 እና 11)\n• የቦታ መስፈርቶች፡ የእያንዳንዱ ህጻን ማቆያ ለአንድ ህጻን ቢያንስ 2.5 ካሬ ሜትር ንጹህ የውስጥ ክፍል ማቅረብ አለበት።\n• የክፍል ደህንነት፡ የመማሪያ ክፍሎች በቂ የተፈጥሮ አየር ዝውውር፣ ደማቅ ብርሃን፣ ለህፃናት ምቹ የሆኑ የጠርዝ ክብ የቤት ዕቃዎች ሊኖሯቸው የሚገባ ሲሆን ከሹል እቃዎች ወይም አደገኛ ንጥረ ነገሮች የጸዱ መሆን አለባቸው።\n• የውጭ መጫወቻ ቦታ፡ ህጻናት ያለ ምንም የትራፊክ አደጋ በየቀኑ ንቁ መዝናኛ እንዲያገኙ የታጠረ፣ አስተማማኝ የመጫወቻ ቦታ መኖር ግዴታ ነው።\n\n3. የአሳዳጊ ሰራተኛ እና የህፃናት ጥምርታ (አንቀጽ 14)\nከፍተኛ ጥራት ያለው የግል እንክብካቤን ለማረጋገጥ የአሳዳጊ ሰራተኞች እና የህፃናት ጥምርታ በህግ ተደንግጓል፡-\n• ህፃናት (ከ 1 አመት በታች)፡ 1 አሳዳጊ ለ 3 ህፃናት (የ 1:3 ጥምርታ)\n• ታዳጊዎች (ከ 1 እስከ 2 ዓመት)፡ 1 አሳዳጊ ለ 5 ታዳጊዎች (የ 1:5 ጥምርታ)\n• የቅድመ ትምህርት ቤት ህጻናት (ከ 3 እስከ 5 ዓመት)፡ 1 አሳዳጊ ለ 8 ህጻናት (የ 1:8 ጥምርታ)\nኪድቶፒያ ደህንነትን ለመጠበቅ እነዚህን ጥምርታዎች በጥብቅ ያከብራል ወይም ከእነሱ በተሻለ ሁኔታ ያደራጃል።\n\n4. የሰራተኞች ምስክር ወረቀት እና ጤና (አንቀጽ 15 እና 16)\n• የምስክር ወረቀት፡ መሪ አስተማሪዎች እና የእንክብካቤ ሰራተኞች በቅድመ ልጅነት ትምህርት (ECE) ወይም በተመሳሳይ የሰለጠኑ መሆን አለባቸው።\n• የበስተጀርባ ታሪክ ምርመራ፡ ሁሉም ሰራተኞች የህጻናትን ደህንነት ለማረጋገጥ የወንጀል ታሪክ ምርመራ ይደረግባቸዋል።\n• የጤና ማረጋገጫ፡ ሰራተኞች በህጻናት ደህንነት ላይ ጉዳት ሊያደርሱ ከሚችሉ ተላላፊ፣ አእምሯዊ ወይም አካላዊ በሽታዎች የጸዱ መሆናቸውን የሚገልጽ የጤና ማረጋገጫ ማቅረብ አለባቸው።\n\n5. ጤና، ንጽህና እና የህክምና ምርመራዎች (አንቀጽ 18)\n• የህፃናት የጤና ካርዶች፡ ሁሉም ህጻናት ወቅታዊ የክትባት ሰነድ (ኩፍኝ፣ ፖሊዮ፣ ቢሲጂ፣ ዲፒቲ) እና ከተላላፊ በሽታዎች ነጻ መሆናቸውን የሚገልጽ የህክምና ማስረጃ ማቅረብ አለባቸው።\n• የእለት ተእለት የጤና ምርመራ፡ ህጻናት በየቀኑ ሲገቡ የሚታዩ የበሽታ ምልክቶች ካሉ ይመረመራሉ።\n• የጽዳት ስራዎች፡ የመጫወቻ እቃዎች፣ የመጸዳጃ ቤቶች እና የመኝታ ልብሶች በየቀኑ በፀረ-ተባይ ይጸዳሉ።\n\n6. ደህንነት፣ የአደጋ ጊዜ እና የደህንነት ጥበቃ\n• የአደጋ ጊዜ እቅዶች፡ በዓመት ሁለት ጊዜ የአደጋ ጊዜ የእሳት አደጋ ልምምዶች ይካሄዳሉ።\n• ጥብቅ መግቢያ/መውጫ፡ የመግቢያ በሮች ሁልጊዜ የተቆለፉ ናቸው። በስልካቸው ደህንነቱ የተጠበቀ የQR ኮድ ማረጋገጫ ያላቸው የተመዘገቡ ወላጆች ብቻ ወደ ግቢው መግባት ይችላሉ።",
+      "menuDays": [
+        {
+          "day": "ሰኞ",
+          "snack": "የተለያዩ የፍራፍሬ ቁርጥራጮች ከኦርጋኒክ እርጎ ጋር",
+          "breakfast": "ኦርጋኒክ የአጃ ገንፎ ከአዲስ ሙዝ እና ንጹህ ማር ጋር",
+          "lunch": "የምስር ወጥ በከፍተኛ ፋይበር እንጀራ እና በእንፋሎት የበሰለ ጎመን",
+          "allergens": [
+            "gluten",
+            "dairy"
+          ]
+        },
+        {
+          "allergens": [
+            "egg",
+            "gluten"
+          ],
+          "day": "ማክሰኞ",
+          "snack": "የዱባ ፍሬዎች እና ቀይ ፖም",
+          "lunch": "ቀላል የዶሮ ስጋ ከድንች እና ካሮት ጋር",
+          "breakfast": "ኦርጋኒክ የተጠበሰ እንቁላል በሙቅ የስንዴ ቶስት"
+        },
+        {
+          "allergens": [
+            "gluten"
+          ],
+          "day": "ረቡዕ",
+          "snack": "የተጠበሰ ብስኩት ከአቮካዶ ፑሪ ጋር",
+          "lunch": "አትክልት እና የሽንብራ ሽሮ ወጥ በስንዴ እንጀራ",
+          "breakfast": "የገብስ በሶ በለውዝ ወተት"
+        },
+        {
+          "breakfast": "የሙሉ ስንዴ ፓንኬክ በሜፕል ሲረፕ",
+          "snack": "የደረቀ የሙዝ ቺፕስ እና የብርቱካን ቁርጥራጮች",
+          "day": "ሐሙስ",
+          "lunch": "የአሳ ወጥ በቡናማ ሩዝ እና በአትክልት",
+          "allergens": [
+            "fish",
+            "gluten"
+          ]
+        },
+        {
+          "snack": "የተጠበሰ የድንች ቺፕስ በማር",
+          "allergens": [
+            "dairy",
+            "gluten"
+          ],
+          "lunch": "የበሬ ስጋ አልጫ ወጥ በጤፍ እንጀራ",
+          "breakfast": "አቮካዶ ቶስት ከኦርጋኒክ አይብ ጋር",
+          "day": "አርብ"
+        }
+      ],
+      "title": "የወላጅ መርጃዎች",
+      "policiesAndRegulations": [
+        {
+          "title": "የወላጆች መመሪያ የ2026/2027 ትምህርት ዘመን",
+          "content": "የእንኳን ደህና መጣችሁ መልእክት\n\nውድ ወላጆች እና አሳዳጊዎች፣\n\nወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት እንኳን በደህና መጡ።\n\nየልጅዎን እንክብካቤ፣ እድገት እና የመማር ጉዞ ለእኛ ስለአመኑብን እናመሰግናለን። በኪድቶፒያ፣ እያንዳንዱ ልጅ በልበ ሙሉነት የሚዳስስበት፣ የሚማርበት እና የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ፣ አክብሮት ያለው እና አነቃቂ አካባቢ ይገባዋል ብለን እንምናምናለን።\n\nቤተሰቦች እና አስተማሪዎች አብረው ሲሰሩ ህፃናት በጥሩ ሁኔታ እንደሚያድጉ እንገነዘባለን። በወላጆች እና በቡድናችን መካከል ያለው ጠንካራ ግንኙነት፣ እርስ በርስ መከባበር እና አጋርነት ለእያንዳንዱ ልጅ ምርጥ ልምድ እንድንሰጥ ይረዳናል።\n\nይህ የወላጆች መመሪያ ለህፃናት፣ ለቤተሰቦች እና ለሰራተኞች ደህንነቱ የተጠበቀ፣ የተደራጀ እና አወንታዊ አካባቢን ለመፍጠር የእኛን ፖሊሲዎች፣ አሰራሮች እና እቅዶች ያብራራል።\n\nእምነትዎን እና አጋርነትዎን እናደንቃለን።\n\nየኪድቶፒያ አስተዳደር\n\n“አብሮ ማደግ፣ መማር እና መበልጸግ”"
+        },
+        {
+          "title": "1. የእኛ ፍልስፍና",
+          "content": "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት በሚከተሉት መመሪያዎች ላይ የተመሰረተ ህፃናትን ማዕከል ያደረገ የመማር አካባቢ ያዘጋጃል፡\n• የሞንቴሶሪ መبادኦች (Montessori)\n• የሬጂዮ ኤሚሊያ አቀራረብ (Reggio Emilia)\n• የEYFS ቅድመ ህፃናት ልምዶች\n\nህፃናት በጥሩ ሁኔታ የሚማሩት በጨዋታ፣ በዳሰሳ፣ በፈጠራ እና ባላቸው ትርጉም ባላቸው ልምዶች ነው ብለን እንምናምናለን።\n\nየእኛ ትኩረት፡\n• እራስን መቻል\n• ልበ ሙሉነት\n• የቋንቋ እና የመገናኘት ክህሎት\n• የፈጠራ ችሎታ\n• ችግር የመፍታት ችሎታ\n• ማህበራዊ እና ስሜታዊ እድገት\n• መከባበር እና ደግነት"
+        },
+        {
+          "title": "2. ፕሮግራሞች እና የእድሜ ቡድኖች",
+          "content": "ኪድቶፒያ የህፃናትን እድገት ለመደገፍ ተappropriate የሆኑ ፕሮግራሞችን ያቀርባል።\n\nየታዳጊዎች ፕሮግራም (Toddler Program)፡\n• የቋንቋ እድገት\n• የእራስ ችሎታ\n• ማህበራዊ ግንኙነት\n• የስሜት ዳሰሳ\n• የቅድመ ትምህርት መሰረቶች\n\nየቅድመ ትምህርት ቤት ፕሮግራም (Preschool Program)፡\n• ለትምህርት ቤት ዝግጁነት\n• ማንበብ፣ መጻፍ እና ሂሳብ\n• የመገናኘት ክህሎት\n• የፈጠራ እና የትችት አስተሳሰብ"
+        },
+        {
+          "content": "ከሰኞ እስከ አርብ፡ ከጠዋቱ 1:30 እስከ ምሽቱ 12:00 ሰዓት\nቅዳሜ፡ ከጠዋቱ 1:30 እስከ ቀትሉ 6:30 ሰዓት\n\nየመድረሻ ፖሊሲ፡\nወላጆች ህፃናትን በሰዓቱ እንዲያደርሱ እንመክራለን። የቅድመ ትምህርት ቤት መድረሻ ሰዓት ከጠዋቱ 1:30 እስከ 3:30 ነው።\n\nየመውጫ ፖሊሲ፡\nወላጆች ወይም የተፈቀደላቸው አሳዳጊዎች ህፃናትን ከማዕከሉ መዝጊያ ሰዓት በፊት መውሰድ አለባቸው።",
+          "title": "3. የሥራ ሰዓት እና መርሃግብር"
+        },
+        {
+          "title": "4. የምዝገባ መስፈርቶች",
+          "content": "ህፃናት ትምህርት ከመጀመራቸው በፊት ወላጆች የሚያስፈልጉ ሰነዶችን ማቅረብ አለባቸው፡\n☐ የልጁ የልደት ምስክር ወረቀት\n☐ የክትባት ካርድ\n☐ የልጁ 2 ፎቶዎች\n☐ የወላጅ ፎቶ\n☐ የወላጅ መታወቂያ ኮፒ\n☐ የተሞሉ የምዝገባ ፎርሞች\n☐ የአደጋ ጊዜ መረጃዎች"
+        },
+        {
+          "content": "መደበኛ አattendance ህፃናት ልምድ እና ማህበራዊ ግንኙነት እንዲያዳብሩ ይረዳል።\nህፃኑ በሚቀርበት ጊዜ ወላጆች ማሳወቅ አለባቸው። የትምህርት ክፍያ በምዝገባ ቦታ ላይ የተመሰረተ እንጂ በቀን አattendance ላይ አይደለም፤ በመሆኑም በበዓላት ወይም በዕረፍት ምክንያት ክፍያ አይቀነስም።",
+          "title": "5. የትምህርት አattendance ፖሊሲ"
+        },
+        {
+          "title": "6. የትምህርት ክፍያ እና የክፍያ ፖሊሲ",
+          "content": "የኪድቶፒያ የክፍያ ፖሊሲዎች ጥራት ያለው እንክብካቤ እና አስተማሪዎችን ለመጠበቅ የተዘጋጁ ናቸው።\n• ክፍያዎች በተወሰነው ጊዜ ውስጥ መከፈል አለባቸው።\n• የምዝገባ ክፍያዎች አይመለሱም።\n• የዘገዩ ክፍያዎች ቅጣት ወይም የአገልግሎት እግድ ሊያስከትሉ ይችላሉ።"
+        },
+        {
+          "content": "ልጃቸውን ማስወጣት የሚፈልጉ ወላጆች ለአስተዳደሩ ቅድመ ማስጠንቀቂያ መስጠት አለባቸው።\nከመውጣታቸው በፊት፡\n• ሁሉም ክፍያዎች መጠናቀቅ አለባቸው።\n• የልጁ ቁሳቁሶች በሙሉ መሰብሰብ አለባቸው።",
+          "title": "7. ምዝገባ የመሰረዝ ፖሊሲ (Withdrawal Policy)"
+        },
+        {
+          "title": "8. የመገናኛ ፖሊሲ (Communication Policy)",
+          "content": "ኪድቶፒያ በወላጆች እና በማዕከሉ መካከል የተቀናጀ መረጃ ለመለዋወጥ የኦንላይን መገናኛ ሶፍትዌር ይጠቀማል።\nወላጆች መልእክቶችን፣ ጥያቄዎችን እና የልጃቸውን መረጃ ለመከታተል መጠቀም ይችላሉ። ለተጣደፉ የጤና ጉዳዮች በቀጥታ ከአስተዳደሩ ጋር መገናኘት ይቻላል።"
+        },
+        {
+          "content": "ወላጆች፡\n• ትክክለኛ መረጃ ማቅረብ\n• የአደጋ ጊዜ መረጃዎችን ማዘመን\n• የጤና ስጋቶችን ማሳወቅ\n• የክፍያ እና የደህንነት ደንቦችን ማክበር\n• ሰራተኞችን እና ሌሎች ቤተሰቦችን ማክበር አለባቸው።",
+          "title": "9. የወላጆች ኃላፊነቶች"
+        },
+        {
+          "title": "10. የልጅ ማድረሻ እና መውሰጃ ፖሊሲ",
+          "content": "ማድረሻ፡ ወላጆች ህፃኑን በተሰየመው ቦታ ማስረከብ አለባቸው።\nመውሰጃ፡ ህፃናት የሚለቀቁት ለተፈቀደላቸው ሰዎች ብቻ ነው። ሌላ ሰው የሚልክ ከሆነ ወላጆች አስቀድመው ማሳወቅ አለባቸው።"
+        },
+        {
+          "title": "11. የደህንነት እና የጎብኝዎች ፖሊሲ",
+          "content": "የልጆች ደህንነት የእኛ ከፍተኛ ቅድሚያ የሚሰጠው ጉዳይ ነው።\n• ሁሉም ጎብኝዎች ከመግባታቸው በፊት ለአስተዳደሩ ማሳወቅ አለባቸው።\n• መታወቂያ ሊጠየቅ ይችላል።\n• ያልተፈቀደላቸው ሰዎች ወደ ህፃናት ክፍሎች መግባት አይችሉም።"
+        },
+        {
+          "title": "12. የጤና እና የታመመ ልጅ ፖሊሲ",
+          "content": "ትኩሳት፣ ማስታወክ፣ ተቅማጥ፣ ወይም ተላላፊ የበሽታ ምልክቶች ያሏቸው ህፃናት ቤት መቆየት አለባቸው። ተላላፊ በሽታ ከተገኘበት ወላጆች ማሳወቅ አለባቸው።"
+        },
+        {
+          "content": "መድኃኒት የሚሰጠው የወላጅ የጽሁፍ ፈቃድ ሲኖር፣ ስም እና የመድኃኒት አጠቃቀም መመሪያ በግልጽ ሲቀመጥ ብቻ ነው።",
+          "title": "13. የመድኃኒት አሰጣጥ ፖሊሲ"
+        },
+        {
+          "title": "14. የአለርጂ እና የምግብ መረጃ ፖሊሲ",
+          "content": "ወላጆች ስለ ምግብ አለርጂ፣ የህክምና ሁኔታዎች እና ልዩ የምግብ ፍላጎቶች ሙሉ መረጃ ማቅረብ አለባቸው።"
+        },
+        {
+          "content": "በአደጋ ጊዜ የመጀመሪያ እርዳታ ይሰጣል፣ ወላጆች ይደወላሉ፣ አስፈላጊ ከሆነም የአደጋ ጊዜ ህክምና አገልግሎት ይጠራል። ወላጆች ህክምና ለማስገኘት ፈቃድ ይሰጣሉ።",
+          "title": "15. የአደጋ ጊዜ እና የህክምና ፈቃድ ፖሊሲ"
+        },
+        {
+          "content": "በከባድ አደጋዎች (ራስ መሳት፣ የመተንፈስ ችግር፣ ከባድ ደም መፈሰስ፣ ስብራት) ወላጆች ወዲያውኑ ይደወላቸዋል። ለአናሳ ጉዳቶች የመጀመሪያ እርዳታ ተሰጥቶ በሶፍትዌር ወይም በመውጫ ሰዓት ይነገራል።",
+          "title": "16. የአደጋ እና የጉዳት ሪፖርት ፖሊሲ"
+        },
+        {
+          "content": "በእሳት፣ በተፈጥሮ አደጋ ወይም በደህንነት ስጋት ጊዜ ህፃናትን እና ሰራተኞችን የመጠበቅ አሰራሮች አሉ። የልጆች ደህንነት የመጀመሪያ ቅድሚያ ነው።",
+          "title": "17. የአደጋ ጊዜ እና የማስወጣት ሂደቶች"
+        },
+        {
+          "content": "በአወንታዊ ማበረታቻ እና ግንዛቤ ላይ የተመሰረተ ነው። አካላዊ ቅጣት፣ ማሳፈር፣ ማስፈራራት ወይም ማንኛውም አይነት በደል በጥብቅ የተከለከለ ነው።",
+          "title": "18. የልጅ መመሪያ እና አወንታዊ ስነ-ምግባር"
+        },
+        {
+          "title": "19. የመነከስ፣ የመደባደብ እና አስቸጋሪ ባህሪያት ፖሊሲ",
+          "content": "የተጎዳው ልጅ ወዲያውኑ እንክብካቤ ያገኛል፤ ባህሪ ያሳየው ልጅ ደግሞ መመሪያ እና ድጋፍ ይሰጠዋል። መምህራን ተappropriate መፍትሄዎችን ያዘጋጃሉ።"
+        },
+        {
+          "content": "ወላጆች አጭር እና አወንታዊ የመለያየት ስነ-ስርዓት በማድረግ፣ ደህንነታቸው የተጠበቀ መሆኑን በማረጋገጥ ድጋፍ ማድረግ ይችላሉ።",
+          "title": "20. የመለያየት ጭንቀት እና የማመቻቸት ፖሊሲ"
+        },
+        {
+          "title": "21. የክፍል መርሃግብር እና የመማር ፖሊሲ",
+          "content": "ህፃናት በእድሜያቸው ልክ በተዘጋጁ ትምህርታዊ፣ የፈጠራ፣ የውጭ ጨዋታዎች፣ የእንቅልፍ እና የክህሎት ማሳደጊያ እንቅስቃሴዎች ላይ ይሳተፋሉ።"
+        },
+        {
+          "content": "ሰላማዊ እና ምቹ የእረፍት ሰዓት ይዘጋጃል። ሰራተኞች የእያንዳንዱን ልጅ ፍላጎት ያከብራሉ።",
+          "title": "22. የእንቅልፍ እና የእረፍት ሰዓት ፖሊሲ"
+        },
+        {
+          "content": "የልጁ ንብረቶች በስም መጻፍ አለባቸው። ውድ እቃዎችን እና ጌጣጌጦችን መላክ አይመከርም። ማዕከሉ ለሚጠፉ ወይም ለሚበላሹ የግል እቃዎች ኃላፊነት አይወስድም።",
+          "title": "23. የግል ንብረቶች ፖሊሲ"
+        },
+        {
+          "title": "24. የፎቶ፣ ቪዲዮ እና ሚዲያ ፈቃድ ፖሊሲ",
+          "content": "ፎቶዎች እና ቪዲዮዎች ለትምህርት እና ለወላጅ መገናኛ ሊነሱ ይችላሉ። ወላጆች የፈቃድ ፎርም መሙላት አለባቸው።"
+        },
+        {
+          "title": "25. የCCTV እና የግላዊነት ፖሊሲ",
+          "content": "CCTV ለደህንነት እና ክትትል ያገለግላል። የቀረጸው ቪዲዮ ምስጢራዊ ሲሆን ለወላጆች የቀጥታ ስርጭት አይሰጥም።"
+        },
+        {
+          "content": "መደበኛ መልእክቶች በሥራ ሰዓት ይመለሳሉ። ለተጣደፉ የጤና እና የደህንነት ጉዳዮች ቅድሚያ ይሰጣል።",
+          "title": "26. የወላጆች የመገናኛ ምላሽ ፖሊሲ"
+        },
+        {
+          "content": "ቅሬታዎች እና አስተያየቶች በመደበኛ መገናኛ ሶፍትዌር በኩል መቅረብ አለባቸው። አስተዳደሩ በባለሙያነት መርምሮ መፍትሄ ይሰጣል።",
+          "title": "27. የወላጅ ቅሬታዎች እና አስተያየቶች ፖሊሲ"
+        },
+        {
+          "title": "28. የክፍል ምልከታ ፖሊሲ (Classroom Observation)",
+          "content": "የክፍል ጉብኝቶች በአስተዳደሩ አስቀድመው መፈቀድ አለባቸው። ያልታቀዱ ጉብኝቶች የህፃናትን የመማር ሂደት ሊያስተጉሉ ይችላሉ።"
+        },
+        {
+          "title": "29. የክፍል ሽግግር ፖሊሲ (Classroom Transition)",
+          "content": "ህፃናት እንደ እድሜያቸው፣ የዕውቀት እና የማህበራዊ ዝግጁነታቸው ወደ ሚቀጥለው ክፍል ይሸጋገራሉ። ወላጆች አስቀድመው ይነገራቸዋል።"
+        },
+        {
+          "content": "የልደት በዓላት ከአስተዳደሩ ጋር በመቀናጀት ይከበራሉ። የአለርጂ እና የደህንነት መመሪያዎችን ማከበር አለባቸው።",
+          "title": "30. የልደት በዓል አከባበር ፖሊሲ"
+        },
+        {
+          "title": "31. የሰራተኞች ሙያዊ ወሰኖች ፖሊሲ",
+          "content": "ወላጆች እና ሰራተኞች በመከባበር እና በመደበኛ አሰራር መገናኘት አለባቸው። የሌሎችን መረጃ ምስጢራዊነት መጠበቅ ግዴታ ነው።"
+        },
+        {
+          "title": "32. የወላጅ አጋርነት መግለጫ",
+          "content": "ቤተሰቦች እና አስተማሪዎች አብረው ሲሰሩ ህፃናት ያካሂዳሉ። ወላጆች ክፍት ግንኙነት በማድረግ እና ፖሊሲዎችን በመደገፍ እንዲሳተፉ እንመክራለን።"
+        },
+        {
+          "title": "የወላጆች መመሪያ የማረጋገጫ እና የስምምነት ፎርም",
+          "content": "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት - የ2026/2027 ትምህርት ዘመን\n\nውድ ወላጅ/አሳዳጊ፣\n\nእባክዎን የኪድቶፒያ የወላጆች መመሪያን ማንበብዎን እና መረዳትዎን ያረጋግጡ።\n\nይህንን ፎርም በማረጋገጥ የሚከተሉትን ይቀበላሉ፡\n☐ የኪድቶፒያ የወላጆች መመሪያ ደርሶኛል፣ አንብቤዋለሁ።\n☐ የህፃናት ማቆያውን ፖሊሲዎች እና አሰራሮች ተረድቻለሁ።\n☐ የጤና፣ የደህንነት፣ የአደጋ ሪፖርት፣ የመገናኛ፣ የአattendance እና የክፍያ ፖሊሲዎችን ተረድቻለሁ።\n☐ የአደጋ ጊዜ ሁኔታዎች በደህንነት አሰራር መሰረት እንደሚስተናገዱ እና ወላጆች እንደሚደወሉላቸው ተረድቻለሁ።\n☐ ስለልጄ ትክክለኛ እና ወቅታዊ መረጃ ለመስጠት እስማማለሁ።\n☐ የኪድቶፒያን ፖሊሲዎች ለማከበር እና ከሰራተኞች ጋር በአክብሮት ለመነጋገር እስማማለሁ።\n☐ ፖሊሲዎቹ የሁሉም ህፃናት ደህንነት እና ደስታ ለመጠበቅ የተዘጋጁ መሆናቸውን ተረድቻለሁ።"
+        }
+      ],
+      "milestonesData": {
+        "kinder": {
+          "items": [
+            {
+              "text": "በበለጠ ግልጽ በሆነ ሁኔታ ይናገራል እና ቀላል ታሪኮችን ይነግራል",
+              "id": "k1"
+            },
+            {
+              "text": "10 ወይም ከዚያ በላይ እቃዎችን መቁጠር ይችላል",
+              "id": "k2"
+            },
+            {
+              "id": "k3",
+              "text": "ቢያንስ 6 የሰውነት ክፍሎች ያሉት ሰው ይስላል"
+            },
+            {
+              "text": "አንዳንድ ፊደላትን ወይም ቁጥሮችን ይጽፋል፣ እና ሶስት ማዕዘን ይገለብጣል",
+              "id": "k4"
+            },
+            {
+              "id": "k5",
+              "text": "በአንድ እግሩ ለ10 ሰከንድ ወይም ከዚያ በላይ ይቆማል"
+            },
+            {
+              "id": "k6",
+              "text": "በእውነተኛ እና በማስመስል መካከል ያለውን ልዩነት ይረዳል"
+            }
+          ],
+          "title": "ኪንደርጋርተን (ከ4 - 5 ዓመታት)"
+        },
+        "toddler": {
+          "title": "ታዳጊዎች (ከ12 - 24 ወራት)",
+          "items": [
+            {
+              "text": "በራሱ ይራመዳል እና መሮጥ ይጀምራል",
+              "id": "t1"
+            },
+            {
+              "text": "በርካታ ነጠላ ቃላትን እና ቀላል ባለ 2-ቃል ሀረጎችን ይናገራል",
+              "id": "t2"
+            },
+            {
+              "text": "ዕቃዎች ወይም ስዕሎች ሲጠሩ ይጠቁማል",
+              "id": "t3"
+            },
+            {
+              "id": "t4",
+              "text": "ቅርጾችን እና ቀለሞችን መለየት ይጀምራል"
+            },
+            {
+              "text": "ቀላል የማስመስል ጨዋታዎችን ይጫወታል (ለምሳሌ አሻንጉሊት መመገብ)",
+              "id": "t5"
+            },
+            {
+              "text": "ቀላል የአንድ-ደረጃ የቃል መመሪያዎችን ይከተላል",
+              "id": "t6"
+            }
+          ]
+        },
+        "infant": {
+          "items": [
+            {
+              "id": "i1",
+              "text": "ከሆድ ወደ ጀርባ እና ከጀርባ ወደ ሆድ ይገለበጣል"
+            },
+            {
+              "text": "ስሙ ሲጠራ ይላመዳል እንዲሁም በሚያውቋቸው ፊቶች ላይ ፈገግ ይላል",
+              "id": "i2"
+            },
+            {
+              "id": "i3",
+              "text": "እቃዎችን ለመያዝ ይዘረጋል"
+            },
+            {
+              "id": "i4",
+              "text": "ቀለል ያሉ ድምፆችን ያወጣል (ምሳሌ፡ 'ባ-ባ'፣ 'ዳ-ዳ')"
+            },
+            {
+              "id": "i5",
+              "text": "ያለ ድጋፍ ይቀመጣል"
+            },
+            {
+              "text": "የሚንቀሳቀሱ ነገሮችን በዓይኑ ይከተላል",
+              "id": "i6"
+            }
+          ],
+          "title": "ሕፃናት (ከ3 - 12 ወራት)"
+        },
+        "preschool": {
+          "title": "ቅድመ ትምህርት ቤት (ከ2 - 4 ዓመታት)",
+          "items": [
+            {
+              "text": "በጥሩ ሁኔታ ይወጣል እና በቀላሉ ይሮጣል",
+              "id": "p1"
+            },
+            {
+              "id": "p2",
+              "text": "ከ3-4 ቃላት ባሉት ዓረፍተ ነገሮች ይናገራል"
+            },
+            {
+              "text": "አዝራሮች፣ ማንሻዎች እና ተንቀሳቃሽ ክፍሎች ያሏቸውን መጫወቻዎች ማንቀሳቀስ ይችላል",
+              "id": "p3"
+            },
+            {
+              "id": "p4",
+              "text": "በቀለም እርሳስ ወይም እርሳስ ክብ መቅዳት ይችላል"
+            },
+            {
+              "id": "p5",
+              "text": "ለጓደኞቹ ፍቅር ያሳያል እና ሰፊ ስሜቶችን ይገልጻል"
+            },
+            {
+              "text": "በጨዋታዎች ውስጥ ተራ ይይዛል እና 'የእኔ' እና 'የእነሱ' የሚለውን ይረዳል",
+              "id": "p6"
+            }
+          ]
+        }
+      },
+      "items": [
+        {
+          "link": "",
+          "type": "PDF Document",
+          "title": "የወላጅ መመሪያ",
+          "actionType": "handbook",
+          "image": "",
+          "description": "ስለ ፖሊሲዎቻችን፣ ዕለታዊ የጊዜ ሰሌዳዎች እና ምን እንደሚጠብቁ ማወቅ ያለብዎት ነገር ሁሉ።"
+        },
+        {
+          "type": "Guide",
+          "link": "",
+          "title": "የተመጣጠነ ምግብ መመሪያ",
+          "description": "ስለ ጤናማ የምግብ እቅዶቻችን ይወቁ እና በቤት ውስጥ ለተመጣጠነ ምግብ ጠቃሚ ምክሮችን ያግኙ።",
+          "image": "",
+          "actionType": "nutrition"
+        },
+        {
+          "type": "Regulatory Directive",
+          "link": "",
+          "image": "",
+          "description": "በኢትዮጵያ ውስጥ ለህፃናት ማቆያ ማዕከላት የሚወጡ ይፋዊ መስፈርቶች፣ የአሠራር ሂደቶች፣ የቦታ እና የፈቃድ አሰጣጥ ደንቦች።",
+          "actionType": "intl_act",
+          "title": "የኢትዮጵያ የህፃናት ማቆያ መመሪያ ቁጥር 1084/2025"
+        },
+        {
+          "link": "",
+          "type": "Parent Handbook Policy",
+          "title": "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች እና መመሪያዎች",
+          "actionType": "intl_guidelines",
+          "image": "",
+          "description": "የእኛን አጠቃላይ የህፃናት ማቆያ ደንቦች፣ የአገልግሎት ክፍያዎችን፣ የበሽታ ፖሊሲዎችን እና የወላጅ የስነ-ምግባር ደንቦችን እዚህ ያንብቡ።"
+        },
+        {
+          "link": "",
+          "type": "Web Portal",
+          "image": "",
+          "actionType": "comms",
+          "description": "ለወላጆች የህፃናት ማቆያ መቆጣጠሪያ እና መገናኛ ሶፍትዌራችንን ያግኙ።",
+          "title": "የህፃናት ማቆያ መገናኛ ሶፍትዌር"
+        },
+        {
+          "title": "የልጅ እድገት ደረጃዎች",
+          "description": "የልጅዎን የእድገት ደረጃዎች፣ የዕውቀት እና የአካል ክህሎቶች ይከታተሉ።",
+          "image": "",
+          "actionType": "milestones",
+          "type": "Milestone Tracker",
+          "link": ""
+        }
+      ],
+      "desc": "እርስዎን እና የልጅዎን ጉዞ ከእኛ ጋር ለመደገፍ አጋዥ ቁሳቁሶች እና መመሪያዎች።"
+    },
+    "announcement": {
+      "type": "info",
+      "title": "",
+      "text": "",
+      "buttonLink": "",
+      "buttonText": ""
+    },
+    "safety": {
+      "trustSafetyBadge": "የልጅዎ ሰላም ቅድሚያ የምንሰጠው ጉዳይ ነው",
+      "cards": [
+        {
+          "desc": "ሁሉም ህፃናት ከመመዝገባቸው በፊት የክትባት፣ የቲቢ፣ የኤችአይቪ እና የሄፓታይተስ ምርመራ ማቅረብ አለባቸው።",
+          "image": "",
+          "title": "የጤና ምርመራ"
+        },
+        {
+          "desc": "እያንዳንዱ የኪድቶፒያ ሰራተኛ ጥብቅ የቅጥር እና የማንነት ማረጋገጫ ይደረግለታል።",
+          "image": "",
+          "title": "የሰራተኞች ዳራ ማረጋገጫ"
+        },
+        {
+          "image": "",
+          "desc": "የእኛ ዲጂታል ስርዓት የተፈቀደላቸው ሰዎች ብቻ ልጅዎን መውሰድ እንደሚችሉ ያረጋግጣል።",
+          "title": "ደህንነቱ የተጠበቀ መግቢያ እና መውጫ"
+        },
+        {
+          "desc": "ብርድ ልብሶች እና የቀን እንክብካቤ ቁሳቁሶች በውስጣዊ የልብስ ማጠቢያ ስርዓታችን በየጊዜው ይጸዳሉ።",
+          "image": "",
+          "title": "ንጹህ አካባቢ"
+        }
+      ],
+      "title": "የልጅዎ ደህንነት ቅድሚያ የምንሰጠው ጉዳይ ነው"
+    },
+    "virtualTour": {
+      "collageImage1": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop",
+      "ratingText": "★ 4.9",
+      "ratingSubtext": "በወላጆች የተሰጠ ደረጃ",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&h=675&auto=format&fit=crop",
+          "description": "ውብ እና ሰፊ የመጫወቻ ስፍራችን።"
+        },
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+          "description": "ልጆች በደህና እና በፍቅር በሚማሩበት አካባቢ።"
+        },
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+          "description": "በቅድመ ትምህርት ቤት የልጆች ንቁ ተሳትፎ እና የፈጠራ ስራ።"
+        }
+      ],
+      "welcome": "ወደ ኪድቶፒያ 360° ቪርቹዋል ጉብኝት እንኳን በደህና መጡ!",
+      "schedule": "የአካል ጉብኝት ቀጠሮ ይያዙ",
+      "watchFull": "ሙሉ ቪርቹዋል ጉብኝቱን ይመልከቱ",
+      "instructions": "ለመቃኘት ጠቅ ያድርጉ እና ይጎትቱ",
+      "collageImage2": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+      "trustSubtext": "በሀኪም የተረጋገጠ",
+      "trustText": "100% ደህንነቱ የተጠበቀ",
+      "editButton": "360 ጉብኝትን ያርትዑ",
+      "title": "የህፃናት ማቆያችንን ይጎብኙ"
+    },
+    "footer": {
+      "copyright": "© 2026 ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት። መብቱ በህግ የተጠበቀ ነው።",
+      "social": {
+        "youtube": "https://youtube.com",
+        "telegram": "https://t.me",
+        "instagram": "https://instagram.com",
+        "facebook": "https://facebook.com",
+        "tiktok": "https://tiktok.com"
+      },
+      "resources": "የወላጆች መርጃ",
+      "developedBy": "በአርሆ ቴክኖሎጂ የተገነባ",
+      "links": "ፈጣን አገናኞች",
+      "developerUrl": "https://arhotechnology.com",
+      "addresses": [
+        {
+          "googleMapsCoordinates": "9.0054,38.8475",
+          "locationName": "ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት፣ አዲስ አበባ፣ ኢትዮጵያ"
+        }
+      ],
+      "emails": [
+        "info@kidtopia.com"
+      ],
+      "resourceLinks": [
+        {
+          "label": "የወላጅ መመሪያ",
+          "actionType": "handbook"
+        },
+        {
+          "label": "የተመጣጠነ ምግብ መመሪያ",
+          "actionType": "nutrition"
+        },
+        {
+          "actionType": "intl_act",
+          "label": "የኢትዮጵያ የህፃናት ማቆያ መመሪያ"
+        },
+        {
+          "label": "የተዋሃዱ የህፃናት ማቆያ ፖሊሲዎች",
+          "actionType": "intl_guidelines"
+        }
+      ],
+      "contact": "የእውቂያ መረጃ",
+      "phones": [
+        "+251 911 000 000"
+      ]
+    },
+    "staff": {
+      "seeMore": "ተጨማሪ ሰራተኞችን ይመልከቱ",
+      "members": [
+        {
+          "role": "የትምህርት ቤት ነርስ",
+          "desc": "በኪድቶፒያ ለእያንዳንዱ ልጅ ጤና እና ደህንነት የተሰጠች።",
+          "name": "ፋኢዛ ኢብራሂም",
+          "image": "https://images.unsplash.com/photo-1594824813573-246434de83fb?q=80&w=600&auto=format&fit=crop"
+        },
+        {
+          "name": "ሚስ መቅደስ አለሙ",
+          "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=600&auto=format&fit=crop",
+          "role": "ዋና መምህርት",
+          "desc": "በቅድመ ልጅነት ትምህርት እና በልጅ እድገት ላይ ባለሙያ።"
+        },
+        {
+          "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop",
+          "desc": "ለታዳጊዎቻችን አሳቢ እና ደጋፊ አካባቢን መስጠት።",
+          "role": "ተንከባካቢ",
+          "name": "ሚስ ሀያት ሰይድ"
+        },
+        {
+          "image": "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=600&auto=format&fit=crop",
+          "name": "ሚስ አለሚቱ አበበ",
+          "role": "የቅድመ ትምህርት ቤት አስተማሪ",
+          "desc": "ትላልቅ ልጆቻችንን ወደ ትምህርት ቤት ለስላሳ ሽግግር ማዘጋጀት።"
+        }
+      ],
+      "title": "የእኛ ፕሮፌሽናል ሰራተኞች",
+      "showLess": "ያነሰ አሳይ"
+    },
+    "programs": {
+      "cards": [
+        {
+          "image": "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=800&auto=format&fit=crop",
+          "age": "3 – 18 ወራት",
+          "desc": "ለህፃናት የሚሰጥ አፍቃሪ እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች እና ግላዊ የእንክብካቤ መርሐግብር።",
+          "btn": "ተጨማሪ ይወቁ",
+          "moreInfo": "የህፃናት ፕሮግራማችን ለትንሹ ልጅዎ ሰላማዊ፣ ደህንነቱ የተጠበቀ እና ምቹ አካባቢን ይሰጣል። ትኩረታችን የስሜት ህዋሳትን ማነቃቃት፣ የእጅ እና የእግር እንቅስቃሴዎችን ማሳደግ እና በልዩ እንክብካቤ ህፃናትን መንከባከብ ላይ ነው።",
+          "name": "የህፃናት እንክብካቤ ፕሮግራም (Infant Program)"
+        },
+        {
+          "name": "የታዳጊዎች ፕሮግራም",
+          "moreInfo": "የእኛ የታዳጊዎች ፕሮግራም ታዳጊ ህፃናት የሚማሩበት እና የሚጫወቱበት ደህንነቱ የተጠበቀ እና አነቃቂ አካባቢ ለመፍጠር የተነደፈ ነው። በቋንቋ እድገት እና በማህበራዊ ግንኙነት ላይ እናተኩራለን።",
+          "btn": "ተጨማሪ ይወቁ",
+          "desc": "በግንኙነት፣ በባህሪ እድገት እና በማህበራዊ መስተጋብር ላይ ያተኩራል።",
+          "image": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800&auto=format&fit=crop",
+          "age": "1.5 – 3 ዓመታት"
+        },
+        {
+          "age": "3 – 5 ዓመታት",
+          "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+          "moreInfo": "የቅድመ ትምህርት ቤት ፕሮግራማችን ህፃናትን ለመደበኛ ትምህርት ቤት ዝግጁ እንዲሆኑ ያደርጋል። የመጻፍ እና የማንበብ መሰረታዊ ክህሎቶችን በሚያስደስት ሁኔታ እናስተምራለን።",
+          "btn": "ተጨማሪ ይወቁ",
+          "name": "የቅድመ ትምህርት ቤት ፕሮግራም",
+          "desc": "ህፃናትን ለትምህርት ቤት ስኬት የሚያዘጋጁ የቀደመ ትምህርት እንቅስቃሴዎች።"
+        }
+      ],
+      "title": "የመማሪያ ፕሮግራሞቻችን"
+    },
+    "emailTemplates": {
+      "adminRescheduleAlert": {
+        "subject": "ማሳወቂያ፡ የጉብኝት ቀጠሮ በወላጅ ተቀይሯል",
+        "body": "የጉብኝት ቀጠሮ መቀየር ማሳወቂያ\n\nወላጅ የአካል ጉብኝት ቀጠሮ ሰዓታቸውን ቀይረዋል።\n\nየወላጅ ስም: {name}\nየወላጅ ኢሜይል: {email}\nየወላጅ ስልክ: {phone}\nየካምፓስ አድራሻ: {branch}\nየተዘመነ ቀን: {dayName}, {date}\nየተዘመነ ሰዓት: {time}"
+      },
+      "reschedule": {
+        "subject": "የጉብኝት ቀጠሮ ተቀይሯል",
+        "body": "የጉብኝት ቀጠሮዎ በተሳካ ሁኔታ ተቀይሯል\n\nውድ {name}፣\n\nየአካል ጉብኝት ቀጠሮዎ ተዘምኗል።\n\nየካምፓስ አድራሻ: {branch}\nአዲስ ቀን: {dayName}, {date}\nአዲስ ሰዓት: {time}\n\nቡድናችን አዲሱን የጊዜ ሰሌዳዎን ገምግሞ ተጨማሪ ለውጦች ካስፈለጉ ያሳውቅዎታል።"
+      },
+      "adminCancellationAlert": {
+        "subject": "ማሳወቂያ፡ የጉብኝት ቀጠሮ በወላጅ ተሰርዟል",
+        "body": "የጉብኝት ቀጠሮ መሰረዝ ማሳወቂያ\n\nየጉብኝት ቀጠሮ ጥያቄ በወላጁ ተሰርዟል።\n\nየወላጅ ስም: {name}\nየወላጅ ኢሜይል: {email}\nየካምፓስ አድራሻ: {branch}\nየነበረው ቀን: {dayName}, {date}\nየነበረው ሰዓት: {time}"
+      },
+      "cancellation": {
+        "subject": "የጉብኝት ቀጠሮ ተሰርዟል",
+        "body": "የጉብኝት ቀጠሮ መሬዝ\n\nውድ {name}፣\n\nበ{date} በ{time} የነበረዎት የአካል ጉብኝት ጥያቄ በጠየቁት መሠረት ተሰርዟል።\n\nበማንኛውም ጊዜ በድረ-ገፃችን በኩል አዲስ ጉብኝት ማስያዝ ይችላሉ።"
+      },
+      "rejection": {
+        "subject": "የጉብኝት ቀጠሮ ዝመና",
+        "body": "የጉብኝት ቀጠሮ ዝመና\n\nሰላም {name}፣\n\nአዝናለን፣ በ{dayName}, {date} በ{time} ያቀረቡትን የአካል ጉብኝት ጥያቄ ለማስተናገድ አንችልም።\n\nእባክዎን በሌላ ጊዜ አዲስ ጥያቄ ያቅርቡልን ወይም ለተጨማሪ መረጃ የእኛን ቢሮ ያነጋግሩ።"
+      },
+      "approval": {
+        "subject": "የኪድቶፒያ የጉብኝት ቀጠሮ - ተረጋግጧል",
+        "body": "የጉብኝት ቀጠሮዎ ተረጋግጧል!\n\nሰላም {name}፣\n\nበኪድቶፒያ የሚያደርጉት ጉብኝት መረጋገጡን ስናበስርዎ በደስታ ነው!\n\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nእርስዎን ለማግኘት በጉጉት እንጠብቃለን! ማንኛውም ጥያቄ ካለዎት እባክዎን ያነጋግሩን።"
+      },
+      "adminPendingAlert": {
+        "body": "አዲስ የጉብኝት ጥያቄ ደርሷል\n\nአዲስ የአካል ጉብኝት ቀጠሮ ጥያቄ ቀርቧል እና በአድሚን ዳሽቦርድ ውስጥ ግምገማ እየጠበቀ ነው::\n\nየወላጅ ስም: {name}\nየወላጅ ኢሜይል: {email}\nየወላጅ ስልክ: {phone}\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nእባክዎን ይህንን የጉብኝት ጥያቄ ለማጽደቅ ወይም ለመሰረዝ ወደ አድሚን ፓነልዎ ይግቡ።",
+        "subject": "ማሳወቂያ፡ አዲስ የጉብኝት ቀጠሮ ጥያቄ ደርሷል"
+      },
+      "received": {
+        "subject": "የኪድቶፒያ የጉብኝት ቀጠሮ ጥያቄ ደርሶናል",
+        "body": "የጉብኝት ጥያቄው ደርሶናል\n\nውድ {name}፣\n\nበኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት የአካል ጉብኝት ለማድረግ ቀጠሮ ስላስያዙ እናመሰግናለን! የእኛን ካምፓስ ለእርስዎ ለማሳየት በጉጉት እንጠብቃለን።\n\nየቀጠሮዎ ዝርዝር እንደሚከተለው ነው፡\nየካምፓስ አድራሻ: {branch}\nቀን: {dayName}, {date}\nሰዓት: {time}\n\nየምዝገባ ቡድናችን ጥያቄዎን በቅርቡ ገምግሞ ጉብኝትዎ ሲረጋገጥ የኢሜል መልዕክት ይልክልዎታል።"
+      },
+      "adminReminder": {
+        "subject": "ማስታወሻ፡ ያልተወሰነ የጉብኝት ቀጠሮ ለ{name}",
+        "body": "ትኩረት የሚሻ፡ ያልተወሰነ የጉብኝት ቀጠሮ\n\nየሚከተለው የጉብኝት ቀጠሮ ጥያቄ ሳይወሰን ቆይቷል እና ግምገማ ይፈልጋል፡\n\nየወላጅ ስም: {name}\nየካምፓስ አድራሻ: {branch}\nየተጠየቀው ቀን: {date}\nየተጠየቀው ሰዓት: {time}\n\nእባክዎን ይህንን ጥያቄ ለማጽደቅ ወይም ለመቀነስ ወደ አድሚን ዳሽቦርድ ይግቡ።"
+      }
+    },
+    "faq": {
+      "items": [
+        {
+          "question": "የጤና እና የክትባት ፖሊሲዎቻችሁ ምንድን ናቸው?",
+          "answer": "ሁሉም ልጆች ከመመዝገባቸው በፊት የክትባት፣ የሳንባ ነቀርሳ (TB)፣ የኤችአይቪ (HIV) እና የሄፓታይተስ ምርመራ ማቅረብ አለባቸው። የታመሙ ልጆች ለሌሎች ጤናማ አካባቢ ለመፍጠር ቤት መቆየት አለባቸው።"
+        },
+        {
+          "answer": "ደህንነቱ የተጠበቀ ዲጂታል መግቢያ እና መውጫ ስርዓት እንጠቀማለን። ማንነታቸው የተረጋገጠ እና አስቀድሞ ፈቃድ የተሰጣቸው ሰዎች ብቻ ልጆችን መውሰድ ይችላሉ። ማንኛውም ለውጥ አስቀድሞ መታወቅ አለበት።",
+          "question": "የልጆች አወሳሰድ እና አምጣት ደህንነትን እንዴት ትቆጣጠራላችሁ?"
+        },
+        {
+          "question": "የመጫወቻዎች እና የክፍሎች ንጽህና በስንት ጊዜ ልዩነት ይጸዳል?",
+          "answer": "የመጫወቻ ቁሳቁሶች፣ ብርድ ልብሶች እና መጫወቻዎች በየቀኑ በንጽህና ይታጠባሉ እንዲሁም ይጸዳሉ። ለአካባቢ ተስማሚ የሆኑ የንጽህና ቁሳቁሶችን እንጠቀማለን።"
+        },
+        {
+          "answer": "ለእያንዳንዱ ልጅ በቂ ትኩረት ለመስጠት አነስተኛ የክፍል መጠኖችን እንይዛለን። ለእያንዳንዱ ክፍል በቂ ቁጥር ያላቸው ሞግዚቶች እና አስተማሪዎች ይመደባሉ።",
+          "question": "የልጅ እና የአስተማሪ ጥምርታ ምን ያህል ነው?"
+        }
+      ],
+      "title": "ተደጋግመው የሚጠየቁ ጥያቄዎች"
+    },
+    "hero": {
+      "textColor": "#ffffff",
+      "virtualTour": "ቪርቹዋል ጉብኝት ያድርጉ",
+      "heroVideo": "",
+      "highlights": [
+        {
+          "desc": "ጥብቅ የጤና እና የደህንነት ፕሮቶኮሎች",
+          "image": "",
+          "title": "ደህንነቱ የተጠበቀ አካባቢ"
+        },
+        {
+          "desc": "የሰለጠኑ እና በጥንቃቄ የተመረጡ ሞግዚቶች",
+          "image": "",
+          "title": "ብቁ ሰራተኞች"
+        },
+        {
+          "image": "",
+          "title": "የኪድቶፒያ ሶፍትዌር",
+          "desc": "ከምዝገባ እስከ QR መውጫ እና የወላጅ ዳሽቦርድ"
+        }
+      ],
+      "backgroundType": "image",
+      "subheadline": "እንኳን ወደ ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት በደህና መጡ። ከበይነመረብ ምዝገባ እስከ QR ኮድ መውጫ ባለው ዘመናዊ የኪድቶፒያ የዌብ ሶፍትዌር እና ለእያንዳንዱ ወላጅ በተዘጋጀ የቀጥታ የክትትል ዳሽቦርድ ሙሉ በሙሉ የተደራጀ ምቹ የህፃናት ማቆያ።",
+      "heroImage": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2000&auto=format&fit=crop",
+      "badgeText": "ለ2026 ምዝገባ ላይ ነን",
+      "title": "ልጅዎ የሚያድግበት ደህንነቱ የተጠበቀ፣ አሳቢ እና አነቃቂ ቦታ",
+      "enroll": "ልጅዎን ያስመዝግቡ",
+      "highlightSectionTitle": "ምን የተለየ ያደርገናል",
+      "titleHighlight": "ደህንነቱ የተጠበቀ፣ አሳቢ",
+      "bookTour": "ጉብኝት ያስይዙ"
+    },
+    "testimonials": {
+      "list": [
+        {
+          "rating": 5,
+          "name": "ረድኤት ሲሳይ",
+          "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&h=100&auto=format&fit=crop",
+          "workInfo": "ስራ ፈጣሪ",
+          "text": "ልጄን ትቼ መሄድ መጀመሪያ ላይ ከባድ ነበር፣ ነገር ግን አስተማሪዎቹ ከመጀመሪያው ቀን ጀምሮ ምቾት እንዲሰማን እና እንድንደገፍ አድርገውናል።"
+        },
+        {
+          "workInfo": "ፋርማሲስት",
+          "rating": 5,
+          "text": "ኪድቶፒያ የህፃናት ማቆያ ልጄ ከሌሎች ልጆች ጋር እንዲገናኝ ረድቶታል፣ ልጄ በደንብ መናገር የተማረበት ቦታ ነው፣ ሰራተኞቹ እንዲወደድ ያደርጉታል እና በአጠቃላይ በአዲስ አበባ ካየኋቸው የህፃናት ማቆያ ሁሉ ምርጡ ነው። 100% እመክረዋለሁ።",
+          "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&h=100&auto=format&fit=crop",
+          "name": "ሰላማዊት ገብረትንሳይ"
+        },
+        {
+          "name": "ሳምራዊት ካሳ",
+          "workInfo": "የኪድቶፒያ ወላጅ",
+          "rating": 5,
+          "text": "የኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት አካል በመሆናችን በጣም እናመሰግናለን። ለእኔም ሆነ ለልጄ በእውነት አስደናቂ ተሞክሮ ሆኖልናል። በጣም ካደነቅኳቸው ነገሮች አንዱ የዕለታዊ ግንኙነት መጽሐፍ ነው። ስለ ልጄ ውሎ — ምን እንደምትበላ፣ መቼ እንደምትተኛ፣ ስለ እንቅስቃሴዎቿ እና ስለ ትንንሽ ዝርዝሮች ጭምር ሙሉ መረጃ ይሰጠኛል። ይህ የእንክብካቤ እና የግልፅነት ደረጃ ትልቅ የአእምሮ ሰላም ይሰጠኛል። አስተማሪዎቹ በሚያስደንቅ ሁኔታ ደግ፣ ጠባቂ እና ለልጆቹ በእውነት አፍቃሪ ናቸው።",
+          "image": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=100&h=100&auto=format&fit=crop"
+        },
+        {
+          "name": "ሪሃና ይማም ሀሰን",
+          "workInfo": "በ AFSIC አማካሪ",
+          "image": "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&h=100&auto=format&fit=crop",
+          "rating": 5,
+          "text": "ኪድቶፒያ በእውነት ለልጄ በጣም አስተማማኝ እና ተንከባካቢ ቦታ ነው። ከተቀላቀልን ጀምሮ በግንኙነት ችሎታዋ፣ በአጫዋወቷ እና በምግብ አጠቃቀም ልማዷ ላይ አስደናቂ መሻሻል አይቻለሁ። እሷ እንዲህ ባለው አሳቢ እና ደጋፊ አካባቢ ውስጥ መሆኗን ማወቅ ሙሉ የአእምሮ ሰላም ይሰጠኛል።"
+        },
+        {
+          "rating": 5,
+          "image": "https://images.unsplash.com/photo-1550525811-e5869dd03032?q=80&w=100&h=100&auto=format&fit=crop",
+          "workInfo": "የኪድቶፒያ ወላጅ",
+          "text": "በኪድቶፒያ ልጃችን አፍቃሪ እና ተንከባካቢ አካባቢ አግኝቷል። ስለ ውሎው ወቅታዊ መረጃዎችን ማግኘት እንወዳለን። እሱ በጣም ደስተኛ ነው እና እዚያ ለመሆን በጉጉት ይጠብቃል። በእርግጠነት ኪድቶፒያን እመክራለሁ።",
+          "name": "ዶ/ር ሰርካለም ኑርሌኝ"
+        },
+        {
+          "workInfo": "የኪድቶፒያ ወላጅ",
+          "text": "በርካታ የህፃናት ማቆያዎችን እና ቅድመ ትምህርት ቤቶችን ጎብኝቻለሁ ነገር ግን በኪድቶፒያ የምቾት እና 'የቤትነት' ስሜት ተሰማኝ። የወሰኑት ሰራተኞች ሞቅ ያለ፣ አሳቢ እና ታታሪ መሆን ከደስተኛ እና ትምህርታዊ የክፍል መዋቅር ጋር ተዳምሮ በቤተሰባችን ላይ በእውነት አዎንታዊ ተጽእኖ አሳድሯል። ልጄ ሌላ ቦታ እንድትሄድ ማሰብ አልችልም!",
+          "rating": 5,
+          "image": "https://images.unsplash.com/photo-1463453091185-61582044d556?q=80&w=100&h=100&auto=format&fit=crop",
+          "name": "ምህረት በኃይሉ"
+        }
+      ],
+      "title": "ወላጆች ምን ይላሉ"
+    },
+    "login": {
+      "admin": "አስተዳዳሪ",
+      "contactUs": "ያግኙን",
+      "email": "የኢሜይል አድራሻ",
+      "role": "ሚና ይምረጡ",
+      "staff": "ሰራተኛ",
+      "noAccount": "መለያ የለዎትም?",
+      "password": "የይለፍ ቃል",
+      "subtitle": "ወደ ወላጅ ወይም ሰራተኛ ፖርታል ለመግባት ይግቡ",
+      "title": "እንኳን ደህና መጡ",
+      "parent": "ወላጅ",
+      "forgotPassword": "የይለፍ ቃል ረሱ?",
+      "submit": "ግባ"
+    },
+    "whyChoose": {
+      "image1": "",
+      "features": [
+        "የእውነተኛ ጊዜ የወላጅ ግንኙነት ከፎቶ ዝመናዎች ጋር",
+        "አጠቃላይ ዕለታዊ ዲጂታል የእንቅስቃሴ ሪፖርቶች",
+        "ጤናማ፣ ንጹህ እና ደህንነቱ የተጠበቀ አካባቢ",
+        "አነስተኛ የክፍል መጠኖች ከአፍቃሪ ተንከባካቢዎች ጋር",
+        "ደህንነቱ የተጠበቀ የQR ኮድ የህፃናት መውሰጃ ስርዓት",
+        "ግልጽ የቀን እንክብካቤ ስራዎች እና ቀጥተኛ ግንኙነት",
+        "ዘመናዊ የእውቀት እና የክህሎት ማሳደጊያ ስርዓተ ትምህርት",
+        "የመጀመሪያ ደረጃ የህክምና እርዳታ (CPR) የሰለጠኑ ሰራተኞች"
+      ],
+      "image2": "",
+      "title": "ቤተሰቦች ለምን ኪድቶፒያን ያምናሉ"
+    },
+    "enrollmentPage": {
+      "documentsList": [
+        {
+          "title": "የወላጅ/አሳዳጊ ብሔራዊ መታወቂያ ወይም ፓስፖርት",
+          "desc": "የዋናው አሳዳጊ ህጋዊ መታወቂያ (ብሔራዊ መታወቂያ ካርድ ወይም ፓስፖርት) ግልጽ ኮፒ።"
+        },
+        {
+          "title": "የልጁ የልደት ምስክር ወረቀት",
+          "desc": "የልጁን ዕድሜ እና የወላጅነት ዝምድና ለማረጋገጥ ይፋዊ የልደት ምስክር ወረቀት።"
+        },
+        {
+          "desc": "የቢጫ ወባ፣ የፖሊዮ እና ሌሎች የልጅነት ክትባቶችን የሚያሳይ ወቅታዊ የክትባት ካርድ።",
+          "title": "የክትባት ካርድ / የጤና መዝገብ"
+        },
+        {
+          "title": "የጤና ሁኔታ እና የህክምና መግለጫ",
+          "desc": "ቅድመ-ነባር የህክምና ሁኔታዎች፣ የምግብ አለርጂዎች ወይም ልዩ እንክብካቤ ፍላጎቶችን የሚያሳዩ ዝርዝር መረጃዎች።"
+        },
+        {
+          "title": "የልጆች ጤና ምርመራ ውጤቶች (ሄፓታይተስ፣ ኤችአይቪ፣ ቲቢ)",
+          "desc": "ለሄፓታይተስ ቢ፣ ለኤችአይቪ (HIV) እና ለሳንባ ነቀርሳ (TB) ምርመራ በቅርብ ጊዜ የተደረጉ የላብራቶሪ ምርመራ ውጤቶች።"
+        },
+        {
+          "desc": "የልጁ እና የወላጆች/የተፈቀደላቸው ተቀባዮች የቅርብ ጊዜ የፓስፖርት መጠን ፎቶግራፎች።",
+          "title": "የፓስፖርት ፎቶግራፎች"
+        }
+      ],
+      "externalEnrollmentUrl": "https://kidtopia-main-u5x6pj.laravel.cloud/enroll",
+      "proceedButton": "ወደ ኦንላይን የምዝገባ ቅጽ ይቀጥሉ",
+      "documentsTitle": "የሚያስፈልጉ የምዝገባ ሰነዶች",
+      "documentsDesc": "የልጅዎን ቦታ ለማስጠበቅ ከዚህ በታች ያሉትን ሁሉንም ሰነዶች በምዝገባ ወቅት ማቅረብ አለብዎት።",
+      "processTitle": "ባለ 4-ደረጃ የምዝገባ ሂደት",
+      "title": "የምዝገባ መረጃ እና የሚያስፈልጉ ሰነዶች",
+      "processSteps": [
+        {
+          "desc": "ልጅዎ የዕድሜ መስፈርቱን (1.5 - 6 ዓመት) ማሟላቱን እና አጠቃላይ ሰነዶችን ማዘጋጀትዎን ያረጋግጡ።",
+          "step": "1",
+          "title": "ቅድመ ሁኔታዎችን ይገምግሙ"
+        },
+        {
+          "desc": "የማንነት መረጃ፣ የህክምና መዛግብት እና የተለዩ የጤና ምርመራዎችን ያሰባስቡ።",
+          "title": "ሰነዶችን ያዘጋጁ",
+          "step": "2"
+        },
+        {
+          "step": "3",
+          "title": "የምዝገባ ፎርም ይሙሉ",
+          "desc": "ኦፊሴላዊውን የማመልከቻ ቅጽ ለመሙላት በዚህ ገጽ ግርጌ ያለውን 'ይቀጥሉ' ቁልፍን ይጫኑ።"
+        },
+        {
+          "title": "ማረጋገጫ እና ቅበላ",
+          "step": "4",
+          "desc": "የመግቢያ ክፍላችን ሰነዶችን ያረጋግጣል፣ ቦታን ያረጋግጣል፣ እና የቅበላ ክፍለ ጊዜ ቀጠሮ ይይዛል።"
+        }
+      ],
+      "subtitle": "የኪድቶፒያ ምዝገባ መመሪያ እንኳን በደህና መጡ። እባክዎ ወደ ኦንላይን መመዝገቢያ ቅጽ ከመሄድዎ በፊት የሚከተሉትን ሰነዶች ያዘጋጁ።"
+    },
+    "dailyExperience": {
+      "subtitle": "ለእያንዳንዱ የዕድሜ ክልል ታስበው የተዘጋጁ የቀን መርሃግብሮች",
+      "timeline": [
+        {
+          "image": "",
+          "time": "Morning",
+          "activity": "እንኳን ደህና መጡ እና መግቢያ"
+        },
+        {
+          "activity": "የመማሪያ እንቅስቃሴዎች",
+          "time": "Mid-morning",
+          "image": ""
+        },
+        {
+          "image": "",
+          "time": "Lunch",
+          "activity": "ጤናማ የምግብ ሰዓት"
+        },
+        {
+          "time": "Afternoon",
+          "activity": "የእንቅልፍ እና የጸጥታ ሰዓት",
+          "image": ""
+        },
+        {
+          "activity": "መጫወት እና የፈጠራ ስራዎች",
+          "time": "Late afternoon",
+          "image": ""
+        },
+        {
+          "time": "Evening",
+          "image": "",
+          "activity": "ደህንነቱ የተጠበቀ የወላጅ መረከቢያ"
+        }
+      ],
+      "title": "አንድ ቀን በኪድቶፒያ",
+      "schedules": [
+        {
+          "description": "ለቀዳሚ እድሜ ታዳጊዎቻችን ፍቅር የተሞላበት እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች፣ አመጋገብ እና ሰላማዊ የእረፍት ጊዜ።",
+          "ageRange": "3 to 12 Months",
+          "timeline": [
+            {
+              "image": "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=800&auto=format&fit=crop",
+              "time": "7:30 AM - 9:00 AM",
+              "activityAm": "ሞቅ ያለ አቀባበል፣ የምግብ/ወተት ሰዓት እና ቀላል የጨዋታ ጊዜ",
+              "activity": "Warm arrival, bottle feeding & gentle sensory play"
+            },
+            {
+              "activityAm": "የጠዋት እንቅልፍ እና በሙዚቃ የተቀነባበረ የእረፍት ጊዜ",
+              "image": "",
+              "activity": "Morning nap & soothing music relaxation",
+              "time": "9:00 AM - 10:30 AM"
+            },
+            {
+              "time": "10:30 AM - 11:30 AM",
+              "activityAm": "የሆድ ላይ ልምምድ፣ የእንቅስቃሴ ችሎታ ማሳደጊያ እና የውጪ አየር እረፍት",
+              "image": "",
+              "activity": "Tummy time, motor skill practice & outdoor buggy stroll"
+            },
+            {
+              "activityAm": "የምሳ ሰዓት እና የተመጣጠነ ምግብ ቅመሳ",
+              "image": "",
+              "activity": "Midday feeding & organic puree tasting",
+              "time": "11:30 AM - 12:30 PM"
+            },
+            {
+              "image": "",
+              "activityAm": "የከሰአት እንቅልፍ እና የልጆች ታሪክ ማዳመጥ",
+              "activity": "Restful afternoon sleep & quiet story nursery rhymes",
+              "time": "12:30 PM - 2:30 PM"
+            },
+            {
+              "image": "",
+              "activityAm": "የአሻንጉሊት ጨዋታዎች እና ለስላሳ እቃዎች አሰሳ",
+              "time": "2:30 PM - 4:00 PM",
+              "activity": "Interactive puppet play & soft block exploration"
+            },
+            {
+              "activity": "Evening wind-down, infant massage & parent pickup",
+              "activityAm": "የቀኑ ማጠቃለያ፣ የእጅና እግር ማሳጅ እና ለወላጆች ማስረከብ",
+              "time": "4:00 PM - 5:30 PM",
+              "image": ""
+            }
+          ],
+          "name": "Infants",
+          "descriptionAm": "ለቀዳሚ እድሜ ታዳጊዎቻችን ፍቅር የተሞላበት እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች፣ አመጋገብ እና ሰላማዊ የእረፍት ጊዜ።",
+          "id": "infants",
+          "ageRangeAm": "ከ 3 እስከ 12 ወራት",
+          "nameAm": "ሕፃናት"
+        },
+        {
+          "ageRange": "1 to 2.5 Years",
+          "timeline": [
+            {
+              "activity": "Arrival, table toys & breakfast circle",
+              "time": "7:30 AM - 8:30 AM",
+              "image": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=800&auto=format&fit=crop",
+              "activityAm": "አቀባበል፣ የጠረጴዛ ጨዋታዎች እና የቁርስ ክበብ"
+            },
+            {
+              "activity": "Morning greeting circle, song & fingerplay",
+              "activityAm": "የጠዋት ሰላምታ፣ መዝሙር እና የጣት ጨዋታዎች",
+              "image": "",
+              "time": "8:30 AM - 9:30 AM"
+            },
+            {
+              "activityAm": "የስሜት ህዋሳት ጨዋታ እና በቀለም የመሳል ልምምድ",
+              "activity": "Guided sensory exploration & finger painting",
+              "image": "",
+              "time": "9:30 AM - 10:30 AM"
+            },
+            {
+              "activityAm": "የሜዳ ላይ ጨዋታዎች እና የአካል ብቃት እንቅስቃሴ",
+              "activity": "Outdoor playground time & gross motor obstacle course",
+              "time": "10:30 AM - 11:30 AM",
+              "image": ""
+            },
+            {
+              "activity": "Nutritious hot lunch & handwashing routine",
+              "time": "11:30 AM - 12:30 PM",
+              "image": "",
+              "activityAm": "የምሳ ሰዓት እና የእጅ መታጠብ ልምድ ማሳደጊያ"
+            },
+            {
+              "time": "12:30 PM - 2:30 PM",
+              "image": "",
+              "activityAm": "የእረፍት እና የእንቅስቃሴ ማደሻ ጊዜ",
+              "activity": "Recharging nap time with soft lullabies"
+            },
+            {
+              "activityAm": "የከሰአት መክሰስ እና የታሪክ መጽሐፍት ንባብ",
+              "time": "2:30 PM - 3:30 PM",
+              "image": "",
+              "activity": "Afternoon healthy snack & storybook corner"
+            },
+            {
+              "activity": "Free play, music & movement circle, pickup",
+              "image": "",
+              "time": "3:30 PM - 5:30 PM",
+              "activityAm": "ነፃ ጨዋታ፣ የሙዚቃ እንቅስቃሴ እና ለወላጆች ማስረከብ"
+            }
+          ],
+          "ageRangeAm": "ከ 1 እስከ 2.5 ዓመት",
+          "id": "toddlers",
+          "name": "Toddlers",
+          "description": "ንቁ አሰሳ፣ የቋንቋ እድገት ልምምድ፣ የውጪ ጨዋታ እና የማህበራዊ ግንኙነት ትምህርት።",
+          "nameAm": "ታዳጊዎች",
+          "descriptionAm": "ንቁ አሰሳ፣ የቋንቋ እድገት ልምምድ፣ የውጪ ጨዋታ እና የማህበራዊ ግንኙነት ትምህርት።"
+        },
+        {
+          "timeline": [
+            {
+              "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+              "activityAm": "አቀባበል፣ የጠዋት አእምሮ ማነቃቂያ እና ቁርስ",
+              "time": "7:30 AM - 8:30 AM",
+              "activity": "Welcome, morning table challenges & breakfast"
+            },
+            {
+              "time": "8:30 AM - 9:30 AM",
+              "activity": "Morning assembly, calendar, weather & bilingual phonics",
+              "activityAm": "የጠዋት ሰብሰባ፣ የቀን መቁጠሪያ፣ የአየር ሁኔታ እና ባለሁለት ቋንቋ ልምምድ",
+              "image": ""
+            },
+            {
+              "image": "",
+              "activity": "STEM learning centers, math puzzles & early writing",
+              "activityAm": "የSTEM ሳይንስ ማዕከላት፣ የሒሳብ እንቆቅልሾች እና የጽሑፍ ልምምድ",
+              "time": "9:30 AM - 10:45 AM"
+            },
+            {
+              "activityAm": "የስፖርት እንቅስቃሴዎች፣ የቡድን ጨዋታዎች እና ከተፈጥሮ ጋር መተዋወቅ",
+              "activity": "Outdoor sports, cooperative games & nature exploration",
+              "time": "10:45 AM - 11:45 AM",
+              "image": ""
+            },
+            {
+              "image": "",
+              "time": "11:45 AM - 12:45 PM",
+              "activityAm": "የቤተሰብ አይነት የምሳ ሰዓት እና የማህበራዊ ስነ-ምግባር ትምህርት",
+              "activity": "Family-style lunch & social etiquette lessons"
+            },
+            {
+              "image": "",
+              "time": "12:45 PM - 2:15 PM",
+              "activityAm": "የእረፍት ወይም የፀጥታ ንባብ እና የአእምሮ ማረጋጊያ",
+              "activity": "Rest or quiet reading & mindfulness relaxation"
+            },
+            {
+              "time": "2:15 PM - 3:30 PM",
+              "image": "",
+              "activityAm": "የስነ-ጥበብ ስቱዲዮ፣ ድራማ እና የቋንቋ ቤተ-ሙከራ",
+              "activity": "Creative art studio, drama play & language lab"
+            },
+            {
+              "image": "",
+              "time": "3:30 PM - 5:30 PM",
+              "activity": "Afternoon snack, reflection circle & departure",
+              "activityAm": "የከሰአት መክሰስ፣ የቀኑ ማጠቃለያ እና ጉዞ ወደ ቤት"
+            }
+          ],
+          "ageRange": "2.5 to 5 Years",
+          "description": "የሳይንስና ቴክኖሎጂ ትምህርት፣ የቋንቋና ፊደላት ልምምድ፣ ስነ-ጥበብ እና ለትምህርት ቤት ዝግጁ የማድረግ ፕሮግራም።",
+          "descriptionAm": "የሳይንስና ቴክኖሎጂ ትምህርት፣ የቋንቋና ፊደላት ልምምድ፣ ስነ-ጥበብ እና ለትምህርት ቤት ዝግጁ የማድረግ ፕሮግራም።",
+          "name": "Preschool",
+          "ageRangeAm": "ከ 2.5 እስከ 5 ዓመት",
+          "nameAm": "ቅድመ-ትምህርት ቤት",
+          "id": "preschool"
+        }
+      ]
+    },
+    "nav": {
+      "contact": "እውቂያ",
+      "parentResources": "የወላጆች መርጃ",
+      "backgroundColor": "#ffffff",
+      "login": "ግባ",
+      "socialMedia": "ማህበራዊ ሚዲያ",
+      "enrollNow": "አሁኑኑ ይመዝገቡ",
+      "programs": "ፕሮግራሞች",
+      "testimonials": "ምስክርነቶች",
+      "language": "ቋንቋ",
+      "aboutStaff": "ስለ ሰራተኞቻችን",
+      "textColor": "#44403c",
+      "aboutCompany": "ስለ ድርጅቱ",
+      "bookTour": "ጉብኝት ያስይዙ",
+      "home": "መነሻ",
+      "activeColor": "#3a5b32",
+      "virtualTour": "ቪርቹዋል ጉብኝት",
+      "about": "ስለ እኛ",
+      "resources": "የወላጆች መርጃ"
+    }
+  },
+  "virtual_tour_360": {
+    "scenes": [
+      {
+        "hotspots": [
+          {
+            "targetSceneId": "classroom",
+            "textAm": "ወደ ታዳጊዎች መጫወቻ ክፍል ይሂዱ",
+            "yaw": 45,
+            "pitch": -12,
+            "id": "to_classroom",
+            "text": "Walk to Toddler Playroom"
+          },
+          {
+            "yaw": -130,
+            "text": "Go to Outdoor Playground",
+            "textAm": "ወደ ውጭ መጫወቻ ስፍራ ይሂዱ",
+            "id": "to_playground",
+            "targetSceneId": "playground",
+            "pitch": -5
+          }
+        ],
+        "isStart": true,
+        "imageUrl": "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg",
+        "titleAm": "የመቀበያ አዳራሽ እና ሎቢ",
+        "title": "Welcome Reception & Lobby",
+        "id": "lobby"
+      },
+      {
+        "imageUrl": "https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg",
+        "title": "Toddler Playroom & Learning Area",
+        "isStart": false,
+        "id": "classroom",
+        "titleAm": "የታዳጊዎች መጫወቻ እና መማሪያ ክፍል",
+        "hotspots": [
+          {
+            "yaw": 180,
+            "id": "back_to_lobby",
+            "pitch": -10,
+            "textAm": "ወደ መቀበያ አዳራሽ ይመለሱ",
+            "targetSceneId": "lobby",
+            "text": "Back to Reception"
+          }
+        ]
+      },
+      {
+        "isStart": false,
+        "imageUrl": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/2294472375_24a3b8ef46_o.jpg",
+        "id": "playground",
+        "title": "Secure Outdoor Play Area",
+        "titleAm": "አስተማማኝ የውጭ መጫወቻ ስፍራ",
+        "hotspots": [
+          {
+            "yaw": 0,
+            "id": "back_to_lobby_play",
+            "targetSceneId": "lobby",
+            "textAm": "ወደ ዋናው መቀበያ ይመለሱ",
+            "text": "Back to Main Lobby",
+            "pitch": 0
+          }
+        ]
+      }
+    ]
+  },
+  "timestamp": "2026-07-30T19:58:35.137Z"
+}

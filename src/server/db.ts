@@ -8,10 +8,59 @@ if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 
-const db = new Database(path.join(dbDir, 'app.db'));
+const dbPath = path.join(dbDir, 'app.db');
+
+let dbInstance: InstanceType<typeof Database> | null = null;
+
+function removeCorruptDbFiles() {
+  try {
+    if (dbInstance) {
+      try { dbInstance.close(); } catch {}
+      dbInstance = null;
+    }
+    const files = [dbPath, `${dbPath}-wal`, `${dbPath}-shm`];
+    for (const f of files) {
+      if (fs.existsSync(f)) {
+        fs.unlinkSync(f);
+      }
+    }
+    console.log('Removed corrupt SQLite database files successfully.');
+  } catch (err) {
+    console.error('Failed to remove corrupt SQLite database files:', err);
+  }
+}
+
+export function getDb(): InstanceType<typeof Database> {
+  if (!dbInstance) {
+    try {
+      dbInstance = new Database(dbPath);
+      dbInstance.pragma('journal_mode = WAL');
+    } catch (err) {
+      console.error('Error opening SQLite database, attempting reset:', err);
+      removeCorruptDbFiles();
+      dbInstance = new Database(dbPath);
+      dbInstance.pragma('journal_mode = WAL');
+    }
+  }
+  return dbInstance;
+}
 
 export function initDb() {
-  db.exec(`
+  try {
+    runInitSchema();
+  } catch (err: any) {
+    console.error('Failed to initialize SQLite DB:', err);
+    if (err?.code === 'SQLITE_CORRUPT' || String(err).includes('malformed')) {
+      console.warn('SQLite database disk image is malformed. Recovering with fresh database...');
+      removeCorruptDbFiles();
+      runInitSchema();
+    }
+  }
+}
+
+function runInitSchema() {
+  const currentDb = getDb();
+  currentDb.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE,
@@ -26,47 +75,76 @@ export function initDb() {
   `);
 
   // Insert default admin
-  const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
+  const adminExists = currentDb.prepare('SELECT id FROM users WHERE username = ?').get('admin');
   if (!adminExists) {
-    db.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', 'admin', 'admin');
+    currentDb.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', 'admin', 'admin');
   }
 
   // Insert default content if empty
-  const enContent = db.prepare('SELECT lang FROM content WHERE lang = ?').get('en');
+  const enContent = currentDb.prepare('SELECT lang FROM content WHERE lang = ?').get('en');
   if (!enContent) {
-    db.prepare('INSERT INTO content (lang, data) VALUES (?, ?)').run('en', JSON.stringify(translations.en));
+    currentDb.prepare('INSERT INTO content (lang, data) VALUES (?, ?)').run('en', JSON.stringify(translations.en));
   }
-  const amContent = db.prepare('SELECT lang FROM content WHERE lang = ?').get('am');
+  const amContent = currentDb.prepare('SELECT lang FROM content WHERE lang = ?').get('am');
   if (!amContent) {
-    db.prepare('INSERT INTO content (lang, data) VALUES (?, ?)').run('am', JSON.stringify(translations.am));
+    currentDb.prepare('INSERT INTO content (lang, data) VALUES (?, ?)').run('am', JSON.stringify(translations.am));
   }
 
   // Migration for contact info
-  const contents = db.prepare('SELECT lang, data FROM content').all() as { lang: string, data: string }[];
+  const contents = currentDb.prepare('SELECT lang, data FROM content').all() as { lang: string, data: string }[];
   for (const row of contents) {
-    const data = JSON.parse(row.data);
-    let changed = false;
-    if (data.footer) {
-      if (data.footer.phone && !data.footer.phones) {
-        data.footer.phones = [data.footer.phone];
-        delete data.footer.phone;
-        changed = true;
+    try {
+      const data = JSON.parse(row.data);
+      let changed = false;
+      if (data.footer) {
+        if (data.footer.phone && !data.footer.phones) {
+          data.footer.phones = [data.footer.phone];
+          delete data.footer.phone;
+          changed = true;
+        }
+        if (data.footer.email && !data.footer.emails) {
+          data.footer.emails = [data.footer.email];
+          delete data.footer.email;
+          changed = true;
+        }
+        if (data.footer.address && !data.footer.addresses) {
+          data.footer.addresses = [data.footer.address];
+          delete data.footer.address;
+          changed = true;
+        }
       }
-      if (data.footer.email && !data.footer.emails) {
-        data.footer.emails = [data.footer.email];
-        delete data.footer.email;
-        changed = true;
+      if (changed) {
+        currentDb.prepare('UPDATE content SET data = ? WHERE lang = ?').run(JSON.stringify(data), row.lang);
       }
-      if (data.footer.address && !data.footer.addresses) {
-        data.footer.addresses = [data.footer.address];
-        delete data.footer.address;
-        changed = true;
-      }
-    }
-    if (changed) {
-      db.prepare('UPDATE content SET data = ? WHERE lang = ?').run(JSON.stringify(data), row.lang);
-    }
+    } catch {}
   }
 }
 
-export default db;
+// Export proxy object so existing imports of default export `db` continue working seamlessly with error recovery
+const dbProxy = new Proxy({} as InstanceType<typeof Database>, {
+  get(_target, prop) {
+    const instance = getDb();
+    const value = (instance as any)[prop];
+    if (typeof value === 'function') {
+      return function (...args: any[]) {
+        try {
+          return value.apply(instance, args);
+        } catch (err: any) {
+          if (err?.code === 'SQLITE_CORRUPT' || String(err).includes('malformed')) {
+            console.error('SQLITE_CORRUPT encountered during query execution, recreating DB:', err);
+            removeCorruptDbFiles();
+            initDb();
+            const freshInstance = getDb();
+            const freshFn = (freshInstance as any)[prop];
+            return freshFn.apply(freshInstance, args);
+          }
+          throw err;
+        }
+      };
+    }
+    return value;
+  }
+});
+
+export default dbProxy;
+

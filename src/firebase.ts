@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword as firebaseUpdatePassword, signInWithCustomToken } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword as firebaseUpdatePassword } from 'firebase/auth';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, setLogLevel, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc, deleteDoc, serverTimestamp, query, where, addDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../firebase-applet-config.json';
@@ -58,9 +58,21 @@ export const createUserWithoutLogin = async (email: string, pass: string, role: 
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const loginWithEmail = (email: string, pass: string) => signInWithEmailAndPassword(auth, email, pass);
 export const registerWithEmail = (email: string, pass: string) => createUserWithEmailAndPassword(auth, email, pass);
-/** Used by Laravel Manage Website SSO (/admin/sso?token=...). */
-export const loginWithCustomToken = (token: string) => signInWithCustomToken(auth, token);
-export const logout = () => signOut(auth);
+export const clearUserSessionCache = () => {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+  } catch (err) {
+    console.warn('Could not clear storage caches on logout:', err);
+  }
+};
+
+export const logout = async () => {
+  clearUserSessionCache();
+  return signOut(auth);
+};
 
 export const getUserRole = async (uid: string) => {
   if (auth.currentUser?.email === 'admin@kidtopiaet.com' || 

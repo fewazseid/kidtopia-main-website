@@ -85,7 +85,7 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
   }, [isOpen]);
 
   const handleOpenInSafari = () => {
-    window.location.href = window.location.origin;
+    window.open(window.location.origin, '_blank');
   };
 
   const handleInstallClick = async () => {

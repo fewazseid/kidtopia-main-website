@@ -4,7 +4,6 @@ import { Menu, X, Download, Smartphone, Globe } from 'lucide-react';
 import { Language } from '../translations';
 import { useContent, useLanguageConfig } from '../ContentContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { LARAVEL_LOGIN_URL } from '../config';
 
 interface HeaderProps {
   lang: Language;
@@ -249,13 +248,13 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
               </div>
             )}
 
-            <a
-              href={LARAVEL_LOGIN_URL}
+            <Link 
+              to="/login" 
               className="text-white font-bold font-display rounded-full px-4 xl:px-6 py-1.5 xl:py-2.5 text-[10px] xl:text-[11px] shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
               style={{ backgroundColor: t.activeColor || '#3a5b32' }}
             >
               {t.login}
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Header Right Bar Controls */}
@@ -337,9 +336,9 @@ export const Header: React.FC<HeaderProps> = ({ lang, setLang, onScrollTo, onOpe
                     )}
                   </div>
                 </div>
-                <a href={LARAVEL_LOGIN_URL} className="w-full text-center text-white font-bold font-display rounded-full px-6 py-2.5 text-sm shadow-[0_4px_15px_rgba(58,91,50,0.2)]" style={{ backgroundColor: t.activeColor || '#3a5b32' }} onClick={() => setIsMenuOpen(false)}>
+                <Link to="/login" className="w-full text-center text-white font-bold font-display rounded-full px-6 py-2.5 text-sm shadow-[0_4px_15px_rgba(58,91,50,0.2)]" style={{ backgroundColor: t.activeColor || '#3a5b32' }} onClick={() => setIsMenuOpen(false)}>
                   {t.login}
-                </a>
+                </Link>
               </div>
               <div className="flex-1 overflow-y-auto space-y-1.5 py-4 pr-1">
                 {navItems.map((item, idx) => (

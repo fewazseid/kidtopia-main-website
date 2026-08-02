@@ -1,5 +1,66 @@
 {
   "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile document storing email, role, and avatar settings.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "staff", "parent"] },
+        "updatedAt": { "type": "string" },
+        "avatar": { "type": "object" },
+        "documents": { "type": "array" }
+      }
+    },
+    "Settings": {
+      "title": "System Settings",
+      "description": "App configuration parameters including tour schedules, virtual tour 360 scenes, gallery, and language settings.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "firebasePassword": { "type": "string" },
+        "adminEmails": { "type": "array" },
+        "operationsEmail": { "type": "string" },
+        "reminderHours": { "type": "number" },
+        "slots": { "type": "array" },
+        "daySchedules": { "type": "object" },
+        "items": { "type": "array" },
+        "scenes": { "type": "array" },
+        "screenshots": { "type": "object" },
+        "defaultLanguage": { "type": "string" },
+        "isEnActive": { "type": "boolean" },
+        "isAmActive": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      }
+    },
+    "Booking": {
+      "title": "Tour Booking",
+      "description": "Public metadata for tour bookings.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "branch": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "completed", "cancelled"] },
+        "reminderSent": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["date", "time", "status"]
+    },
+    "BookingDetails": {
+      "title": "Booking Private Details",
+      "description": "Private contact details for tour bookings restricted to authorized personnel.",
+      "type": "object",
+      "properties": {
+        "bookingId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" }
+      },
+      "required": ["bookingId", "name", "email"]
+    },
     "Content": {
       "title": "Application Content",
       "description": "Stores all the translated content for the application.",
@@ -32,9 +93,34 @@
         "status": { "type": "string" }
       },
       "required": ["email", "subscribedAt", "status"]
+    },
+    "TestConnection": {
+      "title": "Test Connection",
+      "description": "Document for verifying Firestore client connectivity.",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" },
+        "timestamp": { "type": "string" }
+      }
     }
   },
   "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User account documents."
+    },
+    "/settings/{docId}": {
+      "schema": "Settings",
+      "description": "System and component configuration settings."
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Public tour booking metadata."
+    },
+    "/booking_details/{bookingId}": {
+      "schema": "BookingDetails",
+      "description": "Private contact details for tour bookings."
+    },
     "/content/{lang}": {
       "schema": "Content",
       "description": "Translated content for each language."
@@ -42,6 +128,10 @@
     "/newsletter_subscribers/{subscriberId}": {
       "schema": "NewsletterSubscriber",
       "description": "Registered newsletter subscriber emails."
+    },
+    "/test/{docId}": {
+      "schema": "TestConnection",
+      "description": "Test collection for connectivity checks."
     }
   }
 }

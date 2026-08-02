@@ -73,6 +73,14 @@ export const translations = {
       title: "Our Learning Programs",
       cards: [
         { 
+          name: "Infant Program", 
+          age: "3 – 18 Months", 
+          desc: "Nurturing care, sensory play, and individualized daily routines for infants.", 
+          btn: "Learn More", 
+          image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=800&auto=format&fit=crop",
+          moreInfo: "Our Infant Care Program provides a safe, peaceful, and warm environment tailored to your baby's individual rhythm. We focus on sensory exploration, gentle physical touch, motor skill development, and attentive care from certified infant caregivers."
+        },
+        { 
           name: "Toddler Program", 
           age: "1.5 – 3 Years", 
           desc: "Focus on communication, behavior development, and social interaction.", 
@@ -746,6 +754,14 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
     programs: {
       title: "የመማሪያ ፕሮግራሞቻችን",
       cards: [
+        { 
+          name: "የህፃናት እንክብካቤ ፕሮግራም (Infant Program)", 
+          age: "3 – 18 ወራት", 
+          desc: "ለህፃናት የሚሰጥ አፍቃሪ እንክብካቤ፣ የስሜት ህዋሳት እንቅስቃሴዎች እና ግላዊ የእንክብካቤ መርሐግብር።", 
+          btn: "ተጨማሪ ይወቁ", 
+          image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=800&auto=format&fit=crop",
+          moreInfo: "የህፃናት ፕሮግራማችን ለትንሹ ልጅዎ ሰላማዊ፣ ደህንነቱ የተጠበቀ እና ምቹ አካባቢን ይሰጣል። ትኩረታችን የስሜት ህዋሳትን ማነቃቃት፣ የእጅ እና የእግር እንቅስቃሴዎችን ማሳደግ እና በልዩ እንክብካቤ ህፃናትን መንከባከብ ላይ ነው።"
+        },
         { 
           name: "የታዳጊዎች ፕሮግራም", 
           age: "1.5 – 3 ዓመታት", 

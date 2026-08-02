@@ -6,16 +6,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
     function isAdmin() {
       return isAuthenticated() && (
         ('email' in request.auth.token) && (
-          request.auth.token.email == "admin@kidtopiaet.com" ||
           request.auth.token.email == "fewazseidahmed@gmail.com" ||
-          request.auth.token.email == "system_worker@kidtopiaet.internal" ||
-          request.auth.token.email == "system_worker_v2@kidtopiaet.internal" ||
-          request.auth.token.email == "system_worker_v4@kidtopiaet.internal" ||
-          request.auth.token.email == "system_worker_v5@kidtopiaet.internal" ||
-          request.auth.token.email.matches('.*@kidtopiaet\\.internal')
+          request.auth.token.email == "admin@kidtopiaet.com" ||
+          request.auth.token.email == "worker_8ffecb1d_secured_2026@kidtopiaet.internal"
         )
       ) || (
         isAuthenticated() && 
@@ -41,14 +41,14 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Users Collection (for roles)
+    // Users Collection (for roles and parent profiles)
     match /users/{userId} {
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAuthorizedPersonnel());
       allow create, update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       allow delete: if isAdmin();
     }
 
-    // Settings Collection (Tour layouts and Admin options)
+    // Settings Collection (Tour layouts, virtual tour 360, gallery, screenshots, admin config, language config)
     match /settings/{docId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -59,11 +59,11 @@ service cloud.firestore {
       allow read: if true;
       allow create: if true;
       allow update: if isAuthorizedPersonnel() || (resource.data.status == 'pending' &&
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['date', 'time']));
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['date', 'time', 'branch']));
       allow delete: if isAdmin();
     }
 
-    // Booking Details Collection (PII)
+    // Booking Details Collection (Private PII)
     match /booking_details/{bookingId} {
       allow create: if true;
       allow read: if isAuthorizedPersonnel();

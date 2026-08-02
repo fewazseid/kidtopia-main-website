@@ -91,11 +91,7 @@ export const Resources: React.FC<ResourcesProps> = ({ lang }) => {
                 onClick={() => {
                   if (resource.actionType) {
                     if (resource.actionType === 'url' && resource.link) {
-                      if (resource.link.startsWith('http://') || resource.link.startsWith('https://')) {
-                        window.open(resource.link, '_self');
-                      } else {
-                        window.location.hash = resource.link;
-                      }
+                      window.location.href = resource.link;
                     } else {
                       setActiveActionType(resource.actionType);
                     }

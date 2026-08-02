@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kidtopia-virtual-tour-v2';
+const CACHE_NAME = 'kidtopia-virtual-tour-v1';
 const OFFLINE_URL = '/offline.html';
 
 const ASSETS_TO_PRECACHE = [
