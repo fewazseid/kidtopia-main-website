@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailA
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, setLogLevel, doc, getDoc, setDoc, onSnapshot, getDocFromServer, collection, getDocs, updateDoc, deleteDoc, serverTimestamp, query, where, addDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../firebase-applet-config.json';
+import { LARAVEL_API_URL, WEBSITE_MAIL_TOKEN } from './config';
 
 
 const app = initializeApp(firebaseConfig);
@@ -424,30 +425,28 @@ export const updateBookingReminderStatus = async (id: string, reminderSent: bool
 };
 
 export const sendEmail = async (to: string, subject: string, html: string, replyTo?: string) => {
-  try {
-    const response = await fetch('/api/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to,
-        subject,
-        html,
-        replyTo,
-      }),
-    });
+  if (!WEBSITE_MAIL_TOKEN) {
+    throw new Error('Email service is not configured. Set VITE_WEBSITE_MAIL_TOKEN before building.');
+  }
 
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to send email');
-    }
-    
-    console.log("Email sent successfully via Node Mailer!");
-  } catch (err) {
-    console.error("Failed to send email:", err);
-    throw err;
+  const response = await fetch(`${LARAVEL_API_URL}/api/website/email`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${WEBSITE_MAIL_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      to,
+      subject,
+      html,
+      reply_to: replyTo || null,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.message || `Email service returned ${response.status}.`);
   }
 };
 

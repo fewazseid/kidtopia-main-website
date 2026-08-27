@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Language } from '../translations';
-import { useContent } from '../ContentContext';
-import { Facebook, Instagram, Send, Youtube, Mail, Phone, MapPin, Music2, ExternalLink, CheckCircle } from 'lucide-react';
-import { subscribeToNewsletter } from '../firebase';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Language } from "../translations";
+import { useContent } from "../ContentContext";
+import {
+  Facebook,
+  Instagram,
+  Send,
+  Youtube,
+  Mail,
+  Phone,
+  MapPin,
+  Music2,
+  ExternalLink,
+  CheckCircle,
+} from "lucide-react";
+import { subscribeToNewsletter } from "../firebase";
 
 interface FooterProps {
   lang: Language;
@@ -15,57 +26,78 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
   const nav = content.nav;
 
   const [selectedBranchIdx, setSelectedBranchIdx] = useState(0);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes('@')) {
-      setStatus('error');
-      setErrorMsg(lang === 'en' ? 'Please enter a valid email address.' : 'እባክዎ ትክክለኛ የኢሜል አድራሻ ያስገቡ።');
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      setErrorMsg(
+        lang === "en"
+          ? "Please enter a valid email address."
+          : "እባክዎ ትክክለኛ የኢሜል አድራሻ ያስገቡ።",
+      );
       return;
     }
     setLoading(true);
-    setStatus('idle');
+    setStatus("idle");
     try {
       await subscribeToNewsletter(email);
-      setEmail('');
-      setStatus('success');
-      setTimeout(() => setStatus('idle'), 6000);
+      setEmail("");
+      setStatus("success");
+      setTimeout(() => setStatus("idle"), 6000);
     } catch (err: any) {
       console.error(err);
-      setStatus('error');
-      setErrorMsg(lang === 'en' ? 'Subscription failed. Please try again.' : 'ምዝገባው አልተሳካም። እባክዎ እንደገና ይሞክሩ።');
+      setStatus("error");
+      setErrorMsg(
+        lang === "en"
+          ? "Subscription failed. Please try again."
+          : "ምዝገባው አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <footer id="footer" className="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-400 py-20 relative overflow-hidden">
+    <footer
+      id="footer"
+      className="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-400 py-20 relative overflow-hidden"
+    >
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
         {/* Newsletter Signup Banner */}
         <div className="border-b border-white/5 pb-12 mb-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="max-w-md">
             <h3 className="font-display font-black text-lg text-stone-200 mb-2">
-              {lang === 'en' ? 'Stay Updated with Kidtopia' : 'ከኪድቶፒያ ጋር ሁልጊዜ አብረው ይሁኑ'}
+              {lang === "en"
+                ? "Stay Updated with Kidtopia"
+                : "ከኪድቶፒያ ጋር ሁልጊዜ አብረው ይሁኑ"}
             </h3>
             <p className="text-sm text-stone-400">
-              {lang === 'en' ? 'Subscribe to our newsletter for child development tips, academy news, and event schedules.' : 'ስለ ልጆች አስተዳደግ ምክሮች፣ የትምህርት ቤት ዜናዎች እና የክስተት መርሃግብሮች መረጃ ለማግኘት በኢሜልዎ ይመዝገቡ።'}
+              {lang === "en"
+                ? "Subscribe to our newsletter for child development tips, academy news, and event schedules."
+                : "ስለ ልጆች አስተዳደግ ምክሮች፣ የትምህርት ቤት ዜናዎች እና የክስተት መርሃግብሮች መረጃ ለማግኘት በኢሜልዎ ይመዝገቡ።"}
             </p>
           </div>
           <div className="w-full lg:max-w-md">
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full">
+            <form
+              onSubmit={handleSubscribe}
+              className="flex flex-col sm:flex-row gap-3 w-full"
+            >
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={lang === 'en' ? 'Enter your email address' : 'የኢሜል አድራሻዎን ያስገቡ'}
+                placeholder={
+                  lang === "en"
+                    ? "Enter your email address"
+                    : "የኢሜል አድራሻዎን ያስገቡ"
+                }
                 required
                 className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white placeholder-stone-500 focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all flex-grow"
               />
@@ -74,15 +106,24 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
                 disabled={loading}
                 className="bg-brand-green hover:bg-brand-green/90 text-white rounded-2xl px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-55 shrink-0"
               >
-                {loading ? (lang === 'en' ? 'Subscribing...' : 'በመመዝገብ ላይ...') : (lang === 'en' ? 'Subscribe' : 'ይመዝገቡ')}
+                {loading
+                  ? lang === "en"
+                    ? "Subscribing..."
+                    : "በመመዝገብ ላይ..."
+                  : lang === "en"
+                    ? "Subscribe"
+                    : "ይመዝገቡ"}
               </button>
             </form>
-            {status === 'success' && (
+            {status === "success" && (
               <p className="text-xs text-brand-green font-bold mt-2 flex items-center gap-1.5 animate-fadeIn">
-                <CheckCircle size={14} /> {lang === 'en' ? 'Thank you for subscribing to our newsletter!' : 'የኪድቶፒያ ጋዜጣ ለመከታተል ስለተመዘገቡ እናመሰግናለን!'}
+                <CheckCircle size={14} />{" "}
+                {lang === "en"
+                  ? "Thank you for subscribing to our newsletter!"
+                  : "የኪድቶፒያ ጋዜጣ ለመከታተል ስለተመዘገቡ እናመሰግናለን!"}
               </p>
             )}
-            {status === 'error' && (
+            {status === "error" && (
               <p className="text-xs text-red-400 font-bold mt-2 animate-fadeIn">
                 {errorMsg}
               </p>
@@ -97,35 +138,53 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               {t.contact}
             </h3>
             <div className="space-y-4.5">
-              {t.addresses && t.addresses.map((addr: any, idx: number) => {
-                const locationStr = typeof addr === 'string' ? addr : addr.locationName;
-                return (
-                  <div key={idx} className="flex items-start space-x-3.5 text-stone-400">
-                    <MapPin size={18} className="shrink-0 mt-1 text-brand-orange stroke-[2]" />
-                    <span className="text-sm font-medium leading-relaxed">{locationStr}</span>
-                  </div>
-                );
-              })}
-              {t.phones && t.phones.map((ph: string, idx: number) => (
-                <a 
-                  key={idx}
-                  href={`tel:${ph.replace(/\s+/g, '')}`}
-                  className="flex items-center space-x-3.5 hover:text-white transition-all group/link"
-                >
-                  <Phone size={18} className="shrink-0 text-brand-yellow group-hover/link:scale-110 transition-transform stroke-[2]" />
-                  <span className="text-sm font-medium">{ph}</span>
-                </a>
-              ))}
-              {t.emails && t.emails.map((em: string, idx: number) => (
-                <a 
-                  key={idx}
-                  href={`mailto:${em}`}
-                  className="flex items-center space-x-3.5 hover:text-white transition-all group/link"
-                >
-                  <Mail size={18} className="shrink-0 text-brand-teal group-hover/link:scale-110 transition-transform stroke-[2]" />
-                  <span className="text-sm font-medium">{em}</span>
-                </a>
-              ))}
+              {t.addresses &&
+                t.addresses.map((addr: any, idx: number) => {
+                  const locationStr =
+                    typeof addr === "string" ? addr : addr.locationName;
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-start space-x-3.5 text-stone-400"
+                    >
+                      <MapPin
+                        size={18}
+                        className="shrink-0 mt-1 text-brand-orange stroke-[2]"
+                      />
+                      <span className="text-sm font-medium leading-relaxed">
+                        {locationStr}
+                      </span>
+                    </div>
+                  );
+                })}
+              {t.phones &&
+                t.phones.map((ph: string, idx: number) => (
+                  <a
+                    key={idx}
+                    href={`tel:${ph.replace(/\s+/g, "")}`}
+                    className="flex items-center space-x-3.5 hover:text-white transition-all group/link"
+                  >
+                    <Phone
+                      size={18}
+                      className="shrink-0 text-brand-yellow group-hover/link:scale-110 transition-transform stroke-[2]"
+                    />
+                    <span className="text-sm font-medium">{ph}</span>
+                  </a>
+                ))}
+              {t.emails &&
+                t.emails.map((em: string, idx: number) => (
+                  <a
+                    key={idx}
+                    href={`mailto:${em}`}
+                    className="flex items-center space-x-3.5 hover:text-white transition-all group/link"
+                  >
+                    <Mail
+                      size={18}
+                      className="shrink-0 text-brand-teal group-hover/link:scale-110 transition-transform stroke-[2]"
+                    />
+                    <span className="text-sm font-medium">{em}</span>
+                  </a>
+                ))}
             </div>
           </div>
 
@@ -135,11 +194,46 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               {t.links}
             </h3>
             <ul className="space-y-3.5">
-              <li><Link to="/about" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.about}</Link></li>
-              <li><Link to="/programs" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.programs}</Link></li>
-              <li><Link to="/virtual-tour" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.virtualTour}</Link></li>
-              <li><Link to="/enroll" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.enrollNow}</Link></li>
-              <li><Link to="/contact" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform">{nav.contact}</Link></li>
+              <li>
+                <Link
+                  to="/about"
+                  className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform"
+                >
+                  {nav.about}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/programs"
+                  className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform"
+                >
+                  {nav.programs}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/virtual-tour"
+                  className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform"
+                >
+                  {nav.virtualTour}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/enroll"
+                  className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform"
+                >
+                  {nav.enrollNow}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform"
+                >
+                  {nav.contact}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -149,26 +243,56 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               {content.nav.parentResources || t.resources}
             </h3>
             <ul className="space-y-3.5">
-              {t.resourceLinks && t.resourceLinks.map((link: any, idx: number) => {
-                const label = typeof link === 'string' ? link : link.label;
-                const actionType = typeof link === 'string' ? 'handbook' : link.actionType;
-                return (
-                  <li key={idx}>
-                    <Link 
-                      to={`/resources?action=${actionType}`} 
-                      className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                );
-              })}
+              {t.resourceLinks &&
+                t.resourceLinks.map((link: any, idx: number) => {
+                  const label = typeof link === "string" ? link : link.label;
+                  const actionType =
+                    typeof link === "string" ? "handbook" : link.actionType;
+                  return (
+                    <li key={idx}>
+                      <Link
+                        to={`/resources?action=${actionType}`}
+                        className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  );
+                })}
               {(!t.resourceLinks || t.resourceLinks.length === 0) && (
                 <>
-                  <li><Link to="/resources?action=handbook" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Parent Handbook</Link></li>
-                  <li><Link to="/resources?action=nutrition" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Health & Nutrition Guide</Link></li>
-                  <li><Link to="/resources?action=intl_act" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Childcare Directive</Link></li>
-                  <li><Link to="/resources?action=intl_guidelines" className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400">Consolidated Policies</Link></li>
+                  <li>
+                    <Link
+                      to="/resources?action=handbook"
+                      className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400"
+                    >
+                      Parent Handbook
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/resources?action=nutrition"
+                      className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400"
+                    >
+                      Health & Nutrition Guide
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/resources?action=intl_act"
+                      className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400"
+                    >
+                      Childcare Directive
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/resources?action=intl_guidelines"
+                      className="text-sm font-medium hover:text-white hover:translate-x-1 inline-block transition-transform text-left text-stone-400"
+                    >
+                      Consolidated Policies
+                    </Link>
+                  </li>
                 </>
               )}
             </ul>
@@ -177,31 +301,56 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           {/* Social */}
           <div>
             <h3 className="font-display font-black uppercase text-xs tracking-widest text-stone-200 mb-6 pb-2 border-b border-white/10 inline-block">
-              {content.nav.socialMedia || 'Social Media'}
+              {content.nav.socialMedia || "Social Media"}
             </h3>
             <div className="flex flex-wrap gap-3.5">
               {t.social.facebook && (
-                <a href={t.social.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all">
+                <a
+                  href={t.social.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all"
+                >
                   <Facebook size={18} />
                 </a>
               )}
               {t.social.instagram && (
-                <a href={t.social.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all">
+                <a
+                  href={t.social.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all"
+                >
                   <Instagram size={18} />
                 </a>
               )}
               {t.social.telegram && (
-                <a href={t.social.telegram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all">
+                <a
+                  href={t.social.telegram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all"
+                >
                   <Send size={18} />
                 </a>
               )}
               {t.social.youtube && (
-                <a href={t.social.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all">
+                <a
+                  href={t.social.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all"
+                >
                   <Youtube size={18} />
                 </a>
               )}
               {t.social.tiktok && (
-                <a href={t.social.tiktok} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all">
+                <a
+                  href={t.social.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-brand-green hover:text-white hover:border-brand-green hover:scale-110 active:scale-95 transition-all"
+                >
                   <Music2 size={18} />
                 </a>
               )}
@@ -213,24 +362,39 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
         {t.addresses && t.addresses.length > 0 && (
           <div className="border-t border-white/5 pt-12 pb-8 mt-10 flex flex-col items-center justify-center text-center">
             <h3 className="font-display font-black uppercase text-xs tracking-widest text-stone-200 mb-6 pb-2 border-b border-white/10 inline-block mx-auto">
-              {lang === 'en' ? 'Our Campus Locations & Maps' : 'የካምፓስ አካባቢዎች እና ካርታዎች'}
+              {lang === "en"
+                ? "Our Campus Locations & Maps"
+                : "የካምፓስ አካባቢዎች እና ካርታዎች"}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl justify-center text-left">
               {t.addresses.map((addr: any, idx: number) => {
-                const locationStr = typeof addr === 'string' ? addr : addr.locationName;
+                const locationStr =
+                  typeof addr === "string" ? addr : addr.locationName;
                 return (
-                  <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+                  <div
+                    key={idx}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4"
+                  >
                     <div className="flex items-start gap-3">
-                      <MapPin size={18} className="shrink-0 mt-1 text-brand-orange stroke-[2]" />
+                      <MapPin
+                        size={18}
+                        className="shrink-0 mt-1 text-brand-orange stroke-[2]"
+                      />
                       <div>
-                        <h4 className="text-white text-sm font-bold">{typeof addr === 'string' ? `Campus ${idx + 1}` : locationStr.split(',')[0]}</h4>
-                        <p className="text-xs text-stone-400 mt-1">{locationStr}</p>
+                        <h4 className="text-white text-sm font-bold">
+                          {typeof addr === "string"
+                            ? `Campus ${idx + 1}`
+                            : locationStr.split(",")[0]}
+                        </h4>
+                        <p className="text-xs text-stone-400 mt-1">
+                          {locationStr}
+                        </p>
                       </div>
                     </div>
                     <div className="rounded-xl overflow-hidden border border-white/10 h-48 w-full relative">
                       <iframe
                         title={`Kidtopia Map - ${idx}`}
-                        src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof addr === 'string' ? addr : (addr.googleMapsCoordinates || addr.locationName))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof addr === "string" ? addr : addr.googleMapsCoordinates || addr.locationName)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
@@ -240,7 +404,7 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
                       />
                     </div>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof addr === 'string' ? addr : (addr.googleMapsCoordinates || addr.locationName))}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(typeof addr === "string" ? addr : addr.googleMapsCoordinates || addr.locationName)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs text-brand-orange hover:underline font-bold"
@@ -269,13 +433,16 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
             </div>
           </div>
           <div className="flex flex-col items-center md:items-end">
-            <p className="text-xs font-medium text-stone-500 mb-1">{t.copyright || "© 2026 Kidtopia International Daycare and Preschool. All rights reserved."}</p>
-            <a 
-              href={t.developerUrl || "https://arhotechnology.com"} 
-              target="_blank" 
+            <p className="text-xs font-medium text-stone-500 mb-1">
+              {t.copyright ||
+                "© 2026 Kidtopia International Daycare and Preschool. All rights reserved."}
+            </p>
+            <a
+              href={t.developerUrl || "https://arhotechnology.com"}
+              target="_blank"
               rel="noopener noreferrer"
-              onClick={() => console.log('Arho Technology link clicked')}
-              className="text-[10px] font-bold text-stone-600 hover:text-brand-orange transition-all cursor-pointer inline-block py-1 px-2 -mx-2"
+              onClick={() => console.log("Arho Technology link clicked")}
+              className="text-[14px] font-bold text-stone-600 hover:text-brand-orange transition-all cursor-pointer inline-block py-1 px-2 -mx-2"
             >
               {t.developedBy || "Developed by Arho Technology"}
             </a>

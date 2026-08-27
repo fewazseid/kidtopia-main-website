@@ -44,6 +44,12 @@ Production: same path on your Yegara domain:
 https://YOUR-DOMAIN/admin/sso?token=<FIREBASE_CUSTOM_TOKEN>
 ```
 
+Production example:
+
+```
+https://kidtopiainternational.com/admin/sso?token=<FIREBASE_CUSTOM_TOKEN>
+```
+
 Do not commit or share live tokens; they expire quickly.
 
 ## What each side must do
@@ -114,5 +120,7 @@ Behavior:
 
 ## Related Laravel login
 
-- System login: `https://kidtopia-main-u5x6pj.laravel.cloud/login`
-- Override on this site via `VITE_LARAVEL_LOGIN_URL` in `.env`
+- System app: [https://app.kidtopiainternational.com/](https://app.kidtopiainternational.com/)
+- Set once via `VITE_LARAVEL_APP_URL` in website `.env`
+- Derived paths: `/login`, `/enroll`, `/api/website/email`
+- Laravel → website: set once via `WEBSITE_ORIGIN=https://kidtopiainternational.com`

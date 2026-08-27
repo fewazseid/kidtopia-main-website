@@ -1017,17 +1017,32 @@ export const AdminDashboard: React.FC = () => {
 
   const translateTextOnServer = async (text: string, source: 'en' | 'am', target: 'en' | 'am') => {
     try {
-      const response = await fetch('/api/translate', {
+      const env = (import.meta as any).env;
+      const apiBase = (env?.VITE_API_URL || '').replace(/\/$/, '');
+      if (!apiBase && !env?.DEV) {
+        throw new Error('Translation API is not configured for this static deployment.');
+      }
+
+      const response = await fetch(`${apiBase}/api/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, sourceLang: source, targetLang: target })
       });
+
+      if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+        throw new Error(`Translation API returned ${response.status}.`);
+      }
+
       const data = await response.json();
       if (data.success && data.translatedText) {
         return data.translatedText;
       }
     } catch (e) {
       console.error('API Translation failed', e);
+      setFeedback({
+        type: 'error',
+        message: e instanceof Error ? e.message : 'Translation service is unavailable.',
+      });
     }
     return '';
   };
@@ -1074,8 +1089,14 @@ export const AdminDashboard: React.FC = () => {
     setAiLoading(true);
     setAiResult('');
     try {
+      const env = (import.meta as any).env;
+      const apiBase = (env?.VITE_API_URL || '').replace(/\/$/, '');
+      if (!apiBase && !env?.DEV) {
+        throw new Error('AI helper API is not configured for this static deployment.');
+      }
+
       const currentText = content[activeLang]['resources'][targetField] || '';
-      const response = await fetch('/api/ai-helper', {
+      const response = await fetch(`${apiBase}/api/ai-helper`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1086,6 +1107,11 @@ export const AdminDashboard: React.FC = () => {
           tone: aiTone
         })
       });
+
+      if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+        throw new Error(`AI helper API returned ${response.status}.`);
+      }
+
       const data = await response.json();
       if (data.success && data.text) {
         setAiResult(data.text);
@@ -1094,7 +1120,7 @@ export const AdminDashboard: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      alert('An error occurred while contacting the AI helper.');
+      alert(err?.message || 'An error occurred while contacting the AI helper.');
     } finally {
       setAiLoading(false);
     }

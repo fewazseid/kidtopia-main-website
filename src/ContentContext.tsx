@@ -83,16 +83,35 @@ function deepMergeAmharic(target: any, source: any, referenceEn: any): any {
   return deepMerge(target, source);
 }
 
+function isHandbookAcknowledgmentForm(item: any): boolean {
+  const title = String(item?.title || '').toLowerCase();
+  return (
+    (title.includes('acknowledgment') && title.includes('agreement')) ||
+    title.includes('የማረጋገጫ እና የስምምነት ፎርም')
+  );
+}
+
 function cleanResources(data: any): any {
   if (!data) return data;
   const cleaned = { ...data };
-  if (cleaned.resources && Array.isArray(cleaned.resources.items)) {
-    cleaned.resources = {
-      ...cleaned.resources,
-      items: cleaned.resources.items.filter(
+  if (cleaned.resources) {
+    const resources = { ...cleaned.resources };
+    if (Array.isArray(resources.items)) {
+      resources.items = resources.items.filter(
         (item: any) => item && !['ar_activities', 'forms', 'avatar'].includes(item.actionType)
-      )
-    };
+      );
+    }
+    if (Array.isArray(resources.handbookChapters)) {
+      resources.handbookChapters = resources.handbookChapters.filter(
+        (item: any) => !isHandbookAcknowledgmentForm(item)
+      );
+    }
+    if (Array.isArray(resources.policiesAndRegulations)) {
+      resources.policiesAndRegulations = resources.policiesAndRegulations.filter(
+        (item: any) => !isHandbookAcknowledgmentForm(item)
+      );
+    }
+    cleaned.resources = resources;
   }
   return cleaned;
 }

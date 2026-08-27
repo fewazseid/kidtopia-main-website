@@ -1,11 +1,11 @@
-const CACHE_NAME = 'kidtopia-virtual-tour-v2';
+const CACHE_NAME = 'kidtopia-yegara-v3';
 const OFFLINE_URL = '/offline.html';
 
 const ASSETS_TO_PRECACHE = [
   '/',
   '/index.html',
   '/offline.html',
-  '/favicon.ico'
+  '/favicon.svg'
 ];
 
 // Install event - precache shell assets

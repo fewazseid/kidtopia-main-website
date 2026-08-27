@@ -475,24 +475,6 @@ Parents are an important part of their child’s learning journey. We encourage 
 • Work together with teachers and management.
 
 Together, we create a safe, caring, and enriching environment where every child can grow.`
-  },
-  {
-    title: "Parent Handbook Acknowledgment & Agreement Form",
-    content: `Kidtopia International Daycare & Preschool - Academic Year 2026/2027
-
-Dear Parent/Guardian,
-
-Please confirm that you have read and understood the Kidtopia Parent Handbook.
-
-By signing this form, you acknowledge that:
-
-☐ I have received and read the Kidtopia Parent Handbook.
-☐ I understand the daycare policies and procedures.
-☐ I understand the health, safety, incident reporting, communication, attendance, and payment policies.
-☐ I understand that emergency situations will be handled according to Kidtopia’s safety procedures and parents/guardians will be contacted when required.
-☐ I agree to provide accurate and updated information about my child.
-☐ I agree to follow Kidtopia’s policies and communicate respectfully with staff and management.
-☐ I understand that policies are designed to protect the safety and wellbeing of all children.`
   }
 ];
 
@@ -702,22 +684,5 @@ export const kidtopiaHandbookAm: HandbookItem[] = [
   {
     title: "32. የወላጅ አጋርነት መግለጫ",
     content: `ቤተሰቦች እና አስተማሪዎች አብረው ሲሰሩ ህፃናት ያካሂዳሉ። ወላጆች ክፍት ግንኙነት በማድረግ እና ፖሊሲዎችን በመደገፍ እንዲሳተፉ እንመክራለን።`
-  },
-  {
-    title: "የወላጆች መመሪያ የማረጋገጫ እና የስምምነት ፎርም",
-    content: `ኪድቶፒያ ዓለም አቀፍ የህፃናት ማቆያ እና ቅድመ ትምህርት ቤት - የ2026/2027 ትምህርት ዘመን
-
-ውድ ወላጅ/አሳዳጊ፣
-
-እባክዎን የኪድቶፒያ የወላጆች መመሪያን ማንበብዎን እና መረዳትዎን ያረጋግጡ።
-
-ይህንን ፎርም በማረጋገጥ የሚከተሉትን ይቀበላሉ፡
-☐ የኪድቶፒያ የወላጆች መመሪያ ደርሶኛል፣ አንብቤዋለሁ።
-☐ የህፃናት ማቆያውን ፖሊሲዎች እና አሰራሮች ተረድቻለሁ።
-☐ የጤና፣ የደህንነት፣ የአደጋ ሪፖርት፣ የመገናኛ፣ የአattendance እና የክፍያ ፖሊሲዎችን ተረድቻለሁ።
-☐ የአደጋ ጊዜ ሁኔታዎች በደህንነት አሰራር መሰረት እንደሚስተናገዱ እና ወላጆች እንደሚደወሉላቸው ተረድቻለሁ።
-☐ ስለልጄ ትክክለኛ እና ወቅታዊ መረጃ ለመስጠት እስማማለሁ።
-☐ የኪድቶፒያን ፖሊሲዎች ለማከበር እና ከሰራተኞች ጋር በአክብሮት ለመነጋገር እስማማለሁ።
-☐ ፖሊሲዎቹ የሁሉም ህፃናት ደህንነት እና ደስታ ለመጠበቅ የተዘጋጁ መሆናቸውን ተረድቻለሁ።`
   }
 ];

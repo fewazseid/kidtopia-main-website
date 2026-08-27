@@ -653,7 +653,6 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
         { title: "Passport Photos", desc: "Recent passport-sized photographs of the child and parents/authorized pick-up persons." }
       ],
       proceedButton: "Proceed to Online Enrollment Form",
-      externalEnrollmentUrl: "https://kidtopia-main-u5x6pj.laravel.cloud/enroll"
     },
     softwareShowcase: {
       badge: "Web-Based Daycare System",
@@ -1326,7 +1325,6 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
         { title: "የፓስፖርት ፎቶግራፎች", desc: "የልጁ እና የወላጆች/የተፈቀደላቸው ተቀባዮች የቅርብ ጊዜ የፓስፖርት መጠን ፎቶግራፎች።" }
       ],
       proceedButton: "ወደ ኦንላይን የምዝገባ ቅጽ ይቀጥሉ",
-      externalEnrollmentUrl: "https://kidtopia-main-u5x6pj.laravel.cloud/enroll"
     },
     softwareShowcase: {
       badge: "የቀን ማቆያ ዌብ ሲስተም",

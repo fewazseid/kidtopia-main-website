@@ -26,6 +26,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ContentProvider, useLanguageConfig } from './ContentContext';
 import { MinimalHeader } from './components/MinimalHeader';
 import { InstallAppModal } from './components/InstallAppModal';
+import { Seo } from './components/Seo';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Smartphone, Sparkles } from 'lucide-react';
@@ -114,6 +115,7 @@ const AppContent: React.FC<{ lang: Language; setLang: (l: Language) => void; scr
 
   return (
     <div className="min-h-screen selection:bg-brand-green/20 relative">
+      <Seo />
       {/* iOS-Style Premium Frosted Backdrop Blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 bg-brand-cream/40">
         <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-green/10 blur-[140px] animate-pulse" style={{ animationDuration: '10s' }} />

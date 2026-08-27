@@ -542,9 +542,6 @@ export const ParentalResourceDetails: React.FC<ParentalResourceDetailsProps> = (
                       <option value="Birth Certificate">
                         {lang === 'en' ? 'Birth Certificate (የልደት ምስክር ወረቀት)' : 'የልደት ምስክር ወረቀት (Birth Certificate)'}
                       </option>
-                      <option value="Parent Acknowledgment Form">
-                        {lang === 'en' ? 'Handbook Acknowledgment (የእጅ መጽሐፍ ስምምነት)' : 'የእጅ መጽሐፍ ስምምነት (Handbook Acknowledgment)'}
-                      </option>
                     </select>
                   </div>
 
