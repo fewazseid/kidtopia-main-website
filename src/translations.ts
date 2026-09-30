@@ -588,6 +588,11 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       type: "info",
       enabled: "true"
     },
+    bookTour: {
+      loadingSlots: "Loading available times...",
+      noSlotsAvailable: "All time slots are fully booked for this date. Please choose another date.",
+      slotFullError: "This time slot just filled up. Please choose another time."
+    },
     staff: {
       title: "Our Professional Staff",
       showLess: "Show Less",
@@ -628,6 +633,9 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       selectNewDate: "Select New Date",
       selectNewTime: "Select New Time",
       noSlots: "No available slots in schedule.",
+      noSlotsAvailable: "All time slots are fully booked for this date. Please choose another date.",
+      slotFullError: "This time slot just filled up. Please choose another time.",
+      loadingSlots: "Loading available times...",
       pleaseSelectDate: "Please select a date first.",
       updating: "Updating...",
       updateButton: "Update Tour Time"
@@ -1260,6 +1268,11 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       type: "info",
       enabled: "true"
     },
+    bookTour: {
+      loadingSlots: "የሚገኙ ሰዓቶችን በመጫን ላይ...",
+      noSlotsAvailable: "ለዚህ ቀን ሁሉም የጊዜ ክፍተቶች ተሞልተዋል። እባክዎ ሌላ ቀን ይምረጡ።",
+      slotFullError: "ይህ የጊዜ ክፍተት አሁን ተሞልቷል። እባክዎ ሌላ ሰዓት ይምረጡ።"
+    },
     staff: {
       title: "የእኛ ፕሮፌሽናል ሰራተኞች",
       showLess: "ያነሰ አሳይ",
@@ -1300,6 +1313,9 @@ Welcome to the Kidtopia parent community! By enrolling your child, you enter int
       selectNewDate: "አዲስ ቀን ይምረጡ",
       selectNewTime: "አዲስ ሰዓት ይምረጡ",
       noSlots: "በጊዜ ሰሌዳው ውስጥ ምንም ክፍት ቦታ የለም።",
+      noSlotsAvailable: "ለዚህ ቀን ሁሉም የጊዜ ክፍተቶች ተሞልተዋል። እባክዎ ሌላ ቀን ይምረጡ።",
+      slotFullError: "ይህ የጊዜ ክፍተት አሁን ተሞልቷል። እባክዎ ሌላ ሰዓት ይምረጡ።",
+      loadingSlots: "የሚገኙ ሰዓቶችን በመጫን ላይ...",
       pleaseSelectDate: "እባክዎ መጀመሪያ ቀን ይምረጡ።",
       updating: "በማዘመን ላይ...",
       updateButton: "የጉብኝት ሰዓቱን ያዘምኑ"

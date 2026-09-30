@@ -24,7 +24,7 @@ import { Header } from '../components/Header';
 import { EnrollPage } from './EnrollPage';
 import { SoftwareShowcase } from '../components/SoftwareShowcase';
 import { IframePreview } from '../components/IframePreview';
-import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking, getNewsletterSubscribers, deleteNewsletterSubscriber } from '../firebase';
+import { db, auth, logout as firebaseLogout, getAllUsers, updateUserRole, getAdminConfig, updateAdminConfig, updateCurrentUserPassword, getTourSchedule, updateTourSchedule, getAllBookings, updateBookingStatus, sendEmail, deleteBooking, getNewsletterSubscribers, deleteNewsletterSubscriber, DEFAULT_MAX_BOOKINGS_PER_SLOT } from '../firebase';
 import { LARAVEL_LOGIN_URL } from '../config';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -317,6 +317,8 @@ export const AdminDashboard: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<string | null>(null);
 
   const [tourSchedule, setTourSchedule] = useState<any>(null);
+  const [maxBookingsDraft, setMaxBookingsDraft] = useState(String(DEFAULT_MAX_BOOKINGS_PER_SLOT));
+  const [savingBookingLimit, setSavingBookingLimit] = useState(false);
   const [activeImageSelectModal, setActiveImageSelectModal] = useState<{
     isOpen: boolean;
     initialUrl?: string;
@@ -635,11 +637,50 @@ export const AdminDashboard: React.FC = () => {
     return am !== undefined && am !== null && am !== '' ? am : en;
   };
 
+  const savedMaxBookings =
+    tourSchedule?.maxBookingsPerSlot ?? DEFAULT_MAX_BOOKINGS_PER_SLOT;
+  const parsedMaxBookingsDraft = parseInt(maxBookingsDraft, 10);
+  const isMaxBookingsDraftValid =
+    maxBookingsDraft !== '' &&
+    Number.isInteger(parsedMaxBookingsDraft) &&
+    parsedMaxBookingsDraft >= 1 &&
+    parsedMaxBookingsDraft <= 20;
+  const isMaxBookingsDirty =
+    isMaxBookingsDraftValid && parsedMaxBookingsDraft !== savedMaxBookings;
+
+  const handleSaveBookingLimit = async () => {
+    if (!tourSchedule) return;
+    if (!isMaxBookingsDraftValid) {
+      setFeedback({
+        type: 'error',
+        message: 'Enter a whole number between 1 and 20.',
+      });
+      return;
+    }
+
+    setSavingBookingLimit(true);
+    try {
+      const updatedSchedule = {
+        ...tourSchedule,
+        maxBookingsPerSlot: parsedMaxBookingsDraft,
+      };
+      await updateTourSchedule(updatedSchedule);
+      setTourSchedule(updatedSchedule);
+      setMaxBookingsDraft(String(parsedMaxBookingsDraft));
+      setFeedback({ type: 'success', message: 'Booking limit saved.' });
+    } catch (err) {
+      setFeedback({ type: 'error', message: 'Failed to save booking limit.' });
+    } finally {
+      setSavingBookingLimit(false);
+    }
+  };
+
   const fetchTourData = async () => {
     try {
       setBookingsLoading(true);
       const schedule = await getTourSchedule();
       setTourSchedule(schedule);
+      setMaxBookingsDraft(String(schedule?.maxBookingsPerSlot ?? DEFAULT_MAX_BOOKINGS_PER_SLOT));
       const allBookings = await getAllBookings();
       setBookings(allBookings.sort((a, b) => getTimestampTime(b.createdAt) - getTimestampTime(a.createdAt)));
     } catch (err) {
@@ -3159,6 +3200,64 @@ export const AdminDashboard: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-bold text-stone-900 mb-4">Tour Schedule Settings</h2>
                   <p className="text-sm text-stone-500 mb-4">Manage the available time slots for tour bookings (8:30 AM to 6:00 PM).</p>
+
+                  <div className="mb-6 p-5 bg-stone-50 rounded-xl border border-stone-200 max-w-md">
+                    <h3 className="text-sm font-bold text-stone-900 mb-1">
+                      Max bookings per time slot
+                    </h3>
+                    <p className="text-xs text-stone-500 mb-4 leading-relaxed">
+                      Maximum families allowed for the same date and time. Pending and approved bookings count toward this limit.
+                    </p>
+                    <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                      <div className="flex-1">
+                        <label htmlFor="max-bookings-per-slot" className="sr-only">
+                          Max bookings per time slot
+                        </label>
+                        <input
+                          id="max-bookings-per-slot"
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          value={maxBookingsDraft}
+                          onChange={(e) => {
+                            setMaxBookingsDraft(e.target.value.replace(/\D/g, ''));
+                          }}
+                          className={`w-full px-4 py-2.5 border rounded-xl text-stone-800 outline-none focus:ring-2 focus:ring-brand-green ${
+                            maxBookingsDraft !== '' && !isMaxBookingsDraftValid
+                              ? 'border-red-300 bg-red-50/40'
+                              : 'border-stone-200 bg-white'
+                          }`}
+                          placeholder={String(DEFAULT_MAX_BOOKINGS_PER_SLOT)}
+                          aria-invalid={maxBookingsDraft !== '' && !isMaxBookingsDraftValid}
+                        />
+                        <p className="text-[11px] text-stone-400 mt-1.5">
+                          Whole numbers only. Allowed range: 1–20. Default: {DEFAULT_MAX_BOOKINGS_PER_SLOT}.
+                        </p>
+                        {maxBookingsDraft !== '' && !isMaxBookingsDraftValid && (
+                          <p className="text-[11px] text-red-600 mt-1">
+                            Please enter a whole number between 1 and 20.
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSaveBookingLimit}
+                        disabled={
+                          savingBookingLimit ||
+                          !isMaxBookingsDraftValid ||
+                          !isMaxBookingsDirty
+                        }
+                        className="shrink-0 px-5 py-2.5 bg-brand-green text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {savingBookingLimit ? 'Saving...' : 'Save Limit'}
+                      </button>
+                    </div>
+                    {!isMaxBookingsDirty && isMaxBookingsDraftValid && (
+                      <p className="text-[11px] text-brand-green mt-3 font-medium">
+                        Current limit: {savedMaxBookings} booking{savedMaxBookings === 1 ? '' : 's'} per slot.
+                      </p>
+                    )}
+                  </div>
                   
                   <div className="mb-4">
                     <label className="text-sm font-bold text-stone-700 block mb-2">Schedule Day</label>

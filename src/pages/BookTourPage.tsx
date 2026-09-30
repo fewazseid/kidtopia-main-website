@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getTourSchedule, getBookingsByDate, createBooking, sendEmail, getAdminConfig } from '../firebase';
+import { getTourSchedule, getBookingsByDate, createBooking, sendEmail, getAdminConfig, getAvailableSlotsForDate, SLOT_FULL_ERROR } from '../firebase';
 import { Calendar, Clock, User, Mail, Phone, CheckCircle, ArrowLeft, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Language } from '../translations';
@@ -13,6 +13,7 @@ interface BookTourPageProps {
 export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
   const content = useContent(lang);
   const t = content.leadCapture;
+  const bookTourT = content.bookTour || {};
   const footerT = content.footer;
   const branches = footerT.addresses || [];
   
@@ -51,19 +52,10 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
       const fetchSlots = async () => {
         setLoadingSlots(true);
         try {
-          const [y, m, d] = selectedDate.split('-').map(Number);
-          const dateObj = new Date(y, m - 1, d);
-          const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }); // e.g. "Monday"
-
-          let daySlots = schedule.slots || [];
-          if (schedule.daySchedules && schedule.daySchedules[dayName]) {
-             daySlots = schedule.daySchedules[dayName];
-          }
-
-          // Display all active slots in the schedule
-          const available = daySlots.filter((slot: any) => slot.active);
+          const bookings = await getBookingsByDate(selectedDate);
+          const available = getAvailableSlotsForDate(schedule, selectedDate, bookings);
           setAvailableSlots(available);
-          setSelectedTime(''); // reset selection
+          setSelectedTime('');
         } catch (err) {
           console.error("Error fetching available slots", err);
         } finally {
@@ -247,9 +239,20 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
       }
 
       setSuccess(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating booking", err);
-      alert('Failed to book tour. Please try again.');
+      if (err?.message === SLOT_FULL_ERROR) {
+        alert(bookTourT.slotFullError || (lang === 'en'
+          ? 'This time slot just filled up. Please choose another time.'
+          : 'ይህ የጊዜ ክፍተት አሁን ተሞልቷል። እባክዎ ሌላ ሰዓት ይምረጡ።'));
+        if (selectedDate && schedule) {
+          const bookings = await getBookingsByDate(selectedDate);
+          setAvailableSlots(getAvailableSlotsForDate(schedule, selectedDate, bookings));
+          setSelectedTime('');
+        }
+      } else {
+        alert(lang === 'en' ? 'Failed to book tour. Please try again.' : 'ጉብኝት መያዝ አልተቻለም። እባክዎ እንደገና ይሞክሩ።');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -418,7 +421,7 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
                     </label>
                     {selectedDate ? (
                       loadingSlots ? (
-                        <div className="py-3 text-stone-500">{lang === 'en' ? 'Loading available times...' : 'የሚገኙ ሰዓቶችን በመጫን ላይ...'}</div>
+                        <div className="py-3 text-stone-500">{bookTourT.loadingSlots || (lang === 'en' ? 'Loading available times...' : 'የሚገኙ ሰዓቶችን በመጫን ላይ...')}</div>
                       ) : availableSlots.length > 0 ? (
                         <div className="grid grid-cols-3 gap-2">
                           {availableSlots.map((slot) => (
@@ -437,7 +440,11 @@ export const BookTourPage: React.FC<BookTourPageProps> = ({ lang }) => {
                           ))}
                         </div>
                       ) : (
-                        <div className="py-3 text-amber-600 font-medium">{lang === 'en' ? 'No available slots for this date.' : 'ለዚህ ቀን ምንም ክፍት ቦታ የለም።'}</div>
+                        <div className="py-3 text-amber-600 font-medium">
+                          {bookTourT.noSlotsAvailable || (lang === 'en'
+                            ? 'All time slots are fully booked for this date. Please choose another date.'
+                            : 'ለዚህ ቀን ሁሉም የጊዜ ክፍተቶች ተሞልተዋል። እባክዎ ሌላ ቀን ይምረጡ።')}
+                        </div>
                       )
                     ) : (
                       <div className="py-3 text-stone-400">{lang === 'en' ? 'Please select a date first.' : 'እባክዎ መጀመሪያ ቀን ይምረጡ።'}</div>

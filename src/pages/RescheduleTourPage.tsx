@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getBooking, getTourSchedule, updateBookingTime, cancelBooking, sendEmail, getAdminConfig } from '../firebase';
+import { getBooking, getTourSchedule, getBookingsByDate, updateBookingTime, cancelBooking, sendEmail, getAdminConfig, getAvailableSlotsForDate, SLOT_FULL_ERROR } from '../firebase';
 import { Calendar, Clock, CheckCircle, ArrowLeft, MapPin } from 'lucide-react';
 
 import { Language } from '../translations';
@@ -30,6 +30,8 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [selectedBranch, setSelectedBranch] = useState<string>('');
+  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +71,26 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
     };
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (!selectedDate || !schedule || !booking) return;
+    const fetchSlots = async () => {
+      setLoadingSlots(true);
+      try {
+        const bookings = await getBookingsByDate(selectedDate);
+        const available = getAvailableSlotsForDate(schedule, selectedDate, bookings, booking.id);
+        setAvailableSlots(available);
+        setSelectedTime((prev) =>
+          prev && available.some((slot: any) => slot.time === prev) ? prev : ''
+        );
+      } catch (err) {
+        console.error('Error fetching available slots', err);
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+    fetchSlots();
+  }, [selectedDate, schedule, booking]);
 
   const replacePlaceholders = (template: string, data: any) => {
     if (!template) return '';
@@ -163,9 +185,15 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
           }
         }).catch(console.error);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError(t.failedToUpdate);
+      if (err?.message === SLOT_FULL_ERROR) {
+        setError(t.slotFullError || (lang === 'en'
+          ? 'This time slot just filled up. Please choose another time.'
+          : 'ይህ የጊዜ ክፍተት አሁን ተሞልቷል። እባክዎ ሌላ ሰዓት ይምረጡ።'));
+      } else {
+        setError(t.failedToUpdate);
+      }
     } finally {
       setLoading(false);
     }
@@ -259,8 +287,6 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split('T')[0];
-
-  const availableSlots = schedule?.slots?.filter((slot: any) => slot.active) || [];
 
   if (loading && !booking && !error) {
     return (
@@ -367,7 +393,9 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
                   <Clock className="mr-2 text-brand-green" size={20} /> {t.selectNewTime}
                 </label>
                 {selectedDate ? (
-                  availableSlots.length > 0 ? (
+                  loadingSlots ? (
+                    <div className="py-3 text-stone-500">{t.loadingSlots || (lang === 'en' ? 'Loading available times...' : 'የሚገኙ ሰዓቶችን በመጫን ላይ...')}</div>
+                  ) : availableSlots.length > 0 ? (
                     <div className="grid grid-cols-3 gap-2">
                       {availableSlots.map((slot: any) => (
                         <button
@@ -385,7 +413,7 @@ export const RescheduleTourPage: React.FC<RescheduleTourPageProps> = ({ lang, se
                       ))}
                     </div>
                   ) : (
-                    <div className="py-3 text-amber-600 font-medium">{t.noSlots}</div>
+                    <div className="py-3 text-amber-600 font-medium">{t.noSlotsAvailable || t.noSlots}</div>
                   )
                 ) : (
                   <div className="py-3 text-stone-400">{t.pleaseSelectDate}</div>

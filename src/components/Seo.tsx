@@ -11,6 +11,9 @@ type SeoConfig = {
 const DEFAULT_DESCRIPTION =
   'Kidtopia International Daycare & Preschool in Addis Ababa — safe, bilingual early childhood care, programs, virtual tours, and easy enrollment for families.';
 
+const SEO_KEYWORDS =
+  'kidtopia, Kidtopia, Kidtopia International, kidtopia daycare, kidtopia preschool, kidtopia Addis Ababa, daycare Addis Ababa, preschool Ethiopia, international daycare, childcare, nursery, enrollment';
+
 const PAGE_SEO: Record<string, SeoConfig> = {
   '/': {
     title: 'Kidtopia International Daycare & Preschool | Addis Ababa',
@@ -116,10 +119,12 @@ export function Seo() {
     document.documentElement.lang = 'en';
 
     upsertMeta('name', 'description', seo.description);
+    upsertMeta('name', 'keywords', SEO_KEYWORDS);
     upsertMeta('name', 'robots', seo.robots || 'index, follow, max-image-preview:large');
     upsertLink('canonical', canonical);
 
     upsertMeta('property', 'og:url', canonical);
+    upsertMeta('property', 'og:site_name', 'Kidtopia International Daycare');
     upsertMeta('property', 'og:title', seo.title);
     upsertMeta('property', 'og:description', seo.description);
     upsertMeta('property', 'og:image', `${SITE_URL}/favicon.png`);

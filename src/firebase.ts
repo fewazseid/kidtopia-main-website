@@ -191,6 +191,69 @@ const formatToAMPM = (time24: string) => {
   return `${hour12}:${m.toString().padStart(2, '0')} ${period}`;
 };
 
+export const DEFAULT_MAX_BOOKINGS_PER_SLOT = 3;
+export const SLOT_FULL_ERROR = 'SLOT_FULL';
+
+export const normalizeTourSchedule = (data: any) => {
+  const rawMax = data?.maxBookingsPerSlot;
+  const maxBookingsPerSlot =
+    typeof rawMax === 'number' && rawMax >= 1
+      ? Math.min(Math.floor(rawMax), 20)
+      : DEFAULT_MAX_BOOKINGS_PER_SLOT;
+  return { ...data, maxBookingsPerSlot };
+};
+
+export const countBookingsForSlot = (
+  bookings: any[],
+  time: string,
+  excludeBookingId?: string
+) =>
+  bookings.filter((b) => b.time === time && b.id !== excludeBookingId).length;
+
+export const isSlotAvailable = (
+  time: string,
+  schedule: any,
+  bookings: any[],
+  excludeBookingId?: string
+) => {
+  const max = schedule?.maxBookingsPerSlot ?? DEFAULT_MAX_BOOKINGS_PER_SLOT;
+  return countBookingsForSlot(bookings, time, excludeBookingId) < max;
+};
+
+export const getDaySlotsFromSchedule = (schedule: any, date: string) => {
+  const [y, m, d] = date.split('-').map(Number);
+  const dateObj = new Date(y, m - 1, d);
+  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+  let daySlots = schedule?.slots || [];
+  if (schedule?.daySchedules?.[dayName]) {
+    daySlots = schedule.daySchedules[dayName];
+  }
+  return daySlots;
+};
+
+export const getAvailableSlotsForDate = (
+  schedule: any,
+  date: string,
+  bookings: any[],
+  excludeBookingId?: string
+) => {
+  const daySlots = getDaySlotsFromSchedule(schedule, date);
+  return daySlots.filter(
+    (slot: any) =>
+      slot.active && isSlotAvailable(slot.time, schedule, bookings, excludeBookingId)
+  );
+};
+
+export const getRemainingSpotsForSlot = (
+  time: string,
+  schedule: any,
+  bookings: any[],
+  excludeBookingId?: string
+) => {
+  const max = schedule?.maxBookingsPerSlot ?? DEFAULT_MAX_BOOKINGS_PER_SLOT;
+  return Math.max(0, max - countBookingsForSlot(bookings, time, excludeBookingId));
+};
+
 // Bookings and Schedule
 export const getTourSchedule = async () => {
   try {
@@ -211,7 +274,7 @@ export const getTourSchedule = async () => {
           minute -= 60;
         }
       }
-      return { slots: defaultSlots, daySchedules: {} };
+      return normalizeTourSchedule({ slots: defaultSlots, daySchedules: {}, maxBookingsPerSlot: DEFAULT_MAX_BOOKINGS_PER_SLOT });
     }
     
     const data = docSnap.data();
@@ -225,7 +288,7 @@ export const getTourSchedule = async () => {
           data.daySchedules[day] = data.daySchedules[day].map((s: any) => ({ ...s, time: formatToAMPM(s.time) }));
        }
     }
-    return data;
+    return normalizeTourSchedule(data);
   } catch (err) {
     console.error("Failed to get tour schedule:", err);
     throw err;
@@ -244,6 +307,12 @@ export const updateTourSchedule = async (schedule: any) => {
 
 export const createBooking = async (bookingData: any) => {
   try {
+    const schedule = await getTourSchedule();
+    const bookings = await getBookingsByDate(bookingData.date);
+    if (!isSlotAvailable(bookingData.time, schedule, bookings)) {
+      throw new Error(SLOT_FULL_ERROR);
+    }
+
     const id = doc(collection(db, 'bookings')).id;
     const docRef = doc(db, 'bookings', id);
     const detailsRef = doc(db, 'booking_details', id);
@@ -254,6 +323,8 @@ export const createBooking = async (bookingData: any) => {
       date: bookingData.date,
       time: bookingData.time,
       status: 'pending',
+      branch: bookingData.branch || null,
+      lang: bookingData.lang || null,
       createdAt: serverTimestamp()
     });
 
@@ -372,6 +443,12 @@ export const getBooking = async (id: string) => {
 
 export const updateBookingTime = async (id: string, date: string, time: string, branch?: string) => {
   try {
+    const schedule = await getTourSchedule();
+    const bookings = await getBookingsByDate(date);
+    if (!isSlotAvailable(time, schedule, bookings, id)) {
+      throw new Error(SLOT_FULL_ERROR);
+    }
+
     const docRef = doc(db, 'bookings', id);
     const updateData: any = { date, time };
     if (branch) {
